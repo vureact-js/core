@@ -1,0 +1,79 @@
+{
+  "name": "@eddie/compiler-core",
+  "version": "1.0.0",
+  "description": "Vue to React converter",
+  "author": "Owen Dells",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./parse": {
+      "import": "./dist/parse/index.js",
+      "types": "./dist/parse/index.d.ts"
+    },
+    "./transform": {
+      "import": "./dist/transform/index.js",
+      "types": "./dist/transform/index.d.ts"
+    },
+    "./generate": {
+      "import": "./dist/generate/index.js",
+      "types": "./dist/generate/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "README.zh.md"
+  ],
+  "keywords": [
+    "eddie",
+    "vue-to-react",
+    "compiler",
+    "transformer",
+    "vue",
+    "react",
+    "jsx",
+    "sfc-compiler",
+    "code-conversion",
+    "babel",
+    "ast",
+    "vue-compiler",
+    "vue3",
+    "react-jsx",
+    "template-compiler",
+    "code-migration",
+    "vue-to-jsx"
+  ],
+  "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts src/parse/index.ts src/transform/index.ts src/generate/index.ts --format esm,cjs --dts --clean",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:parse-template": "npm test -- parse/index.test.ts",
+    "test:transform-template": "npm test -- transform/template.test.ts",
+    "test:transform-script": "npm test -- transform/script.test.ts"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.28.3",
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
+    "@babel/types": "^7.28.4",
+    "@vue/compiler-core": "^3.5.22",
+    "@vue/compiler-sfc": "^3.5.22",
+    "colorette": "^2.0.20"
+  },
+  "devDependencies": {
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^24.5.2",
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.0",
+    "vue": "^3.5.22"
+  }
+}
