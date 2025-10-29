@@ -1,7 +1,7 @@
 import type { NodePath, Visitor } from '@babel/traverse';
 import * as t from '@babel/types';
 import { defaultKind } from '@constants/other';
-import { REACT_ACTIVATION, REACT_HOOKS, REACT_USE, THIRD_PARTY, USE_IMMER } from '@constants/react';
+import { EDDIE_REACT_DEPS, REACT_DEPS, REACT_HOOKS } from '@constants/react';
 import { IS_FIRST_MOUNT } from '@transform/constants';
 import { capitalize, createSetterName } from '@transform/utils';
 import { shortHash } from '@utils/random';
@@ -18,11 +18,9 @@ export function createContext(): ScriptTransformContext {
     emits: [],
     lifecycleHooks: [],
     callbackDeps: new Set(),
-    neededImports: {
+    imports: {
       react: new Set(),
-      [THIRD_PARTY.useImmer]: false,
-      [THIRD_PARTY.reactUse]: new Set(),
-      [THIRD_PARTY.reactActivation]: new Set(),
+      [EDDIE_REACT_DEPS]: new Set(),
     },
   };
 }
@@ -45,7 +43,7 @@ export function createUseFirstMountState(): t.VariableDeclaration {
   return t.variableDeclaration(defaultKind, [
     t.variableDeclarator(
       t.identifier(IS_FIRST_MOUNT),
-      t.callExpression(t.identifier(REACT_USE.useFirstMountState), []),
+      t.callExpression(t.identifier(REACT_DEPS.useFirstMountState), []),
     ),
   ]);
 }
@@ -92,7 +90,7 @@ export function createUseImmer(
   initialValue: ExtendExpression,
   declarator?: t.VariableDeclarator,
 ): t.VariableDeclarator {
-  const call = t.callExpression(t.identifier(USE_IMMER), [initialValue]);
+  const call = t.callExpression(t.identifier(REACT_DEPS.useImmer), [initialValue]);
 
   const typeParameters = extractTsTypeParameters(declarator);
   if (!isUndefined(typeParameters)) call.typeParameters = typeParameters;
@@ -176,14 +174,14 @@ export function createUseMount(fn: ExtendExpression): t.CallExpression {
   if (isAsyncFunc(fn)) {
     return createUseAsync(fn, []);
   }
-  return t.callExpression(t.identifier(REACT_USE.useMount), [fn]);
+  return t.callExpression(t.identifier(REACT_DEPS.useMount), [fn]);
 }
 
 export function createUseUnMount(fn: ExtendExpression): t.CallExpression {
   if (isAsyncFunc(fn)) {
     return createUseAsync(fn, [], true);
   }
-  return t.callExpression(t.identifier(REACT_USE.useUnmount), [fn]);
+  return t.callExpression(t.identifier(REACT_DEPS.useUnmount), [fn]);
 }
 
 export function createUseLayoutEffect(fn: ExtendExpression, deps?: string[]): t.CallExpression {
@@ -215,7 +213,7 @@ export function createUseUpdateEffect(fn: ExtendExpression, deps: string[]): t.C
     fn.body = injectFirstMountCheck(fn.body) as t.BlockStatement;
     return createUseAsync(fn, deps);
   }
-  return t.callExpression(t.identifier(REACT_USE.useUpdateEffect), [
+  return t.callExpression(t.identifier(REACT_DEPS.useUpdateEffect), [
     fn,
     t.arrayExpression(deps.map(t.identifier)),
   ]);
@@ -228,7 +226,7 @@ export function createUseDeepUpdateEffect(fn: ExtendExpression, deps: string[]):
   if (isAsyncFunc(fn)) {
     return createUseAsync(fn, deps);
   }
-  return t.callExpression(t.identifier(REACT_USE.useDeepCompareEffect), [
+  return t.callExpression(t.identifier(REACT_DEPS.useDeepCompareEffect), [
     fn,
     t.arrayExpression(deps.map(t.identifier)),
   ]);
@@ -236,7 +234,7 @@ export function createUseDeepUpdateEffect(fn: ExtendExpression, deps: string[]):
 
 // runs an effect only once.
 export function createUseEffectOnce(fn: ExtendExpression): t.CallExpression {
-  return t.callExpression(t.identifier(REACT_USE.useEffectOnce), [fn]);
+  return t.callExpression(t.identifier(REACT_DEPS.useEffectOnce), [fn]);
 }
 
 export function createUseAsync(
@@ -253,15 +251,15 @@ export function createUseAsync(
     t.arrowFunctionExpression([], t.blockStatement([t.returnStatement(fn as t.Expression)])),
     _deps,
   ];
-  return t.callExpression(t.identifier(REACT_USE.useAsync), !isCleanup ? callback : cleanup);
+  return t.callExpression(t.identifier(REACT_DEPS.useAsync), !isCleanup ? callback : cleanup);
 }
 
 export function createUseActivate(fn: ExtendExpression): t.CallExpression {
-  return t.callExpression(t.identifier(REACT_ACTIVATION.useActivate), [fn]);
+  return t.callExpression(t.identifier(REACT_DEPS.useActivated), [fn]);
 }
 
 export function createUseUnactivate(fn: ExtendExpression): t.CallExpression {
-  return t.callExpression(t.identifier(REACT_ACTIVATION.useUnactivate), [fn]);
+  return t.callExpression(t.identifier(REACT_DEPS.useDeactivated), [fn]);
 }
 
 export function isAsyncFunc(fn: ExtendExpression): boolean {
