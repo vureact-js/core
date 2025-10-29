@@ -4,7 +4,17 @@ import type { SourceLocation } from '@babel/types';
 import * as t from '@babel/types';
 import { isNull } from '@utils/types';
 import type { Node } from '@vue/compiler-core';
-import { cyan, cyanBright, dim, red, white, whiteBright, yellow, type Color } from 'colorette';
+import {
+  blue,
+  cyan,
+  cyanBright,
+  dim,
+  magenta,
+  red,
+  whiteBright,
+  yellow,
+  type Color,
+} from 'colorette';
 import { capitalize } from '.';
 
 export interface LogMessage {
@@ -48,12 +58,17 @@ export class TransformationLogger {
     );
   }
 
-  debug(message: string) {
+  debug(message: any, trigger: string) {
     const date = new Date();
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
-    console.debug(`[DEBUG ${hours}:${minutes}:${seconds}] ${cyan(this.filename)} | ${message}`);
+    const originates = cyan(this.filename);
+    const point = magenta(trigger);
+    console.debug(
+      `🔍 [DEBUG ${hours}:${minutes}:${seconds}] The message originates from ${originates}, and the trigger point is in ${point}.`,
+    );
+    console.debug(message);
   }
 
   log(level: 'error' | 'warn', target: NodePath | t.Node, message: string) {
@@ -82,7 +97,7 @@ export class TransformationLogger {
     } else if (message.level === 'warn') {
       console.warn(output);
     } else {
-      console.log(output);
+      console.log(this.getLevelColor('info')(output));
     }
   }
 
@@ -176,7 +191,7 @@ export class TransformationLogger {
     const colors = {
       error: red,
       warn: yellow,
-      info: white,
+      info: blue,
     };
     return colors[level as keyof typeof colors];
   }
