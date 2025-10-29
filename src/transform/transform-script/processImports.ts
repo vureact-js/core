@@ -1,13 +1,12 @@
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
-import { THIRD_PARTY, USE_IMMER } from '@constants/react';
-import { isBool, isUndefined } from '@utils/types';
+import { isUndefined } from '@utils/types';
 import type { ScriptTransformContext } from './types';
 import { createImports } from './utils';
 
 export function processImports(ast: t.File, ctx: ScriptTransformContext) {
-  const { neededImports } = ctx;
-  const result: t.ImportDeclaration[] = [];
+  const { imports } = ctx;
+  const all: t.ImportDeclaration[] = [];
 
   // First pass: Remove Vue imports
   traverse(ast, {
@@ -19,20 +18,17 @@ export function processImports(ast: t.File, ctx: ScriptTransformContext) {
   });
 
   // Second pass: Generate on-demand imports (group React and third-party)
-  Object.keys(neededImports).forEach(pkgName => {
+  Object.keys(imports).forEach((pkgName) => {
     // @ts-ignore
-    const imports = neededImports[pkgName];
-    if (imports?.size) {
-      result.push(createImports([...imports], pkgName));
-    }
-    if (isBool(imports) && pkgName === THIRD_PARTY.useImmer) {
-      result.push(createImports([USE_IMMER], pkgName));
+    const moduleList = imports[pkgName] as Set<string>;
+    if (moduleList.size) {
+      all.push(createImports([...moduleList], pkgName));
     }
   });
 
-  for (let i = result.length - 1; i >= 0; i--) {
-    const imp = result[i];
-    if (!isUndefined(imp)) ast.program.body.unshift(imp);
+  for (let i = all.length - 1; i >= 0; i--) {
+    const _import = all[i];
+    if (!isUndefined(_import)) ast.program.body.unshift(_import);
   }
 }
 
