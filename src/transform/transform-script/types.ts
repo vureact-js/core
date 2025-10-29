@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import type { REACT, THIRD_PARTY } from '@constants/react';
+import type { EDDIE_REACT_DEPS, REACT } from '@constants/react';
 import type { REACTIVE_TYPE } from '@constants/vue';
 import type { ExtendedVariableDeclarator as PrasedVariableDeclarator } from '@parse/types';
 
@@ -32,11 +32,9 @@ interface ScriptTransformContext {
   lifecycleHooks: LifecycleHook[];
   callbackDeps: Set<string>;
   // Collect needed React/third-party import names
-  neededImports: {
+  imports: {
     [REACT]: Set<string>;
-    [THIRD_PARTY.useImmer]: boolean;
-    [THIRD_PARTY.reactUse]: Set<string>;
-    [THIRD_PARTY.reactActivation]: Set<string>;
+    [EDDIE_REACT_DEPS]: Set<string>;
   };
 }
 
