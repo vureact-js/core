@@ -27,7 +27,6 @@ export function transformScript(ast: ParsedResult): ScriptInfo | null {
 
 function processScript(ast: ScriptInfo['ast'], context: ScriptTransformContext) {
   const plugins: ((ast: ScriptInfo['ast'], ctx: ScriptTransformContext) => void)[] = [
-    collectNeededImports,
     transformDefinePropsEmits,
     transformReactive,
     stripAllValues,
@@ -36,6 +35,7 @@ function processScript(ast: ScriptInfo['ast'], context: ScriptTransformContext) 
     transformCallbacks,
     transformNextTick,
     transformAssignments,
+    collectNeededImports,
   ];
   for (const plugin of plugins) {
     plugin(ast, context);
