@@ -14,9 +14,6 @@ describe('Vue SFC Script Transformer Test Suite', () => {
 
     expect(result.componentName).toBe('ScriptTest');
 
-    console.log('defindProps: ', scriptAst?.context.props);
-    console.log('defindEmits: ', scriptAst?.context.emits);
-
     mkdirSync(path.resolve(__dirname, './output'), { recursive: true });
     writeFileSync(path.resolve(__dirname, `./output/script.jsx`), scriptContent);
   });
