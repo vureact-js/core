@@ -2,20 +2,7 @@ import { VUE_LIFECYCLE_HOOKS, VUE_REACTIVE_APIS } from './vue';
 
 export const REACT = 'react';
 
-/* third party packages */
-export const enum THIRD_PARTY {
-  // to replace useState
-  useImmer = 'use-immer',
-  // more convenient hooks. https://streamich.github.io/react-use
-  reactUse = 'react-use',
-  // DO NOT use <React.StrictMode />
-  // (React v18+) DO NOT use ReactDOMClient.createRoot, use ReactDOM.render instead
-  // or You can disable autoFreeze to work with createRoot though this may result in performance loss
-  // import { KeepAlive } from 'react-activation'
-  // KeepAlive.defautProps.autoFreeze = false // default 'true'
-  // emulating Vue's <KeepAlive>. https://github.com/CJY0208/react-activation
-  reactActivation = 'react-activation',
-}
+export const EDDIE_REACT_DEPS = '@eddie/react-dependencies';
 
 export const REACT_HOOKS = {
   useState: 'useState',
@@ -25,11 +12,9 @@ export const REACT_HOOKS = {
   useLayoutEffect: 'useLayoutEffect',
 };
 
-/* from use-immer package */
-export const USE_IMMER = 'useImmer';
-
-/* from react-use package */
-export const REACT_USE = {
+/** 编译后 React 所需的第三方依赖包的 api 合集 */
+export const REACT_DEPS = {
+  useImmer: 'useImmer',
   useAsync: 'useAsync',
   useMount: 'useMount',
   useUnmount: 'useUnmount',
@@ -37,32 +22,28 @@ export const REACT_USE = {
   useEffectOnce: 'useEffectOnce',
   useDeepCompareEffect: 'useDeepCompareEffect',
   useFirstMountState: 'useFirstMountState',
-};
-
-/* from react-activation package */
-export const REACT_ACTIVATION = {
-  useActivate: 'useActivate',
-  useUnactivate: 'useUnactivate',
+  useActivated: 'useActivated',
+  useDeactivated: 'useDeactivated',
 };
 
 export const VUE_TO_REACT_HOOKS = {
-  [VUE_REACTIVE_APIS.ref]: USE_IMMER,
-  [VUE_REACTIVE_APIS.reactive]: USE_IMMER,
-  [VUE_REACTIVE_APIS.shallowRef]: USE_IMMER,
-  [VUE_REACTIVE_APIS.shallowReactive]: USE_IMMER,
-  [VUE_REACTIVE_APIS.toRef]: USE_IMMER,
-  [VUE_REACTIVE_APIS.toRefs]: USE_IMMER,
+  [VUE_REACTIVE_APIS.ref]: REACT_HOOKS.useState,
+  [VUE_REACTIVE_APIS.reactive]: REACT_DEPS.useImmer,
+  [VUE_REACTIVE_APIS.shallowRef]: REACT_HOOKS.useState,
+  [VUE_REACTIVE_APIS.shallowReactive]: REACT_HOOKS.useState,
+  [VUE_REACTIVE_APIS.toRef]: REACT_DEPS.useImmer,
+  [VUE_REACTIVE_APIS.toRefs]: REACT_DEPS.useImmer,
   [VUE_REACTIVE_APIS.computed]: REACT_HOOKS.useMemo,
   [VUE_REACTIVE_APIS.readonly]: REACT_HOOKS.useMemo,
-  [VUE_REACTIVE_APIS.watch]: REACT_USE.useUpdateEffect,
+  [VUE_REACTIVE_APIS.watch]: REACT_DEPS.useUpdateEffect,
   [VUE_REACTIVE_APIS.watchEffect]: REACT_HOOKS.useEffect,
 
-  [VUE_LIFECYCLE_HOOKS.beforeMount]: REACT_USE.useMount,
-  [VUE_LIFECYCLE_HOOKS.mounted]: REACT_USE.useMount,
+  [VUE_LIFECYCLE_HOOKS.beforeMount]: REACT_DEPS.useMount,
+  [VUE_LIFECYCLE_HOOKS.mounted]: REACT_DEPS.useMount,
   [VUE_LIFECYCLE_HOOKS.beforeUpdate]: REACT_HOOKS.useLayoutEffect,
-  [VUE_LIFECYCLE_HOOKS.updated]: REACT_USE.useUpdateEffect,
-  [VUE_LIFECYCLE_HOOKS.beforeUnmount]: REACT_USE.useUnmount,
-  [VUE_LIFECYCLE_HOOKS.unmounted]: REACT_USE.useUnmount,
-  [VUE_LIFECYCLE_HOOKS.activated]: REACT_ACTIVATION.useActivate,
-  [VUE_LIFECYCLE_HOOKS.deactivated]: REACT_ACTIVATION.useUnactivate,
+  [VUE_LIFECYCLE_HOOKS.updated]: REACT_DEPS.useUpdateEffect,
+  [VUE_LIFECYCLE_HOOKS.beforeUnmount]: REACT_DEPS.useUnmount,
+  [VUE_LIFECYCLE_HOOKS.unmounted]: REACT_DEPS.useUnmount,
+  [VUE_LIFECYCLE_HOOKS.activated]: REACT_DEPS.useActivated,
+  [VUE_LIFECYCLE_HOOKS.deactivated]: REACT_DEPS.useDeactivated,
 };
