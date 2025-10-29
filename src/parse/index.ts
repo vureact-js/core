@@ -1,11 +1,12 @@
+import { logger } from '@transform/utils/logger';
 import { isNull } from '@utils/types';
-import { warn } from '@utils/warn';
 import {
   parse as parseSFC,
   type SFCScriptBlock,
   type SFCStyleBlock,
   type SFCTemplateBlock,
 } from '@vue/compiler-sfc';
+import { cyan } from 'colorette';
 import { extractScriptDependencies, parseScript } from './script';
 import { parseTemplate } from './template';
 import type { ExtendedRootNode, ParseOptions, ParsedResult, ScriptInfo, StyleInfo } from './types';
@@ -40,14 +41,15 @@ export default function parser(content: string, options: ParseOptions = {}): Par
   processName(fileAst, template, script, scriptSetup, options);
   processDependencies(fileAst, options);
 
+  logger.printAll();
+
   return fileAst;
 }
 
-function validateInput(content: string, options: ParseOptions) {
+function validateInput(content: string, { filename }: ParseOptions) {
   const isSFC = /<\/template>|<\/script>|<\/style>/i.test(content);
   if (!isSFC) {
-    warn(`Failed to parse Vue`, '', 'error');
-    throw 'Wrong file content, must be Vue SFC for effective parsing';
+    throw `${filename} parse failed, the file content must be Vue SFC`;
   }
 }
 
@@ -130,12 +132,13 @@ function processName(
 }
 
 function processDependencies(fileAst: ParsedResult, options: ParseOptions) {
+  const filename = cyan(options.filename!);
   if (isNull(fileAst.template)) {
-    warn(`Found that ${options.filename} has no template content`);
+    logger.info(`Found that ${filename} has no template content`);
     return;
   }
   if (isNull(fileAst.script)) {
-    warn(`Found that ${options.filename} has no script content`);
+    logger.info(`Found that ${filename} has no script content`);
     return;
   }
 
