@@ -6,7 +6,7 @@ import { ElementTypes, NodeTypes } from '@vue/compiler-core';
 import { buildConditionalExpressionFromArray } from './buildExpression';
 import { Conditionals } from './constants';
 import {
-  transformBuildInElement,
+  transformBuildItElement,
   transformElement,
   transformVPreElement,
 } from './transformElement';
@@ -197,7 +197,7 @@ function transferSlotToParent(slotElement: ExtendedElementNode, parent: Extended
  * 处理内置组件
  */
 function handleBuiltInComponent(elementNode: ExtendedElementNode): TransformResult | null {
-  const jsxComponent = transformBuildInElement(elementNode);
+  const jsxComponent = transformBuildItElement(elementNode);
   // TODO: 待实现内置组件转换
   // return jsxComponent ? { node: jsxComponent } : null;
   return null;

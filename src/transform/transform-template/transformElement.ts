@@ -125,7 +125,7 @@ export function transformVPreElement(node: ExtendedElementNode): t.JSXElement {
 /**
  * transform vue build-in components
  */
-export function transformBuildInElement(node: ExtendedElementNode): t.JSXElement {
+export function transformBuildItElement(node: ExtendedElementNode): t.JSXElement {
   const handleSuspense = () => {
     // todo
   };
