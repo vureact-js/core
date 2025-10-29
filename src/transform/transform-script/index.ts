@@ -21,7 +21,7 @@ export function transformScript(ast: ParsedResult): ScriptInfo | null {
 
   const context = createContext();
   processScript(script.file, context);
-  logger.printAll();
+
   return { ast: script.file, context };
 }
 
