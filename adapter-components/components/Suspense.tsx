@@ -1,4 +1,13 @@
-import { JSX, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  JSX,
+  memo,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 export interface EddieSuspenseProps {
   children: ReactNode;
@@ -31,7 +40,9 @@ export interface EddieSuspenseProps {
   fallback: ReactNode;
 }
 
-export default function EddieSuspense(props: EddieSuspenseProps): JSX.Element {
+export default memo(EddieSuspense);
+
+function EddieSuspense(props: EddieSuspenseProps): JSX.Element {
   const {
     children,
     timeout,
