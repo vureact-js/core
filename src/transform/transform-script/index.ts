@@ -20,6 +20,8 @@ export function transformScript(ast: ParsedResult): ScriptInfo | null {
   logger.addContext(filename, script.sourceCode);
 
   const context = createContext();
+  context.lang = ast.script?.lang ?? 'js';
+
   processScript(script.file, context);
 
   return { ast: script.file, context };

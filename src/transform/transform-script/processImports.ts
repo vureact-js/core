@@ -1,11 +1,10 @@
 import traverse from '@babel/traverse';
 import * as t from '@babel/types';
+import type { TransformedImportInfo } from '@transform/types';
 import { isUndefined } from '@utils/types';
-import type { ScriptTransformContext } from './types';
 import { createImports } from './utils';
 
-export function processImports(ast: t.File, ctx: ScriptTransformContext) {
-  const { imports } = ctx;
+export function processImports(ast: t.File, imports: TransformedImportInfo) {
   const all: t.ImportDeclaration[] = [];
 
   // First pass: Remove Vue imports

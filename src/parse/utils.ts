@@ -1,8 +1,10 @@
 import { parseExpression, type ParserOptions } from '@babel/parser';
 import traverse from '@babel/traverse';
 import t from '@babel/types';
+import { capitalize } from '@transform/utils';
+import { logger } from '@transform/utils/logger';
+import { shortHash } from '@utils/random';
 import { isNull, isString, isUndefined } from '@utils/types';
-import { warn } from '@utils/warn';
 import { type ExpressionNode, type SimpleExpressionNode } from '@vue/compiler-core';
 import type { StyleInfo } from './types';
 
@@ -152,11 +154,10 @@ export function extractDepsAndExpr(
     // 解析失败回退到正则，提示复杂表达式
     // Fallback to regex on parse failure, warn about complex expression
     parseByVarRegex();
-    warn(
-      `Failed to parse expression "${content}". Fallback to regex. Check dependencies manually.`,
-      content,
+    logger.error(
+      expression,
+      `Failed to parse expression "${content}". Fallback to regex. Check dependencies manually.\n${String(e)}`,
     );
-    warn(e as string);
   }
 
   return {
@@ -215,4 +216,11 @@ export function parseVForExpr(exp: string): { params: string[]; listExpr: string
     : [rawParams];
 
   return { params, listExpr };
+}
+
+export function generateComponentName(name?: string): string {
+  if (name?.trim()) {
+    return capitalize(name);
+  }
+  return `Rc${shortHash()}`;
 }

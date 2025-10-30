@@ -1,4 +1,5 @@
 import * as t from '@babel/types';
+import type { TransformedImportInfo } from '@transform/types';
 import type { CommentNode, TextNode } from '@vue/compiler-core';
 import type {
   ExtendedDirectiveNode as ParsedDirectiveNode,
@@ -6,6 +7,15 @@ import type {
   ExtendedInterpolationNode as ParsedInterpolationNode,
   ExtendedRootNode as ParsedRootNode,
 } from 'parse/types';
+
+interface JSXInfo {
+  ast: t.JSXElement;
+  context: JSXTransformContext;
+}
+
+interface JSXTransformContext {
+  imports: TransformedImportInfo;
+}
 
 type ExtendedNode =
   | ExtendedRootNode
@@ -40,11 +50,6 @@ type ExtendJSXNode = t.JSXFragment | t.JSXElement | t.JSXText | t.JSXExpressionC
 
 type ExtendJSXProps = t.JSXAttribute | t.JSXSpreadAttribute | null;
 
-interface TransformResult {
-  node: ExtendJSXNode | ExtendJSXNode[];
-  skipCount?: number; // 对于条件链，表示跳过的节点数
-}
-
 export type {
   ExtendedDirectiveNode,
   ExtendedElementNode,
@@ -53,4 +58,6 @@ export type {
   ExtendedRootNode,
   ExtendJSXNode,
   ExtendJSXProps,
+  JSXInfo,
+  JSXTransformContext,
 };

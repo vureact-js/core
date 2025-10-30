@@ -114,9 +114,12 @@ function handleDefineEmits(decl: t.VariableDeclarator, ctx: ScriptTransformConte
         const eventName = vueEventToReact(rawEventName); // example: update:title → onUpdate_Title
         const parameters: EmitDefinition['parameters'] = []; // Default no params
         if (prop.value && t.isArrayExpression(prop.value)) {
-          prop.value.elements.forEach((el) => {
+          prop.value.elements.forEach((el, i) => {
             if (!isNull(el) && t.isTSTypeAnnotation(el)) {
-              parameters.push((el as t.TSTypeAnnotation).typeAnnotation);
+              parameters.push({
+                name: `value${i}`,
+                type: (el as t.TSTypeAnnotation).typeAnnotation,
+              });
             } else {
               logger.warn(
                 prop.value,
@@ -147,17 +150,32 @@ function handleDefineEmits(decl: t.VariableDeclarator, ctx: ScriptTransformConte
         const parameters: EmitDefinition['parameters'] = [];
         if (!isUndefined(member.typeAnnotation?.typeAnnotation)) {
           const typeAnno = member.typeAnnotation.typeAnnotation;
+
           if (t.isTSFunctionType(typeAnno)) {
             typeAnno.parameters.forEach((param) => {
-              if (t.isIdentifier(param) && param.typeAnnotation) {
-                parameters.push(
-                  (param.typeAnnotation as t.TSTypeAnnotation).typeAnnotation || t.tsAnyKeyword(),
-                );
+              if (t.isIdentifier(param)) {
+                const paramName = param.name;
+                const paramType = param.typeAnnotation
+                  ? (param.typeAnnotation as t.TSTypeAnnotation).typeAnnotation
+                  : t.tsAnyKeyword();
+                parameters.push({ name: paramName, type: paramType });
               }
             });
           } else if (t.isTSTupleType(typeAnno)) {
-            // Support TSTupleType params (e.g., [value: string])
-            parameters.push(...typeAnno.elementTypes);
+            typeAnno.elementTypes.forEach((elementType, index) => {
+              let paramName = `value${index}`;
+              let paramType: t.TSType | t.TSNamedTupleMember = elementType;
+
+              // 如果是命名元组成员，使用其标签名
+              if (t.isTSNamedTupleMember(elementType)) {
+                paramName = t.isIdentifier(elementType.label)
+                  ? elementType.label.name
+                  : `value${index}`;
+                paramType = elementType;
+              }
+
+              parameters.push({ name: paramName, type: paramType });
+            });
           } else {
             logger.warn(
               typeAnno,
@@ -165,7 +183,7 @@ function handleDefineEmits(decl: t.VariableDeclarator, ctx: ScriptTransformConte
             );
           }
         }
-        ctx.emits.push({ eventName, rawEventName, parameters });
+        ctx.emits.push({ eventName, rawEventName, parameters, optional: !member.optional });
       } else {
         logger.warn(member, 'defineEmits TSTypeLiteral member not TSPropertySignature; skipping');
       }

@@ -1,9 +1,18 @@
 import * as t from '@babel/types';
-import { warn } from '@utils/warn';
+import { EDDIE_REACT_DEPS, REACT } from '@constants/react';
+import { logger } from '@transform/utils/logger';
+import type { JSXTransformContext } from './types';
 
-export function extractParamFromSlot(
-  exp: t.Expression
-): t.Identifier | t.Pattern {
+export function createContext(): JSXTransformContext {
+  return {
+    imports: {
+      [REACT]: new Set(),
+      [EDDIE_REACT_DEPS]: new Set(),
+    },
+  };
+}
+
+export function extractParamFromSlot(exp: t.Expression): t.Identifier | t.Pattern {
   if (t.isIdentifier(exp)) {
     return exp;
   }
@@ -12,7 +21,7 @@ export function extractParamFromSlot(
   if (t.isObjectExpression(exp)) {
     return t.objectPattern(
       exp.properties
-        .map(prop => {
+        .map((prop) => {
           if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
             const value = prop.value as t.Expression;
             // Recursively handle nested values
@@ -20,7 +29,7 @@ export function extractParamFromSlot(
           }
           return null;
         })
-        .filter(Boolean) as t.ObjectProperty[]
+        .filter(Boolean) as t.ObjectProperty[],
     );
   }
 
@@ -28,17 +37,17 @@ export function extractParamFromSlot(
   if (t.isArrayExpression(exp)) {
     return t.arrayPattern(
       exp.elements
-        .map(el => {
+        .map((el) => {
           if (t.isIdentifier(el)) return el;
           if (t.isNullLiteral(el)) return null;
           if (t.isExpression(el)) return extractParamFromSlot(el);
-          warn('Unsupported array element in slot param');
+          logger.warn(exp, 'Unsupported array element in slot param');
           return t.identifier('unknow');
         })
-        .filter(Boolean)
+        .filter(Boolean),
     );
   }
 
-  warn('Unsupported slot param expression');
+  logger.warn(exp, 'Unsupported slot param expression');
   return t.identifier('slotProps'); // Fallback
 }

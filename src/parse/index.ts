@@ -10,7 +10,7 @@ import { cyan } from 'colorette';
 import { extractScriptDependencies, parseScript } from './script';
 import { parseTemplate } from './template';
 import type { ExtendedRootNode, ParseOptions, ParsedResult, ScriptInfo, StyleInfo } from './types';
-import { parseStyle } from './utils';
+import { generateComponentName, parseStyle } from './utils';
 
 // 统一解析入口函数，解析 Vue SFC 或独立模板
 // Main parse entry function for Vue SFC or standalone templates
@@ -20,10 +20,11 @@ export default function parser(content: string, options: ParseOptions = {}): Par
   const { descriptor: sfcDescriptor } = parseSFC(content, options);
   const { template, script, scriptSetup, styles } = sfcDescriptor;
 
+  logger.addContext(options.filename!, template?.loc.source!);
+
   const fileAst = buildBaseAST();
 
   const templateAst = parseTemplate(template?.content, options);
-
   const { scriptContent, scriptLang } = processScriptContent(script, scriptSetup);
   const scriptAst = parseScript(scriptContent, scriptLang, fileAst.template?.nonReactivies);
 
@@ -125,9 +126,9 @@ function processName(
   scriptSetup: SFCScriptBlock | null,
   options: ParseOptions,
 ) {
-  const key = 'component-name';
+  const key = 'react-name';
   const name = (template?.attrs[key] ?? script?.attrs[key] ?? scriptSetup?.attrs[key]) as string;
-  fileAst.componentName = name ?? '';
+  fileAst.componentName = generateComponentName(name);
   fileAst.filename = options.filename ?? '';
 }
 

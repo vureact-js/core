@@ -57,7 +57,8 @@
     "test:watch": "vitest",
     "test:parse-template": "npm test -- parse/index.test.ts",
     "test:transform-template": "npm test -- transform/template.test.ts",
-    "test:transform-script": "npm test -- transform/script.test.ts"
+    "test:transform-script": "npm test -- transform/script.test.ts",
+    "test:transform-func": "npm test -- transform/func-comp.test.ts"
   },
   "dependencies": {
     "@babel/generator": "^7.28.3",

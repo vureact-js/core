@@ -2,9 +2,9 @@ import * as t from '@babel/types';
 import { REACT_HOOKS } from '@constants/react';
 import { VUE_DIR } from '@constants/vue';
 import { parseVForExpr } from '@parse/utils';
+import { logger } from '@transform/utils/logger';
 import { isNull, isUndefined } from '@utils/types';
-import { warn } from '@utils/warn';
-import { NodeTypes } from '@vue/compiler-core';
+import { NodeTypes, type DirectiveNode } from '@vue/compiler-core';
 import { transformElementWithoutConditionals } from './transformElement';
 import type { ExtendedDirectiveNode, ExtendedElementNode, ExtendedNode } from './types';
 
@@ -63,14 +63,15 @@ export function buildConditionalExpressionFromArray(
     }
 
     const nextDir = next.props.find(
-      (p: any) => p.type === NodeTypes.DIRECTIVE && [VUE_DIR.elseIf, VUE_DIR.else].includes(p.name),
+      (p: DirectiveNode) =>
+        p.type === NodeTypes.DIRECTIVE && [VUE_DIR.elseIf, VUE_DIR.else].includes(p.name),
     ) as ExtendedDirectiveNode | null;
 
     if (isNull(nextDir)) break;
 
     if (nextDir.name === VUE_DIR.elseIf) {
       if (isUndefined(nextDir.babelExp)) {
-        warn(`Invalid babelExp for ${nextDir.name}`, nextDir.loc.source);
+        logger.error(nextDir, 'v-else-if missing expression');
         break;
       }
       // 嵌套的 v-else-if 节点继续递归向后搜索
@@ -124,7 +125,7 @@ export function buildForExpression(
 
   const parsed = parseVForExpr(forDir.exp.content);
   if (isNull(parsed)) {
-    warn(`Invalid v-for expression: ${forDir.exp.content}`, forDir.loc.source);
+    logger.error(forDir.exp, 'Invalid v-for expression');
     return null;
   }
 

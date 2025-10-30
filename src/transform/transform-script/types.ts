@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
-import type { EDDIE_REACT_DEPS, REACT } from '@constants/react';
 import type { REACTIVE_TYPE } from '@constants/vue';
 import type { ExtendedVariableDeclarator as PrasedVariableDeclarator } from '@parse/types';
+import type { TransformedImportInfo } from '@transform/types';
 
 interface ExtendedVariableDeclarator extends PrasedVariableDeclarator {}
 
@@ -20,8 +20,8 @@ interface ReactiveBinding {
 
 // 脚本转换上下文 / Script transform context
 interface ScriptTransformContext {
+  lang: string;
   filename: string;
-  componentName: string;
   // 响应式变量，扩展 parse 阶段的 reactiveType / Reactive bindings, extend parse phase reactiveType
   reactiveBindings: ReactiveBinding[];
   // defineProps 定义的 prop，如 title / Props defined by defineProps, e.g., title
@@ -32,10 +32,7 @@ interface ScriptTransformContext {
   lifecycleHooks: LifecycleHook[];
   callbackDeps: Set<string>;
   // Collect needed React/third-party import names
-  imports: {
-    [REACT]: Set<string>;
-    [EDDIE_REACT_DEPS]: Set<string>;
-  };
+  imports: TransformedImportInfo;
 }
 
 interface PropDefinition {
@@ -48,7 +45,11 @@ interface PropDefinition {
 interface EmitDefinition {
   eventName: string;
   rawEventName: string;
-  parameters: (t.TSType | t.TSNamedTupleMember)[];
+  parameters: Array<{
+    name: string;
+    type: t.TSType | t.TSNamedTupleMember;
+  }>;
+  optional?: boolean;
 }
 
 interface LifecycleHook {

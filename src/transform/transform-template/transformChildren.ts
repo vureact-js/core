@@ -22,7 +22,7 @@ import type {
 
 export function transformChildren(
   nodes: ExtendedNode[],
-  parent?: ExtendedElementNode,
+  parent?: ExtendedElementNode | undefined,
 ): ExtendJSXNode[] {
   const results: ExtendJSXNode[] = [];
 

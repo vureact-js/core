@@ -4,21 +4,28 @@ import { Fragment } from '@transform/constants';
 import { logger } from '@transform/utils/logger';
 import { isNull } from '@utils/types';
 import { transformChildren } from './transformChildren';
-import type { ExtendedNode } from './types';
+import type { ExtendedNode, JSXInfo } from './types';
+import { createContext } from './utils';
 
 // 转换 Vue 模板 AST 为 JSX AST / Transform Vue template AST to JSX AST
-export function transformTemplate(ast: ParsedResult): t.JSXElement | null {
+export function transformTemplate(ast: ParsedResult): JSXInfo | null {
   const { template } = ast;
   if (isNull(template)) return template;
 
   logger.addContext(ast.filename, template.source);
 
-  const rootChildren = transformChildren(template.children as ExtendedNode[]);
+  const context = createContext();
 
-  return t.jsxElement(
+  const jsxChildren = transformChildren(template.children as ExtendedNode[], undefined);
+  const jsxRoot = t.jsxElement(
     t.jsxOpeningElement(t.jsxIdentifier(Fragment), []),
     t.jsxClosingElement(t.jsxIdentifier(Fragment)),
-    rootChildren,
+    jsxChildren,
     false,
   );
+
+  return {
+    ast: jsxRoot,
+    context,
+  };
 }

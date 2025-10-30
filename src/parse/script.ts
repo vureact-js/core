@@ -13,7 +13,7 @@ import { getParserOptions } from './utils';
 export function parseScript(
   scriptContent?: string,
   lang = 'js',
-  nonReactivies?: Set<string>
+  nonReactivies?: Set<string>,
 ): ScriptInfo['file'] | null {
   if (!scriptContent) return null;
   const ast = babelParse(scriptContent, getParserOptions(lang));
@@ -23,20 +23,20 @@ export function parseScript(
 
 function markReactiveCalls(
   ast: ScriptInfo['file'],
-  nonReactivies: Set<string> = new Set()
+  nonReactivies: Set<string> = new Set(),
 ): ScriptInfo['file'] {
   traverse(ast, {
     // 仅在 Program 顶层寻找 VariableDeclarator，以处理顶层声明（<script setup>）
     // VariableDeclarator is only looked for at the top level of Program to process top-level declarations (<script setup>)
     Program: {
       enter(path) {
-        path.node.body.forEach(node => {
+        path.node.body.forEach((node) => {
           if (t.isVariableDeclaration(node)) {
-            node.declarations.forEach(decl => {
+            node.declarations.forEach((decl) => {
               identifyReactiveDeclarations(
                 decl,
                 node as unknown as ExtendedVariableDeclarator,
-                nonReactivies
+                nonReactivies,
               );
             });
           }
@@ -57,7 +57,7 @@ function markReactiveCalls(
 function identifyReactiveDeclarations(
   node: t.Node,
   parentDecl: ExtendedVariableDeclarator,
-  nonReactivies: Set<string>
+  nonReactivies: Set<string>,
 ): ExtendedVariableDeclarator | null {
   if (!t.isVariableDeclarator(node)) {
     return null;
@@ -104,8 +104,8 @@ function identifyReactiveDeclarations(
       if (reactiveType === VUE_REACTIVE_APIS.ref) {
         const c = '@non-reactive';
         const hasNonReactiveComment =
-          node.leadingComments?.some(ct => ct.value.includes(c)) ||
-          parentDecl?.leadingComments?.some(ct => ct.value.includes(c));
+          node.leadingComments?.some((ct) => ct.value.includes(c)) ||
+          parentDecl?.leadingComments?.some((ct) => ct.value.includes(c));
         if (hasNonReactiveComment || nonReactivies?.has(variableName)) {
           extendedNode.isReactive = false;
         }
@@ -120,9 +120,7 @@ function identifyReactiveDeclarations(
  * 提取脚本中的顶层响应式变量 (ref/reactive/computed)
  * Extract top-level reactive variables in scripts
  */
-export function extractScriptDependencies(
-  ast?: ScriptInfo['file']
-): Set<string> {
+export function extractScriptDependencies(ast?: ScriptInfo['file']): Set<string> {
   const dependencies = new Set<string>();
 
   if (isUndefined(ast?.program)) {
@@ -134,7 +132,7 @@ export function extractScriptDependencies(
     const obj = t.getBindingIdentifiers(declarator.id);
     // 检查是否被 identifyReactiveDeclarations 标记
     if (extendedDeclarator.reactiveType) {
-      Object.values(obj).forEach(identifier => {
+      Object.values(obj).forEach((identifier) => {
         // 提取所有声明的变量名，包括解构 (e.g., const { state } = reactive({}))
         dependencies.add(identifier.name);
       });
@@ -143,14 +141,11 @@ export function extractScriptDependencies(
 
   // 只遍历顶层 Program body
   // Only traverse the top-level Program body
-  ast.program.body.forEach(node => {
+  ast.program.body.forEach((node) => {
     // 遍历顶层 VariableDeclaration 和 ExportNamedDeclaration
     if (t.isVariableDeclaration(node)) {
       node.declarations.forEach(collectDeps);
-    } else if (
-      t.isExportNamedDeclaration(node) &&
-      t.isVariableDeclaration(node.declaration)
-    ) {
+    } else if (t.isExportNamedDeclaration(node) && t.isVariableDeclaration(node.declaration)) {
       // 导出变量声明 (export const count = ref(0))
       node.declaration.declarations.forEach(collectDeps);
     }

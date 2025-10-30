@@ -150,6 +150,7 @@ export function transformBuildItElement(node: ExtendedElementNode): t.JSXElement
 
   const handleTransitionGroup = () => {};
 
+  // TODO 收集 import
   switch (node.tag) {
     case VUE_BUILT_IN_COMPS.Suspense:
       return handleSuspense();

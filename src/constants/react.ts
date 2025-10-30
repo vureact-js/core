@@ -11,7 +11,7 @@ export const REACT_HOOKS = {
 };
 
 /** 编译后 React 所需的第三方依赖包的 api 合集 */
-export const REACT_DEPS = {
+export const REACT_DEP_HOOKS = {
   useImmer: 'useImmer',
   useAsync: 'useAsync',
   useMount: 'useMount',
@@ -22,6 +22,16 @@ export const REACT_DEPS = {
   useFirstMountState: 'useFirstMountState',
   useActivated: 'useActivated',
   useDeactivated: 'useDeactivated',
+};
+
+/** 编译后 React 所需的第三方依赖组件合集 */
+export const REACT_DEP_COMPS = {
+  keepalive: 'KeepAlive',
+  suspense: 'Suspense',
+  component: 'Component',
+  teleport: 'Teleport',
+  transition: 'Transition',
+  transitiongroup: 'TransitionGroup',
 };
 
 // export const VUE_TO_REACT_HOOKS = {

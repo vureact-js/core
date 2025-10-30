@@ -10,6 +10,7 @@ import type { ScriptTransformContext } from './types';
 
 export function createContext(): ScriptTransformContext {
   return {
+    lang: '',
     filename: '',
     reactiveBindings: [],
     props: [],

@@ -2,9 +2,9 @@ import * as t from '@babel/types';
 import { REACT_HOOKS } from '@constants/react';
 import { VUE_DIR, VUE_EV_MODIF, VUE_KEY_MODIF, VUE_TO_REACT_PROP_MAP } from '@constants/vue';
 import { VUE_TO_REACT_EVENTS } from '@transform/constants';
-import { capitalize } from '@transform/utils';
+import { capitalize, createSetterName } from '@transform/utils';
+import { logger } from '@transform/utils/logger';
 import { isString, isUndefined } from '@utils/types';
-import { warn } from '@utils/warn';
 import type { AttributeNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementTypes, NodeTypes } from '@vue/compiler-core';
 import { RequiresBabelExp } from './constants';
@@ -23,7 +23,7 @@ export function transformDirective(
 ): ExtendJSXProps {
   // Only check babelExp for directives that require it
   if (RequiresBabelExp.includes(directive.name) && isUndefined(directive.babelExp)) {
-    warn(`Invalid babelExp for directive ${directive.name}`, elementNode?.loc.source);
+    logger.error(directive, 'Invalid directive expression');
     return null;
   }
 
@@ -41,7 +41,7 @@ export function transformDirective(
     }
     case VUE_DIR.bind: {
       if (directive.arg?.type !== NodeTypes.SIMPLE_EXPRESSION) {
-        warn('v-bind requires valid variable name', elementNode?.loc.source);
+        logger.error(directive, 'v-bind requires valid variable name');
         return null;
       }
       const attrName = directive.arg.content;
@@ -53,7 +53,7 @@ export function transformDirective(
         );
       } else {
         if (isUndefined(directive.babelArgExp)) {
-          warn('Invalid babelArgExp for dynamic bind', elementNode?.loc.source);
+          logger.error(directive, 'The argument expression for dynamic binding is invalid.');
           return null;
         }
         return t.jsxSpreadAttribute(
@@ -69,7 +69,7 @@ export function transformDirective(
     }
     case VUE_DIR.on: {
       if (directive.arg?.type !== NodeTypes.SIMPLE_EXPRESSION) {
-        warn('v-on requires valid event name', elementNode?.loc.source);
+        logger.error(directive, 'v-on requires valid event name');
         return null;
       }
       const eventName = directive.arg.content;
@@ -192,7 +192,7 @@ export function transformDirective(
     }
     case VUE_DIR.model: {
       if (isUndefined(directive.babelExp) || isUndefined(elementNode)) {
-        warn('Invalid babelExp or element for v-model', elementNode?.loc.source);
+        logger.error(directive, 'Invalid expression or element for v-model');
         return null;
       }
 
@@ -228,7 +228,7 @@ export function transformDirective(
             [propName as t.Expression],
           );
         if (tag === 'select' || tag === 'textarea' || isDynamic || propName !== 'modelValue')
-          return `onUpdate_${capitalize(propName as string)}`;
+          return createSetterName(propName as string, 'onUpdate_');
         return modifiers.includes('lazy') ? 'onChange' : 'onInput';
       };
 
@@ -251,19 +251,19 @@ export function transformDirective(
       const getSetterCall = (babelExp: t.Expression, update: t.Expression): t.Expression => {
         if (t.isIdentifier(babelExp)) {
           // setValue(update)
-          return t.callExpression(t.identifier(`update${capitalize(babelExp.name)}`), [update]);
+          return t.callExpression(t.identifier(createSetterName(babelExp.name)), [update]);
         } else if (
           t.isMemberExpression(babelExp) &&
           t.isIdentifier(babelExp.object) &&
           t.isIdentifier(babelExp.property)
         ) {
           // setObj({ ...obj, prop: update })
-          return t.callExpression(t.identifier(`update${capitalize(babelExp.object.name)}`), [
+          return t.callExpression(t.identifier(createSetterName(babelExp.object.name)), [
             t.arrowFunctionExpression([t.identifier(babelExp.object.name)], update),
           ]);
         } else {
           // 复杂表达式: 回退到直接赋值 / Fallback to direct assignment for complex expr
-          warn('Complex v-model expr may need manual setter in React', elementNode.loc.source);
+          logger.warn(directive, 'Complex v-model expression may need manual setter in React');
           return t.assignmentExpression('=', babelExp as t.LVal, update);
         }
       };
@@ -287,7 +287,7 @@ export function transformDirective(
               (p) => p.type === NodeTypes.ATTRIBUTE && p.name === 'value',
             ) as AttributeNode | undefined;
             if (isUndefined(valueAttr)) {
-              warn('Radio input requires value attribute for v-model', elementNode.loc.source);
+              logger.warn(elementNode, 'Radio input requires value attribute for v-model');
               return null;
             }
             rawUpdateExpr = t.conditionalExpression(
@@ -324,7 +324,7 @@ export function transformDirective(
       } else if (tag === 'textarea') {
         rawUpdateExpr = t.memberExpression(t.identifier('e'), t.identifier('target.value'));
       } else {
-        warn(`Unsupported tag for v-model: ${tag}`, elementNode.loc.source);
+        logger.warn(elementNode, 'Unsupported tag for v-model');
         return null;
       }
 
@@ -385,7 +385,6 @@ export function transformDirective(
     case VUE_DIR.slot: {
       // Handle v-slot directive, convert to React children or named slot
       if (isUndefined(elementNode)) {
-        warn('v-slot requires element node context');
         return null;
       }
 
@@ -444,7 +443,7 @@ export function transformDirective(
     }
     default: {
       // Custom or unsupported
-      warn(`Unsupported directive: ${directive.name}`, elementNode?.loc.source);
+      logger.warn(directive, `Unsupported directive: ${directive.name}`);
       return null;
     }
   }
