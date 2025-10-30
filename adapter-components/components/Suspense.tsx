@@ -1,6 +1,6 @@
 import { JSX, Suspense, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 
-interface EddieSuspenseProps {
+export interface EddieSuspenseProps {
   children: ReactNode;
 
   timeout?: number;
