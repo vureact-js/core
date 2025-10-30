@@ -5,13 +5,7 @@ import { REACT_HOOKS } from '@constants/react';
 import { logger } from '@transform/utils/logger';
 import { isUndefined } from '@utils/types';
 import type { ScriptTransformContext } from './types';
-import {
-  collectDependencies,
-  createUseCallback,
-  getDeclarationKind,
-  getFunctionName,
-  isTopLevelFunc,
-} from './utils';
+import { collectDependencies, createUseCallback, getFunctionName, isTopLevelFunc } from './utils';
 
 export function transformCallbacks(ast: t.File, ctx: ScriptTransformContext) {
   traverse(ast, {
@@ -35,7 +29,7 @@ export function transformCallbacks(ast: t.File, ctx: ScriptTransformContext) {
 function handleUseCallback(
   path: NodePath<t.FunctionDeclaration | t.FunctionExpression | t.ArrowFunctionExpression>,
   ctx: ScriptTransformContext,
-): t.CallExpression | t.VariableDeclaration | undefined {
+): t.CallExpression | undefined {
   const node = path.node;
   if (!node) {
     logger.warn(path.get('body'), 'Function node is null in handleUseCallback; skipping');
@@ -94,9 +88,7 @@ function handleUseCallback(
 
   if (!deps.length || isInUseCallback || isInRenderPath || parentUseCb) return;
 
-  const kind = getDeclarationKind(path);
-  const name = getFunctionName(path);
-  const callExpr = createUseCallback(kind, name, node, deps);
+  const callExpr = createUseCallback(node, deps);
 
   return callExpr;
 }
