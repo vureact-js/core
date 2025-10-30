@@ -1,3 +1,4 @@
+import EddieComponent from './Component';
 import EddieSuspense from './Suspense';
 
-export { EddieSuspense };
+export { EddieComponent, EddieSuspense };
