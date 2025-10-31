@@ -44,11 +44,10 @@
     "babel",
     "ast",
     "vue-compiler",
-    "vue3",
-    "react-jsx",
     "template-compiler",
     "code-migration",
-    "vue-to-jsx"
+    "vue-to-jsx",
+    "react-vue-like"
   ],
   "scripts": {
     "dev": "tsup src/index.ts --format esm --dts --watch",
