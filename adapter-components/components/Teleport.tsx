@@ -1,4 +1,4 @@
-import { memo, useEffect, useState, type PropsWithChildren } from 'react';
+import { memo, startTransition, useEffect, useState, type PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface EddieTeleportProps {
@@ -36,7 +36,9 @@ function EddieTeleport(props: PropsWithChildren<EddieTeleportProps>) {
         );
       }
     } else {
-      setContainer(el);
+      startTransition(() => {
+        setContainer(el);
+      });
     }
   }, [to]);
 
