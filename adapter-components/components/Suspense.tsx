@@ -75,7 +75,7 @@ function EddieSuspense(props: EddieSuspenseProps): JSX.Element {
     };
     timeoutRef.current = setTimeout(callback, timeout);
     return cleanup;
-  }, [onFallback]);
+  }, [onFallback, timeout]);
 
   // 如果 suspensible 为 false，直接渲染子组件
   if (!suspensible) {
@@ -120,8 +120,8 @@ const SuspenseFallback: React.FC<{
   onFallback?: () => void;
   showFallback: boolean;
   setShowFallback: (show: boolean) => void;
-  hasPendingRef: React.MutableRefObject<boolean>;
-  timeoutRef: React.MutableRefObject<number | null>;
+  hasPendingRef: React.RefObject<boolean>;
+  timeoutRef: React.RefObject<number | null>;
 }> = (props) => {
   const {
     fallback,
@@ -161,6 +161,7 @@ const SuspenseFallback: React.FC<{
         timeoutRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <>{showFallback ? fallback : null}</>;
