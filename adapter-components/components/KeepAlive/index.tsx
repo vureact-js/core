@@ -113,7 +113,7 @@ function EddieKeepAlive(props: PropsWithChildren<EddieKeepAliveProps>) {
 
     // 3. 默认情况：都缓存
     return true;
-  }, [include, exclude]);
+  }, [include, exclude, cacheKey, compName]);
 
   // 缓存管理
   useEffect(() => {
