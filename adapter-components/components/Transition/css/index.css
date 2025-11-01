@@ -1,0 +1,17 @@
+@import './eddie-transition.css';
+
+:export {
+  fade: 'fade';
+  scale: 'scale';
+  slide: 'slide';
+  slideUp: 'slide-up';
+  slideDown: 'slide-down';
+  slideLeft: 'slide-left';
+  slideRight: 'slide-right';
+  bounce: 'bounce';
+  zoom: 'zoom';
+  flip: 'flip';
+  fadeScale: 'fade-scale';
+  list: 'list';
+  staggered: 'staggered';
+}
