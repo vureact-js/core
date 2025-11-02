@@ -31,7 +31,7 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
     show = false,
     name = 'ed',
     mode,
-    duration = 300,
+    duration = 340,
     enterFromClass,
     enterActiveClass,
     enterToClass,
