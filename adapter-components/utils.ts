@@ -1,4 +1,5 @@
-import { isValidElement } from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { FunctionComponent, isValidElement, ReactElement } from 'react';
 
 /**
  * 判断传入的参数是 React 组件本身 (函数/类) 还是 React 元素 (JSX)
@@ -21,4 +22,9 @@ export function getReactType(param: any): 'component' | 'element' | 'text' | 'ot
   }
 
   return 'other';
+}
+
+export function getComponentName(el: ReactElement): string | null {
+  const type = el.type as FunctionComponent;
+  return type.displayName || type.name || null;
 }
