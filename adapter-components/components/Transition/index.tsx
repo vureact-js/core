@@ -1,10 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  Children,
+  memo,
+  PropsWithChildren,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { getComponentName } from 'utils';
 import './css/eddie-transition.css';
 import { transitionNames } from './styles';
 
-interface EddieTransitionProps {
-  children: React.ReactElement;
+export interface EddieTransitionProps {
   show?: boolean;
   name?: string;
   mode?: 'in-out' | 'out-in';
@@ -25,7 +34,9 @@ interface EddieTransitionProps {
   onLeaveCancelled?: (el: HTMLElement) => void;
 }
 
-const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
+export default memo(EddieTransition);
+
+function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
   const {
     children,
     show = false,
@@ -47,6 +58,15 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
     onAfterLeave,
     onLeaveCancelled,
   } = props;
+
+  const child = Children.only(children as ReactElement);
+  // 使用 key/组件名/标签名
+  const key = child?.key || getComponentName(child) || child.type.toString();
+
+  const prevTime = useRef(0);
+  const prevShowRef = useRef(show);
+  const currentNodeRef = useRef<HTMLElement>(null);
+  const transitionStateRef = useRef<'idle' | 'entering' | 'leaving'>('idle');
 
   // 使用 useMemo 优化类名计算
   const classNames = useMemo(() => {
@@ -87,119 +107,123 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
     leaveToClass,
   ]);
 
+  // 处理 duration 为对象类型的计算
+  const getActualDuration = useCallback(
+    (type: 'enter' | 'leave') => {
+      if (typeof duration === 'number') {
+        return duration;
+      }
+      return type === 'enter' ? duration.enter : duration.leave;
+    },
+    [duration],
+  );
+
   // 使用 useMemo 优化超时时间计算
   const timeout = useMemo(() => {
     if (typeof duration === 'number') {
       return duration;
     }
     return {
-      enter: duration.enter,
-      exit: duration.leave,
+      enter: getActualDuration('enter'),
+      exit: getActualDuration('leave'),
     };
-  }, [duration]);
+  }, [duration, getActualDuration]);
 
-  // 重新设计取消事件跟踪 - 基于请求ID和立即检测
-  const enterRequestIdRef = useRef<number | null>(null);
-  const leaveRequestIdRef = useRef<number | null>(null);
-  const currentNodeRef = useRef<HTMLElement | null>(null);
-
-  // 使用 useCallback 优化事件处理函数
   const handleEnter = useCallback(
     (node: HTMLElement) => {
+      transitionStateRef.current = 'entering';
       currentNodeRef.current = node;
-
-      // 立即检查是否应该取消离开动画
-      if (leaveRequestIdRef.current !== null) {
-        onLeaveCancelled?.(node);
-        // 取消之前的离开动画
-        if (leaveRequestIdRef.current) {
-          cancelAnimationFrame(leaveRequestIdRef.current);
-          leaveRequestIdRef.current = null;
-        }
-      }
-
-      // 标记进入开始
-      enterRequestIdRef.current = requestAnimationFrame(() => {
-        onBeforeEnter?.(node);
-      });
+      onBeforeEnter?.(node);
     },
-    [onBeforeEnter, onLeaveCancelled],
+    [onBeforeEnter],
   );
 
   const handleEntering = useCallback(
     (node: HTMLElement) => {
-      onEnter?.(node, () => {
-        // 手动 done 回调
-      });
+      if (transitionStateRef.current === 'entering') {
+        onEnter?.(node, () => {});
+      }
     },
     [onEnter],
   );
 
   const handleEntered = useCallback(
     (node: HTMLElement) => {
-      enterRequestIdRef.current = null;
-      onAfterEnter?.(node);
+      if (transitionStateRef.current === 'entering') {
+        transitionStateRef.current = 'idle';
+        onAfterEnter?.(node);
+      }
     },
     [onAfterEnter],
   );
 
   const handleExit = useCallback(
     (node: HTMLElement) => {
+      transitionStateRef.current = 'leaving';
       currentNodeRef.current = node;
-
-      // 立即检查是否应该取消进入动画
-      if (enterRequestIdRef.current !== null) {
-        onEnterCancelled?.(node);
-        // 取消之前的进入动画
-        if (enterRequestIdRef.current) {
-          cancelAnimationFrame(enterRequestIdRef.current);
-          enterRequestIdRef.current = null;
-        }
-      }
-
-      // 标记离开开始
-      leaveRequestIdRef.current = requestAnimationFrame(() => {
-        onBeforeLeave?.(node);
-      });
+      onBeforeLeave?.(node);
     },
-    [onBeforeLeave, onEnterCancelled],
+    [onBeforeLeave],
   );
 
   const handleExiting = useCallback(
     (node: HTMLElement) => {
-      onLeave?.(node, () => {
-        // 手动 done 回调
-      });
+      if (transitionStateRef.current === 'leaving') {
+        onLeave?.(node, () => {});
+      }
     },
     [onLeave],
   );
 
   const handleExited = useCallback(
     (node: HTMLElement) => {
-      leaveRequestIdRef.current = null;
-      onAfterLeave?.(node);
+      if (transitionStateRef.current === 'leaving') {
+        transitionStateRef.current = 'idle';
+        onAfterLeave?.(node);
+      }
     },
     [onAfterLeave],
   );
 
-  // 清理函数
-  useEffect(() => {
-    return () => {
-      // 组件卸载时取消所有进行中的动画
-      if (enterRequestIdRef.current) {
-        cancelAnimationFrame(enterRequestIdRef.current);
-        enterRequestIdRef.current = null;
+  const handleCancelled = useCallback(() => {
+    const timeSinceLastTransition = Date.now() - prevTime.current;
+
+    // 根据过渡方向获取对应的 duration
+    const relevantDuration =
+      !show && prevShowRef.current
+        ? getActualDuration('leave') // 正在离开
+        : show && !prevShowRef.current
+          ? getActualDuration('enter') // 正在进入
+          : 0;
+
+    if (timeSinceLastTransition <= relevantDuration) {
+      // 当前 show 为 false （隐藏）且上一个 show 为 true （显示），且过渡状态为 leaving
+      // 表明当前为隐藏状态且正在从 leaving -> entering，必须阻止它
+      // 撤销 entering
+      if (!show && prevShowRef.current && transitionStateRef.current === 'leaving') {
+        onEnterCancelled?.(currentNodeRef.current!);
       }
-      if (leaveRequestIdRef.current) {
-        cancelAnimationFrame(leaveRequestIdRef.current);
-        leaveRequestIdRef.current = null;
+      // 反之，撤销 leaving
+      if (show && !prevShowRef.current && transitionStateRef.current === 'entering') {
+        onLeaveCancelled?.(currentNodeRef.current!);
       }
-    };
-  }, []);
+    }
+
+    // 只有当正常进入或离开完成时才更新旧值
+    // 这里我们只在检测到取消时不更新 prevShowRef，让下一次正常过渡时再更新
+    // 这样可以确保取消检测的逻辑持续有效
+    if (timeSinceLastTransition > relevantDuration) {
+      prevShowRef.current = show;
+      prevTime.current = Date.now();
+    }
+  }, [getActualDuration, onEnterCancelled, onLeaveCancelled, show]);
+
+  useEffect(handleCancelled, [handleCancelled]);
 
   // 基础 CSSTransition 配置
   const cssTransitionProps = useMemo(
     () => ({
+      key,
       in: show,
       timeout,
       classNames,
@@ -212,6 +236,7 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
       onExited: handleExited,
     }),
     [
+      key,
       show,
       timeout,
       classNames,
@@ -224,22 +249,13 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
     ],
   );
 
-  // 如果有切换模式，使用 SwitchTransition
+  const transitionElement = useMemo(() => {
+    return <CSSTransition {...cssTransitionProps}>{child}</CSSTransition>;
+  }, [cssTransitionProps, child]);
+
   if (mode) {
-    return (
-      <SwitchTransition mode={mode}>
-        <CSSTransition
-          {...cssTransitionProps}
-          key={React.Children.only(children).key || show.toString()}
-        >
-          {children}
-        </CSSTransition>
-      </SwitchTransition>
-    );
+    return <SwitchTransition mode={mode}>{transitionElement}</SwitchTransition>;
   }
 
-  // 否则直接使用 CSSTransition
-  return <CSSTransition {...cssTransitionProps}>{children}</CSSTransition>;
-};
-
-export default EddieTransition;
+  return transitionElement;
+}
