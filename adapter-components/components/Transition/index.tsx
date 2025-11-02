@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import './css/eddie-transition.css';
-import { transitionPresets } from './styles';
+import { transitionNames } from './styles';
 
 interface EddieTransitionProps {
   children: React.ReactElement;
@@ -31,7 +31,7 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
     show = false,
     name = 'ed',
     mode,
-    duration = 340,
+    duration = 290,
     enterFromClass,
     enterActiveClass,
     enterToClass,
@@ -68,10 +68,7 @@ const EddieTransition: React.FC<EddieTransitionProps> = (props) => {
       };
     }
 
-    const presetName =
-      name in transitionPresets
-        ? transitionPresets[name as keyof typeof transitionPresets]()
-        : name;
+    const presetName = transitionNames[name] ?? name;
     return {
       enter: `${presetName}-enter ${presetName}-enter-from`,
       enterActive: `${presetName}-enter-active`,
