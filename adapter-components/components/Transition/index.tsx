@@ -42,7 +42,7 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     show = false,
     name = 'ed',
     mode,
-    duration = 290,
+    duration = 490,
     enterFromClass,
     enterActiveClass,
     enterToClass,

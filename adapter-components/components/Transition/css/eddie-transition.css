@@ -6,7 +6,7 @@
 
 .fade-enter-active {
   opacity: 0.8;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 .fade-enter-to,
@@ -16,7 +16,7 @@
 
 .fade-leave-active {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 /* 缩放过渡 */
@@ -30,8 +30,8 @@
   opacity: 0.8;
   transform: scale(1);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .scale-enter-to,
@@ -44,8 +44,8 @@
   opacity: 0;
   transform: scale(0.8);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 /* ===== 滑动过渡效果 ===== */
@@ -60,8 +60,8 @@
   opacity: 0.8;
   transform: translateY(0);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-up-enter-to,
@@ -74,8 +74,8 @@
   opacity: 0;
   transform: translateY(-30px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-up-leave-to {
@@ -93,8 +93,8 @@
   opacity: 0.8;
   transform: translateY(0);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-down-enter-to,
@@ -107,8 +107,8 @@
   opacity: 0;
   transform: translateY(30px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-down-leave-to {
@@ -126,8 +126,8 @@
   opacity: 0.8;
   transform: translateX(0);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-left-enter-to,
@@ -140,8 +140,8 @@
   opacity: 0;
   transform: translateX(-30px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-left-leave-to {
@@ -159,8 +159,8 @@
   opacity: 0.8;
   transform: translateX(0);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-right-enter-to,
@@ -173,8 +173,8 @@
   opacity: 0;
   transform: translateX(30px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .slide-right-leave-to {
@@ -186,11 +186,11 @@
 
 /* 弹跳动画 */
 .bounce-enter-active {
-  animation: bounce-in 0.3s;
+  animation: bounce-in 0.5s;
 }
 
 .bounce-leave-active {
-  animation: bounce-in 0.3s reverse;
+  animation: bounce-in 0.5s reverse;
 }
 
 @keyframes bounce-in {
@@ -207,11 +207,11 @@
 
 /* 缩放动画 */
 .zoom-enter-active {
-  animation: zoom-in 0.3s;
+  animation: zoom-in 0.5s;
 }
 
 .zoom-leave-active {
-  animation: zoom-in 0.3s reverse;
+  animation: zoom-in 0.5s reverse;
 }
 
 @keyframes zoom-in {
@@ -227,11 +227,11 @@
 
 /* 翻转动画 */
 .flip-enter-active {
-  animation: flip-in 0.3s;
+  animation: flip-in 0.5s;
 }
 
 .flip-leave-active {
-  animation: flip-in 0.3s reverse;
+  animation: flip-in 0.5s reverse;
 }
 
 @keyframes flip-in {
@@ -257,8 +257,8 @@
   opacity: 0.8;
   transform: scale(1);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .fade-scale-enter-to,
@@ -271,8 +271,8 @@
   opacity: 0;
   transform: scale(1.1);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .fade-scale-leave-to {
@@ -292,8 +292,8 @@
   opacity: 0.8;
   transform: translateY(0);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .list-enter-to,
@@ -306,8 +306,8 @@
   opacity: 0;
   transform: translateY(-30px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .list-leave-to {
@@ -326,8 +326,8 @@
   opacity: 0.8;
   transform: translateY(0);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 .staggered-enter-to,
@@ -340,8 +340,8 @@
   opacity: 0;
   transform: translateY(30px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.5s,
+    transform 0.5s;
 }
 
 /* 为列表项添加延迟 */
@@ -349,16 +349,16 @@
   transition-delay: 0.1s;
 }
 .staggered-enter-active:nth-child(2) {
-  transition-delay: 0.15s;
-}
-.staggered-enter-active:nth-child(3) {
   transition-delay: 0.2s;
 }
+.staggered-enter-active:nth-child(3) {
+  transition-delay: 0.3s;
+}
 .staggered-enter-active:nth-child(4) {
-  transition-delay: 0.25s;
+  transition-delay: 0.4s;
 }
 .staggered-enter-active:nth-child(5) {
-  transition-delay: 0.3s;
+  transition-delay: 0.5s;
 }
 
 /* 为列表项添加延迟 */
@@ -366,16 +366,16 @@
   transition-delay: 0.1s;
 }
 .staggered-leave-active:nth-child(2) {
-  transition-delay: 0.15s;
-}
-.staggered-leave-active:nth-child(3) {
   transition-delay: 0.2s;
 }
+.staggered-leave-active:nth-child(3) {
+  transition-delay: 0.3s;
+}
 .staggered-leave-active:nth-child(4) {
-  transition-delay: 0.25s;
+  transition-delay: 0.4s;
 }
 .staggered-leave-active:nth-child(5) {
-  transition-delay: 0.3s;
+  transition-delay: 0.5s;
 }
 
 /* ===== 默认过渡类名 ===== */
@@ -388,7 +388,7 @@
 
 .ed-enter-active {
   opacity: 0.8;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 .ed-enter-to,
@@ -398,7 +398,7 @@
 
 .ed-leave-active {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
 }
 
 /* 禁用过渡 */
