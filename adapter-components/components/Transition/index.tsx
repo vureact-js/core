@@ -16,6 +16,8 @@ import { transitionNames } from './styles';
 export interface EddieTransitionProps {
   show?: boolean;
   name?: string;
+  css?: boolean;
+  appear?: boolean;
   mode?: 'in-out' | 'out-in';
   duration?: number | { enter: number; leave: number };
   enterFromClass?: string;
@@ -32,17 +34,21 @@ export interface EddieTransitionProps {
   onLeave?: (el: HTMLElement, done: () => void) => void;
   onAfterLeave?: (el: HTMLElement) => void;
   onLeaveCancelled?: (el: HTMLElement) => void;
+  onAppear?: (el: HTMLElement, done: () => void) => void;
+  onAfterAppear?: (el: HTMLElement) => void;
 }
 
 export default memo(EddieTransition);
 
 function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
   const {
+    mode,
+    name = 'ed',
     children,
     show = false,
-    name = 'ed',
-    mode,
-    duration = 490,
+    css = true,
+    appear = false,
+    duration = 490, // 必须比设置的 css 过渡持续时间快 10ms，否则有概率会出现过渡效果结束后出现闪烁
     enterFromClass,
     enterActiveClass,
     enterToClass,
@@ -56,6 +62,8 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     onBeforeLeave,
     onLeave,
     onAfterLeave,
+    onAppear,
+    onAfterAppear,
     onLeaveCancelled,
   } = props;
 
@@ -70,6 +78,12 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
 
   // 使用 useMemo 优化类名计算
   const classNames = useMemo(() => {
+    if (css !== undefined && css === false) {
+      return;
+    }
+
+    let baseClassNames;
+
     if (
       enterFromClass ||
       enterActiveClass ||
@@ -78,7 +92,7 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
       leaveActiveClass ||
       leaveToClass
     ) {
-      return {
+      baseClassNames = {
         enter: enterFromClass || `${name}-enter-from`,
         enterActive: enterActiveClass || `${name}-enter-active`,
         enterDone: enterToClass || `${name}-enter-to`,
@@ -86,25 +100,39 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
         exitActive: leaveActiveClass || `${name}-leave-active`,
         exitDone: leaveToClass || `${name}-leave-to`,
       };
+    } else {
+      const presetName = transitionNames[name] ?? name;
+      baseClassNames = {
+        enter: `${presetName}-enter ${presetName}-enter-from`,
+        enterActive: `${presetName}-enter-active`,
+        enterDone: `${presetName}-enter-to`,
+        exit: `${presetName}-exit ${presetName}-leave-from`,
+        exitActive: `${presetName}-exit-active ${presetName}-leave-active`,
+        exitDone: `${presetName}-exit-to ${presetName}-leave-to`,
+      };
     }
 
-    const presetName = transitionNames[name] ?? name;
-    return {
-      enter: `${presetName}-enter ${presetName}-enter-from`,
-      enterActive: `${presetName}-enter-active`,
-      enterDone: `${presetName}-enter-to`,
-      exit: `${presetName}-exit ${presetName}-leave-from`,
-      exitActive: `${presetName}-exit-active ${presetName}-leave-active`,
-      exitDone: `${presetName}-exit-to ${presetName}-leave-to`,
-    };
+    // 只有当 appear 为 true 时才添加 appear 类名映射
+    if (appear) {
+      return {
+        ...baseClassNames,
+        appear: baseClassNames.enter, // 复用 enter 类名
+        appearActive: baseClassNames.enterActive, // 复用 enterActive 类名
+        appearDone: baseClassNames.enterDone, // 复用 enterDone 类名
+      };
+    }
+
+    return baseClassNames;
   }, [
-    name,
+    css,
     enterFromClass,
     enterActiveClass,
     enterToClass,
     leaveFromClass,
     leaveActiveClass,
     leaveToClass,
+    name,
+    appear,
   ]);
 
   // 处理 duration 为对象类型的计算
@@ -133,28 +161,39 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     (node: HTMLElement) => {
       transitionStateRef.current = 'entering';
       currentNodeRef.current = node;
-      onBeforeEnter?.(node);
+
+      if (!appear) {
+        onBeforeEnter?.(node);
+      }
     },
-    [onBeforeEnter],
+    [appear, onBeforeEnter],
   );
 
   const handleEntering = useCallback(
     (node: HTMLElement) => {
       if (transitionStateRef.current === 'entering') {
-        onEnter?.(node, () => {});
+        if (appear) {
+          onAppear?.(node, () => {});
+        } else {
+          onEnter?.(node, () => {});
+        }
       }
     },
-    [onEnter],
+    [appear, onAppear, onEnter],
   );
 
   const handleEntered = useCallback(
     (node: HTMLElement) => {
       if (transitionStateRef.current === 'entering') {
         transitionStateRef.current = 'idle';
-        onAfterEnter?.(node);
+        if (appear) {
+          onAfterAppear?.(node);
+        } else {
+          onAfterEnter?.(node);
+        }
       }
     },
-    [onAfterEnter],
+    [appear, onAfterAppear, onAfterEnter],
   );
 
   const handleExit = useCallback(
@@ -224,6 +263,7 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
   const cssTransitionProps = useMemo(
     () => ({
       key,
+      appear,
       in: show,
       timeout,
       classNames,
@@ -237,6 +277,7 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     }),
     [
       key,
+      appear,
       show,
       timeout,
       classNames,
