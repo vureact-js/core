@@ -1,6 +1,6 @@
-import { EddieKeepAliveProps } from '.';
+import { KeepAliveProps } from '.';
 
-export function matchPattern(pattern: EddieKeepAliveProps['include'], key: string | null): boolean {
+export function matchPattern(pattern: KeepAliveProps['include'], key: string | null): boolean {
   if (!pattern || !key) return false;
   if (Array.isArray(pattern)) return pattern.some((p) => matchPattern(p, key));
   if (typeof pattern === 'string')
