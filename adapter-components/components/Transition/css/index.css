@@ -1,4 +1,4 @@
-@import './eddie-transition.css';
+@import './transition.css';
 
 :export {
   fade: 'fade';
