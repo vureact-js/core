@@ -52,6 +52,9 @@ const globalOffscreenContainer: HTMLElement | null =
 export { useActived, useDeactived, type KeepAliveProps, type MatchPattern };
 export default memo(VueKeepAlive);
 
+/**
+ * Equivalent to Vue KeepAlive components, with the same usage.
+ */
 function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
   const { include, exclude, max = 10, children } = props;
 

@@ -101,6 +101,9 @@ export interface TransitionProps {
 
 export default memo(VueTransition);
 
+/**
+ * Equivalent to Vue Transition components, with the same usage.
+ */
 function VueTransition(props: PropsWithChildren<TransitionProps>) {
   const {
     mode,

@@ -17,7 +17,7 @@ type ReturnType = JSX.Element | null;
 export default memo(VueComponent);
 
 /**
- * Dynamic components, similar to Vue's `<component :is="component">`
+ * Equivalent to Vue dynamic component, with the same usage.
  */
 function VueComponent({ is, props }: ComponentProps): ReturnType {
   const renderElement = () => {

@@ -42,6 +42,9 @@ export interface SuspenseProps {
 
 export default memo(VueSuspense);
 
+/**
+ * Equivalent to Vue Suspense components, with the same usage.
+ */
 function VueSuspense(props: SuspenseProps): JSX.Element {
   const {
     children,
