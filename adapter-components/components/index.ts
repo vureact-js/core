@@ -1,6 +1,6 @@
-import EddieComponent from './Component';
-import EddieKeepAlive, { useActived, useDeactived } from './KeepAlive';
-import EddieSuspense from './Suspense';
-import EddieTransition from './Transition';
+import VueComponent from './Component';
+import VueKeepAlive, { useActived, useDeactived } from './KeepAlive';
+import VueSuspense from './Suspense';
+import VueTransition from './Transition';
 
-export { EddieComponent, EddieKeepAlive, EddieSuspense, EddieTransition, useActived, useDeactived };
+export { useActived, useDeactived, VueComponent, VueKeepAlive, VueSuspense, VueTransition };

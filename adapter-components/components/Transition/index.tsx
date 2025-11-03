@@ -13,7 +13,7 @@ import { getComponentName } from 'utils';
 import './css/eddie-transition.css';
 import { transitionNames } from './styles';
 
-export interface EddieTransitionProps {
+export interface TransitionProps {
   /**
    * Show the component; triggers the enter or exit states
    */
@@ -99,9 +99,9 @@ export interface EddieTransitionProps {
   onLeaveCancelled?: (el: HTMLElement) => void;
 }
 
-export default memo(EddieTransition);
+export default memo(VueTransition);
 
-function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
+function VueTransition(props: PropsWithChildren<TransitionProps>) {
   const {
     mode,
     name = 'ed',

@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 
-export interface EddieSuspenseProps {
+export interface SuspenseProps {
   children: ReactNode;
 
   timeout?: number;
@@ -40,9 +40,9 @@ export interface EddieSuspenseProps {
   fallback: ReactNode;
 }
 
-export default memo(EddieSuspense);
+export default memo(VueSuspense);
 
-function EddieSuspense(props: EddieSuspenseProps): JSX.Element {
+function VueSuspense(props: SuspenseProps): JSX.Element {
   const {
     children,
     timeout,

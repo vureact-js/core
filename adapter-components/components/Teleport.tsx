@@ -1,7 +1,7 @@
 import { memo, startTransition, useEffect, useState, type PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 
-export interface EddieTeleportProps {
+export interface TeleportProps {
   /**
    * Required field. Specifies the target container.
    * It can be a selector or an actual element.
@@ -19,9 +19,9 @@ export interface EddieTeleportProps {
   defer?: boolean;
 }
 
-export default memo(EddieTeleport);
+export default memo(VueTeleport);
 
-function EddieTeleport(props: PropsWithChildren<EddieTeleportProps>) {
+function VueTeleport(props: PropsWithChildren<TeleportProps>) {
   const { to, disabled, defer, children } = props;
 
   const [container, setContainer] = useState<Element | null>(null);
@@ -32,7 +32,7 @@ function EddieTeleport(props: PropsWithChildren<EddieTeleportProps>) {
     if (!el) {
       if (typeof to === 'string') {
         console.error(
-          `[EddieTeleport error] Please check if the selector passed to prop 'to' is correct; Guess '.${to}' or '#${to}'?`,
+          `[Teleport error] Please check if the selector passed to prop 'to' is correct; Guess '.${to}' or '#${to}'?`,
         );
       }
     } else {

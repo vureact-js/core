@@ -1,7 +1,7 @@
 import { createElement, FunctionComponent, JSX, memo, ReactNode } from 'react';
 import { getReactType } from 'utils';
 
-interface EddieComponentProps {
+interface ComponentProps {
   /**
    * It can pass tag names, component functions, and JSX elements.
    */
@@ -14,12 +14,12 @@ interface EddieComponentProps {
 
 type ReturnType = JSX.Element | null;
 
-export default memo(EddieComponent);
+export default memo(VueComponent);
 
 /**
  * Dynamic components, similar to Vue's `<component :is="component">`
  */
-function EddieComponent({ is, props }: EddieComponentProps): ReturnType {
+function VueComponent({ is, props }: ComponentProps): ReturnType {
   const renderElement = () => {
     switch (getReactType(is)) {
       case 'text':
@@ -36,7 +36,7 @@ function EddieComponent({ is, props }: EddieComponentProps): ReturnType {
       default:
         // is 可能是 null, undefined 或其他类型
         console.error(
-          `[EddieComponent error] Invalid 'is' prop value or missing component type. -->${is}`,
+          `[Component error] Invalid 'is' prop value or missing component type. -->${is}`,
         );
         return null;
     }

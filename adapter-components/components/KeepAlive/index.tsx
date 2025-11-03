@@ -16,7 +16,7 @@ import { useActived } from './hooks/useActived';
 import { useDeactived } from './hooks/useDeactived';
 import { matchPattern } from './utils';
 
-interface EddieKeepAliveProps {
+interface KeepAliveProps {
   /**
    * If specified, only components that match the `include` key will be cached.
    *
@@ -49,10 +49,10 @@ const globalOffscreenContainer: HTMLElement | null =
       })()
     : null;
 
-export { useActived, useDeactived, type EddieKeepAliveProps, type MatchPattern };
-export default memo(EddieKeepAlive);
+export { useActived, useDeactived, type KeepAliveProps, type MatchPattern };
+export default memo(VueKeepAlive);
 
-function EddieKeepAlive(props: PropsWithChildren<EddieKeepAliveProps>) {
+function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
   const { include, exclude, max = 10, children } = props;
 
   const lifeValueRef = useRef(createKeepAliveLifeContextValue());
@@ -67,13 +67,13 @@ function EddieKeepAlive(props: PropsWithChildren<EddieKeepAliveProps>) {
   const [, forceUpdate] = useState(0);
 
   if (Children.count(children) !== 1) {
-    console.warn('[EddieKeepAlive warn] There must be only one direct child component.');
+    console.warn('[KeepAlive warn] There must be only one direct child component.');
     return <>{children}</>;
   }
 
   const reactType = getReactType(children);
   if (reactType !== 'element' && reactType !== 'component') {
-    console.warn('[EddieKeepAlive warn] The child element must be a component.');
+    console.warn('[KeepAlive warn] The child element must be a component.');
     return <>{children}</>;
   }
 
