@@ -1,4 +1,4 @@
-import { createElement, FunctionComponent, JSX, memo, ReactNode } from 'react';
+import { createElement, FunctionComponent, JSX, memo, ReactNode, useMemo } from 'react';
 import { getReactType } from 'utils';
 
 interface ComponentProps {
@@ -20,7 +20,7 @@ export default memo(VueComponent);
  * Equivalent to Vue dynamic component, with the same usage.
  */
 function VueComponent({ is, props }: ComponentProps): ReturnType {
-  const renderElement = () => {
+  const renderElement = useMemo(() => {
     switch (getReactType(is)) {
       case 'text':
         return createElement(is as string, props);
@@ -40,7 +40,7 @@ function VueComponent({ is, props }: ComponentProps): ReturnType {
         );
         return null;
     }
-  };
+  }, [is, props]) as ReturnType;
 
-  return renderElement() as ReturnType;
+  return renderElement;
 }
