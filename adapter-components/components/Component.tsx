@@ -2,6 +2,9 @@ import { createElement, FunctionComponent, JSX, memo, ReactNode } from 'react';
 import { getReactType } from 'utils';
 
 interface EddieComponentProps {
+  /**
+   * It can pass tag names, component functions, and JSX elements.
+   */
   is: string | ReactNode | JSX.Element;
   /**
    * The props passed to the element
