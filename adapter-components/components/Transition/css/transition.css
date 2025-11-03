@@ -5,7 +5,7 @@
 }
 
 .fade-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transition: opacity 0.5s ease;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .scale-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: scale(1);
   transition:
     opacity 0.5s,
@@ -57,7 +57,7 @@
 }
 
 .slide-up-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: translateY(0);
   transition:
     opacity 0.5s,
@@ -90,7 +90,7 @@
 }
 
 .slide-down-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: translateY(0);
   transition:
     opacity 0.5s,
@@ -123,7 +123,7 @@
 }
 
 .slide-left-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: translateX(0);
   transition:
     opacity 0.5s,
@@ -156,7 +156,7 @@
 }
 
 .slide-right-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: translateX(0);
   transition:
     opacity 0.5s,
@@ -254,7 +254,7 @@
 }
 
 .fade-scale-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: scale(1);
   transition:
     opacity 0.5s,
@@ -289,7 +289,7 @@
 }
 
 .list-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: translateY(0);
   transition:
     opacity 0.5s,
@@ -323,7 +323,7 @@
 }
 
 .staggered-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transform: translateY(0);
   transition:
     opacity 0.5s,
@@ -387,7 +387,7 @@
 }
 
 .ed-enter-active {
-  opacity: 0.8;
+  opacity: 1;
   transition: opacity 0.5s ease;
 }
 
