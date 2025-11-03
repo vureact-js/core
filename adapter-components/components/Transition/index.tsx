@@ -14,28 +14,89 @@ import './css/eddie-transition.css';
 import { transitionNames } from './styles';
 
 export interface EddieTransitionProps {
+  /**
+   * Show the component; triggers the enter or exit states
+   */
   show?: boolean;
+  /**
+   * Used to automatically generate transition CSS class names.
+   * e.g. `name: 'fade'` will auto expand to `.fade-enter`,
+   * `.fade-enter-active`, etc.
+   */
   name?: string;
+  /**
+   * Whether to apply CSS transition classes.
+   * Default: true
+   */
   css?: boolean;
+  /**
+   * Whether to apply transition on initial render.
+   * Default: false
+   */
   appear?: boolean;
+  /**
+   * Controls the timing sequence of leaving/entering transitions.
+   * Default behavior is simultaneous.
+   */
   mode?: 'in-out' | 'out-in';
+  /**
+   * Specifies explicit durations of the transition.
+   * Default behavior is wait for the first `transitionend`
+   * or `animationend` event on the root transition element.
+   */
   duration?: number | { enter: number; leave: number };
+  /**
+   * Props for customizing transition classes.
+   */
   enterFromClass?: string;
   enterActiveClass?: string;
   enterToClass?: string;
+  appearFromClass?: string;
+  appearActiveClass?: string;
+  appearToClass?: string;
   leaveFromClass?: string;
   leaveActiveClass?: string;
   leaveToClass?: string;
+  /**
+   * Callback fired before the "entering" status is applied.
+   */
   onBeforeEnter?: (el: HTMLElement) => void;
+  /**
+   * Callback fired after the "entering" status is applied.
+   */
   onEnter?: (el: HTMLElement, done: () => void) => void;
+  /**
+   * Callback fired after the "entered" status is applied.
+   */
   onAfterEnter?: (el: HTMLElement) => void;
-  onEnterCancelled?: (el: HTMLElement) => void;
-  onBeforeLeave?: (el: HTMLElement) => void;
-  onLeave?: (el: HTMLElement, done: () => void) => void;
-  onAfterLeave?: (el: HTMLElement) => void;
-  onLeaveCancelled?: (el: HTMLElement) => void;
+  /**
+   * Callback fired after the "appearing" status is applied.
+   */
   onAppear?: (el: HTMLElement, done: () => void) => void;
+  /**
+   * Callback fired after the "appeared" status is applied.
+   */
   onAfterAppear?: (el: HTMLElement) => void;
+  /**
+   * Callback fired before the "exiting" status is applied.
+   */
+  onBeforeLeave?: (el: HTMLElement) => void;
+  /**
+   * Callback fired after the "exiting" status is applied.
+   */
+  onLeave?: (el: HTMLElement, done: () => void) => void;
+  /**
+   * Callback fired after the "exited" status is applied.
+   */
+  onAfterLeave?: (el: HTMLElement) => void;
+  /**
+   * Callback fired when the "entering" state is canceled.
+   */
+  onEnterCancelled?: (el: HTMLElement) => void;
+  /**
+   * Callback fired when the "leaving" state is canceled.
+   */
+  onLeaveCancelled?: (el: HTMLElement) => void;
 }
 
 export default memo(EddieTransition);
@@ -52,6 +113,9 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     enterFromClass,
     enterActiveClass,
     enterToClass,
+    appearFromClass,
+    appearActiveClass,
+    appearToClass,
     leaveFromClass,
     leaveActiveClass,
     leaveToClass,
@@ -76,7 +140,6 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
   const currentNodeRef = useRef<HTMLElement>(null);
   const transitionStateRef = useRef<'idle' | 'entering' | 'leaving'>('idle');
 
-  // 使用 useMemo 优化类名计算
   const classNames = useMemo(() => {
     if (css !== undefined && css === false) {
       return;
@@ -88,14 +151,17 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
       enterFromClass ||
       enterActiveClass ||
       enterToClass ||
+      appearFromClass ||
+      appearActiveClass ||
+      appearToClass ||
       leaveFromClass ||
       leaveActiveClass ||
       leaveToClass
     ) {
       baseClassNames = {
-        enter: enterFromClass || `${name}-enter-from`,
-        enterActive: enterActiveClass || `${name}-enter-active`,
-        enterDone: enterToClass || `${name}-enter-to`,
+        enter: (!appear ? enterFromClass : appearFromClass) || `${name}-enter-from`,
+        enterActive: (!appear ? enterActiveClass : appearActiveClass) || `${name}-enter-active`,
+        enterDone: (!appear ? enterToClass : appearToClass) || `${name}-enter-to`,
         exit: leaveFromClass || `${name}-leave-from`,
         exitActive: leaveActiveClass || `${name}-leave-active`,
         exitDone: leaveToClass || `${name}-leave-to`,
@@ -128,11 +194,14 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     enterFromClass,
     enterActiveClass,
     enterToClass,
+    appearFromClass,
+    appearActiveClass,
+    appearToClass,
     leaveFromClass,
     leaveActiveClass,
     leaveToClass,
-    name,
     appear,
+    name,
   ]);
 
   // 处理 duration 为对象类型的计算
@@ -153,6 +222,7 @@ function EddieTransition(props: PropsWithChildren<EddieTransitionProps>) {
     }
     return {
       enter: getActualDuration('enter'),
+      apper: getActualDuration('enter'),
       exit: getActualDuration('leave'),
     };
   }, [duration, getActualDuration]);
