@@ -2,6 +2,7 @@ import {
   JSX,
   memo,
   Suspense,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -61,11 +62,11 @@ function VueSuspense(props: SuspenseProps): JSX.Element {
   const hasPendingRef = useRef(false);
   const hasResolvedRef = useRef(false);
 
-  const cleanup = () => {
+  const cleanup = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-  };
+  }, []);
 
   // 清理 timeout
   useEffect(() => {
@@ -78,7 +79,7 @@ function VueSuspense(props: SuspenseProps): JSX.Element {
     };
     timeoutRef.current = setTimeout(callback, timeout);
     return cleanup;
-  }, [onFallback, timeout]);
+  }, [cleanup, onFallback, timeout]);
 
   // 如果 suspensible 为 false，直接渲染子组件
   if (!suspensible) {
@@ -86,14 +87,14 @@ function VueSuspense(props: SuspenseProps): JSX.Element {
   }
 
   // 处理 Suspense 解析
-  const handleResolve = () => {
+  const handleResolve = useCallback(() => {
     if (hasResolvedRef.current) return;
 
     hasResolvedRef.current = true;
     setShowFallback(false);
     cleanup();
     onResolve?.();
-  };
+  }, [cleanup, onResolve]);
 
   return (
     <Suspense
