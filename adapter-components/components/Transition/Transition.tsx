@@ -1,11 +1,10 @@
-import { Children, Key, memo, PropsWithChildren, ReactElement, useMemo, useRef } from 'react';
+import { Children, memo, PropsWithChildren, ReactElement, useMemo, useRef } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import './css/eddie-transition.css';
 import { useTransitionCancelled } from './hooks/useTransitionCancelled';
 import { BaseTransitionProps, useTransitionConfig } from './hooks/useTransitionConfig';
 
 export interface TransitionProps extends BaseTransitionProps {
-  elKey?: Key;
   /**
    * Show the component; triggers the enter or exit states
    */
@@ -23,15 +22,7 @@ export default memo(VueTransition);
  * Equivalent to Vue Transition components, with the same usage.
  */
 function VueTransition(props: PropsWithChildren<TransitionProps>) {
-  const {
-    mode,
-    elKey,
-    children,
-    show = false,
-    onEnterCancelled,
-    onLeaveCancelled,
-    ...restProps
-  } = props;
+  const { mode, children, show = false, onEnterCancelled, onLeaveCancelled, ...restProps } = props;
 
   const child = Children.only(children as ReactElement);
 
@@ -65,7 +56,7 @@ function VueTransition(props: PropsWithChildren<TransitionProps>) {
     };
   }, [transitionConfig]);
 
-  const key = useMemo(() => (mode ? String(show) : elKey), [elKey, show, mode]);
+  const key = useMemo(() => (mode ? String(show) : child.key), [mode, show, child.key]);
 
   const cssTransitionProps = useMemo(
     () => ({
