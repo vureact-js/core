@@ -1,8 +1,7 @@
 import VueComponent from './Component';
 import VueKeepAlive, { useActived, useDeactived } from './KeepAlive';
 import VueSuspense from './Suspense';
-import VueTransition from './Transition/Transition';
-import VueTransitionGroup from './Transition/TransitionGroup';
+import { VueTransition, VueTransitionGroup } from './Transition';
 
 export {
   useActived,
