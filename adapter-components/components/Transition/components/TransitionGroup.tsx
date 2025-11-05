@@ -13,12 +13,13 @@ import {
   useRef,
 } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { TransitionGroup } from 'react-transition-group';
 import {
   BaseTransitionProps,
   getActualDuration,
   useTransitionConfig,
 } from '../hooks/useTransitionConfig';
+import VueTransition from './Transition';
 
 export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> {
   /**
@@ -177,7 +178,7 @@ function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
     return Children.map(children, (child, index) => {
       const key = (child as ReactElement)?.key ?? `tg-${index}`;
       return (
-        <CSSTransition key={key} {...transitionConfig}>
+        <VueTransition show key={key} {...transitionConfig} __USE_THE_CONFIGURED_PROPS>
           {hasTransition ? (
             <Flipped flipId={key} onAppear={handleFlipAppear} onExit={handleFlipExit}>
               {child}
@@ -185,7 +186,7 @@ function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
           ) : (
             child
           )}
-        </CSSTransition>
+        </VueTransition>
       );
     });
   }, [children, handleFlipAppear, handleFlipExit, hasTransition, transitionConfig]);
