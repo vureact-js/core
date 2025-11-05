@@ -1,8 +1,18 @@
-import { Children, memo, PropsWithChildren, ReactElement, useEffect, useMemo, useRef } from 'react';
+import {
+  Children,
+  memo,
+  PropsWithChildren,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import {
   BaseTransitionProps,
   getActualDuration,
+  TransitionConfig,
   useTransitionConfig,
 } from '../hooks/useTransitionConfig';
 import './css/eddie-transition.css';
@@ -17,6 +27,10 @@ export interface TransitionProps extends BaseTransitionProps {
    * Default behavior is simultaneous.
    */
   mode?: 'in-out' | 'out-in';
+  /**
+   * Please do not use this internal prop intended for development.
+   */
+  __USE_THE_CONFIGURED_PROPS?: boolean;
 }
 
 export default memo(VueTransition);
@@ -25,7 +39,15 @@ export default memo(VueTransition);
  * Equivalent to Vue Transition components, with the same usage.
  */
 function VueTransition(props: PropsWithChildren<TransitionProps>) {
-  const { mode, children, show = false, onEnterCancelled, onLeaveCancelled, ...restProps } = props;
+  const {
+    mode,
+    children,
+    show = false,
+    onEnterCancelled,
+    onLeaveCancelled,
+    __USE_THE_CONFIGURED_PROPS,
+    ...restProps
+  } = props;
 
   const child = Children.only(children as ReactElement);
 
@@ -34,21 +56,23 @@ function VueTransition(props: PropsWithChildren<TransitionProps>) {
   const currentNodeRef = useRef<HTMLElement>(null);
   const transitionStateRef = useRef<'idle' | 'entering' | 'leaving'>('idle');
 
-  const transitionConfig = useTransitionConfig(restProps);
+  const transitionConfig = __USE_THE_CONFIGURED_PROPS
+    ? (restProps as TransitionConfig)
+    : useTransitionConfig(restProps);
+
+  const wrapHandler = useCallback(
+    (handler?: (el: HTMLElement) => void, state: 'entering' | 'leaving' | 'idle' = 'idle') => {
+      return (node: HTMLElement) => {
+        handler?.(node);
+        transitionStateRef.current = state;
+        currentNodeRef.current = node;
+      };
+    },
+    [],
+  );
 
   // 包装事件处理函数，添加状态跟踪
   const wrappedHandlers = useMemo(() => {
-    const wrapHandler = (
-      handler?: (el: HTMLElement) => void,
-      state: 'entering' | 'leaving' | 'idle' = 'idle',
-    ) => {
-      return (node: HTMLElement) => {
-        transitionStateRef.current = state;
-        currentNodeRef.current = node;
-        handler?.(node);
-      };
-    };
-
     return {
       onEnter: wrapHandler(transitionConfig.onEnter, 'entering'),
       onEntering: transitionConfig.onEntering,
@@ -57,7 +81,15 @@ function VueTransition(props: PropsWithChildren<TransitionProps>) {
       onExiting: transitionConfig.onExiting,
       onExited: wrapHandler(transitionConfig.onExited, 'idle'),
     };
-  }, [transitionConfig]);
+  }, [
+    transitionConfig.onEnter,
+    transitionConfig.onEntered,
+    transitionConfig.onEntering,
+    transitionConfig.onExit,
+    transitionConfig.onExited,
+    transitionConfig.onExiting,
+    wrapHandler,
+  ]);
 
   const key = useMemo(() => (mode ? String(show) : child.key), [mode, show, child.key]);
 
