@@ -32,15 +32,15 @@ export interface BaseTransitionProps {
   /**
    * Props for customizing transition classes.
    */
-  enterFromClass?: string;
-  enterActiveClass?: string;
-  enterToClass?: string;
-  appearFromClass?: string;
-  appearActiveClass?: string;
-  appearToClass?: string;
-  leaveFromClass?: string;
-  leaveActiveClass?: string;
-  leaveToClass?: string;
+  enterFrom?: string;
+  enterActive?: string;
+  enterTo?: string;
+  appearFrom?: string;
+  appearActive?: string;
+  appearTo?: string;
+  leaveFrom?: string;
+  leaveActive?: string;
+  leaveTo?: string;
   /**
    * Callback fired before the "entering" status is applied.
    */
@@ -84,19 +84,17 @@ export interface BaseTransitionProps {
 }
 
 export interface TransitionConfig {
-  classNames?:
-    | string
-    | {
-        enter?: string;
-        enterActive?: string;
-        enterDone?: string;
-        exit?: string;
-        exitActive?: string;
-        exitDone?: string;
-        appear?: string;
-        appearActive?: string;
-        appearDone?: string;
-      };
+  classNames?: {
+    enter?: string;
+    enterActive?: string;
+    enterDone?: string;
+    exit?: string;
+    exitActive?: string;
+    exitDone?: string;
+    appear?: string;
+    appearActive?: string;
+    appearDone?: string;
+  };
   timeout: number | { enter: number; exit: number; appear?: number };
   appear: boolean;
   // 事件处理函数
@@ -109,6 +107,7 @@ export interface TransitionConfig {
 }
 
 const defaultDuration = 500;
+const diff = 10;
 
 // 处理 duration 为对象类型的计算
 export const getActualDuration = (
@@ -117,11 +116,11 @@ export const getActualDuration = (
 ) => {
   // 必须比设置的 css 过渡持续时间快 10ms，否则有概率会出现过渡效果结束后出现闪烁
   if (typeof duration === 'number') {
-    return duration - 10;
+    return duration - diff;
   }
   return type === 'enter'
-    ? (duration?.enter ?? defaultDuration) - 10
-    : (duration?.leave ?? defaultDuration) - 10;
+    ? (duration?.enter ?? defaultDuration) - diff
+    : (duration?.leave ?? defaultDuration) - diff;
 };
 
 export function useTransitionConfig(props: BaseTransitionProps): TransitionConfig {
@@ -130,15 +129,15 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     css = true,
     appear = false,
     duration = defaultDuration,
-    enterFromClass,
-    enterActiveClass,
-    enterToClass,
-    appearFromClass,
-    appearActiveClass,
-    appearToClass,
-    leaveFromClass,
-    leaveActiveClass,
-    leaveToClass,
+    enterFrom,
+    enterActive,
+    enterTo,
+    appearFrom,
+    appearActive,
+    appearTo,
+    leaveFrom,
+    leaveActive,
+    leaveTo,
     onBeforeEnter,
     onEnter,
     onAfterEnter,
@@ -151,40 +150,40 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
 
   // 计算类名配置
   const classNames = useMemo(() => {
-    if (css !== undefined && css === false) {
-      return undefined;
+    if (!css) {
+      return 'no-transition';
     }
 
     let baseClassNames;
 
     if (
-      enterFromClass ||
-      enterActiveClass ||
-      enterToClass ||
-      appearFromClass ||
-      appearActiveClass ||
-      appearToClass ||
-      leaveFromClass ||
-      leaveActiveClass ||
-      leaveToClass
+      enterFrom ||
+      enterActive ||
+      enterTo ||
+      appearFrom ||
+      appearActive ||
+      appearTo ||
+      leaveFrom ||
+      leaveActive ||
+      leaveTo
     ) {
       baseClassNames = {
-        enter: (!appear ? enterFromClass : appearFromClass) || `${name}-enter-from`,
-        enterActive: (!appear ? enterActiveClass : appearActiveClass) || `${name}-enter-active`,
-        enterDone: (!appear ? enterToClass : appearToClass) || `${name}-enter-to`,
-        exit: leaveFromClass || `${name}-leave-from`,
-        exitActive: leaveActiveClass || `${name}-leave-active`,
-        exitDone: leaveToClass || `${name}-leave-to`,
+        enter: (!appear ? enterFrom : appearFrom) || `${name}-enter-from`,
+        enterActive: (!appear ? enterActive : appearActive) || `${name}-enter-active`,
+        enterDone: (!appear ? enterTo : appearTo) || `${name}-enter-to`,
+        exit: leaveFrom || `${name}-leave-from`,
+        exitActive: leaveActive || `${name}-leave-active`,
+        exitDone: leaveTo || `${name}-leave-to`,
       };
     } else {
       const presetName = transitionNames[name] ?? name;
       baseClassNames = {
-        enter: `${presetName}-enter ${presetName}-enter-from`,
+        enter: `${presetName}-enter-from`,
         enterActive: `${presetName}-enter-active`,
         enterDone: `${presetName}-enter-to`,
-        exit: `${presetName}-exit ${presetName}-leave-from`,
-        exitActive: `${presetName}-exit-active ${presetName}-leave-active`,
-        exitDone: `${presetName}-exit-to ${presetName}-leave-to`,
+        exit: `${presetName}-leave-from`,
+        exitActive: `${presetName}-leave-active`,
+        exitDone: `${presetName}-leave-to`,
       };
     }
 
@@ -201,15 +200,15 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     return baseClassNames;
   }, [
     css,
-    enterFromClass,
-    enterActiveClass,
-    enterToClass,
-    appearFromClass,
-    appearActiveClass,
-    appearToClass,
-    leaveFromClass,
-    leaveActiveClass,
-    leaveToClass,
+    enterFrom,
+    enterActive,
+    enterTo,
+    appearFrom,
+    appearActive,
+    appearTo,
+    leaveFrom,
+    leaveActive,
+    leaveTo,
     appear,
     name,
   ]);
@@ -217,7 +216,7 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
   // 计算超时时间
   const timeout = useMemo(() => {
     if (typeof duration === 'number') {
-      return duration;
+      return duration - diff;
     }
     return {
       enter: getActualDuration(duration, 'enter'),
