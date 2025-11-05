@@ -151,7 +151,7 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
   // 计算类名配置
   const classNames = useMemo(() => {
     if (!css) {
-      return 'no-transition';
+      return 'no-transition' as unknown as undefined;
     }
 
     let baseClassNames;
@@ -278,15 +278,30 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     [onAfterLeave],
   );
 
-  return {
-    classNames,
-    timeout,
-    appear,
-    onEnter: handleEnter,
-    onEntering: handleEntering,
-    onEntered: handleEntered,
-    onExit: handleExit,
-    onExiting: handleExiting,
-    onExited: handleExited,
-  };
+  const config = useMemo(
+    () => ({
+      classNames,
+      timeout,
+      appear,
+      onEnter: handleEnter,
+      onEntering: handleEntering,
+      onEntered: handleEntered,
+      onExit: handleExit,
+      onExiting: handleExiting,
+      onExited: handleExited,
+    }),
+    [
+      appear,
+      classNames,
+      handleEnter,
+      handleEntered,
+      handleEntering,
+      handleExit,
+      handleExited,
+      handleExiting,
+      timeout,
+    ],
+  );
+
+  return config;
 }
