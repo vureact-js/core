@@ -108,20 +108,20 @@ export interface TransitionConfig {
   onExited?: (node: HTMLElement) => void;
 }
 
-// 必须比设置的 css 过渡持续时间快 10ms，否则有概率会出现过渡效果结束后出现闪烁
-const defaultDuration = 490;
+const defaultDuration = 500;
 
 // 处理 duration 为对象类型的计算
 export const getActualDuration = (
   duration: BaseTransitionProps['duration'],
   type: 'enter' | 'leave',
 ) => {
+  // 必须比设置的 css 过渡持续时间快 10ms，否则有概率会出现过渡效果结束后出现闪烁
   if (typeof duration === 'number') {
-    return duration;
+    return duration - 10;
   }
   return type === 'enter'
-    ? (duration?.enter ?? defaultDuration)
-    : (duration?.leave ?? defaultDuration);
+    ? (duration?.enter ?? defaultDuration) - 10
+    : (duration?.leave ?? defaultDuration) - 10;
 };
 
 export function useTransitionConfig(props: BaseTransitionProps): TransitionConfig {
