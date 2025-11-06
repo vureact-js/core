@@ -9,13 +9,13 @@ import {
   useRef,
 } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import '../css/transition.css';
 import {
   BaseTransitionProps,
   getActualDuration,
   TransitionConfig,
   useTransitionConfig,
 } from '../hooks/useTransitionConfig';
-import './css/eddie-transition.css';
 
 export interface TransitionProps extends BaseTransitionProps {
   /**
