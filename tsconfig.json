@@ -51,5 +51,7 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "resolveJsonModule": true
-  }
+  },
+  "types": ["node", "vitest/globals"],
+  "exclude": ["lib", "node_modules"]
 }
