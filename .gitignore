@@ -1,0 +1,6 @@
+node_modules/
+lib/
+pnpm-lock.yaml
+coverage/
+*.log
+.DS_Store
