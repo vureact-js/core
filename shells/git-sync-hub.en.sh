@@ -15,9 +15,9 @@ while true; do
 
     case $choice in
         1)
-            # Sync: Push current branch to GitHub (origin) and Gitee
+            # Sync: Push current branch to GitHub (github) and Gitee
             echo "Syncing current branch $CURRENT_BRANCH to GitHub and Gitee..."
-            git push origin $CURRENT_BRANCH
+            git push github $CURRENT_BRANCH
             if [ $? -ne 0 ]; then
                 echo "Push to GitHub failed."
                 continue
@@ -53,7 +53,7 @@ while true; do
                         break
                     fi
 
-                    # Merge original branch
+                    # Merge githubal branch
                     echo "Merging $CURRENT_BRANCH into $target..."
                     git merge $CURRENT_BRANCH
                     if [ $? -ne 0 ]; then
@@ -65,17 +65,17 @@ while true; do
                     # Prompt if need remote sync
                     read -p "Do you need to sync remotely? (y/n): " do_push
                     if [ "$do_push" = "y" ]; then
-                        git push origin $target
+                        git push github $target
                         git push gitee $target
                         echo "Remote sync completed."
                     fi
 
-                    # Prompt if switch back to original branch
-                    read -p "Do you need to switch back to original branch $CURRENT_BRANCH? (y/n): " switch_back
+                    # Prompt if switch back to githubal branch
+                    read -p "Do you need to switch back to githubal branch $CURRENT_BRANCH? (y/n): " switch_back
                     if [ "$switch_back" = "y" ]; then
                         git switch $CURRENT_BRANCH
                         if [ $? -ne 0 ]; then
-                            echo "Switch back to original branch failed."
+                            echo "Switch back to githubal branch failed."
                         fi
                     fi
                     break
@@ -85,10 +85,10 @@ while true; do
             done
             ;;
         2)
-            # Pull: Pull current branch from origin
+            # Pull: Pull current branch from github
             CURRENT_BRANCH=$(git branch --show-current)
             echo "Pulling current branch $CURRENT_BRANCH from GitHub..."
-            git pull origin $CURRENT_BRANCH
+            git pull github $CURRENT_BRANCH
             if [ $? -ne 0 ]; then
                 echo "Pull failed."
             else
@@ -96,10 +96,10 @@ while true; do
             fi
             ;;
         3)
-            # Push: Push current branch to origin and gitee
+            # Push: Push current branch to github and gitee
             CURRENT_BRANCH=$(git branch --show-current)
             echo "Pushing current branch $CURRENT_BRANCH to GitHub and Gitee..."
-            git push origin $CURRENT_BRANCH
+            git push github $CURRENT_BRANCH
             git push gitee $CURRENT_BRANCH
             if [ $? -eq 0 ]; then
                 echo "Push completed."

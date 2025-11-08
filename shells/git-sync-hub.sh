@@ -15,9 +15,9 @@ while true; do
 
     case $choice in
         1)
-            # 同步：推送当前分支到github (origin) 和 gitee
+            # 同步：推送当前分支到github (github) 和 gitee
             echo "正在同步当前分支 $CURRENT_BRANCH 到 GitHub 和 Gitee..."
-            git push origin $CURRENT_BRANCH
+            git push github $CURRENT_BRANCH
             if [ $? -ne 0 ]; then
                 echo "推送至 GitHub 失败。"
                 continue
@@ -65,7 +65,7 @@ while true; do
                     # 提示是否远程同步
                     read -p "是否需要远程同步当前分支？ (y/n): " do_push
                     if [ "$do_push" = "y" ]; then
-                        git push origin $target
+                        git push github $target
                         git push gitee $target
                         echo "远程同步完成。"
                     fi
@@ -85,10 +85,10 @@ while true; do
             done
             ;;
         2)
-            # 拉取：从 origin 拉取当前分支
+            # 拉取：从 github 拉取当前分支
             CURRENT_BRANCH=$(git branch --show-current)
             echo "正在从 GitHub 拉取当前分支 $CURRENT_BRANCH..."
-            git pull origin $CURRENT_BRANCH
+            git pull github $CURRENT_BRANCH
             if [ $? -ne 0 ]; then
                 echo "拉取失败。"
             else
@@ -96,10 +96,10 @@ while true; do
             fi
             ;;
         3)
-            # 推送：推送当前分支到 origin 和 gitee
+            # 推送：推送当前分支到 github 和 gitee
             CURRENT_BRANCH=$(git branch --show-current)
             echo "正在推送当前分支 $CURRENT_BRANCH 到 GitHub 和 Gitee..."
-            git push origin $CURRENT_BRANCH
+            git push github $CURRENT_BRANCH
             git push gitee $CURRENT_BRANCH
             if [ $? -eq 0 ]; then
                 echo "推送完成。"
