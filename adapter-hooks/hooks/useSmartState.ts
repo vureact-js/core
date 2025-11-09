@@ -1,7 +1,6 @@
 import { type Dispatch, type SetStateAction, useState } from 'react';
+import type { Primitive } from 'types';
 import { type ImmerHook, useImmer } from 'use-immer';
-
-type Primitive = null | undefined | string | number | boolean | symbol | bigint;
 
 export type SmartStateReturn<S> = [S] extends [Primitive]
   ? [S, Dispatch<SetStateAction<S>>]
