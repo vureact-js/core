@@ -1,38 +1,31 @@
-import { deepFreeze } from 'deep-freeze-es6';
+import { freeze } from 'freeze-mutate';
+import { klona as deepClone } from 'klona';
 import { useMemo } from 'react';
+import type { Primitive } from '../types';
+import { isObject } from '../utils';
+
+type ReadonlyObject<T> = Readonly<T extends Primitive ? { value: T } : T>;
 
 /**
- * `useReadonly` will deeply freeze the entire object and return the memoized value.
- *
- * @example
- *
- * ```ts
- * const object = useReadonly({ a: 'b', c: { d: 'e', f: ['g'] } })
- * object.c.f.push('h') // Modification attempts will throw an error.
- * ```
+ * `useReadonly` will deeply freeze the entire object, prohibiting any modifications.
  */
-export function useReadonly<T>(initialState: T): T;
+export function useReadonly<T>(initialState: T): ReadonlyObject<T>;
 
-export function useReadonly<T>(initialState: () => T): T {
-  const state = typeof initialState === 'function' ? initialState() : initialState;
-  return useMemo(() => deepFreeze(state), [state]);
+export function useReadonly<T>(initialState: () => T): ReadonlyObject<T> {
+  return useMemo(() => readonly(initialState), [initialState]);
 }
 
 /**
- * `useShallowReadonly` only freezes the object's first-level properties
- * and returns the memoized value.
- *
- * @example
- *
- * ```ts
- * const object = useReadonly({ a: 'b', c: { d: 'e' } })
- * object.a = 'f' // Modification attempts will throw an error.
- * object.c.d = 'g' // Modifications to nested child objects cannot be prevented.
- * ```
+ * `useShallowReadonly` only freezes the shallow layer of the object.
  */
-export function useShallowReadonly<T>(initialState: T): T;
+export function useShallowReadonly<T>(initialState: T): ReadonlyObject<T>;
 
-export function useShallowReadonly<T>(initialState: () => T): T {
-  const state = typeof initialState === 'function' ? initialState() : initialState;
-  return useMemo(() => Object.freeze(state), [state]);
+export function useShallowReadonly<T>(initialState: () => T): ReadonlyObject<T> {
+  return useMemo(() => readonly(initialState, false), [initialState]);
+}
+
+function readonly<T>(initialState: T | (() => T), deep = true): ReadonlyObject<T> {
+  const state = typeof initialState === 'function' ? (initialState as () => T)() : initialState;
+  const object = !isObject(state) ? { value: state } : state;
+  return freeze(deepClone(object), deep) as ReadonlyObject<T>;
 }
