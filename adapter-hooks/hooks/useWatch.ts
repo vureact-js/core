@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDeepCompareEffect, useFirstMountState, useUnmount } from 'react-use';
 import { executeEffect } from '../executeEffect';
 import type { Destructor } from '../types';
+import { isPrimitive } from '../utils';
 
 export type WatchSource<T = any> = T | (() => T);
 
@@ -17,74 +18,90 @@ export type WatchStopHandle = () => void;
 
 export function useWatch<T>(
   source: WatchSource<T>,
-  fn: WatchCallback<T>,
+  fn: WatchCallback<T, T>,
   options?: WatchOptions,
 ): WatchStopHandle {
   const { stop, onStop } = createWatchStopHandle();
 
   const isFirstMount = useFirstMountState();
 
-  const callOnce = useRef(false);
-  const prevDeps = useRef<T[]>([]);
-  const currentDeps = useRef<T[]>([]);
+  const once = useRef(false);
+  const oldValue = useRef<T>(undefined);
+  const newValue = useRef<T>(undefined);
   const cleanupRef = useRef<Destructor>(undefined);
 
-  const handleSource = useCallback(() => {
-    if (Array.isArray(source)) {
-      currentDeps.current.length = 0;
-      currentDeps.current.push(...source);
-      return;
+  const getDepsFromSource = (src: WatchSource<T>): any[] => {
+    if (typeof src === 'function') {
+      const result = (src as () => T)();
+      newValue.current = result;
+
+      // 函数返回值总是作为单个依赖项
+      return [result];
     }
 
-    if (typeof source === 'function') {
-      const returnVal = (source as () => T)();
-      if (Array.isArray(returnVal)) {
-        currentDeps.current.length = 0;
-        currentDeps.current.push(...returnVal);
-      } else {
-        currentDeps.current.push(returnVal);
-      }
-      return;
-    }
+    newValue.current = src;
 
-    currentDeps.current.push(source);
-  }, [source]);
+    // 非函数值：如果是数组，可能是多依赖；否则是单依赖
+    return Array.isArray(src) ? src : [src];
+  };
 
-  handleSource();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sourceDeps = useMemo(() => getDepsFromSource(source), [source]);
+  const deps = useMemo(() => [...sourceDeps, stop], [sourceDeps, stop]);
 
-  const effect = useMemo(() => (options?.deep ? useDeepCompareEffect : useEffect), [options?.deep]);
+  const effect = useMemo(() => {
+    if (!options?.deep) return useEffect;
+
+    // 依赖项包含非原始值时使用深度比较
+    const hasNonPrimitive = sourceDeps.some((dep) => !isPrimitive(dep));
+    return hasNonPrimitive ? useDeepCompareEffect : useEffect;
+  }, [options?.deep, sourceDeps]);
+
+  const runCleanup = () => {
+    if (!cleanupRef.current) return;
+    cleanupRef.current();
+    cleanupRef.current = undefined;
+  };
 
   effect(() => {
+    const updateValue = () => {
+      oldValue.current = newValue.current;
+    };
+
+    const triggerFn = () => {
+      runCleanup();
+      cleanupRef.current = executeEffect(
+        () => fn(newValue.current!, oldValue.current!),
+        (asyncCleanup) => {
+          cleanupRef.current = asyncCleanup;
+        },
+      );
+    };
+
     if (stop) {
-      cleanupRef.current?.();
+      runCleanup();
       return;
     }
 
-    if (callOnce.current) return;
-
     if (isFirstMount) {
+      updateValue();
       if (options?.immediate) {
-        if (options?.once) callOnce.current = true;
-        prevDeps.current = currentDeps.current;
-        executeEffect(fn, (cleanup) => {
-          cleanupRef.current = cleanup;
-        });
+        if (options?.once) {
+          once.current = true;
+        }
+        triggerFn();
       }
       return;
     }
 
-    if (options?.once) callOnce.current = true;
+    if (once.current) return;
+    once.current = !!options?.once;
 
-    executeEffect(fn, (cleanup) => {
-      cleanupRef.current = cleanup;
-    });
+    triggerFn();
+    updateValue();
+  }, deps);
 
-    prevDeps.current = currentDeps.current;
-  }, currentDeps.current);
-
-  useUnmount(() => {
-    if (!stop) cleanupRef.current?.();
-  });
+  useUnmount(runCleanup);
 
   return onStop;
 }
