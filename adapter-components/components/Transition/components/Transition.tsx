@@ -33,12 +33,12 @@ export interface TransitionProps extends BaseTransitionProps {
   __USE_THE_CONFIGURED_PROPS?: boolean;
 }
 
-export default memo(VueTransition);
+export default memo(Transition);
 
 /**
- * Equivalent to Vue Transition components, with the same usage.
+ * Equivalent to  Transition components, with the same usage.
  */
-function VueTransition(props: PropsWithChildren<TransitionProps>) {
+function Transition(props: PropsWithChildren<TransitionProps>) {
   const {
     mode,
     children,
