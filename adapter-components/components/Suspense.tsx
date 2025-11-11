@@ -1,7 +1,7 @@
 import {
   JSX,
   memo,
-  Suspense,
+  Suspense as ReactSuspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -41,12 +41,12 @@ export interface SuspenseProps {
   fallback: ReactNode;
 }
 
-export default memo(VueSuspense);
+export default memo(Suspense);
 
 /**
- * Equivalent to Vue Suspense components, with the same usage.
+ * Equivalent to  Suspense components, with the same usage.
  */
-function VueSuspense(props: SuspenseProps): JSX.Element {
+function Suspense(props: SuspenseProps): JSX.Element {
   const {
     children,
     timeout,
@@ -97,7 +97,7 @@ function VueSuspense(props: SuspenseProps): JSX.Element {
   }, [cleanup, onResolve]);
 
   return (
-    <Suspense
+    <ReactSuspense
       fallback={
         <SuspenseFallback
           fallback={fallback}
@@ -112,7 +112,7 @@ function VueSuspense(props: SuspenseProps): JSX.Element {
       }
     >
       <SuspenseContent onResolve={handleResolve} children={children} />
-    </Suspense>
+    </ReactSuspense>
   );
 }
 
