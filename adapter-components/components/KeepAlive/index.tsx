@@ -50,12 +50,12 @@ const globalOffscreenContainer: HTMLElement | null =
     : null;
 
 export { useActived, useDeactived, type KeepAliveProps, type MatchPattern };
-export default memo(VueKeepAlive);
+export default memo(KeepAlive);
 
 /**
- * Equivalent to Vue KeepAlive components, with the same usage.
+ * Equivalent to  KeepAlive components, with the same usage.
  */
-function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
+function KeepAlive(props: PropsWithChildren<KeepAliveProps>) {
   const { include, exclude, max = 10, children } = props;
 
   const lifeValueRef = useRef(createKeepAliveLifeContextValue());
@@ -63,28 +63,30 @@ function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
   const cacheRef = useRef(new Map<string, ReactElement>());
   const cacheContainerRef = useRef(new Map<string, HTMLDivElement>());
 
-  const visibleHostRef = useRef<HTMLDivElement | null>(null);
   const prevActiveKeyRef = useRef<string | null>(null);
+  const visibleHostRef = useRef<HTMLDivElement | null>(null);
 
-  const [activeKey, setActiveKey] = useState<string | null>(null);
   const [, forceUpdate] = useState(0);
+  const [activeKey, setActiveKey] = useState<string | null>(null);
 
   if (Children.count(children) !== 1) {
-    console.warn('[KeepAlive warn] There must be only one direct child component.');
+    console.error('[KeepAlive] There must be only one direct child component.');
     return <>{children}</>;
   }
 
   const reactType = getReactType(children);
+
   if (reactType !== 'element' && reactType !== 'component') {
-    console.warn('[KeepAlive warn] The child element must be a component.');
+    console.error('[KeepAlive] The child element must be a component.');
     return <>{children}</>;
   }
 
   const compName = getComponentName(children as ReactElement);
 
   const reactKey = (children as ReactElement).key;
+
   // 若 compName 为空则不缓存
-  const cacheKey = reactKey ? String(reactKey) : compName ? `${compName}` : null;
+  const cacheKey = reactKey || compName || null;
 
   const shouldCache = useMemo(() => {
     if (!cacheKey) return false;
@@ -120,16 +122,19 @@ function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
 
   // 缓存管理
   useEffect(() => {
+    const cleanCache = (key: string) => {
+      lifeValueRef.current.notifyDeactivate(key);
+      cacheRef.current.delete(key);
+
+      const wrapper = cacheContainerRef.current.get(key);
+      wrapper?.parentNode?.removeChild(wrapper);
+
+      cacheContainerRef.current.delete(key);
+    };
+
     // 清理不应该缓存的组件
     if (!shouldCache && cacheKey && cacheRef.current.has(cacheKey)) {
-      lifeValueRef.current.notifyDeactivate(cacheKey);
-      cacheRef.current.delete(cacheKey);
-
-      const wrapper = cacheContainerRef.current.get(cacheKey);
-      if (wrapper?.parentNode) {
-        wrapper.parentNode.removeChild(wrapper);
-      }
-      cacheContainerRef.current.delete(cacheKey);
+      cleanCache(cacheKey);
 
       if (activeKey === cacheKey) {
         setActiveKey(null);
@@ -145,14 +150,12 @@ function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
       // LRU 驱逐
       if (cacheRef.current.size > Number(max)) {
         const oldestKey = cacheRef.current.keys().next().value;
+
         if (oldestKey) {
-          lifeValueRef.current.notifyDeactivate(oldestKey);
-          cacheRef.current.delete(oldestKey);
-          const wrapper = cacheContainerRef.current.get(oldestKey);
-          if (wrapper?.parentNode) wrapper.parentNode.removeChild(wrapper);
-          cacheContainerRef.current.delete(oldestKey);
+          cleanCache(oldestKey);
         }
       }
+
       forceUpdate((v) => v + 1);
     }
   }, [shouldCache, cacheKey, children, max, activeKey]);
@@ -219,7 +222,7 @@ function VueKeepAlive(props: PropsWithChildren<KeepAliveProps>) {
 
   return (
     <KeepAliveLifeContext.Provider value={lifeValueRef.current}>
-      <div ref={visibleHostRef} className="eddie-keepalive-visible-host" />
+      <div ref={visibleHostRef} className="keepalive-visible-host" />
 
       {/* 如果当前组件不应该缓存，直接渲染 children */}
       {!shouldCache && children}
