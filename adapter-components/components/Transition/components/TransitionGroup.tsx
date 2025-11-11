@@ -13,13 +13,13 @@ import {
   useRef,
 } from 'react';
 import { Flipped, Flipper } from 'react-flip-toolkit';
-import { TransitionGroup } from 'react-transition-group';
+import { TransitionGroup as ReactTransitionGroup } from 'react-transition-group';
 import {
   BaseTransitionProps,
   getActualDuration,
   useTransitionConfig,
 } from '../hooks/useTransitionConfig';
-import VueTransition from './Transition';
+import Transition from './Transition';
 
 export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> {
   /**
@@ -43,9 +43,9 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
   moveSpring?: 'quickStiff' | 'smoothSlow' | 'wobbleLight' | 'gentle' | 'default';
 }
 
-export default memo(VueTransitionGroup);
+export default memo(TransitionGroup);
 
-function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
+function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   const {
     children,
     htmlProps,
@@ -178,7 +178,7 @@ function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
     return Children.map(children, (child, index) => {
       const key = (child as ReactElement)?.key ?? `tg-${index}`;
       return (
-        <VueTransition show key={key} {...transitionConfig} __USE_THE_CONFIGURED_PROPS>
+        <Transition show key={key} {...transitionConfig} __USE_THE_CONFIGURED_PROPS>
           {hasTransition ? (
             <Flipped flipId={key} onAppear={handleFlipAppear} onExit={handleFlipExit}>
               {child}
@@ -186,7 +186,7 @@ function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
           ) : (
             child
           )}
-        </VueTransition>
+        </Transition>
       );
     });
   }, [children, handleFlipAppear, handleFlipExit, hasTransition, transitionConfig]);
@@ -194,7 +194,7 @@ function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   const render = useMemo(
     () =>
       hasTransition ? (
-        <TransitionGroup component={null}>
+        <ReactTransitionGroup component={null}>
           <Flipper
             {...htmlProps}
             {...{ flipKey, element }}
@@ -208,11 +208,11 @@ function VueTransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
           >
             {renderChildren}
           </Flipper>
-        </TransitionGroup>
+        </ReactTransitionGroup>
       ) : (
-        <TransitionGroup component={element as 'div'} {...htmlProps}>
+        <ReactTransitionGroup component={element as 'div'} {...htmlProps}>
           {renderChildren}
-        </TransitionGroup>
+        </ReactTransitionGroup>
       ),
     [element, flipKey, htmlProps, moveSpringConfig, hasTransition, renderChildren],
   );
