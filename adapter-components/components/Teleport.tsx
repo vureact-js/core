@@ -19,12 +19,12 @@ export interface TeleportProps {
   defer?: boolean;
 }
 
-export default memo(VueTeleport);
+export default memo(Teleport);
 
 /**
- * Equivalent to Vue Teleport components, with the same usage.
+ * Equivalent to  Teleport components, with the same usage.
  */
-function VueTeleport(props: PropsWithChildren<TeleportProps>) {
+function Teleport(props: PropsWithChildren<TeleportProps>) {
   const { to, disabled, defer, children } = props;
 
   const [container, setContainer] = useState<Element | null>(null);
