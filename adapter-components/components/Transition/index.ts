@@ -1,4 +1,4 @@
-import VueTransition from './components/Transition';
-import VueTransitionGroup from './components/TransitionGroup';
+import Transition from './components/Transition';
+import TransitionGroup from './components/TransitionGroup';
 
-export { VueTransition, VueTransitionGroup };
+export { Transition, TransitionGroup };

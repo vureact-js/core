@@ -1,14 +1,6 @@
-import VueComponent from './Component';
-import VueKeepAlive, { useActived, useDeactived } from './KeepAlive';
-import VueSuspense from './Suspense';
-import { VueTransition, VueTransitionGroup } from './Transition';
+import Component from './Component';
+import KeepAlive, { useActived, useDeactived } from './KeepAlive';
+import Suspense from './Suspense';
+import { Transition, TransitionGroup } from './Transition';
 
-export {
-  useActived,
-  useDeactived,
-  VueComponent,
-  VueKeepAlive,
-  VueSuspense,
-  VueTransition,
-  VueTransitionGroup,
-};
+export { Component, KeepAlive, Suspense, Transition, TransitionGroup, useActived, useDeactived };
