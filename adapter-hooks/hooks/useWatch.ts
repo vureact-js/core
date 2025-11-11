@@ -16,6 +16,13 @@ export interface WatchOptions {
 
 export type WatchStopHandle = () => void;
 
+/**
+ * `useWatch` is almost identical to Vue's `watch` in terms of usage.
+ * @param source Listen for dependencies, whether single, multiple, or the return value of a function.
+ * @param fn A effect that executes when dependencies change.
+ * @param options The provided options include `immediate`, `deep`, and `once`.
+ * @returns
+ */
 export function useWatch<T>(
   source: WatchSource<T>,
   fn: WatchCallback<T, T>,

@@ -3,6 +3,9 @@ import { executeEffect } from '../shared/executeEffect';
 import type { Destructor, EffectCallback } from '../types';
 import { createWatchStopHandle, type WatchStopHandle } from './useWatch';
 
+/**
+ * `useWatchEffect` is similar to Vue's `watchEffect` and returns a stop function.
+ */
 export function useWatchEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
   const { stop, onStop } = createWatchStopHandle();
 
