@@ -14,12 +14,12 @@ interface ComponentProps {
 
 type ReturnType = JSX.Element | null;
 
-export default memo(VueComponent);
+export default memo(Component);
 
 /**
- * Equivalent to Vue dynamic component, with the same usage.
+ * Equivalent to  dynamic component, with the same usage.
  */
-function VueComponent({ is, props }: ComponentProps): ReturnType {
+function Component({ is, props }: ComponentProps): ReturnType {
   const renderElement = useMemo(() => {
     switch (getReactType(is)) {
       case 'text':
