@@ -1,5 +1,5 @@
 import { createElement, FunctionComponent, JSX, memo, ReactNode, useMemo } from 'react';
-import { getReactType } from 'utils';
+import { getReactType } from '../utils';
 
 interface ComponentProps {
   /**
