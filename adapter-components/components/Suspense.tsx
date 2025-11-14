@@ -58,7 +58,7 @@ function Suspense(props: SuspenseProps): JSX.Element {
   } = props;
 
   const [showFallback, setShowFallback] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasPendingRef = useRef(false);
   const hasResolvedRef = useRef(false);
 
@@ -125,7 +125,7 @@ const SuspenseFallback: React.FC<{
   showFallback: boolean;
   setShowFallback: (show: boolean) => void;
   hasPendingRef: React.RefObject<boolean>;
-  timeoutRef: React.RefObject<number | null>;
+  timeoutRef: React.RefObject<NodeJS.Timeout | null>;
 }> = (props) => {
   const {
     fallback,
