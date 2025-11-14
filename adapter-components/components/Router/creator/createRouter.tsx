@@ -3,11 +3,11 @@ import type { RouteObject, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
 import { buildSearchParams, resolvedPath } from '../utils';
-import { routerFactory, type RouterMode } from './createHistory';
+import { createWebHashHistory, routerFactory, type RouterMode } from './createHistory';
 
 export interface CreateRouterOptions {
   routes: RouteConfig[];
-  history: RouterMode;
+  history?: RouterMode;
   initialEntries?: string[];
   initialIndex?: number;
 }
@@ -43,7 +43,9 @@ export const _ROUTE_CONFIG_: GlobalRouteConfig = { source: [], converted: [] };
 /**
  * Simulate Vue's `createRouter` based on `react-router-dom`
  *
- * @public option categories
+ * @public
+ *
+ * @category options
  *
  * @param history Call these three functions: createWebHistory, createWebHashHistory, and createMemoryHistory to use different history modes.
  *
@@ -56,7 +58,7 @@ export const _ROUTE_CONFIG_: GlobalRouteConfig = { source: [], converted: [] };
  * @returns router instance
  */
 export function createRouter(options: CreateRouterOptions) {
-  const { history, routes, ...memoryRouterOpts } = options;
+  const { history = createWebHashHistory(), routes, ...memoryRouterOpts } = options;
 
   const convertedRoutes: ReactRoute[] = [];
 
