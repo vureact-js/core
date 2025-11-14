@@ -1,4 +1,4 @@
-import { memo, startTransition, useEffect, useState, type PropsWithChildren } from 'react';
+import { memo, useEffect, useState, type PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface TeleportProps {
@@ -39,9 +39,7 @@ function Teleport(props: PropsWithChildren<TeleportProps>) {
         );
       }
     } else {
-      startTransition(() => {
-        setContainer(el);
-      });
+      Promise.resolve().then(() => setContainer(el));
     }
   }, [to]);
 

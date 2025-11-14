@@ -3,7 +3,6 @@ import {
   memo,
   PropsWithChildren,
   ReactElement,
-  startTransition,
   useEffect,
   useMemo,
   useRef,
@@ -200,7 +199,7 @@ function KeepAlive(props: PropsWithChildren<KeepAliveProps>) {
     if (prev && prev !== next) {
       // 隐藏前一个活跃组件
       hideWrapper(prev);
-      startTransition(() => {
+      Promise.resolve().then(() => {
         lifeValueRef.current.notifyDeactivate(prev);
       });
     }
@@ -209,7 +208,7 @@ function KeepAlive(props: PropsWithChildren<KeepAliveProps>) {
       // 显示当前活跃组件，隐藏其他所有
       showWrapper(next);
       hideAllExcept(next);
-      startTransition(() => {
+      Promise.resolve().then(() => {
         lifeValueRef.current.notifyActivate(next);
       });
     } else {

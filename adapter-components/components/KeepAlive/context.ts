@@ -1,4 +1,4 @@
-import { createContext, startTransition, useContext } from 'react';
+import { createContext, useContext } from 'react';
 
 // 生命周期 Context 与注册机制
 
@@ -54,7 +54,7 @@ export function createKeepAliveLifeContextValue(): KeepAliveLifeContextValue {
     // 如果该 key 当前已处于激活状态且未触发过，则立即补触发一次 onActivate。
     if (allowRetroactive && activatedKeysRef.current.has(key) && handlers.onActivate) {
       // 用微任务触发，确保 React commit 后执行，不阻塞注册
-      startTransition(() => {
+      Promise.resolve().then(() => {
         handlers.onActivate?.();
         listenerItem.hasTriggeredActivate = true;
       });
