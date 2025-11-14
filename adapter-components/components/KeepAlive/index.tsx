@@ -10,7 +10,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { getComponentName, getReactType } from 'utils';
+import { getComponentName, getReactType } from '../../utils';
 import { createKeepAliveLifeContextValue, InnerKeyContext, KeepAliveLifeContext } from './context';
 import { useActived } from './hooks/useActived';
 import { useDeactived } from './hooks/useDeactived';
