@@ -1,6 +1,6 @@
-import { type Params, matchPath } from 'react-router-dom';
-import type { GlobalRouteConfig, RouteConfig } from './creator/createRouter';
-import { _ROUTE_CONFIG_ } from './creator/createRouter';
+import { matchPath, type Params } from 'react-router-dom';
+import { _ROUTE_CONFIG_, type GlobalRouteConfig } from './creator/createClobalRouteConfig';
+import type { RouteConfig } from './creator/createRouter';
 import { type RouterOptions as RouterHookOptions } from './hooks/useRouter';
 
 export function resolvedPath({ name, path, params }: RouterHookOptions): string {

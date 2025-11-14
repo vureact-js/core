@@ -3,6 +3,7 @@ import type { RouteObject, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
 import { buildSearchParams, resolvedPath } from '../utils';
+import { registerRouteConfig } from './createClobalRouteConfig';
 import { createWebHashHistory, routerFactory, type RouterMode } from './createHistory';
 
 export interface CreateRouterOptions {
@@ -32,13 +33,6 @@ type RedirectFunc = (to: string) => Redirect;
 type Redirect = string | RedirectOptions;
 
 type RedirectOptions = RouterHookOptions;
-
-export interface GlobalRouteConfig {
-  source: RouteConfig[];
-  converted: RouteObject[];
-}
-
-export const _ROUTE_CONFIG_: GlobalRouteConfig = { source: [], converted: [] };
 
 /**
  * Simulate Vue's `createRouter` based on `react-router-dom`
@@ -134,9 +128,4 @@ export function createRouter(options: CreateRouterOptions) {
   registerRouteConfig(routes, convertedRoutes);
 
   return routerFactory(history, convertedRoutes, memoryRouterOpts);
-}
-
-export function registerRouteConfig(routes: RouteConfig[], convertedRoutes: RouteObject[]) {
-  _ROUTE_CONFIG_.source = routes;
-  _ROUTE_CONFIG_.converted = convertedRoutes;
 }
