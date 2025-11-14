@@ -59,8 +59,8 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   const { duration } = transitionProps;
   const { classNames } = transitionConfig;
 
-  const appearTimer = useRef<number | number>(null);
-  const exitTimer = useRef<number | number>(null);
+  const appearTimer = useRef<NodeJS.Timeout>(null);
+  const exitTimer = useRef<NodeJS.Timeout>(null);
 
   const getKeys = useCallback(() => {
     return Children.toArray(children)
