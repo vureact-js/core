@@ -3,6 +3,20 @@ import { _ROUTE_CONFIG_, type GlobalRouteConfig } from './creator/createClobalRo
 import type { RouteConfig } from './creator/createRouter';
 import { type RouterOptions as RouterHookOptions } from './hooks/useRouter';
 
+export const buildFullPath = (to: string | RouterHookOptions): string => {
+  if (typeof to === 'string') {
+    return to;
+  }
+
+  const { query, hash } = to;
+
+  return (
+    resolvedPath(to) +
+    (buildSearchParams(query) ?? '') +
+    (hash ? (hash.startsWith('#') ? hash : `#${hash}`) : '')
+  );
+};
+
 export function resolvedPath({ name, path, params }: RouterHookOptions): string {
   return name ? getPathByName(name, params) : buildPathWithParams(path!, params);
 }
