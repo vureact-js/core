@@ -1,9 +1,15 @@
-import type { ReactNode } from 'react';
-import type { RouteObject, To } from 'react-router-dom';
+import type { FunctionComponent, ReactNode } from 'react';
+import type { RouteObject, RouterProviderProps, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
+import { createRouterProvider } from '../creator/createRouterProvider';
+import {
+  type AfterEachGuard,
+  type BeforeEachGuard,
+  type GuardManager,
+} from '../guards/GuardManager';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
 import { buildSearchParams, resolvedPath } from '../utils';
-import { registerRouteConfig } from './createClobalRouteConfig';
+import { registerRouteConfig, resetRouteConfig } from './createClobalRouteConfig';
 import { createWebHashHistory, routerFactory, type RouterMode } from './createHistory';
 
 export interface CreateRouterOptions {
@@ -13,9 +19,7 @@ export interface CreateRouterOptions {
   initialIndex?: number;
 }
 
-export type ReactRoute = RouteObject;
-
-export interface RouteConfig {
+export interface RouteConfig extends Partial<PubilcGuardMethods> {
   path: string;
   name?: string;
   state?: any;
@@ -34,6 +38,16 @@ type Redirect = string | RedirectOptions;
 
 type RedirectOptions = RouterHookOptions;
 
+export interface RouterInstance extends PubilcGuardMethods {
+  router: RouterProviderProps['router'];
+  RouterProvider: FunctionComponent;
+  clearAll: () => void;
+}
+
+type PubilcGuardMethods = GuardManager;
+
+export type ReactRoute = RouteObject;
+
 /**
  * Simulate Vue's `createRouter` based on `react-router-dom`
  *
@@ -51,7 +65,7 @@ type RedirectOptions = RouterHookOptions;
  *
  * @returns router instance
  */
-export function createRouter(options: CreateRouterOptions) {
+export function createRouter(options: CreateRouterOptions): RouterInstance {
   const { history = createWebHashHistory(), routes, ...memoryRouterOpts } = options;
 
   const convertedRoutes: ReactRoute[] = [];
@@ -127,5 +141,23 @@ export function createRouter(options: CreateRouterOptions) {
 
   registerRouteConfig(routes, convertedRoutes);
 
-  return routerFactory(history, convertedRoutes, memoryRouterOpts);
+  const router = routerFactory(history, convertedRoutes, memoryRouterOpts);
+
+  const { guardManager, RouterProvider } = createRouterProvider(router);
+
+  const beforeEach = (guard: BeforeEachGuard) => guardManager.beforeEach(guard);
+  const afterEach = (guard: AfterEachGuard) => guardManager.afterEach(guard);
+
+  const clearAll = () => {
+    resetRouteConfig();
+    guardManager.clear();
+  };
+
+  return {
+    router,
+    beforeEach,
+    afterEach,
+    clearAll,
+    RouterProvider,
+  };
 }
