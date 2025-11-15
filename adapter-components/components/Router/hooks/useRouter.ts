@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { type NavigateOptions, type Params, useLocation, useNavigate } from 'react-router-dom';
-import { buildPathWithParams, getPathByName } from '../utils';
+import { buildFullPath } from '../utils';
 
 export interface Router {
   push: (to: string | RouterOptions) => void;
@@ -28,31 +28,6 @@ export function useRouter(): Router {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const buildPath = useCallback((to: string | RouterOptions): string => {
-    if (typeof to === 'string') {
-      return to;
-    }
-
-    let { path, query, hash, params, name } = to;
-
-    if (name) {
-      path = getPathByName(name, params);
-    } else if (params && path) {
-      path = buildPathWithParams(path, params);
-    }
-
-    if (query && Object.keys(query).length) {
-      const searchParams = new URLSearchParams(query);
-      path += `?${searchParams.toString()}`;
-    }
-
-    if (hash) {
-      path += hash.startsWith('#') ? hash : `#${hash}`;
-    }
-
-    return path!;
-  }, []);
-
   const getNavigateOptions = useCallback(
     (to: string | RouterOptions): NavigateOptions | undefined => {
       if (typeof to === 'string') return undefined;
@@ -65,11 +40,11 @@ export function useRouter(): Router {
   const router = useMemo<Router>(
     () => ({
       push: (to) => {
-        navigate(buildPath(to), getNavigateOptions(to));
+        navigate(buildFullPath(to), getNavigateOptions(to));
       },
 
       replace: (to) => {
-        navigate(buildPath(to), getNavigateOptions(to));
+        navigate(buildFullPath(to), getNavigateOptions(to));
       },
 
       go: (delta) => {
@@ -86,7 +61,7 @@ export function useRouter(): Router {
 
       current: location.pathname + location.search + location.hash,
     }),
-    [location.pathname, location.search, location.hash, buildPath, getNavigateOptions, navigate],
+    [location.pathname, location.search, location.hash, getNavigateOptions, navigate],
   );
 
   return router;
