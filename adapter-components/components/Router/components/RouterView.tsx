@@ -1,5 +1,7 @@
-import { memo, type ReactNode } from 'react';
+import { memo, useCallback, type ReactNode } from 'react';
 import { useOutlet } from 'react-router-dom';
+import { GuardExecutor } from '../guards/GuardExecutor';
+import { useRoute } from '../hooks/useRoute';
 
 export interface RouterViewProps {
   customRender?: (component?: ReactNode) => ReactNode;
@@ -7,12 +9,14 @@ export interface RouterViewProps {
 
 export default memo(RouterView);
 
-function RouterView({ customRender }: RouterViewProps) {
+function RouterView({ customRender }: RouterViewProps): ReactNode {
   const outlet = useOutlet();
+  const route = useRoute();
 
-  if (customRender) {
-    return customRender(outlet);
-  }
+  const render = useCallback(
+    (outlet: ReactNode) => customRender?.(outlet) ?? outlet,
+    [customRender],
+  );
 
-  return outlet;
+  return <GuardExecutor {...{ route, outlet, render }} />;
 }
