@@ -9,7 +9,7 @@ export type BeforeEachGuard = (
   to: GuardRouteLocation,
   from: GuardRouteLocation,
   next: (result?: Result) => void,
-) => void | Promise<void>;
+) => any | Promise<any>;
 
 export type AfterEachGuard = (
   to: GuardRouteLocation,
