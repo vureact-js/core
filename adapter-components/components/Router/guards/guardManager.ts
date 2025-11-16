@@ -147,6 +147,7 @@ export class GuardManagerImpl {
   clear() {
     this.isExecuting = false;
     this.beforeEachGuards.length = 0;
+    this.beforeResolveGuards.length = 0;
     this.afterEachGuards.length = 0;
   }
 }
