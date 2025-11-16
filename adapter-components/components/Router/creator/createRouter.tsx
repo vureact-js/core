@@ -2,7 +2,7 @@ import type { FunctionComponent, ReactNode } from 'react';
 import type { RouteObject, RouterProviderProps, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import { createRouterProvider } from '../creator/createRouterProvider';
-import { type GlobalGuards } from '../guards/GuardManager';
+import { type ExclusiveGuards, type GlobalGuards } from '../guards/GuardManager';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
 import { buildSearchParams, resolvedPath } from '../utils';
 import { registerRouteConfig, resetRouteConfig } from './createClobalRouteConfig';
@@ -15,7 +15,7 @@ export interface CreateRouterOptions {
   initialIndex?: number;
 }
 
-export interface RouteConfig {
+export interface RouteConfig extends ExclusiveGuards {
   path: string;
   name?: string;
   state?: any;
