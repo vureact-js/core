@@ -142,6 +142,7 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
   const clearAll = () => {
     resetRouteConfig();
     guardManager.clear();
+    routes.length = 0;
   };
 
   return {
