@@ -1,18 +1,22 @@
 import type { RouteLocation } from '../hooks/useRoute';
 
 export interface GlobalGuards {
-  beforeEach: (guard: BeforeEachGuard) => void;
-  beforeResolve: (guard: BeforeEachGuard) => void;
-  afterEach: (guard: AfterEachGuard) => void;
+  beforeEach: (guard: GuardWithNextFn) => void;
+  beforeResolve: (guard: GuardWithNextFn) => void;
+  afterEach: (guard: NonNextFnGuard) => void;
 }
 
-export type BeforeEachGuard = (
+export interface ExclusiveGuards {
+  beforeEnter?: GuardWithNextFn | Array<GuardWithNextFn>;
+}
+
+export type GuardWithNextFn = (
   to: GuardRouteLocation,
   from: GuardRouteLocation,
   next: (result?: Result) => void,
 ) => any | Promise<any>;
 
-export type AfterEachGuard = (
+export type NonNextFnGuard = (
   to: GuardRouteLocation,
   from: GuardRouteLocation,
 ) => void | Promise<void>;
@@ -26,19 +30,21 @@ export interface GuardRouteLocation extends RouteLocation {
 type GuardName = 'beforeEachGuards' | 'beforeResolveGuards' | 'afterEachGuards';
 
 export class GuardManagerImpl {
-  private beforeEachGuards: BeforeEachGuard[] = [];
-  private beforeResolveGuards: BeforeEachGuard[] = [];
-  private afterEachGuards: AfterEachGuard[] = [];
+  private beforeEachGuards: GuardWithNextFn[] = [];
+  private beforeResolveGuards: GuardWithNextFn[] = [];
+  private afterEachGuards: NonNextFnGuard[] = [];
 
   private isExecuting = false;
 
-  registerGuard(name: GuardName, guard: BeforeEachGuard) {
-    // @ts-ignore
-    this[name]?.push(guard);
+  registerGuard(name: GuardName, guard: GuardWithNextFn | NonNextFnGuard) {
+    if (name in this) {
+      // @ts-ignore
+      this[name]?.push(guard);
+    }
   }
 
   private async executeGuardPipeline(
-    guards: BeforeEachGuard[],
+    guards: GuardWithNextFn[],
     to: GuardRouteLocation,
     from: GuardRouteLocation,
   ): Promise<Result> {
@@ -125,6 +131,19 @@ export class GuardManagerImpl {
 
   async runBeforeEach(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
     return this.executeGuardPipeline(this.beforeEachGuards, to, from);
+  }
+
+  async runBeforeEnter(
+    to: GuardRouteLocation,
+    from: GuardRouteLocation,
+    beforeEnter?: ExclusiveGuards['beforeEnter'],
+  ): Promise<Result | undefined> {
+    if (beforeEnter) {
+      // 统一处理为数组形式
+      const guards = Array.isArray(beforeEnter) ? beforeEnter : [beforeEnter];
+      return this.executeGuardPipeline(guards, to, from);
+    }
+    return;
   }
 
   async runBeforeResolve(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
