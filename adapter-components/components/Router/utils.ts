@@ -77,6 +77,10 @@ export function getPathByName(name?: string, params?: Params): string {
   return buildPathWithParams(route.path, params);
 }
 
+/**
+ * Get the original route (not the converted React Router route)
+ * @param path The actual route path of the navigation change
+ */
 export function getRouteByPath(path: string): RouteConfig | null {
   const findRouteByPath = (routes: RouteConfig[], basePath = ''): RouteConfig | null => {
     for (const route of routes) {
