@@ -17,9 +17,11 @@ export type AfterEachGuard = (
   from: GuardRouteLocation,
 ) => void | Promise<void>;
 
-export type GuardRouteLocation = Partial<RouteLocation & { meta: Record<string, any> }>;
+type Result = boolean | string | Partial<GuardRouteLocation> | Error;
 
-type Result = boolean | string | GuardRouteLocation | Error;
+export interface GuardRouteLocation extends RouteLocation {
+  meta: Record<string, any>;
+}
 
 type GuardName = 'beforeEachGuards' | 'beforeResolveGuards' | 'afterEachGuards';
 
