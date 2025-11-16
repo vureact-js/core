@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGuardManager } from '../hooks/useGuardManager';
 import { type RouteLocation } from '../hooks/useRoute';
-import { getRouteByPath } from '../utils';
+import { buildFullPath, getRouteByPath } from '../utils';
 
 interface Props {
   outlet: ReactNode;
@@ -68,8 +68,8 @@ export function GuardExecutor({ render, outlet, route }: Props) {
         }
 
         // 重定向到 RouteLocation 对象
-        else if (result && typeof result === 'object' && 'path' in result) {
-          navigate(result.fullPath!, {
+        else if (typeof result === 'object' && !(result instanceof Error)) {
+          navigate(buildFullPath(result), {
             replace: true,
             state: result.state,
           });
@@ -77,7 +77,7 @@ export function GuardExecutor({ render, outlet, route }: Props) {
 
         // 如果返回 false，阻止导航（不更新 outlet）
         else if (result === false) {
-          navigate(from.fullPath, { replace: true });
+          navigate(from.fullPath, { replace: true, state: from.state });
         }
       } catch (error) {
         // 出错时也更新位置，避免阻塞后续导航
