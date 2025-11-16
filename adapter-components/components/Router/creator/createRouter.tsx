@@ -4,8 +4,12 @@ import { Navigate } from 'react-router-dom';
 import { createRouterProvider } from '../creator/createRouterProvider';
 import { type ExclusiveGuards, type GlobalGuards } from '../guards/GuardManager';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
-import { buildSearchParams, resolvedPath } from '../utils';
-import { registerRouteConfig, resetRouteConfig } from './createClobalRouteConfig';
+import { buildSearchParams, getRouteConfig, resolvedPath } from '../utils';
+import {
+  type GlobalRouteConfig,
+  registerRouteConfig,
+  resetRouteConfig,
+} from './createClobalRouteConfig';
 import { createWebHashHistory, routerFactory, type RouterMode } from './createHistory';
 
 export interface CreateRouterOptions {
@@ -38,6 +42,7 @@ export interface RouterInstance extends GlobalGuards {
   router: RouterProviderProps['router'];
   RouterProvider: FunctionComponent;
   clearAll: () => void;
+  getRoutes: () => Readonly<GlobalRouteConfig>;
 }
 
 export type ReactRoute = RouteObject;
@@ -114,7 +119,19 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
     // 处理重定向（优先级最高）
     if (route.redirect) {
       const redirectElement = handleRedirect(route.path, route.redirect);
-      if (redirectElement) {
+
+      // 如果该路由有子路由（或作为嵌套路由的容器），
+      // 不应直接覆盖父级 element（会移除 RouterView/Layout）。
+      // 而应把重定向作为 index 子路由（访问父路径时触发）。
+      if (route.children && route.children.length > 0) {
+        reactRoute.children = reactRoute.children || [];
+        // 插到最前面，作为 index route
+        reactRoute.children.unshift({
+          index: true,
+          element: redirectElement,
+        } as any);
+      } else {
+        // 对于无子路由的简单路由，可以直接设置 element 为 Navigate
         reactRoute.element = redirectElement;
       }
     }
@@ -158,5 +175,6 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
     afterEach(guard) {
       guardManager.registerGuard('afterEachGuards', guard);
     },
+    getRoutes: getRouteConfig,
   };
 }
