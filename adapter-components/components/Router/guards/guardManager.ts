@@ -35,19 +35,11 @@ export class GuardManagerImpl {
     this[name]?.push(guard);
   }
 
-  /**
-   * 顺序执行 beforeEach guards。
-   * 支持以下几种写法：
-   *  - 同步调用 next(value)
-   *  - 同步 return value
-   *  - 异步返回 Promise 并在内部 resolve/next
-   *
-   * 返回值：
-   *  - true 表示通过
-   *  - false 表示阻止导航
-   *  - string / route-like 表示重定向
-   */
-  async runBeforeEach(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
+  private async executeGuardPipeline(
+    guards: BeforeEachGuard[],
+    to: GuardRouteLocation,
+    from: GuardRouteLocation,
+  ): Promise<Result> {
     if (this.isExecuting) {
       console.warn('[Router] Navigation guard is already executing');
       return true;
@@ -56,7 +48,7 @@ export class GuardManagerImpl {
     this.isExecuting = true;
 
     try {
-      for (const guard of this.beforeEachGuards) {
+      for (const guard of guards) {
         const guardResult: Result = await new Promise<Result>((resolve) => {
           let nextCalled = false;
 
@@ -127,6 +119,14 @@ export class GuardManagerImpl {
     } finally {
       this.isExecuting = false;
     }
+  }
+
+  async runBeforeEach(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
+    return this.executeGuardPipeline(this.beforeEachGuards, to, from);
+  }
+
+  async runBeforeResolve(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
+    return this.executeGuardPipeline(this.beforeResolveGuards, to, from);
   }
 
   // 同步执行 afterEach（不影响导航流）
