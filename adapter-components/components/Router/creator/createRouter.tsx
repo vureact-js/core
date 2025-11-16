@@ -2,11 +2,7 @@ import type { FunctionComponent, ReactNode } from 'react';
 import type { RouteObject, RouterProviderProps, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import { createRouterProvider } from '../creator/createRouterProvider';
-import {
-  type AfterEachGuard,
-  type BeforeEachGuard,
-  type GuardManager,
-} from '../guards/GuardManager';
+import { type GlobalGuards } from '../guards/GuardManager';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
 import { buildSearchParams, resolvedPath } from '../utils';
 import { registerRouteConfig, resetRouteConfig } from './createClobalRouteConfig';
@@ -19,7 +15,7 @@ export interface CreateRouterOptions {
   initialIndex?: number;
 }
 
-export interface RouteConfig extends Partial<PubilcGuardMethods> {
+export interface RouteConfig {
   path: string;
   name?: string;
   state?: any;
@@ -38,13 +34,11 @@ type Redirect = string | RedirectOptions;
 
 type RedirectOptions = RouterHookOptions;
 
-export interface RouterInstance extends PubilcGuardMethods {
+export interface RouterInstance extends GlobalGuards {
   router: RouterProviderProps['router'];
   RouterProvider: FunctionComponent;
   clearAll: () => void;
 }
-
-type PubilcGuardMethods = GuardManager;
 
 export type ReactRoute = RouteObject;
 
@@ -145,9 +139,6 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
 
   const { guardManager, RouterProvider } = createRouterProvider(router);
 
-  const beforeEach = (guard: BeforeEachGuard) => guardManager.beforeEach(guard);
-  const afterEach = (guard: AfterEachGuard) => guardManager.afterEach(guard);
-
   const clearAll = () => {
     resetRouteConfig();
     guardManager.clear();
@@ -155,9 +146,16 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
 
   return {
     router,
-    beforeEach,
-    afterEach,
     clearAll,
     RouterProvider,
+    beforeEach(guard) {
+      guardManager.registerGuard('beforeEachGuards', guard);
+    },
+    beforeResolve(guard) {
+      guardManager.registerGuard('beforeResolveGuards', guard);
+    },
+    afterEach(guard) {
+      guardManager.registerGuard('afterEachGuards', guard);
+    },
   };
 }

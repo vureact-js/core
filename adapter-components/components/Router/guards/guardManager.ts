@@ -1,8 +1,9 @@
 import type { RouteLocation } from '../hooks/useRoute';
 
-export interface GuardManager {
-  beforeEach(guard: BeforeEachGuard): () => void;
-  afterEach(guard: AfterEachGuard): () => void;
+export interface GlobalGuards {
+  beforeEach: (guard: BeforeEachGuard) => void;
+  beforeResolve: (guard: BeforeEachGuard) => void;
+  afterEach: (guard: AfterEachGuard) => void;
 }
 
 export type BeforeEachGuard = (
@@ -20,30 +21,18 @@ export type GuardRouteLocation = Partial<RouteLocation & { meta: Record<string, 
 
 type Result = boolean | string | GuardRouteLocation | Error;
 
-export class GuardManagerImpl implements GuardManager {
+type GuardName = 'beforeEachGuards' | 'beforeResolveGuards' | 'afterEachGuards';
+
+export class GuardManagerImpl {
   private beforeEachGuards: BeforeEachGuard[] = [];
+  private beforeResolveGuards: BeforeEachGuard[] = [];
   private afterEachGuards: AfterEachGuard[] = [];
 
   private isExecuting = false;
 
-  beforeEach(guard: BeforeEachGuard): () => void {
-    this.beforeEachGuards.push(guard);
-    return () => {
-      const index = this.beforeEachGuards.indexOf(guard);
-      if (index > -1) {
-        this.beforeEachGuards.splice(index, 1);
-      }
-    };
-  }
-
-  afterEach(guard: AfterEachGuard): () => void {
-    this.afterEachGuards.push(guard);
-    return () => {
-      const index = this.afterEachGuards.indexOf(guard);
-      if (index > -1) {
-        this.afterEachGuards.splice(index, 1);
-      }
-    };
+  registerGuard(name: GuardName, guard: BeforeEachGuard) {
+    // @ts-ignore
+    this[name]?.push(guard);
   }
 
   /**
