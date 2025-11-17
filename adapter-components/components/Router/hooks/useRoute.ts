@@ -11,6 +11,7 @@ export interface RouteLocation {
   fullPath: string;
   query: Record<string, any>;
   matched: Array<{
+    name: string;
     pathname: string;
     params: Params;
   }>;
@@ -51,10 +52,13 @@ export function useRoute(): RouteLocation {
     return pathname + search + hash;
   }, [pathname, search, hash]);
 
-  const matched = matches.map(({ params, pathname }) => ({
-    pathname,
-    params,
-  }));
+  const matched = matches.map(({ id, params, pathname }) => {
+    return {
+      name: id,
+      pathname,
+      params,
+    };
+  });
 
   const config = getRouteByPath(pathname);
   const name = config?.name || '';
