@@ -84,6 +84,10 @@ export function getPathByName(name?: string, params?: Params): string {
 export function getRouteByPath(path: string): RouteConfig | null {
   const findRouteByPath = (routes: RouteConfig[], basePath = ''): RouteConfig | null => {
     for (const route of routes) {
+      if (route.path === path) {
+        return route;
+      }
+
       // 构建完整路径，处理嵌套路由
       let fullPath = route.path;
       if (basePath && route.path) {
