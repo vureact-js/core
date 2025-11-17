@@ -84,12 +84,32 @@ export function getPathByName(name?: string, params?: Params): string {
 export function getRouteByPath(path: string): RouteConfig | null {
   const findRouteByPath = (routes: RouteConfig[], basePath = ''): RouteConfig | null => {
     for (const route of routes) {
-      const fullPath = basePath ? `${basePath}${route.path}` : route.path;
+      // 构建完整路径，处理嵌套路由
+      let fullPath = route.path;
+      if (basePath && route.path) {
+        // 确保路径拼接正确
+        if (basePath.endsWith('/') && route.path.startsWith('/')) {
+          fullPath = basePath + route.path.slice(1);
+        } else if (!basePath.endsWith('/') && !route.path.startsWith('/')) {
+          fullPath = basePath + '/' + route.path;
+        } else {
+          fullPath = basePath + route.path;
+        }
+      } else if (basePath) {
+        fullPath = basePath;
+      }
 
-      // 使用 matchPath 进行动态匹配
-      const match = matchPath({ path: fullPath, caseSensitive: route.sensitive, end: true }, path);
+      // 使用 matchPath 进行动态匹配，允许部分匹配
+      const match = matchPath(
+        {
+          path: fullPath,
+          caseSensitive: route.sensitive,
+          end: false, // 改为 false 允许部分匹配，这样父级路由也能匹配到
+        },
+        path,
+      );
 
-      if (match) {
+      if (match && match.pathname === path) {
         return route;
       }
 
