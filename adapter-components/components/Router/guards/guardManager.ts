@@ -34,8 +34,6 @@ export class GuardManagerImpl {
   private beforeResolveGuards: GuardWithNextFn[] = [];
   private afterEachGuards: NonNextFnGuard[] = [];
 
-  private isExecuting = false;
-
   registerGuard(name: GuardName, guard: GuardWithNextFn | NonNextFnGuard) {
     if (name in this) {
       // @ts-ignore
@@ -48,13 +46,6 @@ export class GuardManagerImpl {
     to: GuardRouteLocation,
     from: GuardRouteLocation,
   ): Promise<Result> {
-    if (this.isExecuting) {
-      console.warn('[Router] Navigation guard is already executing');
-      return true;
-    }
-
-    this.isExecuting = true;
-
     try {
       for (const guard of guards) {
         const guardResult: Result = await new Promise<Result>((resolve) => {
@@ -125,7 +116,6 @@ export class GuardManagerImpl {
 
       return true;
     } finally {
-      this.isExecuting = false;
     }
   }
 
@@ -166,7 +156,6 @@ export class GuardManagerImpl {
   }
 
   clear() {
-    this.isExecuting = false;
     this.beforeEachGuards.length = 0;
     this.beforeResolveGuards.length = 0;
     this.afterEachGuards.length = 0;
