@@ -20,7 +20,7 @@ export interface CreateRouterOptions {
 }
 
 export interface RouteConfig extends ExclusiveGuards {
-  path: string;
+  path?: string;
   name?: string;
   state?: any;
   sensitive?: boolean;
@@ -32,7 +32,7 @@ export interface RouteConfig extends ExclusiveGuards {
   redirect?: Redirect | RedirectFunc;
 }
 
-type RedirectFunc = (to: string) => Redirect;
+type RedirectFunc = (to: RouteConfig) => Redirect;
 
 type Redirect = string | RedirectOptions;
 
@@ -69,10 +69,10 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
 
   const convertedRoutes: ReactRoute[] = [];
 
-  const handleRedirect = (path: string, redirect: RouteConfig['redirect']): ReactNode => {
+  const handleRedirect = (to: RouteConfig, redirect: RouteConfig['redirect']): ReactNode => {
     if (typeof redirect === 'function') {
-      const redirectResult = redirect(path);
-      return handleRedirect(path, redirectResult);
+      const redirectResult = redirect(to);
+      return handleRedirect(to, redirectResult);
     }
 
     if (typeof redirect === 'string') {
@@ -118,22 +118,13 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
 
     // 处理重定向（优先级最高）
     if (route.redirect) {
-      const redirectElement = handleRedirect(route.path, route.redirect);
-
-      // 如果该路由有子路由（或作为嵌套路由的容器），
-      // 不应直接覆盖父级 element（会移除 RouterView/Layout）。
-      // 而应把重定向作为 index 子路由（访问父路径时触发）。
-      if (route.children && route.children.length > 0) {
-        reactRoute.children = reactRoute.children || [];
-        // 插到最前面，作为 index route
-        reactRoute.children.unshift({
-          index: true,
-          element: redirectElement,
-        } as any);
-      } else {
-        // 对于无子路由的简单路由，可以直接设置 element 为 Navigate
-        reactRoute.element = redirectElement;
-      }
+      const redirectElement = handleRedirect(route, route.redirect);
+      reactRoute.element = (
+        <>
+          {redirectElement}
+          {reactRoute.element}
+        </>
+      );
     }
 
     // 这些配置会被存储在全局配置中
