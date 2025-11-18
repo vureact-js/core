@@ -1,12 +1,4 @@
-import {
-  isValidElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { matchPath, useNavigate } from 'react-router-dom';
 import { useGuardManager } from '../hooks/useGuardManager';
 import { type RouteLocation } from '../hooks/useRoute';
@@ -21,6 +13,7 @@ interface Props {
 
 type ParentRouteConfigs = {
   pattern: string;
+  isRedirect?: boolean;
 } & ExclusiveGuards;
 
 export function GuardExecutor({ render, outlet, route }: Props) {
@@ -29,7 +22,13 @@ export function GuardExecutor({ render, outlet, route }: Props) {
 
   const outletRef = useRef(outlet);
   const prevRouteRef = useRef(route);
-  const isNavigatingRef = useRef(false);
+
+  // 导航状态管理
+  const navigationStateRef = useRef({
+    currentPath: route.path,
+    isNavigating: false,
+    navigationId: 0,
+  });
 
   const [guardApprovedOutlet, setGuardApprovedOutlet] = useState(outlet);
 
@@ -39,7 +38,7 @@ export function GuardExecutor({ render, outlet, route }: Props) {
   });
 
   // 获取所有需要检查的父级路由模式
-  const getParentRouteConfigs = (to: RouteLocation): ParentRouteConfigs[] => {
+  const getParentRouteInfo = (to: RouteLocation): ParentRouteConfigs[] => {
     const parentConfigs: ParentRouteConfigs[] = [];
 
     // 遍历所有匹配的路由（除了最后一个叶子路由）
@@ -52,6 +51,7 @@ export function GuardExecutor({ render, outlet, route }: Props) {
         parentConfigs.push({
           pattern,
           beforeEnter: routeConfig.beforeEnter,
+          isRedirect: !!routeConfig?.redirect,
         });
       }
     });
@@ -102,23 +102,6 @@ export function GuardExecutor({ render, outlet, route }: Props) {
 
   // 强化同步机制
   useEffect(() => {
-    const current = guardApprovedOutlet;
-    const next = outletRef.current;
-
-    const isSame =
-      current === next ||
-      (isValidElement(current) &&
-        isValidElement(next) &&
-        current.type === next.type &&
-        current.key === next.key);
-
-    if (!isSame) {
-      setGuardApprovedOutlet(next);
-    }
-  }, [guardApprovedOutlet]);
-
-  // 额外防护
-  useEffect(() => {
     if (!Object.is(guardApprovedOutlet, outlet)) {
       setGuardApprovedOutlet(outlet);
     }
@@ -127,51 +110,61 @@ export function GuardExecutor({ render, outlet, route }: Props) {
   // 处理守卫逻辑
   useEffect(() => {
     let mounted = true;
-    let currentNavigationId: string | null = null;
 
     const commitView = () => {
       setGuardApprovedOutlet(outletRef.current);
       prevRouteRef.current = route;
     };
 
-    const run = async () => {
+    const runGuards = async () => {
       const toRoute = route;
       const fromRoute = prevRouteRef.current;
 
-      // 生成唯一的导航ID
-      const navigationId = `${fromRoute.path}→${toRoute.path}`;
-      currentNavigationId = navigationId;
+      // 如果路径没有实际变化，不执行守卫
+      if (fromRoute.path === toRoute.path) return;
 
-      const isNavCancelled = () => !mounted || currentNavigationId !== navigationId;
-
-      // 如果路由没有变化，不执行守卫
-      if (Object.is(fromRoute, toRoute)) {
+      // 基于具体路径的导航状态检查
+      const currentNavigationState = navigationStateRef.current;
+      if (
+        currentNavigationState.isNavigating &&
+        currentNavigationState.currentPath === toRoute.path
+      ) {
+        console.log(
+          'Navigation to same path already in progress, skipping.',
+          `\nfrom: '${currentNavigationState.currentPath}'`,
+          `\nto: '${toRoute.path}'`,
+        );
         return;
       }
 
-      if (isNavigatingRef.current) {
-        console.warn('[Router] Navigation already in progress, skipping');
-        return;
-      }
+      // 开始新导航
+      currentNavigationState.isNavigating = true;
+      currentNavigationState.currentPath = toRoute.path;
+      currentNavigationState.navigationId++;
 
-      isNavigatingRef.current = true;
+      const currentNavigationId = currentNavigationState.navigationId;
+
+      // 检查导航是否已被取消或过时
+      const isNavigationInvalid = () =>
+        !mounted || currentNavigationState.navigationId !== currentNavigationId;
 
       try {
-        const to = createGuardRouteLocation(toRoute);
-        const from = createGuardRouteLocation(fromRoute);
-
         if (!toRoute || !fromRoute) {
           commitView();
           console.error('[Router] Could not find route configuration');
           return;
         }
 
-        // 检查导航是否已被取消
-        if (isNavCancelled()) return;
+        if (isNavigationInvalid()) return;
+
+        const to = createGuardRouteLocation(toRoute);
+        const from = createGuardRouteLocation(fromRoute);
 
         // 1. beforeEach
         const beforeEachResult = await guardManager.runBeforeEach(to, from);
-        if (isNavCancelled()) return;
+
+        if (isNavigationInvalid()) return;
+
         if (beforeEachResult !== true) {
           handleGuardResult(beforeEachResult, from);
           return;
@@ -180,24 +173,26 @@ export function GuardExecutor({ render, outlet, route }: Props) {
         // 2. beforeEnter
         const targetRoute = getRouteByPath(to.path);
         const sourceRoute = getRouteByPath(from.path);
+
         const isDiffRoute =
           sourceRoute?.path !== targetRoute?.path || sourceRoute?.name !== targetRoute?.name;
 
-        if (isDiffRoute) {
+        // 当目标路由不相同时且不属于跳转路由才执行 beforeEnter
+        if (isDiffRoute && !targetRoute?.redirect) {
           // 2.1 处理父级路由的 beforeEnter
           if (to.matched.length > 1) {
-            const parentRouteConfigs = getParentRouteConfigs(to);
-            for (const { pattern, beforeEnter } of parentRouteConfigs) {
-              if (!beforeEnter) continue;
+            const parentRouteInfo = getParentRouteInfo(to);
 
-              // 检查导航是否已被取消
-              if (isNavCancelled()) return;
+            for (const { pattern, isRedirect, beforeEnter } of parentRouteInfo) {
+              if (isNavigationInvalid()) return;
 
-              const isMovingBetweenSameParentRoutes = isSameParentNavigation(from, to, pattern);
-              if (isMovingBetweenSameParentRoutes) continue;
+              if (isRedirect || !beforeEnter) continue;
+              if (isSameParentNavigation(from, to, pattern)) continue;
 
               const beforeEnterResult = await guardManager.runBeforeEnter(to, from, beforeEnter);
-              if (isNavCancelled()) return;
+
+              if (isNavigationInvalid()) return;
+
               if (beforeEnterResult !== true) {
                 handleGuardResult(beforeEnterResult, from);
                 return;
@@ -206,16 +201,15 @@ export function GuardExecutor({ render, outlet, route }: Props) {
           }
 
           // 2.2 处理目标路由本身的 beforeEnter
-          if (targetRoute?.beforeEnter) {
-            // 检查导航是否已被取消
-            if (isNavCancelled()) return;
-
+          if (targetRoute?.beforeEnter && !isNavigationInvalid()) {
             const beforeEnterResult = await guardManager.runBeforeEnter(
               to,
               from,
               targetRoute.beforeEnter,
             );
-            if (isNavCancelled()) return;
+
+            if (isNavigationInvalid()) return;
+
             if (beforeEnterResult !== true) {
               handleGuardResult(beforeEnterResult, from);
               return;
@@ -225,35 +219,35 @@ export function GuardExecutor({ render, outlet, route }: Props) {
 
         // 3. beforeResolve
         const beforeResolveResult = await guardManager.runBeforeResolve(to, from);
-        if (isNavCancelled()) return;
+
+        if (isNavigationInvalid()) return;
+
         if (beforeResolveResult !== true) {
           handleGuardResult(beforeResolveResult, from);
           return;
         }
 
+        if (isNavigationInvalid()) return;
         // 4. commit view and run afterEach
-        if (isNavCancelled()) return;
         commitView();
         guardManager.runAfterEach(to, from);
       } catch (err) {
-        if (!isNavCancelled()) {
-          commitView();
-        }
+        if (isNavigationInvalid()) commitView();
         console.error('[Router] Error in navigation guards:', err);
       } finally {
-        if (currentNavigationId === navigationId) {
-          isNavigatingRef.current = false;
+        if (currentNavigationState.navigationId === currentNavigationId) {
+          currentNavigationState.isNavigating = false;
         }
       }
     };
 
-    run();
+    runGuards();
 
     return () => {
       mounted = false;
-      currentNavigationId = null;
     };
-  }, [route, guardManager, handleGuardResult]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handleGuardResult, route]);
 
   return useMemo(() => render(guardApprovedOutlet), [guardApprovedOutlet, render]);
 }
