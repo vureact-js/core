@@ -74,7 +74,7 @@ export function getPathByName(name?: string, params?: Params): string {
     throw `[Router] Route with name "${name}" not found.`;
   }
 
-  return buildPathWithParams(route.path, params);
+  return buildPathWithParams(route.path!, params);
 }
 
 /**
@@ -106,7 +106,7 @@ export function getRouteByPath(path: string): RouteConfig | null {
       // 使用 matchPath 进行动态匹配，允许部分匹配
       const match = matchPath(
         {
-          path: fullPath,
+          path: fullPath!,
           caseSensitive: route.sensitive,
           end: false, // 改为 false 允许部分匹配，这样父级路由也能匹配到
         },
