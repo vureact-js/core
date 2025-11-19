@@ -21,14 +21,32 @@ export function routerFactory(mode: RouterMode, routes: ReactRoute[], opts?: Mem
   }
 }
 
+/**
+ * Create a new DataRouter data router that manages the application
+ * path via `history.pushState` and `history.replaceState`.
+ *
+ * @returns history route mode
+ */
 export function createWebHistory(): RouterMode {
   return 'history';
 }
 
+/**
+ * Create a new DataRouter data router that manages the application path via the URL `hash`.
+ *
+ * @returns hash route mode
+ */
 export function createWebHashHistory(): RouterMode {
   return 'hash';
 }
 
+/**
+ * Create a new DataRouter that manages the application
+ * path using an in-memory `History` stack. Useful
+ * for non-browser environments without a DOM API.
+ *
+ * @returns memory history route mode
+ */
 export function createMemoryHistory(): RouterMode {
   return 'memoryHistory';
 }

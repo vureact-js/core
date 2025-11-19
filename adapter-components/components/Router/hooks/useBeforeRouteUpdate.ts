@@ -2,6 +2,11 @@ import { useEffect } from 'react';
 import { useRouterContext } from '../context/RouterContext';
 import { type ComponentGuards } from '../guards/GuardManager';
 
+/**
+ * will trigger when the current route is updated, and only for route parameter changes.
+ *
+ * @param fn update guard
+ */
 export function useBeforeRouteUpdate(fn: ComponentGuards['guard']) {
   const { guardManager } = useRouterContext();
 

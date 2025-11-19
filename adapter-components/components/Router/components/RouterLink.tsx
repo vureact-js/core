@@ -32,8 +32,13 @@ export type CustomRenderProps = {
 export default memo(RouterLink);
 
 /**
- * Simulate Vue Router's `<router-link>` component,
- * based on `react-router-dom`.
+ * used for navigating routes, based on `react-router-dom`.
+ *
+ * @param to the route address to navigate to when the link is clicked.
+ * @param replace call `router.replace` to replace `router.push`
+ * @param activeClass the class is applied to the link when it matches the current route.
+ * @param exactActiveClass the class is applied to the link when it strictly matches the current route.
+ * @param customRender Customize whether its content should be wrapped in an `<a>` tag
  */
 function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
   const {

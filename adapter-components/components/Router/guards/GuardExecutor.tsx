@@ -17,6 +17,9 @@ type ParentRouteConfigs = {
   isRedirect?: boolean;
 } & ExclusiveGuards;
 
+/**
+ * A component that handles the integration of various route guards.
+ */
 export function GuardExecutor({ render, outlet, route }: Props) {
   const navigate = useNavigate();
   const guardManager = useGuardManager();

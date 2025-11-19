@@ -9,6 +9,11 @@ export interface RouterViewProps {
 
 export default memo(RouterView);
 
+/**
+ * used to render route components, based on `react-router-dom`.
+ *
+ * @param customRender customize the display mode of route components after rendering.
+ */
 function RouterView({ customRender }: RouterViewProps): ReactNode {
   const outlet = useOutlet();
   const route = useRoute();

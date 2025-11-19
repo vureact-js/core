@@ -50,19 +50,24 @@ export type ReactRoute = RouteObject;
 /**
  * Simulate Vue's `createRouter` based on `react-router-dom`
  *
- * @public
+ * @param options Application routes
+ * @param options.path n/a
+ * @param options.name n/a
+ * @param options.state n/a
+ * @param options.sensitive n/a
+ * @param options.component n/a
+ * @param options.children n/a
+ * @param options.meta n/a
+ * @param options.redirect n/a
+ * @param options.linkActiveClass n/a
+ * @param options.linkExactActiveClass n/a
  *
- * @category options
+ * @returns Includes the route instance, RouterProvider, and so on.
  *
- * @param history Call these three functions: createWebHistory, createWebHashHistory, and createMemoryHistory to use different history modes.
- *
- * @param routes route configuration list
- *
- * @param initialEntries Initial history stack. The default value is ['/'].
- *
- * @param initialIndex Specify which entry in the `initialEntries` array is initially active, with a default value of 0.
- *
- * @returns router instance
+ * @field `RouterInstance.router` An initialized DataRouter data router
+ * @field `RouterInstance.RouterProvider` Use the component directly without passing in DataRouter data router.
+ * @field `RouterInstance.getRoutes` Obtain the route configuration before and after the source transformation.
+ * @field `RouterInstance.clearAll`
  */
 export function createRouter(options: CreateRouterOptions): RouterInstance {
   const { history = createWebHashHistory(), routes, ...memoryRouterOpts } = options;

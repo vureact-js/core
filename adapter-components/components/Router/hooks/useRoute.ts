@@ -20,16 +20,16 @@ export interface RouteLocation {
 /**
  * Simulate Vue's `useRoute`, based on `react-router-dom`.
  *
- * @returns object
+ * @returns a route object
  *
- * @param name
- * @param path
- * @param params
- * @param hash
- * @param state
- * @param fullPath
- * @param query
- * @param matched
+ * @field `RouteLocation.name`
+ * @field `RouteLocation.path`
+ * @field `RouteLocation.params`
+ * @field `RouteLocation.hash`
+ * @field `RouteLocation.state`
+ * @field `RouteLocation.fullPath`
+ * @field `RouteLocation.query`
+ * @field `RouteLocation.matched`
  */
 export function useRoute(): RouteLocation {
   const { hash, search, pathname, state } = useLocation();

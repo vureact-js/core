@@ -23,6 +23,15 @@ export interface RouterOptions {
 
 /**
  * Simulate Vue's `useRouter`, based on `react-router-dom`.
+ *
+ * @returns a route handler object
+ *
+ * @field `Router.push`
+ * @field `Router.replace`
+ * @field `Router.go`
+ * @field `Router.back`
+ * @field `Router.forward`
+ * @field `Router.current`
  */
 export function useRouter(): Router {
   const navigate = useNavigate();
