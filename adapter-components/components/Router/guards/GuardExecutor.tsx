@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { matchPath, useNavigate } from 'react-router-dom';
+import { RouteConfig } from '../creator/createRouter';
 import { useGuardManager } from '../hooks/useGuardManager';
 import { type RouteLocation } from '../hooks/useRoute';
 import { buildFullPath, getRouteByPath } from '../utils';
@@ -20,6 +21,7 @@ export function GuardExecutor({ render, outlet, route }: Props) {
   const navigate = useNavigate();
   const guardManager = useGuardManager();
 
+  const isFristMount = useRef(true);
   const outletRef = useRef(outlet);
   const prevRouteRef = useRef(route);
 
@@ -36,6 +38,52 @@ export function GuardExecutor({ render, outlet, route }: Props) {
     ...obj,
     meta: getRouteByPath(obj.path)?.meta || {},
   });
+
+  const shouldTriggerBeforeEach = (
+    sourceFromRoute: RouteConfig | null,
+    sourceToRoute: RouteConfig | null,
+  ) => {
+    const isDiffRoute =
+      sourceFromRoute?.path !== sourceToRoute?.path ||
+      sourceFromRoute?.name !== sourceToRoute?.name;
+    return isFristMount.current || isDiffRoute;
+  };
+
+  const shouldTriggerBeforeEnter = (
+    sourceFromRoute: RouteConfig | null,
+    sourceToRoute: RouteConfig | null,
+  ) => {
+    // 当目标路由不相同时且不属于跳转路由才执行 beforeEnter
+    return shouldTriggerBeforeEach(sourceFromRoute, sourceToRoute) && !sourceToRoute?.redirect;
+  };
+
+  const shouldTriggerBeforeRouteUpdate = (from: RouteLocation, to: RouteLocation): boolean => {
+    if (isFristMount.current) return false;
+    // 检查是否有复用的组件
+    const reusedComponents = getReusedComponents(from, to);
+    return reusedComponents.length > 0;
+  };
+
+  const getReusedComponents = (from: RouteLocation, to: RouteLocation): string[] => {
+    const reused: string[] = [];
+
+    // 遍历匹配的路由记录
+    to.matched.forEach((toMatch, index) => {
+      const fromMatch = from.matched[index];
+
+      if (fromMatch && toMatch.pathname === fromMatch.pathname) {
+        // 检查路由参数是否变化
+        const paramsChanged = Object.is(fromMatch.params, fromMatch.params);
+        const queryChanged = fromMatch.pathname !== toMatch.pathname;
+
+        if (paramsChanged || queryChanged) {
+          reused.push(toMatch.pathname);
+        }
+      }
+    });
+
+    return reused;
+  };
 
   // 获取所有需要检查的父级路由模式
   const getParentRouteInfo = (to: RouteLocation): ParentRouteConfigs[] => {
@@ -107,13 +155,34 @@ export function GuardExecutor({ render, outlet, route }: Props) {
     }
   }, [guardApprovedOutlet, outlet]);
 
-  // 处理守卫逻辑
+  // 处理守卫逻辑，依赖路由组件变化
   useEffect(() => {
     let mounted = true;
 
     const commitView = () => {
       setGuardApprovedOutlet(outletRef.current);
       prevRouteRef.current = route;
+    };
+
+    // 基于具体路径的导航状态检查
+    const isNavigating = (): boolean => {
+      const state = navigationStateRef.current;
+      return state.isNavigating && state.currentPath === route.path;
+    };
+
+    const startNewNavigationState = (): number => {
+      const state = navigationStateRef.current;
+
+      state.navigationId++;
+      state.isNavigating = true;
+      state.currentPath = route.path;
+
+      return state.navigationId;
+    };
+
+    const isNavigationInvalid = (currentId: number) => {
+      const state = navigationStateRef.current;
+      return !mounted || state.navigationId !== currentId;
     };
 
     const runGuards = async () => {
@@ -123,30 +192,17 @@ export function GuardExecutor({ render, outlet, route }: Props) {
       // 如果路径没有实际变化，不执行守卫
       if (fromRoute.path === toRoute.path) return;
 
-      // 基于具体路径的导航状态检查
-      const currentNavigationState = navigationStateRef.current;
-      if (
-        currentNavigationState.isNavigating &&
-        currentNavigationState.currentPath === toRoute.path
-      ) {
+      if (isNavigating()) {
+        // eslint-disable-next-line no-console
         console.log(
           'Navigation to same path already in progress, skipping.',
-          `\nfrom: '${currentNavigationState.currentPath}'`,
+          `\nfrom: '${navigationStateRef.current.currentPath}'`,
           `\nto: '${toRoute.path}'`,
         );
         return;
       }
 
-      // 开始新导航
-      currentNavigationState.isNavigating = true;
-      currentNavigationState.currentPath = toRoute.path;
-      currentNavigationState.navigationId++;
-
-      const currentNavigationId = currentNavigationState.navigationId;
-
-      // 检查导航是否已被取消或过时
-      const isNavigationInvalid = () =>
-        !mounted || currentNavigationState.navigationId !== currentNavigationId;
+      const nid = startNewNavigationState();
 
       try {
         if (!toRoute || !fromRoute) {
@@ -155,43 +211,65 @@ export function GuardExecutor({ render, outlet, route }: Props) {
           return;
         }
 
-        if (isNavigationInvalid()) return;
+        if (isNavigationInvalid(nid)) return;
 
         const to = createGuardRouteLocation(toRoute);
         const from = createGuardRouteLocation(fromRoute);
 
-        // 1. beforeEach
-        const beforeEachResult = await guardManager.runBeforeEach(to, from);
+        // 1. beforeRouteLeave
+        if (!isFristMount.current) {
+          const beforeRouteLeaveResult = await guardManager.runBeforeRouteLeave(to, from);
 
-        if (isNavigationInvalid()) return;
+          if (isNavigationInvalid(nid)) return;
 
-        if (beforeEachResult !== true) {
-          handleGuardResult(beforeEachResult, from);
-          return;
+          if (beforeRouteLeaveResult === false) {
+            handleGuardResult(beforeRouteLeaveResult, from);
+            return;
+          }
         }
 
-        // 2. beforeEnter
-        const targetRoute = getRouteByPath(to.path);
-        const sourceRoute = getRouteByPath(from.path);
+        const sourceToRoute = getRouteByPath(to.path);
+        const sourceFromRoute = getRouteByPath(from.path);
 
-        const isDiffRoute =
-          sourceRoute?.path !== targetRoute?.path || sourceRoute?.name !== targetRoute?.name;
+        // 2. beforeEach
+        if (shouldTriggerBeforeEach(sourceFromRoute, sourceToRoute)) {
+          const beforeEachResult = await guardManager.runBeforeEach(to, from);
 
-        // 当目标路由不相同时且不属于跳转路由才执行 beforeEnter
-        if (isDiffRoute && !targetRoute?.redirect) {
-          // 2.1 处理父级路由的 beforeEnter
+          if (isNavigationInvalid(nid)) return;
+
+          if (beforeEachResult !== true) {
+            handleGuardResult(beforeEachResult, from);
+            return;
+          }
+        }
+
+        // 3. beforeRouteUpdate
+        if (shouldTriggerBeforeRouteUpdate(from, to)) {
+          const beforeRouteUpdateResult = await guardManager.runBeforeRouteUpdate(to, from);
+
+          if (isNavigationInvalid(nid)) return;
+
+          if (beforeRouteUpdateResult === false) {
+            handleGuardResult(beforeRouteUpdateResult, from);
+            return;
+          }
+        }
+
+        // 4. beforeEnter
+        if (shouldTriggerBeforeEnter(sourceFromRoute, sourceToRoute)) {
+          // 4.1 处理父级路由的 beforeEnter
           if (to.matched.length > 1) {
             const parentRouteInfo = getParentRouteInfo(to);
 
             for (const { pattern, isRedirect, beforeEnter } of parentRouteInfo) {
-              if (isNavigationInvalid()) return;
+              if (isNavigationInvalid(nid)) return;
 
               if (isRedirect || !beforeEnter) continue;
               if (isSameParentNavigation(from, to, pattern)) continue;
 
               const beforeEnterResult = await guardManager.runBeforeEnter(to, from, beforeEnter);
 
-              if (isNavigationInvalid()) return;
+              if (isNavigationInvalid(nid)) return;
 
               if (beforeEnterResult !== true) {
                 handleGuardResult(beforeEnterResult, from);
@@ -200,15 +278,15 @@ export function GuardExecutor({ render, outlet, route }: Props) {
             }
           }
 
-          // 2.2 处理目标路由本身的 beforeEnter
-          if (targetRoute?.beforeEnter && !isNavigationInvalid()) {
+          // 4.2 处理目标路由本身的 beforeEnter
+          if (sourceToRoute?.beforeEnter && !isNavigationInvalid(nid)) {
             const beforeEnterResult = await guardManager.runBeforeEnter(
               to,
               from,
-              targetRoute.beforeEnter,
+              sourceToRoute.beforeEnter,
             );
 
-            if (isNavigationInvalid()) return;
+            if (isNavigationInvalid(nid)) return;
 
             if (beforeEnterResult !== true) {
               handleGuardResult(beforeEnterResult, from);
@@ -217,26 +295,30 @@ export function GuardExecutor({ render, outlet, route }: Props) {
           }
         }
 
-        // 3. beforeResolve
+        // 5. beforeResolve
         const beforeResolveResult = await guardManager.runBeforeResolve(to, from);
 
-        if (isNavigationInvalid()) return;
+        if (isNavigationInvalid(nid)) return;
 
         if (beforeResolveResult !== true) {
           handleGuardResult(beforeResolveResult, from);
           return;
         }
 
-        if (isNavigationInvalid()) return;
-        // 4. commit view and run afterEach
+        if (isNavigationInvalid(nid)) return;
+
+        // 6. commit view and run afterEach
         commitView();
         guardManager.runAfterEach(to, from);
       } catch (err) {
-        if (isNavigationInvalid()) commitView();
+        if (isNavigationInvalid(nid)) commitView();
         console.error('[Router] Error in navigation guards:', err);
       } finally {
-        if (currentNavigationState.navigationId === currentNavigationId) {
-          currentNavigationState.isNavigating = false;
+        if (isFristMount.current) {
+          isFristMount.current = false;
+        }
+        if (navigationStateRef.current.navigationId === nid) {
+          navigationStateRef.current.isNavigating = false;
         }
       }
     };
