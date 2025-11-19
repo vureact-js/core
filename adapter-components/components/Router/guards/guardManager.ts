@@ -10,16 +10,21 @@ export interface ExclusiveGuards {
   beforeEnter?: GuardWithNextFn | Array<GuardWithNextFn>;
 }
 
+export interface ComponentGuards {
+  id: string;
+  guard: NonNextFnGuard<boolean | void>;
+}
+
 export type GuardWithNextFn = (
   to: GuardRouteLocation,
   from: GuardRouteLocation,
   next: (result?: Result) => void,
 ) => any | Promise<any>;
 
-export type NonNextFnGuard = (
+export type NonNextFnGuard<T = void> = (
   to: GuardRouteLocation,
   from: GuardRouteLocation,
-) => void | Promise<void>;
+) => T | Promise<T>;
 
 type Result = boolean | string | Partial<GuardRouteLocation> | Error;
 
@@ -27,24 +32,49 @@ export interface GuardRouteLocation extends RouteLocation {
   meta: Record<string, any>;
 }
 
-type GuardName = 'beforeEachGuards' | 'beforeResolveGuards' | 'afterEachGuards';
+type GlobalGuardsName = 'beforeEachGuards' | 'beforeResolveGuards' | 'afterEachGuards';
+
+type ComponentGuardsName = 'beforeRouteLeaveGuards' | 'beforeRouteUpdateGuards';
 
 export class GuardManagerImpl {
+  // 全局守卫管理
   private beforeEachGuards: GuardWithNextFn[] = [];
   private beforeResolveGuards: GuardWithNextFn[] = [];
   private afterEachGuards: NonNextFnGuard[] = [];
 
-  registerGuard(name: GuardName, guard: GuardWithNextFn | NonNextFnGuard) {
+  // 组件内守卫管理
+  private beforeRouteLeaveGuards: ComponentGuards[] = [];
+  private beforeRouteUpdateGuards: ComponentGuards[] = [];
+  private guardIdCounter = 0;
+
+  registerGuard(name: GlobalGuardsName, guard: GuardWithNextFn | NonNextFnGuard) {
     if (name in this) {
       // @ts-ignore
-      this[name]?.push(guard);
+      this[name as GlobalGuardsName].push(guard);
     }
   }
 
+  registerComponentGuard(name: ComponentGuardsName, guard: ComponentGuards['guard']): () => void {
+    const id = `${name}_${this.guardIdCounter++}`;
+    const handler = { id, guard };
+
+    if (name in this) {
+      this[name].push(handler);
+    }
+
+    return () => {
+      const index = this[name].findIndex((h) => h.id === id);
+      if (index > -1) {
+        this[name].splice(index, 1);
+      }
+    };
+  }
+
   private async executeGuardPipeline(
-    guards: GuardWithNextFn[],
+    guards: (GuardWithNextFn | NonNextFnGuard)[],
     to: GuardRouteLocation,
     from: GuardRouteLocation,
+    needNextFn = true,
   ): Promise<Result> {
     try {
       for (const guard of guards) {
@@ -69,7 +99,7 @@ export class GuardManagerImpl {
           };
 
           try {
-            const ret = guard(to, from, next);
+            const ret = needNextFn ? guard(to, from, next) : (guard as NonNextFnGuard)(to, from);
 
             // guard 返回 Promise（异步守卫）
             if (ret instanceof Promise) {
@@ -77,6 +107,7 @@ export class GuardManagerImpl {
                 .then((v) => {
                   if (!nextCalled) {
                     // 优先采用 Promise resolve 的值（若为 undefined 则继续）
+
                     resolve(v !== undefined ? (v as Result) : true);
                   }
                 })
@@ -140,6 +171,24 @@ export class GuardManagerImpl {
     return this.executeGuardPipeline(this.beforeResolveGuards, to, from);
   }
 
+  async runBeforeRouteLeave(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
+    return this.executeGuardPipeline(
+      this.beforeRouteLeaveGuards.map(({ guard }) => guard),
+      to,
+      from,
+      false,
+    );
+  }
+
+  async runBeforeRouteUpdate(to: GuardRouteLocation, from: GuardRouteLocation): Promise<Result> {
+    return this.executeGuardPipeline(
+      this.beforeRouteUpdateGuards.map(({ guard }) => guard),
+      to,
+      from,
+      false,
+    );
+  }
+
   // 同步执行 afterEach（不影响导航流）
   runAfterEach(to: GuardRouteLocation, from: GuardRouteLocation): void {
     try {
@@ -159,5 +208,8 @@ export class GuardManagerImpl {
     this.beforeEachGuards.length = 0;
     this.beforeResolveGuards.length = 0;
     this.afterEachGuards.length = 0;
+    this.guardIdCounter = 0;
+    this.beforeRouteLeaveGuards.length = 0;
+    this.beforeRouteUpdateGuards.length = 0;
   }
 }
