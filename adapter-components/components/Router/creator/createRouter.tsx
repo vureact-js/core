@@ -1,14 +1,16 @@
-import type { FunctionComponent, ReactNode } from 'react';
+import { type FunctionComponent, type ReactNode } from 'react';
 import type { RouteObject, RouterProviderProps, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
+import { isPromise } from '../../../utils';
 import { createRouterProvider } from '../creator/createRouterProvider';
 import { type ExclusiveGuards, type GlobalGuards } from '../guards/GuardManager';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
 import { buildSearchParams, getRouteConfig, resolvedPath } from '../utils';
+import { createAsyncElement, type ComponentLoader } from './createAsyncElement';
 import {
-  type GlobalRouteConfig,
   registerRouteConfig,
   resetRouteConfig,
+  type GlobalRouteConfig,
 } from './createClobalRouteConfig';
 import { createWebHashHistory, routerFactory, type RouterMode } from './createHistory';
 
@@ -24,13 +26,15 @@ export interface RouteConfig extends ExclusiveGuards {
   name?: string;
   state?: any;
   sensitive?: boolean;
-  component?: ReactNode;
+  component?: ComponentType;
   children?: RouteConfig[];
-  meta?: Record<string, any>;
   linkActiveClass?: string;
   linkExactActiveClass?: string;
   redirect?: Redirect | RedirectFunc;
+  meta?: { [x: string]: any; loadingComponent?: ReactNode };
 }
+
+type ComponentType = ReactNode | ComponentLoader;
 
 type RedirectFunc = (to: RouteConfig) => Redirect;
 
@@ -74,6 +78,20 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
 
   const convertedRoutes: ReactRoute[] = [];
 
+  const handleElement = ({ component, meta }: RouteConfig): ReactNode => {
+    if (typeof component === 'function') {
+      try {
+        // 尝试执行函数，检查返回值是否为 Promise
+        if (isPromise(component())) {
+          return createAsyncElement(component as ComponentLoader, meta?.loadingComponent);
+        }
+      } catch (error) {
+        console.error('[Router] Invalid component loader:', error);
+      }
+    }
+    return component as ReactNode;
+  };
+
   const handleRedirect = (to: RouteConfig, redirect: RouteConfig['redirect']): ReactNode => {
     if (typeof redirect === 'function') {
       const redirectResult = redirect(to);
@@ -116,7 +134,7 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
     const reactRoute: ReactRoute = {
       path: route.path,
       id: route.name,
-      element: route.component,
+      element: handleElement(route),
       caseSensitive: route.sensitive,
       children: route.children?.map(convertRoute),
     };
