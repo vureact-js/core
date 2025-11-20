@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { FunctionComponent, isValidElement, ReactElement } from 'react';
 
 /**
@@ -27,4 +26,12 @@ export function getReactType(param: any): 'component' | 'element' | 'text' | 'ot
 export function getComponentName(el: ReactElement): string | null {
   const type = el.type as FunctionComponent;
   return type.displayName || type.name || null;
+}
+
+export function isPromise(obj: any): obj is Promise<any> {
+  return (
+    !!obj &&
+    (typeof obj === 'object' || typeof obj === 'function') &&
+    typeof obj.then === 'function'
+  );
 }
