@@ -1,4 +1,4 @@
-import { createElement, FunctionComponent, JSX, memo, ReactNode, useMemo } from 'react';
+import { ComponentType, createElement, JSX, memo, ReactNode, useMemo } from 'react';
 import { getReactType } from '../utils';
 
 interface ComponentProps {
@@ -31,7 +31,8 @@ function Component({ is, props }: ComponentProps): ReturnType {
 
       case 'component':
         // 传入组件函数 (CompA)
-        return createElement(is as unknown as FunctionComponent, props);
+        const Comp = is as unknown as ComponentType;
+        return <Comp />;
 
       default:
         // is 可能是 null, undefined 或其他类型
