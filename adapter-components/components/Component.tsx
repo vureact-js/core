@@ -32,7 +32,7 @@ function Component({ is, props }: ComponentProps): ReturnType {
       case 'component':
         // 传入组件函数 (CompA)
         const Comp = is as unknown as ComponentType;
-        return <Comp />;
+        return <Comp {...props} />;
 
       default:
         // is 可能是 null, undefined 或其他类型
