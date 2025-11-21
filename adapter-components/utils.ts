@@ -23,9 +23,9 @@ export function getReactType(param: any): 'component' | 'element' | 'text' | 'ot
   return 'other';
 }
 
-export function getComponentName(el: ReactElement): string | null {
-  const type = el.type as FunctionComponent;
-  return type.displayName || type.name || null;
+export function getComponentName(el: ReactElement | FunctionComponent): string | null {
+  const type = (el as ReactElement).type as FunctionComponent;
+  return (el as FunctionComponent).name || type.displayName || type.name || null;
 }
 
 export function isPromise(obj: any): obj is Promise<any> {
