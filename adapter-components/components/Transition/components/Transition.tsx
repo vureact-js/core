@@ -9,7 +9,6 @@ import {
   useRef,
 } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import '../css/transition.css';
 import {
   BaseTransitionProps,
   getActualDuration,
