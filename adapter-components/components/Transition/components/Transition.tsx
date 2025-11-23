@@ -31,8 +31,14 @@ export interface TransitionProps extends BaseTransitionProps {
   mode?: 'in-out' | 'out-in';
   /**
    * Please do not use this internal prop intended for development.
+   * @internal
    */
   __USE_THE_CONFIGURED_PROPS?: boolean;
+  /**
+   * Internal prop to report animation state to the parent group.
+   * @internal
+   */
+  onStateChange?: (key: string, state: 'idle' | 'busy') => void;
 }
 
 export default memo(Transition);
@@ -47,6 +53,7 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     show = false,
     onEnterCancelled,
     onLeaveCancelled,
+    onStateChange,
     __USE_THE_CONFIGURED_PROPS,
     ...restProps
   } = props;
@@ -62,25 +69,44 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     ? (restProps as TransitionConfig)
     : useTransitionConfig(restProps);
 
+  const originalKey = useMemo(() => (child as any).key as string, [child]);
+
+  const reportState = useCallback(
+    (state: 'idle' | 'busy') => {
+      if (originalKey) {
+        onStateChange?.(originalKey, state);
+      }
+    },
+    [originalKey, onStateChange],
+  );
+
   const wrapHandler = useCallback(
     (handler?: (el: HTMLElement) => void, state: 'entering' | 'leaving' | 'idle' = 'idle') => {
       return (node: HTMLElement) => {
-        handler?.(node);
         transitionStateRef.current = state;
         currentNodeRef.current = node;
+
+        handler?.(node);
+
+        // 报告状态给父组件
+        if (state === 'entering' || state === 'leaving') {
+          reportState('busy');
+        } else {
+          reportState('idle');
+        }
       };
     },
-    [],
+    [reportState],
   );
 
   // 包装事件处理函数，添加状态跟踪
   const wrappedHandlers = useMemo(() => {
     return {
       onEnter: wrapHandler(transitionConfig.onEnter, 'entering'),
-      onEntering: transitionConfig.onEntering,
+      onEntering: wrapHandler(transitionConfig.onEntering, 'entering'),
       onEntered: wrapHandler(transitionConfig.onEntered, 'idle'),
       onExit: wrapHandler(transitionConfig.onExit, 'leaving'),
-      onExiting: transitionConfig.onExiting,
+      onExiting: wrapHandler(transitionConfig.onExiting, 'leaving'),
       onExited: wrapHandler(transitionConfig.onExited, 'idle'),
     };
   }, [
@@ -99,26 +125,27 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     }
 
     const originalRef = (child as any).ref;
-    const originalKey = child.key;
 
     return cloneElement(child, {
       // @ts-ignore
       ref: originalRef ?? createRef(null),
       key: originalKey,
+      'data-original-key': originalKey,
     }) as any;
-  }, [child]);
+  }, [child, originalKey]);
 
-  const key = useMemo(() => (mode ? String(show) : cloneChild.key), [mode, show, cloneChild.key]);
+  const nodeRef = useMemo(() => (cloneChild as any).ref, [cloneChild]);
 
   const cssTransitionProps = useMemo(
     () => ({
-      key,
+      nodeRef,
       in: show,
       unmountOnExit: true,
       ...transitionConfig,
       ...wrappedHandlers,
+      key: mode ? String(show) : originalKey,
     }),
-    [key, show, transitionConfig, wrappedHandlers],
+    [mode, nodeRef, originalKey, show, transitionConfig, wrappedHandlers],
   );
 
   // 处理取消过渡事件
@@ -163,15 +190,17 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     prevShowRef,
     prevTime,
     show,
-    transitionStateRef,
   ]);
 
+  // 当组件卸载时 (例如 'leave' 动画完成) 需要通知父组件不再“忙碌”
+  useEffect(() => {
+    return () => {
+      reportState('idle');
+    };
+  }, [reportState]);
+
   const transitionElement = useMemo(() => {
-    return (
-      <CSSTransition {...cssTransitionProps} nodeRef={cloneChild?.ref}>
-        {cloneChild}
-      </CSSTransition>
-    );
+    return <CSSTransition {...cssTransitionProps}>{cloneChild}</CSSTransition>;
   }, [cssTransitionProps, cloneChild]);
 
   if (mode) {
