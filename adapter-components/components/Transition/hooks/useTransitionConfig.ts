@@ -125,7 +125,7 @@ export const getActualDuration = (
 
 export function useTransitionConfig(props: BaseTransitionProps): TransitionConfig {
   const {
-    name = 'eddie',
+    name = 'rv',
     css = true,
     appear = false,
     duration = defaultDuration,
