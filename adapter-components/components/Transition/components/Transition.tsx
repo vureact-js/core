@@ -1,5 +1,8 @@
 import {
   Children,
+  cloneElement,
+  createRef,
+  isValidElement,
   memo,
   PropsWithChildren,
   ReactElement,
@@ -90,7 +93,22 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     wrapHandler,
   ]);
 
-  const key = useMemo(() => (mode ? String(show) : child.key), [mode, show, child.key]);
+  const cloneChild = useMemo(() => {
+    if (!isValidElement(child)) {
+      return child;
+    }
+
+    const originalRef = (child as any).ref;
+    const originalKey = child.key;
+
+    return cloneElement(child, {
+      // @ts-ignore
+      ref: originalRef ?? createRef(null),
+      key: originalKey,
+    }) as any;
+  }, [child]);
+
+  const key = useMemo(() => (mode ? String(show) : cloneChild.key), [mode, show, cloneChild.key]);
 
   const cssTransitionProps = useMemo(
     () => ({
@@ -149,8 +167,12 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
   ]);
 
   const transitionElement = useMemo(() => {
-    return <CSSTransition {...cssTransitionProps}>{child}</CSSTransition>;
-  }, [cssTransitionProps, child]);
+    return (
+      <CSSTransition {...cssTransitionProps} nodeRef={cloneChild?.ref}>
+        {cloneChild}
+      </CSSTransition>
+    );
+  }, [cssTransitionProps, cloneChild]);
 
   if (mode) {
     return <SwitchTransition mode={mode}>{transitionElement}</SwitchTransition>;
