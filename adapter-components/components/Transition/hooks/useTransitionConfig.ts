@@ -1,5 +1,6 @@
 // hooks/useTransitionConfig.ts
 import { useCallback, useMemo } from 'react';
+import { TransitionActions } from 'react-transition-group/Transition';
 import { transitionNames } from '../styles';
 
 export interface BaseTransitionProps {
@@ -83,7 +84,7 @@ export interface BaseTransitionProps {
   onLeaveCancelled?: (el: HTMLElement) => void;
 }
 
-export interface TransitionConfig {
+export interface TransitionConfig extends TransitionActions {
   classNames?: {
     enter?: string;
     enterActive?: string;
@@ -150,10 +151,6 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
 
   // 计算类名配置
   const classNames = useMemo(() => {
-    if (!css) {
-      return 'no-transition' as unknown as undefined;
-    }
-
     let baseClassNames;
 
     if (
@@ -199,7 +196,6 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
 
     return baseClassNames;
   }, [
-    css,
     enterFrom,
     enterActive,
     enterTo,
@@ -278,8 +274,10 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     [onAfterLeave],
   );
 
-  const config = useMemo(
+  const config = useMemo<TransitionConfig>(
     () => ({
+      enter: css,
+      exit: css,
       classNames,
       timeout,
       appear,
@@ -293,6 +291,7 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     [
       appear,
       classNames,
+      css,
       handleEnter,
       handleEntered,
       handleEntering,
