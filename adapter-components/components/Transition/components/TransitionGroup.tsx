@@ -24,7 +24,10 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
    * Used to add HTML attributes to the DOM container
    */
   htmlProps?: HTMLAttributes<HTMLElement>;
-
+  /**
+   * Used to customize the CSS class names applied during the transition.
+   * For example: `moveClassName="xxx"`
+   */
   moveClassName?: string;
 }
 
@@ -110,6 +113,27 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
 
       const childNodes = Array.from(containerRef.current.firstElementChild?.children || []);
 
+      const updatePositions = () => {
+        // 合并新的 "干净" 位置和旧的位置，"忙碌" 节点的旧位置信息不会丢失
+        // 用新的 "空闲" 位置更新 ref
+        const finalPositions = new Map(oldPositions);
+        newPositions.forEach((rect, key) => {
+          finalPositions.set(key, rect);
+        });
+
+        // 清理掉已离开 (unmounted) 节点的旧位置
+        const newKeySet = new Set(childNodes.map((n) => (n as HTMLElement).dataset.originalKey));
+        oldPositions.forEach((rect, key) => {
+          if (!newKeySet.has(key) && !busyNodesRef.current.has(key)) {
+            // 这个 key 不在新的 DOM 中，也不在 busy 列表里 (即 leave 动画已完成)
+            finalPositions.delete(key);
+          }
+        });
+
+        positionsRef.current = finalPositions;
+        isInitialRenderRef.current = false;
+      };
+
       // 1. 记录所有节点的新位置（包括离开节点），确保其他节点能正确计算 delta
       childNodes.forEach((node) => {
         const el = node as HTMLElement;
@@ -118,6 +142,14 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
           newPositions.set(key, el.getBoundingClientRect());
         }
       });
+
+      // 如果没有 moveClassName 或者节点不是绝对定位，禁用 FLIP
+      const shouldAnimate = moveClassName && childNodes.length > 0;
+      if (!shouldAnimate) {
+        // 只更新位置，不执行 FLIP 动画
+        updatePositions();
+        return;
+      }
 
       // 2. 执行 L-I-P (对所有需要移动的节点，但跳过离开节点)
       childNodes.forEach((node) => {
@@ -169,24 +201,7 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
       });
 
       // 4. 更新 Ref
-      // 合并新的 "干净" 位置和旧的位置，"忙碌" 节点的旧位置信息不会丢失
-      // 用新的 "空闲" 位置更新 ref
-      const finalPositions = new Map(oldPositions);
-      newPositions.forEach((rect, key) => {
-        finalPositions.set(key, rect);
-      });
-
-      // 清理掉已离开 (unmounted) 节点的旧位置
-      const newKeySet = new Set(childNodes.map((n) => (n as HTMLElement).dataset.originalKey));
-      oldPositions.forEach((rect, key) => {
-        if (!newKeySet.has(key) && !busyNodesRef.current.has(key)) {
-          // 这个 key 不在新的 DOM 中，也不在 busy 列表里 (即 leave 动画已完成)
-          finalPositions.delete(key);
-        }
-      });
-
-      positionsRef.current = finalPositions;
-      isInitialRenderRef.current = false;
+      updatePositions();
     });
 
     return () => {
