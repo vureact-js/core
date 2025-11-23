@@ -16,7 +16,7 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
    * By default, it will render a div as the container,
    * which can be customized using this prop.
    */
-  tag?: HTMLElementType;
+  tag?: HTMLElementType | null;
   /**
    * Used to add HTML attributes to the DOM container
    */
@@ -26,7 +26,7 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
 export default memo(TransitionGroup);
 
 function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
-  const { children, htmlProps, tag: element = 'div', ...transitionProps } = props;
+  const { children, htmlProps, tag = null, ...transitionProps } = props;
 
   const transitionConfig = useTransitionConfig(transitionProps);
 
@@ -45,17 +45,16 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
     });
   }, [children, hasTransition, transitionConfig]);
 
-  const render = useMemo(
-    () =>
-      hasTransition ? (
-        <ReactTransitionGroup component={null}>{renderChildren}</ReactTransitionGroup>
-      ) : (
-        <ReactTransitionGroup component={element as 'div'} {...htmlProps}>
-          {renderChildren}
-        </ReactTransitionGroup>
-      ),
-    [element, htmlProps, hasTransition, renderChildren],
+  const transitionGroupProps = useMemo(
+    () => ({
+      component: tag as 'div',
+      appear: transitionConfig.appear,
+      enter: transitionConfig.enter,
+      exit: transitionConfig.exit,
+      ...htmlProps,
+    }),
+    [htmlProps, tag, transitionConfig.appear, transitionConfig.enter, transitionConfig.exit],
   );
 
-  return render;
+  return <ReactTransitionGroup {...transitionGroupProps}>{renderChildren}</ReactTransitionGroup>;
 }
