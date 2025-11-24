@@ -38,8 +38,10 @@ export interface TransitionProps extends BaseTransitionProps {
    * Internal prop to report animation state to the parent group.
    * @internal
    */
-  onStateChange?: (key: string, state: 'idle' | 'busy') => void;
+  onStateChange?: (key: string, state: TransitionState) => void;
 }
+
+export type TransitionState = 'idle' | 'entering' | 'leaving';
 
 export default memo(Transition);
 
@@ -63,7 +65,7 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
   const prevTime = useRef(0);
   const prevShowRef = useRef(show);
   const currentNodeRef = useRef<HTMLElement>(null);
-  const transitionStateRef = useRef<'idle' | 'entering' | 'leaving'>('idle');
+  const transitionStateRef = useRef<TransitionState>('idle');
 
   const transitionConfig = __USE_THE_CONFIGURED_PROPS
     ? (restProps as TransitionConfig)
@@ -72,7 +74,7 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
   const originalKey = useMemo(() => (child as any).key as string, [child]);
 
   const reportState = useCallback(
-    (state: 'idle' | 'busy') => {
+    (state: TransitionState) => {
       if (originalKey) {
         onStateChange?.(originalKey, state);
       }
@@ -87,13 +89,8 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
         currentNodeRef.current = node;
 
         handler?.(node);
-
-        // 报告状态给父组件
-        if (state === 'entering' || state === 'leaving') {
-          reportState('busy');
-        } else {
-          reportState('idle');
-        }
+        // 报告状态给父组件（区分 entering / leaving / idle）
+        reportState(state);
       };
     },
     [reportState],
