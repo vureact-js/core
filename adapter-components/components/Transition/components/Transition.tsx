@@ -1,7 +1,6 @@
 import {
   Children,
   cloneElement,
-  createRef,
   isValidElement,
   memo,
   PropsWithChildren,
@@ -121,14 +120,17 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
       return child;
     }
 
-    const originalRef = (child as any).ref;
-
-    return cloneElement(child, {
-      // @ts-ignore
-      ref: originalRef ?? createRef(null),
+    const childProps = {
+      ref: (child as any).ref,
       key: originalKey,
-      'data-original-key': originalKey,
-    }) as any;
+    };
+
+    if (originalKey) {
+      // @ts-ignore
+      childProps['data-original-key'] = originalKey;
+    }
+
+    return cloneElement(child, childProps) as any;
   }, [child, originalKey]);
 
   const nodeRef = useMemo(() => (cloneChild as any).ref, [cloneChild]);
