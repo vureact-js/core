@@ -1,7 +1,5 @@
-// hooks/useTransitionConfig.ts
 import { useCallback, useMemo } from 'react';
 import { TransitionActions } from 'react-transition-group/Transition';
-import { transitionNames } from '../styles';
 
 export interface BaseTransitionProps {
   /**
@@ -126,7 +124,7 @@ export const getActualDuration = (
 
 export function useTransitionConfig(props: BaseTransitionProps): TransitionConfig {
   const {
-    name = 'rv',
+    name = '',
     css = true,
     appear = false,
     duration = defaultDuration,
@@ -151,51 +149,35 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
 
   // 计算类名配置
   const classNames = useMemo(() => {
-    let baseClassNames;
+    // @ts-ignore
+    if (!css) return 'NO_CSS_' as undefined;
 
-    if (
-      enterFrom ||
-      enterActive ||
-      enterTo ||
-      appearFrom ||
-      appearActive ||
-      appearTo ||
-      leaveFrom ||
-      leaveActive ||
-      leaveTo
-    ) {
-      baseClassNames = {
-        enter: (!appear ? enterFrom : appearFrom) || `${name}-enter-from`,
-        enterActive: (!appear ? enterActive : appearActive) || `${name}-enter-active`,
-        enterDone: (!appear ? enterTo : appearTo) || `${name}-enter-to`,
-        exit: leaveFrom || `${name}-leave-from`,
-        exitActive: leaveActive || `${name}-leave-active`,
-        exitDone: leaveTo || `${name}-leave-to`,
-      };
-    } else {
-      const presetName = transitionNames[name] ?? name;
-      baseClassNames = {
-        enter: `${presetName}-enter-from`,
-        enterActive: `${presetName}-enter-active`,
-        enterDone: `${presetName}-enter-to`,
-        exit: `${presetName}-leave-from`,
-        exitActive: `${presetName}-leave-active`,
-        exitDone: `${presetName}-leave-to`,
-      };
-    }
+    const baseCls = {
+      enter: enterFrom || name ? `${name}-enter-from` : '',
+      enterActive: enterActive || name ? `${name}-enter-active` : '',
+      enterDone: enterTo || name ? `${name}-enter-to` : '',
+      exit: leaveFrom || name ? `${name}-leave-from` : '',
+      exitActive: leaveActive || name ? `${name}-leave-active` : '',
+      exitDone: leaveTo || name ? `${name}-leave-to` : '',
+    };
 
     // 只有当 appear 为 true 时才添加 appear 类名映射
     if (appear) {
+      const appearCls = {
+        appear: appearFrom || baseCls.enter,
+        appearActive: appearActive || baseCls.enterActive,
+        appearDone: appearTo || baseCls.enterDone,
+      };
+
       return {
-        ...baseClassNames,
-        appear: baseClassNames.enter,
-        appearActive: baseClassNames.enterActive,
-        appearDone: baseClassNames.enterDone,
+        ...appearCls,
+        ...baseCls,
       };
     }
 
-    return baseClassNames;
+    return baseCls;
   }, [
+    css,
     enterFrom,
     enterActive,
     enterTo,
@@ -276,8 +258,6 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
 
   const config = useMemo<TransitionConfig>(
     () => ({
-      enter: css,
-      exit: css,
       classNames,
       timeout,
       appear,
@@ -291,7 +271,6 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     [
       appear,
       classNames,
-      css,
       handleEnter,
       handleEntered,
       handleEntering,
