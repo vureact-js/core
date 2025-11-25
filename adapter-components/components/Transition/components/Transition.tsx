@@ -11,6 +11,7 @@ import {
   useRef,
 } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { CSSTransitionProps } from 'react-transition-group/CSSTransition';
 import {
   BaseTransitionProps,
   getActualDuration,
@@ -21,6 +22,11 @@ import {
 export interface TransitionProps extends BaseTransitionProps {
   /**
    * Show the component; triggers the enter or exit states
+   */
+  if?: boolean;
+  /**
+   * Show the component; triggers the enter or exit states and
+   * it will not unmount the component.
    */
   show?: boolean;
   /**
@@ -51,7 +57,8 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
   const {
     mode,
     children,
-    show = false,
+    show,
+    if: _if = false,
     onEnterCancelled,
     onLeaveCancelled,
     onStateChange,
@@ -61,10 +68,13 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
 
   const child = Children.only(children as ReactElement);
 
+  const _in = useMemo(() => show ?? _if, [_if, show]);
+
   const prevTime = useRef(0);
-  const prevShowRef = useRef(show);
+  const prevShowRef = useRef(_in);
   const currentNodeRef = useRef<HTMLElement>(null);
   const transitionStateRef = useRef<TransitionState>('idle');
+  const unmountOnExitRef = useRef(show === undefined && _if !== undefined);
 
   const transitionConfig = __USE_THE_CONFIGURED_PROPS
     ? (restProps as TransitionConfig)
@@ -120,31 +130,19 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
       return child;
     }
 
-    const childProps = {
-      ref: (child as any).ref,
-      key: originalKey,
-    };
-
-    if (originalKey) {
-      // @ts-ignore
-      childProps['data-original-key'] = originalKey;
-    }
-
-    return cloneElement(child, childProps) as any;
+    return cloneElement(child, { 'data-original-key': originalKey } as any);
   }, [child, originalKey]);
 
-  const nodeRef = useMemo(() => (cloneChild as any).ref, [cloneChild]);
-
-  const cssTransitionProps = useMemo(
+  const cssTransitionProps = useMemo<CSSTransitionProps>(
     () => ({
-      nodeRef,
-      in: show,
-      unmountOnExit: true,
+      in: _in,
       ...transitionConfig,
       ...wrappedHandlers,
-      key: mode ? String(show) : originalKey,
+      key: mode ? String(_in) : originalKey,
+      mountOnEnter: !unmountOnExitRef.current,
+      unmountOnExit: unmountOnExitRef.current,
     }),
-    [mode, nodeRef, originalKey, show, transitionConfig, wrappedHandlers],
+    [_in, mode, originalKey, transitionConfig, wrappedHandlers],
   );
 
   // 处理取消过渡事件
@@ -154,22 +152,22 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
 
     // 根据过渡方向获取对应的 duration
     const relevantDuration =
-      !show && prevShowRef.current
+      !_in && prevShowRef.current
         ? getActualDuration(restProps.duration, 'leave') // 正在离开
-        : show && !prevShowRef.current
+        : _in && !prevShowRef.current
           ? getActualDuration(restProps.duration, 'enter') // 正在进入
           : 0;
 
     // 触发间隔在 duration 之内
     if (timeSinceLastTransition <= relevantDuration) {
-      // 当前 show 为 false （隐藏）且上一个 show 为 true （显示），且过渡状态为 leaving
+      // 当前 _in 为 false （隐藏）且上一个 _in 为 true （显示），且过渡状态为 leaving
       // 表明当前为隐藏状态且正在从 leaving -> entering，必须阻止它
       // 撤销 entering
-      if (!show && prevShowRef.current && transitionStateRef.current === 'leaving') {
+      if (!_in && prevShowRef.current && transitionStateRef.current === 'leaving') {
         onEnterCancelled?.(currentNodeRef.current!);
       }
       // 反之，撤销 leaving
-      if (show && !prevShowRef.current && transitionStateRef.current === 'entering') {
+      if (_in && !prevShowRef.current && transitionStateRef.current === 'entering') {
         onLeaveCancelled?.(currentNodeRef.current!);
       }
     }
@@ -178,7 +176,7 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     // 这里我们只在检测到取消时不更新 prevShowRef，让下一次正常过渡时再更新
     // 这样可以确保取消检测的逻辑持续有效
     if (timeSinceLastTransition > relevantDuration) {
-      prevShowRef.current = show;
+      prevShowRef.current = _in;
       prevTime.current = Date.now();
     }
   }, [
@@ -188,7 +186,7 @@ function Transition(props: PropsWithChildren<TransitionProps>) {
     onLeaveCancelled,
     prevShowRef,
     prevTime,
-    show,
+    _in,
   ]);
 
   // 当组件卸载时 (例如 'leave' 动画完成) 需要通知父组件不再“忙碌”
