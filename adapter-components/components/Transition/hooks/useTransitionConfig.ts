@@ -3,10 +3,6 @@ import { TransitionActions } from 'react-transition-group/Transition';
 
 export interface BaseTransitionProps {
   /**
-   * Show the component; triggers the enter or exit states
-   */
-  show?: boolean;
-  /**
    * Used to automatically generate transition CSS class names.
    * e.g. `name: 'fade'` will auto expand to `.fade-enter`,
    * `.fade-enter-active`, etc.
