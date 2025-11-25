@@ -49,6 +49,8 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   // 用于跟踪当前正在执行 enter/leave 动画的节点
   const busyNodesRef = useRef(new Set<string>());
 
+  const playWait = useRef(50);
+
   const moveClassName = useMemo(
     () => transitionProps.moveClassName || '',
     [transitionProps.moveClassName],
@@ -174,7 +176,7 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
               el.removeEventListener('transitionend', onTransitionEnd);
             };
             el.addEventListener('transitionend', onTransitionEnd);
-          }, 25);
+          }, playWait.current);
 
           cleanUpTimeouts.push(() => clearTimeout(playTimeout));
         }
