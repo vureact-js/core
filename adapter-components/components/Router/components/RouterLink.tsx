@@ -57,11 +57,17 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
     let options: To & { state?: any } = {};
 
     if (typeof to === 'object') {
+      const t = { ...to };
+
+      if (t.params) {
+        t.params = undefined;
+      }
+
       options = {
-        hash: to.hash,
-        state: to.state, // 它不会传递给 <Link> 组件的 to 属性
-        pathname: resolvedPath(to),
-        search: buildSearchParams(to.query),
+        hash: t.hash,
+        state: t.state, // 它不会传递给 <Link> 组件的 to 属性
+        pathname: resolvedPath(t),
+        search: buildSearchParams(t.query),
       };
     }
 
