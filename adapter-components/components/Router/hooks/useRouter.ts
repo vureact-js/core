@@ -49,10 +49,17 @@ export function useRouter(): Router {
   const router = useMemo<Router>(
     () => ({
       push: (to) => {
+        // 如果提供了 path，params 会被忽略
+        if (typeof to === 'object' && to.path && to.params) {
+          to.params = undefined;
+        }
         navigate(buildFullPath(to), getNavigateOptions(to));
       },
 
       replace: (to) => {
+        if (typeof to === 'object' && to.path && to.params) {
+          to.params = undefined;
+        }
         navigate(buildFullPath(to), getNavigateOptions(to));
       },
 
