@@ -1,11 +1,11 @@
 import { memo, useCallback, type ReactNode } from 'react';
 import { useOutlet } from 'react-router-dom';
-import { RouteConfig } from '../creator/createRouter';
 import { GuardExecutor } from '../guards/GuardExecutor';
-import { useRoute } from '../hooks/useRoute';
+import { RouteLocation, useRoute } from '../hooks/useRoute';
 
 export interface RouterViewProps {
-  customRender?: (component: ReactNode, route: RouteConfig) => ReactNode;
+  // customRender 可以接收可选的 route 参数（守卫执行后的 route）
+  customRender?: (component: ReactNode, route: RouteLocation) => ReactNode;
 }
 
 export default memo(RouterView);
@@ -20,8 +20,8 @@ function RouterView({ customRender }: RouterViewProps): ReactNode {
   const route = useRoute();
 
   const render = useCallback(
-    (outlet: ReactNode) => customRender?.(outlet, route) ?? outlet,
-    [customRender, route],
+    (outlet: ReactNode, finalRoute: RouteLocation) => customRender?.(outlet, finalRoute) ?? outlet,
+    [customRender],
   );
 
   return <GuardExecutor {...{ route, outlet, render }} />;

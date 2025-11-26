@@ -9,7 +9,8 @@ import { type ExclusiveGuards, type GuardRouteLocation } from './GuardManager';
 interface Props {
   outlet: ReactNode;
   route: RouteLocation;
-  render: (outlet: ReactNode) => ReactNode;
+  // render 接受可选的 finalRoute 参数（守卫执行后的 route）
+  render: (outlet: ReactNode, finalRoute: RouteLocation) => ReactNode;
 }
 
 type ParentRouteConfigs = {
@@ -35,12 +36,8 @@ export function GuardExecutor({ render, outlet, route }: Props) {
     navigationId: 0,
   });
 
+  const [finalRoute, setFinalRoute] = useState(route);
   const [guardApprovedOutlet, setGuardApprovedOutlet] = useState(outlet);
-
-  const createGuardRouteLocation = (obj: RouteLocation): GuardRouteLocation => ({
-    ...obj,
-    meta: getRouteByPath(obj.path)?.meta || {},
-  });
 
   const shouldTriggerBeforeEach = (
     sourceFromRoute: RouteConfig | null,
@@ -162,9 +159,10 @@ export function GuardExecutor({ render, outlet, route }: Props) {
   useEffect(() => {
     let mounted = true;
 
-    const commitView = () => {
+    const commitView = (currentRoute: RouteLocation) => {
+      setFinalRoute(currentRoute);
+      prevRouteRef.current = currentRoute;
       setGuardApprovedOutlet(outletRef.current);
-      prevRouteRef.current = route;
     };
 
     // 基于具体路径的导航状态检查
@@ -209,51 +207,51 @@ export function GuardExecutor({ render, outlet, route }: Props) {
 
       try {
         if (!toRoute || !fromRoute) {
-          commitView();
+          commitView(toRoute);
           console.error('[Router] Could not find route configuration');
           return;
         }
 
         if (isNavigationInvalid(nid)) return;
 
-        const to = createGuardRouteLocation(toRoute);
-        const from = createGuardRouteLocation(fromRoute);
-
         // 1. beforeRouteLeave
         if (!isFristMount.current) {
-          const beforeRouteLeaveResult = await guardManager.runBeforeRouteLeave(to, from);
+          const beforeRouteLeaveResult = await guardManager.runBeforeRouteLeave(toRoute, fromRoute);
 
           if (isNavigationInvalid(nid)) return;
 
           if (beforeRouteLeaveResult === false) {
-            handleGuardResult(beforeRouteLeaveResult, from);
+            handleGuardResult(beforeRouteLeaveResult, fromRoute);
             return;
           }
         }
 
-        const sourceToRoute = getRouteByPath(to.path);
-        const sourceFromRoute = getRouteByPath(from.path);
+        const sourceToRoute = getRouteByPath(toRoute.path);
+        const sourceFromRoute = getRouteByPath(fromRoute.path);
 
         // 2. beforeEach
         if (shouldTriggerBeforeEach(sourceFromRoute, sourceToRoute)) {
-          const beforeEachResult = await guardManager.runBeforeEach(to, from);
+          const beforeEachResult = await guardManager.runBeforeEach(toRoute, fromRoute);
 
           if (isNavigationInvalid(nid)) return;
 
           if (beforeEachResult !== true) {
-            handleGuardResult(beforeEachResult, from);
+            handleGuardResult(beforeEachResult, fromRoute);
             return;
           }
         }
 
         // 3. beforeRouteUpdate
-        if (shouldTriggerBeforeRouteUpdate(from, to)) {
-          const beforeRouteUpdateResult = await guardManager.runBeforeRouteUpdate(to, from);
+        if (shouldTriggerBeforeRouteUpdate(fromRoute, toRoute)) {
+          const beforeRouteUpdateResult = await guardManager.runBeforeRouteUpdate(
+            toRoute,
+            fromRoute,
+          );
 
           if (isNavigationInvalid(nid)) return;
 
           if (beforeRouteUpdateResult === false) {
-            handleGuardResult(beforeRouteUpdateResult, from);
+            handleGuardResult(beforeRouteUpdateResult, fromRoute);
             return;
           }
         }
@@ -261,21 +259,25 @@ export function GuardExecutor({ render, outlet, route }: Props) {
         // 4. beforeEnter
         if (shouldTriggerBeforeEnter(sourceFromRoute, sourceToRoute)) {
           // 4.1 处理父级路由的 beforeEnter
-          if (to.matched.length > 1) {
-            const parentRouteInfo = getParentRouteInfo(to);
+          if (toRoute.matched.length > 1) {
+            const parentRouteInfo = getParentRouteInfo(toRoute);
 
             for (const { pattern, isRedirect, beforeEnter } of parentRouteInfo) {
               if (isNavigationInvalid(nid)) return;
 
               if (isRedirect || !beforeEnter) continue;
-              if (isSameParentNavigation(from, to, pattern)) continue;
+              if (isSameParentNavigation(fromRoute, toRoute, pattern)) continue;
 
-              const beforeEnterResult = await guardManager.runBeforeEnter(to, from, beforeEnter);
+              const beforeEnterResult = await guardManager.runBeforeEnter(
+                toRoute,
+                fromRoute,
+                beforeEnter,
+              );
 
               if (isNavigationInvalid(nid)) return;
 
               if (beforeEnterResult !== true) {
-                handleGuardResult(beforeEnterResult, from);
+                handleGuardResult(beforeEnterResult, fromRoute);
                 return;
               }
             }
@@ -284,37 +286,37 @@ export function GuardExecutor({ render, outlet, route }: Props) {
           // 4.2 处理目标路由本身的 beforeEnter
           if (sourceToRoute?.beforeEnter && !isNavigationInvalid(nid)) {
             const beforeEnterResult = await guardManager.runBeforeEnter(
-              to,
-              from,
+              toRoute,
+              fromRoute,
               sourceToRoute.beforeEnter,
             );
 
             if (isNavigationInvalid(nid)) return;
 
             if (beforeEnterResult !== true) {
-              handleGuardResult(beforeEnterResult, from);
+              handleGuardResult(beforeEnterResult, fromRoute);
               return;
             }
           }
         }
 
         // 5. beforeResolve
-        const beforeResolveResult = await guardManager.runBeforeResolve(to, from);
+        const beforeResolveResult = await guardManager.runBeforeResolve(toRoute, fromRoute);
 
         if (isNavigationInvalid(nid)) return;
 
         if (beforeResolveResult !== true) {
-          handleGuardResult(beforeResolveResult, from);
+          handleGuardResult(beforeResolveResult, fromRoute);
           return;
         }
 
         if (isNavigationInvalid(nid)) return;
 
-        // 6. commit view and run afterEach
-        commitView();
-        guardManager.runAfterEach(to, from);
+        // 6. run afterEach commit view
+        commitView(toRoute);
+        guardManager.runAfterEach(toRoute, fromRoute);
       } catch (err) {
-        if (isNavigationInvalid(nid)) commitView();
+        if (isNavigationInvalid(nid)) commitView(toRoute);
         console.error('[Router] Error in navigation guards:', err);
       } finally {
         if (isFristMount.current) {
@@ -334,5 +336,8 @@ export function GuardExecutor({ render, outlet, route }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleGuardResult, route]);
 
-  return useMemo(() => render(guardApprovedOutlet), [guardApprovedOutlet, render]);
+  return useMemo(
+    () => render(guardApprovedOutlet, finalRoute),
+    [finalRoute, guardApprovedOutlet, render],
+  );
 }
