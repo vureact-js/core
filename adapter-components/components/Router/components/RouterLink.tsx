@@ -59,7 +59,7 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
     if (typeof to === 'object') {
       const t = { ...to };
 
-      if (t.params) {
+      if (t.path && t.params) {
         t.params = undefined;
       }
 
