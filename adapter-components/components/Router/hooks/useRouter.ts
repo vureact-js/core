@@ -11,7 +11,7 @@ export interface Router {
   current: string;
 }
 
-export interface RouterOptions {
+export interface RouterOptions extends NavigateOptions {
   path?: string;
   name?: string;
   params?: Params;
@@ -40,8 +40,7 @@ export function useRouter(): Router {
   const getNavigateOptions = useCallback(
     (to: string | RouterOptions): NavigateOptions | undefined => {
       if (typeof to === 'string') return undefined;
-      const { state, replace } = to;
-      return { state, replace };
+      return to;
     },
     [],
   );
