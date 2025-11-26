@@ -47,9 +47,9 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
     replace = false,
     customRender,
     children,
-    activeClassName,
-    inActiveClassName,
-    exactActiveClassName,
+    activeClassName = '',
+    inActiveClassName = '',
+    exactActiveClassName = '',
     ...restProps
   } = props;
 
@@ -96,8 +96,9 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
 
     return [
       restProps.className,
-      isExactActive ? exactActiveCls : inActiveCls,
-      isActive ? activeCls : inActiveCls,
+      isExactActive ? exactActiveCls : '',
+      isActive ? activeCls : '',
+      !isActive && !isExactActive ? inActiveCls : '',
     ]
       .filter(Boolean)
       .join(' ');
