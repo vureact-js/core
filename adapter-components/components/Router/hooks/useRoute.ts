@@ -7,6 +7,7 @@ export interface RouteLocation {
   path: string;
   params: Params;
   hash: string;
+  meta: any;
   state: any;
   fullPath: string;
   query: Record<string, any>;
@@ -61,7 +62,9 @@ export function useRoute(): RouteLocation {
   });
 
   const config = getRouteByPath(pathname);
+
   const name = config?.name || '';
+  const meta = config?.meta || {};
 
   return {
     name,
@@ -69,6 +72,7 @@ export function useRoute(): RouteLocation {
     params,
     query,
     hash,
+    meta,
     state,
     fullPath,
     matched,
