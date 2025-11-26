@@ -28,9 +28,7 @@ export type NonNextFnGuard<T = void> = (
 
 type Result = boolean | string | Partial<GuardRouteLocation> | Error;
 
-export interface GuardRouteLocation extends RouteLocation {
-  meta: Record<string, any>;
-}
+export type GuardRouteLocation = RouteLocation;
 
 type GlobalGuardsName = 'beforeEachGuards' | 'beforeResolveGuards' | 'afterEachGuards';
 
