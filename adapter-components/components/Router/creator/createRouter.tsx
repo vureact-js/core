@@ -1,5 +1,5 @@
 import { type FunctionComponent, type ReactNode } from 'react';
-import type { RouteObject, RouterProviderProps, To } from 'react-router-dom';
+import type { NonIndexRouteObject, RouteObject, RouterProviderProps, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import { isPromise } from '../../../utils';
 import { createRouterProvider } from '../creator/createRouterProvider';
@@ -31,6 +31,7 @@ export interface RouteConfig extends ExclusiveGuards {
   linkActiveClass?: string;
   linkExactActiveClass?: string;
   redirect?: Redirect | RedirectFunc;
+  loader?: NonIndexRouteObject['loader'];
   meta?: { [x: string]: any; loadingComponent?: ReactNode };
 }
 
@@ -62,6 +63,7 @@ export type ReactRoute = RouteObject;
  * @param options.component n/a
  * @param options.children n/a
  * @param options.meta n/a
+ * @param options.loader n/a
  * @param options.redirect n/a
  * @param options.linkActiveClass n/a
  * @param options.linkExactActiveClass n/a
@@ -134,6 +136,7 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
     const reactRoute: ReactRoute = {
       path: route.path,
       id: route.name,
+      loader: route.loader,
       element: handleElement(route),
       caseSensitive: route.sensitive,
       children: route.children?.map(convertRoute),
