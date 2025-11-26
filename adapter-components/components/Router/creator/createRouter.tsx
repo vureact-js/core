@@ -28,8 +28,9 @@ export interface RouteConfig extends ExclusiveGuards {
   sensitive?: boolean;
   component?: ComponentType;
   children?: RouteConfig[];
-  linkActiveClass?: string;
-  linkExactActiveClass?: string;
+  linkActiveClassName?: string;
+  linkInActiveClassName?: string;
+  linkExactActiveClassName?: string;
   redirect?: Redirect | RedirectFunc;
   loader?: NonIndexRouteObject['loader'];
   meta?: { [x: string]: any; loadingComponent?: ReactNode };
@@ -65,8 +66,9 @@ export type ReactRoute = RouteObject;
  * @param options.meta n/a
  * @param options.loader n/a
  * @param options.redirect n/a
- * @param options.linkActiveClass n/a
- * @param options.linkExactActiveClass n/a
+ * @param options.linkActiveClassName n/a
+ * @param options.linkInActiveClassName n/a
+ * @param options.linkExactActiveClassName n/a
  *
  * @returns Includes the route instance, RouterProvider, and so on.
  *
@@ -121,8 +123,9 @@ export function createRouter(options: CreateRouterOptions): RouterInstance {
     // 这些配置会在 RouterLink 组件中使用
     // 这里只做存储，不进行实际处理
     return {
-      linkActiveClass: route.linkActiveClass,
-      linkExactActiveClass: route.linkExactActiveClass,
+      linkActiveClassName: route.linkActiveClassName,
+      linkExactActiveClassName: route.linkExactActiveClassName,
+      linkInActiveClassName: route.linkInActiveClassName,
     };
   };
 
