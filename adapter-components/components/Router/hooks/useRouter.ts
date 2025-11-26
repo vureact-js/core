@@ -3,11 +3,11 @@ import { type NavigateOptions, type Params, useLocation, useNavigate } from 'rea
 import { buildFullPath } from '../utils';
 
 export interface Router {
-  push: (to: string | RouterOptions) => void;
-  replace: (to: string | RouterOptions) => void;
-  go: (delta: number) => void;
-  back: () => void;
-  forward: () => void;
+  push: (to: string | RouterOptions) => void | Promise<void>;
+  replace: (to: string | RouterOptions) => void | Promise<void>;
+  go: (delta: number) => void | Promise<void>;
+  back: () => void | Promise<void>;
+  forward: () => void | Promise<void>;
   current: string;
 }
 
@@ -53,26 +53,26 @@ export function useRouter(): Router {
         if (typeof to === 'object' && to.path && to.params) {
           to.params = undefined;
         }
-        navigate(buildFullPath(to), getNavigateOptions(to));
+        return navigate(buildFullPath(to), getNavigateOptions(to));
       },
 
       replace: (to) => {
         if (typeof to === 'object' && to.path && to.params) {
           to.params = undefined;
         }
-        navigate(buildFullPath(to), getNavigateOptions(to));
+        return navigate(buildFullPath(to), getNavigateOptions(to));
       },
 
       go: (delta) => {
-        navigate(delta);
+        return navigate(delta);
       },
 
       back: () => {
-        navigate(-1);
+        return navigate(-1);
       },
 
       forward: () => {
-        navigate(1);
+        return navigate(1);
       },
 
       current: location.pathname + location.search + location.hash,
