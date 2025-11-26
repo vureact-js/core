@@ -16,8 +16,9 @@ export interface RouterLinkBaseProps {
   to: string | RouterOptions;
   replace?: boolean;
   customRender?: LinkCustomRender;
-  activeClass?: string;
-  exactActiveClass?: string;
+  inActiveClassName?: string;
+  activeClassName?: string;
+  exactActiveClassName?: string;
 }
 
 export type LinkCustomRender = (props: CustomRenderProps) => React.ReactNode;
@@ -36,8 +37,8 @@ export default memo(RouterLink);
  *
  * @param to the route address to navigate to when the link is clicked.
  * @param replace call `router.replace` to replace `router.push`
- * @param activeClass the class is applied to the link when it matches the current route.
- * @param exactActiveClass the class is applied to the link when it strictly matches the current route.
+ * @param activeClassName the class is applied to the link when it matches the current route.
+ * @param exactActiveClassName the class is applied to the link when it strictly matches the current route.
  * @param customRender Customize whether its content should be wrapped in an `<a>` tag
  */
 function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
@@ -46,8 +47,9 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
     replace = false,
     customRender,
     children,
-    activeClass,
-    exactActiveClass,
+    activeClassName,
+    inActiveClassName,
+    exactActiveClassName,
     ...restProps
   } = props;
 
@@ -88,15 +90,21 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
   const className = useMemo(() => {
     const route = getRouteByPath(resolved.pathname);
 
-    const activeCls = activeClass || route?.linkActiveClass;
-    const exactActiveCls = exactActiveClass || route?.linkExactActiveClass;
+    const activeCls = activeClassName || route?.linkActiveClassName;
+    const inActiveCls = inActiveClassName || route?.linkInActiveClassName;
+    const exactActiveCls = exactActiveClassName || route?.linkExactActiveClassName;
 
-    return [restProps.className, isExactActive ? exactActiveCls : '', isActive ? activeCls : '']
+    return [
+      restProps.className,
+      isExactActive ? exactActiveCls : inActiveCls,
+      isActive ? activeCls : inActiveCls,
+    ]
       .filter(Boolean)
       .join(' ');
   }, [
-    activeClass,
-    exactActiveClass,
+    activeClassName,
+    exactActiveClassName,
+    inActiveClassName,
     isActive,
     isExactActive,
     resolved.pathname,
