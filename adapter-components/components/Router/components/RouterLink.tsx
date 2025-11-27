@@ -7,6 +7,7 @@ import {
   type LinkProps,
   type To,
 } from 'react-router-dom';
+import { RouteConfig } from '../creator/createRouter';
 import { type RouterOptions } from '../hooks/useRouter';
 import { buildSearchParams, getRouteByPath, resolvedPath } from '../utils';
 
@@ -79,6 +80,21 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
   const navigate = useNavigate();
   const resolved = useResolvedPath(navLink || navOptions);
 
+  const redirectOfTarget = useMemo<string | undefined>(() => {
+    const targetRoute = getRouteByPath(resolved.pathname);
+
+    if (!targetRoute) return;
+
+    const getRedirect = (redirect: RouteConfig['redirect']) => {
+      if (!redirect) return;
+      if (typeof redirect === 'string') return redirect;
+      if (typeof redirect === 'object') return redirect.name || redirect.path;
+      if (typeof redirect === 'function') return getRedirect(redirect(targetRoute));
+    };
+
+    return getRedirect(targetRoute?.redirect);
+  }, [resolved.pathname]);
+
   // @ts-ignore
   const { state } = navOptions;
 
@@ -114,13 +130,13 @@ function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
 
   const linkProps = useMemo(
     () => ({
-      to: navLink || navOptions,
+      to: redirectOfTarget || navLink || navOptions,
       state,
-      replace,
+      replace: !!redirectOfTarget || replace,
       ...restProps,
       className,
     }),
-    [className, navLink, navOptions, replace, restProps, state],
+    [className, navLink, navOptions, redirectOfTarget, replace, restProps, state],
   );
 
   const customRenderProps = useMemo(() => {
