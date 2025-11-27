@@ -1,5 +1,5 @@
 import { type FunctionComponent, type ReactNode } from 'react';
-import type { NonIndexRouteObject, RouteObject, RouterProviderProps, To } from 'react-router-dom';
+import type { DataRouter, NonIndexRouteObject, RouteObject, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import { isPromise } from '../../../utils';
 import { createRouterProvider } from '../creator/createRouterProvider';
@@ -45,7 +45,28 @@ type Redirect = string | RedirectOptions;
 type RedirectOptions = RouterHookOptions;
 
 export interface RouterInstance extends GlobalGuards {
-  router: RouterProviderProps['router'];
+  /**
+   * A Router instance manages all navigation and data loading/mutations
+   */
+  router: DataRouter;
+  /**
+   * Render the UI for the given DataRouter. This component should
+   * typically be at the top of an app's element tree.
+   *
+   * ```tsx
+   * import { createRouter, createWebHistory } from "react-vue3-components";
+   * import { createRoot } from "react-dom/client";
+   *
+   * const { RouterProvider } = createRouter({
+   *   history: createWebHistory(),
+   *   routes: []
+   * });
+   * createRoot(document.getElementById("root")).render(
+   *   <RouterProvider />
+   * );
+   * ```
+   * @returns React element for the rendered router
+   */
   RouterProvider: FunctionComponent;
   clearAll: () => void;
   getRoutes: () => Readonly<GlobalRouteConfig>;
@@ -56,26 +77,16 @@ export type ReactRoute = RouteObject;
 /**
  * Simulate Vue's `createRouter` based on `react-router-dom`
  *
- * @param options Application routes
- * @param options.path n/a
- * @param options.name n/a
- * @param options.state n/a
- * @param options.sensitive n/a
- * @param options.component n/a
- * @param options.children n/a
- * @param options.meta n/a
- * @param options.loader n/a
- * @param options.redirect n/a
- * @param options.linkActiveClassName n/a
- * @param options.linkInActiveClassName n/a
- * @param options.linkExactActiveClassName n/a
+ * @param {CreateRouterOptions} options Application routes
+ * @param {CreateRouterOptions.routes} options.routes n/a
+ * @param {CreateRouterOptions.history} options.history n/a
+ * @param {CreateRouterOptions.initialEntries} options.initialEntries n/a
+ * @param {CreateRouterOptions.initialIndex} options.initialIndex n/a
  *
- * @returns Includes the route instance, RouterProvider, and so on.
+ * @returns {RouterInstance} Includes the route instance, RouterProvider, and so on.
  *
  * @field `RouterInstance.router` An initialized DataRouter data router
  * @field `RouterInstance.RouterProvider` Use the component directly without passing in DataRouter data router.
- * @field `RouterInstance.getRoutes` Obtain the route configuration before and after the source transformation.
- * @field `RouterInstance.clearAll`
  */
 export function createRouter(options: CreateRouterOptions): RouterInstance {
   const { history = createWebHashHistory(), routes, ...memoryRouterOpts } = options;
