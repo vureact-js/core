@@ -1,5 +1,5 @@
 import { type FC, type PropsWithChildren, type ReactNode } from 'react';
-import type { RouterProviderProps } from 'react-router-dom';
+import type { DataRouter } from 'react-router-dom';
 import { RouterProvider as ReactRouterProvider } from 'react-router-dom';
 import { RouterContextProvider } from '../context/RouterContext';
 import { GuardManagerImpl } from '../guards/GuardManager';
@@ -16,7 +16,7 @@ type ReturnValues = {
  * @param router 路由配置
  * @returns ReturnValues
  */
-export function createRouterProvider(router: RouterProviderProps['router']): ReturnValues {
+export function createRouterProvider(router: DataRouter): ReturnValues {
   const guardManager = new GuardManagerImpl();
   const RouterProvider: React.FC<PropsWithChildren> = ({ children }) => {
     return (
