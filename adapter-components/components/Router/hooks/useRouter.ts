@@ -37,6 +37,25 @@ export function useRouter(): Router {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const handleTo = useCallback(
+    (to: string | RouterOptions) => {
+      if (typeof to === 'object') {
+        // 允许不提供 path 和 name
+        if (!to.path && !to.name) {
+          to.path = location.pathname;
+        }
+
+        // 如果提供了 path，params 会被忽略
+        if (to.path && to.params) {
+          to.params = undefined;
+        }
+      }
+
+      return to;
+    },
+    [location.pathname],
+  );
+
   const getNavigateOptions = useCallback(
     (to: string | RouterOptions): NavigateOptions | undefined => {
       if (typeof to === 'string') return undefined;
@@ -48,18 +67,11 @@ export function useRouter(): Router {
   const router = useMemo<Router>(
     () => ({
       push: (to) => {
-        // 如果提供了 path，params 会被忽略
-        if (typeof to === 'object' && to.path && to.params) {
-          to.params = undefined;
-        }
-        return navigate(buildFullPath(to), getNavigateOptions(to));
+        return navigate(buildFullPath(handleTo(to)), getNavigateOptions(to));
       },
 
       replace: (to) => {
-        if (typeof to === 'object' && to.path && to.params) {
-          to.params = undefined;
-        }
-        return navigate(buildFullPath(to), getNavigateOptions(to));
+        return navigate(buildFullPath(handleTo(to)), getNavigateOptions(to));
       },
 
       go: (delta) => {
@@ -76,7 +88,7 @@ export function useRouter(): Router {
 
       current: location.pathname + location.search + location.hash,
     }),
-    [location.pathname, location.search, location.hash, getNavigateOptions, navigate],
+    [location.pathname, location.search, location.hash, navigate, handleTo, getNavigateOptions],
   );
 
   return router;
