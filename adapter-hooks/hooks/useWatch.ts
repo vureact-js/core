@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { executeEffect } from '../shared/executeEffect';
 import type { Destructor } from '../types';
-import { isPrimitive } from '../utils';
+import { isPrimitive } from '../utils/is';
 import { useDeepEffect } from './useDeepEffect';
 import { useIsFirstMount } from './useIsFirstMount';
 import { useUnmounted } from './useUnmounted';
