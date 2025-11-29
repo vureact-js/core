@@ -1,8 +1,12 @@
-import { useUnmount } from 'react-use';
+import { useEffect } from 'react';
 import type { EffectCallback } from '../types';
 
 export function useUnmounted(fn: EffectCallback) {
-  useUnmount(() => {
-    fn();
-  });
+  useEffect(
+    () => () => {
+      fn();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 }
