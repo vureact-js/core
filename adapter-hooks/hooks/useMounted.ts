@@ -1,8 +1,9 @@
-import { useMount } from 'react-use';
+import { useEffect } from 'react';
 import { type EffectCallback } from '../types';
 
 export function useMounted(fn: EffectCallback) {
-  useMount(() => {
+  useEffect(() => {
     fn();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
