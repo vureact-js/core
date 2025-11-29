@@ -1,12 +1,15 @@
-import { useUpdateEffect } from 'react-use';
-import type { EffectCallback } from '../types';
+import { useEffect } from 'react';
+import { EffectCallback } from '../types';
+import { useIsFirstMount } from './useIsFirstMount';
 
-/**
- * `useUpdated` does not execute on initial mount and will be triggered
- * on any update of the component, with no dependencies required.
- */
-export function useUpdated(fn: EffectCallback) {
-  useUpdateEffect(() => {
+export function useUpdated(fn: EffectCallback): void {
+  const firstMount = useIsFirstMount();
+
+  useEffect(() => {
+    if (firstMount) {
+      return;
+    }
+
     fn();
-  }, undefined);
+  });
 }
