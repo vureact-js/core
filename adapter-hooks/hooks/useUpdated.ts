@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { DependencyList, useEffect } from 'react';
 import { EffectCallback } from '../types';
 import { useIsFirstMount } from './useIsFirstMount';
 
-export function useUpdated(fn: EffectCallback): void {
+export function useUpdated(fn: EffectCallback, deps?: DependencyList): void {
   const firstMount = useIsFirstMount();
 
   useEffect(() => {
@@ -11,5 +11,6 @@ export function useUpdated(fn: EffectCallback): void {
     }
 
     fn();
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }
