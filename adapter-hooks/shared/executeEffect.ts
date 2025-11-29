@@ -1,5 +1,5 @@
 import { type Destructor } from '../types';
-import { isPromise } from '../utils';
+import { isPromise } from '../utils/is';
 
 /**
  * 通用 Effect 执行器，
