@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDeepCompareEffect, useFirstMountState, useUnmount } from 'react-use';
 import { executeEffect } from '../shared/executeEffect';
 import type { Destructor } from '../types';
 import { isPrimitive } from '../utils';
+import { useDeepEffect } from './useDeepEffect';
+import { useIsFirstMount } from './useIsFirstMount';
+import { useUnmounted } from './useUnmounted';
 
 export type WatchSource<T = any> = T | (() => T);
 
@@ -30,7 +32,7 @@ export function useWatch<T>(
 ): WatchStopHandle {
   const { stop, onStop } = createWatchStopHandle();
 
-  const isFirstMount = useFirstMountState();
+  const firstMount = useIsFirstMount();
 
   const once = useRef(false);
   const oldValue = useRef<T>(undefined);
@@ -61,7 +63,7 @@ export function useWatch<T>(
 
     // 依赖项包含非原始值时使用深度比较
     const hasNonPrimitive = sourceDeps.some((dep) => !isPrimitive(dep));
-    return hasNonPrimitive ? useDeepCompareEffect : useEffect;
+    return hasNonPrimitive ? useDeepEffect : useEffect;
   }, [options?.deep, sourceDeps]);
 
   const runCleanup = () => {
@@ -90,7 +92,7 @@ export function useWatch<T>(
       return;
     }
 
-    if (isFirstMount) {
+    if (firstMount) {
       updateValue();
       if (options?.immediate) {
         if (options?.once) {
@@ -108,7 +110,7 @@ export function useWatch<T>(
     updateValue();
   }, deps);
 
-  useUnmount(runCleanup);
+  useUnmounted(runCleanup);
 
   return onStop;
 }
