@@ -2,7 +2,7 @@ import { enableMapSet } from 'immer';
 import { useState } from 'react';
 import { ImmerHook, useImmer } from 'use-immer';
 import { Primitive } from '../types';
-import { isPrimitive } from '../utils';
+import { isPrimitive } from '../utils/is';
 
 // 启用 useImmer 对 Map 和 Set 集合类型的支持
 enableMapSet();
