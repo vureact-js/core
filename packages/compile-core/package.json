@@ -1,0 +1,82 @@
+{
+  "name": "vureact",
+  "version": "1.0.0",
+  "description": "A modern automatic compilation tool that quickly converts Vue3 code to React (Jsx/Tsx). It meets the daily business and component engineering needs of small and medium-sized projects, enabling lossless syntax conversion and precise logic migration. Leverage Vue's mental model advantages to write React code—ready to use right after conversion.",
+  "author": "Owen Dells",
+  "license": "MIT",
+  "type": "module",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./parse": {
+      "import": "./lib/core/parse/index.js",
+      "types": "./lib/core/parse/index.d.ts"
+    },
+    "./transform": {
+      "import": "./lib/core/transform/index.js",
+      "types": "./lib/core/transform/index.d.ts"
+    },
+    "./generate": {
+      "import": "./lib/core/generate/index.js",
+      "types": "./lib/core/generate/index.d.ts"
+    }
+  },
+  "files": [
+    "lib",
+    "LICENSE",
+    "README.md",
+    "README.zh.md"
+  ],
+  "keywords": [
+    "vue",
+    "react",
+    "vureact",
+    "vue-to-jsx",
+    "vue-to-react",
+    "react-vue-like",
+    "babel",
+    "compiler",
+    "transformer",
+    "template-transformer"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smirk9581/vureact/packages/compile-core"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.28.3",
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
+    "@babel/types": "^7.28.4",
+    "@vue/compiler-core": "^3.5.22",
+    "@vue/compiler-sfc": "^3.5.22"
+  },
+  "devDependencies": {
+    "@types/babel__generator": "^7.27.0",
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^24.5.2",
+    "tsup": "^8.0.0",
+    "vue": "^3.5.22",
+    "@eslint/js": "^9.39.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.4"
+  }
+}
