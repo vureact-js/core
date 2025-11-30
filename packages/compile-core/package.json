@@ -43,14 +43,16 @@
     "transformer",
     "template-transformer"
   ],
+  "homepage": "https://vureact.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/smirk9581/vureact/packages/compile-core"
   },
   "scripts": {
     "build": "tsup",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@babel/generator": "^7.28.3",
@@ -59,24 +61,5 @@
     "@babel/types": "^7.28.4",
     "@vue/compiler-core": "^3.5.22",
     "@vue/compiler-sfc": "^3.5.22"
-  },
-  "devDependencies": {
-    "@types/babel__generator": "^7.27.0",
-    "@types/babel__traverse": "^7.28.0",
-    "@types/node": "^24.5.2",
-    "tsup": "^8.0.0",
-    "vue": "^3.5.22",
-    "@eslint/js": "^9.39.0",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
-    "eslint": "^9.38.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "prettier": "^3.6.2",
-    "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
-    "tslib": "^2.8.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.4"
   }
 }

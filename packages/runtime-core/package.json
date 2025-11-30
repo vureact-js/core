@@ -1,0 +1,43 @@
+{
+  "name": "vureact-runtime",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./lib/cjs/index.min.cjs",
+  "module": "./lib/esm/index.min.mjs",
+  "types": "./lib/index.d.ts",
+  "author": "Owen Dells",
+  "license": "MIT",
+  "description": "",
+  "keywords": [
+    "react",
+    "vureact",
+    "vureact-runtime",
+    "vue-to-react",
+    "react-utils",
+    "react-tools",
+    "react-components"
+  ],
+  "files": [
+    "lib",
+    "LICENSE",
+    "README.md",
+    "README.zh.md"
+  ],
+  "homepage": "https://vureact.vercel.app/runtime/introduction",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smirk9581/vureact/packages/runtime-core"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "pnpm clean && rollup -c --bundleConfigAsCjs",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "peerDependencies": {
+    "react": ">=18.2.0",
+    "react-dom": "*"
+  },
+  "dependencies": {}
+}
