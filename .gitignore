@@ -4,3 +4,4 @@ pnpm-lock.yaml
 coverage/
 *.log
 .DS_Store
+bundles-size.html
