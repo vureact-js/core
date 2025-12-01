@@ -1,0 +1,178 @@
+/* eslint-disable no-console */
+import kleur from 'kleur';
+import { relative } from 'path';
+
+interface LogOptions {
+  file?: string;
+  source?: string;
+  loc?: {
+    start?: {
+      line?: number;
+      column?: number;
+    };
+  };
+  // 自定义上下文行数
+  contextLines?: number;
+}
+
+interface LogEntry {
+  level: 'warn' | 'error' | 'info';
+  message: string;
+  file?: string;
+  line?: number;
+  column?: number;
+  source?: string;
+}
+
+export class Logger {
+  private logs: LogEntry[] = [];
+  private contextLines: number = 2; // 默认上下各2行
+  private tabWidth: number = 2; // 制表符转换宽度
+
+  warn(message: any, opts: LogOptions = {}): void {
+    this.addLog('warn', kleur.yellow(message), opts);
+  }
+
+  error(message: any, opts: LogOptions = {}): void {
+    this.addLog('error', kleur.red(message), opts);
+  }
+
+  info(message: any, opts: LogOptions = {}): void {
+    this.addLog('info', kleur.blue(message), opts);
+  }
+
+  private addLog(level: 'warn' | 'error' | 'info', message: any, opts: LogOptions): void {
+    const { file, source, loc } = opts;
+
+    // 提取位置信息
+    const logLine = loc?.start?.line;
+    const logColumn = loc?.start?.column;
+
+    this.logs.push({
+      level,
+      message,
+      file: file ? relative(process.cwd(), file) : undefined,
+      line: logLine,
+      column: logColumn,
+      source,
+    });
+  }
+
+  private levelColor(level: string): kleur.Color {
+    return level === 'error' ? kleur.red : level === 'warn' ? kleur.yellow : kleur.blue;
+  }
+
+  private formatHeader(log: LogEntry): string {
+    const levelLabel = log.level.toUpperCase();
+    const color = this.levelColor(log.level);
+    const location =
+      log.file && log.line != null && log.column != null
+        ? `${log.file}${kleur.gray(`:${log.line}:${log.column}`)}`
+        : (log.file ?? kleur.gray('from an unknown file:'));
+
+    return `${color(`[${levelLabel}]`)} ${log.message}\n\n  ${kleur.cyan(location)}\n`;
+  }
+
+  private formatContext(log: LogEntry): string {
+    const { source, level, line, column } = log;
+
+    if (!source || line == null || column == null) {
+      return '';
+    }
+
+    const color = this.levelColor(level);
+    const lines = source.split('\n');
+    const lineIndex = line - 1; // 转换为 0-based 索引
+
+    if (lineIndex < 0 || lineIndex >= lines.length) {
+      return '';
+    }
+
+    // 计算显示行范围
+    const startLine = Math.max(0, lineIndex - this.contextLines);
+    const endLine = Math.min(lines.length - 1, lineIndex + this.contextLines);
+
+    const result: string[] = [];
+    const lineNumWidth = (endLine + 1).toString().length;
+
+    for (let i = startLine; i <= endLine; i++) {
+      let lineContent = lines[i] || '';
+
+      // 将制表符转换为空格以保持视觉对齐
+      lineContent = lineContent.replace(/\t/g, ' '.repeat(this.tabWidth));
+
+      const lineNum = i + 1;
+      result.push(`  > ${lineNum.toString().padStart(lineNumWidth)} | ${lineContent}`);
+
+      // 在错误行下方添加指针标记
+      if (i === lineIndex) {
+        const prefixLength = 4 + lineNumWidth + 3; // "  > " + 行号 + " | "
+
+        // 防止列号越界，确保指针不会超出该行长度
+        const maxColumn = Math.max(0, lineContent.length);
+        const pointerColumn = Math.min(column - 1, maxColumn);
+
+        const pointerIndent = ' '.repeat(prefixLength + pointerColumn);
+        result.push(color(`${pointerIndent}${`^`.repeat(prefixLength)}`));
+      }
+    }
+
+    return result.join('\n');
+  }
+
+  printAll(): void {
+    if (this.logs.length === 0) {
+      console.log('No logs to display.');
+      return;
+    }
+
+    // 按 error > warn > info 顺序输出
+    const orderedLogs = [
+      ...this.logs.filter((log) => log.level === 'error'),
+      ...this.logs.filter((log) => log.level === 'warn'),
+      ...this.logs.filter((log) => log.level === 'info'),
+    ];
+
+    for (const log of orderedLogs) {
+      console.log(this.formatHeader(log));
+      const context = this.formatContext(log);
+      if (context) {
+        console.log(context);
+      }
+
+      console.log(); // 空行分隔
+    }
+
+    // 输出统计摘要
+    const errorCount = this.logs.filter((log) => log.level === 'error').length;
+    const warnCount = this.logs.filter((log) => log.level === 'warn').length;
+    const infoCount = this.logs.filter((log) => log.level === 'info').length;
+
+    if (errorCount > 0 || warnCount > 0) {
+      console.log(
+        `${kleur.red(`✖ ${errorCount} error(s)`)}, ${kleur.yellow(`${warnCount} warning(s)`)}, ${kleur.blue(`${infoCount} info message(s)`)}`,
+      );
+    } else {
+      console.log(kleur.blue(`ℹ ${infoCount} info message(s)`));
+    }
+  }
+
+  clear(): void {
+    this.logs = [];
+  }
+
+  getLogs(): LogEntry[] {
+    return [...this.logs];
+  }
+
+  hasErrors(): boolean {
+    return this.logs.some((log) => log.level === 'error');
+  }
+
+  hasWarnings(): boolean {
+    return this.logs.some((log) => log.level === 'warn');
+  }
+}
+
+// 默认实例
+export const logger = new Logger();
