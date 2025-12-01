@@ -8,7 +8,13 @@ const banner = `/**
 `;
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/core/parse/index.ts', 'src/core/transform/index.ts', 'src/core/generate/index.ts'],
+  tsconfig: './tsconfig-build.json',
+  entry: [
+    'src/index.ts',
+    'src/core/parse/index.ts',
+    'src/core/transform/index.ts',
+    'src/core/generate/index.ts',
+  ],
   banner: {
     js: banner,
   },
