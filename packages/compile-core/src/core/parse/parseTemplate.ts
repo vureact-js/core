@@ -6,7 +6,6 @@ export function parseTemplate(block: SFCTemplateBlock | null): VueASTDescriptor[
   if (!block?.content) return null;
 
   return {
-    source: block,
     ast: templateParse(block.content, {
       onError() {},
     }),
