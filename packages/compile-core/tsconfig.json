@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "rootDir": "src",
     "sourceMap": true,
     "declaration": true,
@@ -9,10 +9,10 @@
     "paths": {
       "@src/*": ["src/*"],
       "@core/*": ["src/core/*"],
-      "@utils/*": ["utils/*"],
-      "@shared/*": ["shared/*"],
-      "@consts/*": ["consts/*"]
+      "@utils/*": ["src/utils/*"],
+      "@shared/*": ["src/shared/*"],
+      "@consts/*": ["src/consts/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "**/__tests__", "**/__tests__/**/*"]
 }
