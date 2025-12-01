@@ -22,7 +22,7 @@ export interface VueASTDescriptor {
 }
 
 export type ASTBlock<S, T> = {
-  source: S;
+  source?: S;
   ast: T;
 } | null;
 
