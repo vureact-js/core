@@ -19,5 +19,5 @@
     "noUncheckedSideEffectImports": true
   },
   "types": ["jest", "node"],
-  "exclude": ["lib", "node_modules", "**/__tests__", "**/__tests__/**/*"]
+  "exclude": ["lib", "node_modules"]
 }
