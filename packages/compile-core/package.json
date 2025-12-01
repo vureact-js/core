@@ -50,9 +50,10 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "tsx watch",
+    "dev:parse": "tsx watch src/core/parse/__tests__/index.ts",
+    "dev:transform": "tsx watch src/core/transform/__tests__/index.ts",
+    "dev:generate": "tsx watch src/core/generate/__tests__/index.ts"
   },
   "dependencies": {
     "@babel/generator": "^7.28.3",
@@ -60,6 +61,7 @@
     "@babel/traverse": "^7.28.4",
     "@babel/types": "^7.28.4",
     "@vue/compiler-core": "^3.5.22",
-    "@vue/compiler-sfc": "^3.5.22"
+    "@vue/compiler-sfc": "^3.5.22",
+    "kleur": "^4.1.5"
   }
 }
