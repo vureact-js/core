@@ -31,14 +31,21 @@ type VOnEvent<T> = {
  *
  * //@click.stop.self="handler" -> vOn('click.stop.self', handler);
  */
+export function vOn<T>(event: string, handler: T): VOnEvent<T>;
 export function vOn<T>(event: string, handler: (...args: T[]) => void): VOnEvent<T> {
   const [name, ...modifiers] = event.split('.');
   const eventName = `on${capitalize(name!)}`;
 
+  if (typeof handler !== 'function') {
+    return {
+      [eventName]: () => handler,
+    };
+  }
+
   const runtimeModifiers = modifiers.filter((m) => RUNTIME_MODIFIERS.includes(m) || m in KEY_MAP);
 
   if (!runtimeModifiers.length) {
-    return { [eventName]: handler };
+    return { [eventName]: (...args) => handler(...args) };
   }
 
   let once = false;
