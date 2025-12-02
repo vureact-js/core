@@ -6,7 +6,7 @@
     "build:vureact-runtime": "pnpm -F vureact-runtime build",
     "test:vureact-runtime": "pnpm -F vureact-runtime test:coverage",
     "test:IfGroup": "pnpm -F vureact-runtime test -- IfGroup.test.tsx",
-    "test:vBind": "pnpm -F vureact-runtime test -- vBind.test.ts",
+    "test:vBindCls": "pnpm -F vureact-runtime test -- vBindCls.test.ts",
     "test:vModel": "pnpm -F vureact-runtime test -- vModel.test.ts",
     "test:vOn": "pnpm -F vureact-runtime test -- vOn.test.ts"
   },
