@@ -30,11 +30,12 @@ type VOnEvent<T> = {
  * @example
  *
  * //@click.stop.self="handler" -> vOn('click.stop.self', handler);
+ * //@click="count++" -> vOn('click.stop.self', count++);
  */
 export function vOn<T>(event: string, handler: T): VOnEvent<T>;
 export function vOn<T>(event: string, handler: (...args: T[]) => void): VOnEvent<T> {
   const [name, ...modifiers] = event.split('.');
-  const eventName = `on${capitalize(name!)}`;
+  const eventName = !name?.startsWith('on') ? `on${capitalize(name!)}` : name;
 
   if (typeof handler !== 'function') {
     return {
