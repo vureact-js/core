@@ -1,3 +1,3 @@
-export * from './vModel'
-export * from './vOn'
-export * from './vShow'
+export * from './vBindCls';
+export * from './vModel';
+export * from './vOn';
