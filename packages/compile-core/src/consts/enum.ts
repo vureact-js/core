@@ -6,7 +6,7 @@ export const enum RuntimeHelperTypes {
 
 export const enum RuntimeUtils {
   V_ON = 0,
-  V_BIND = 1,
+  V_BIND_CLS = 1,
   V_SHOW = 2,
   V_MODEL = 3,
 }
