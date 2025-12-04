@@ -1,5 +1,2 @@
-import IfGroup from './IfGroup';
-
-export { IfGroup };
-
-export * from './IfGroup';
+export * from './Memo'
+export * from './Once'
