@@ -18,6 +18,6 @@ export const vueAttrToReactProp = (name: string): string => {
       return 'value';
 
     default:
-      return camelCase(name);
+      return name.startsWith('data-') ? name : camelCase(name);
   }
 };
