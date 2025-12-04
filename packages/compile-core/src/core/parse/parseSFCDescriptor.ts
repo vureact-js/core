@@ -5,8 +5,7 @@ import { parseStyles } from './parseStyles';
 import { parseTemplate } from './parseTemplate';
 
 export function parseSFCDescriptor(descriptor: SFCDescriptor): VueASTDescriptor {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { template, script, scriptSetup, styles, source, ...meta } = descriptor;
+  const { template, script, scriptSetup, styles, ...meta } = descriptor;
 
   return {
     template: parseTemplate(template),
