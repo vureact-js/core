@@ -1,89 +1,56 @@
+import { getContext } from '@core/transform/context';
+import { isSupportedDirectives } from '@shared/isSupportedDirectives';
+import { logger } from '@shared/logger';
 import {
   DirectiveNode,
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { handleAttributeBlock } from './attributes';
-import { handleEventBlock } from './eventBindings';
-import { BlockTypes, ExpressionBlock, PropsIR } from './index';
+import { ElementNodeIR } from '../nodes/element';
+import { handleDynamicAttribute } from './attributes';
+import { handleEvent } from './events';
 import { handleSlotDirective } from './slots';
-import { createExpressionBlock, isVBind, isVModel, isVOn, isVSlot } from './utils';
-import { parseVForExp, VForParseResult } from './vfor';
+import { isVBind, isVModel, isVOn, isVSlot } from './utils';
+import { handleVFor } from './vfor';
+import { handleVHtml } from './vhtml';
 import { handleVModel } from './vmodel';
+import { handleVShow } from './vshow';
+import { handleVText } from './vtext';
 
-export type DirectiveBlock = ExpressionBlock & {
-  exp: {
-    content: string;
-    /* 像 v-for 等特殊表达式需进一步解析 */
-    parsed?: Partial<ParsedDirectiveExp>;
-  };
-};
-
-export interface ParsedDirectiveExp {
-  for: VForParseResult;
-}
-
-export function handleOrdinaryDirective(
+export function handleDirective(
   node: VueElementNode,
   prop: DirectiveNode,
-  propsIR: PropsIR,
-): void {
-  const { rawName } = prop;
+  nodeIR: ElementNodeIR,
+): boolean | void {
+  const { exp, rawName } = prop;
+  const propExp = exp as SimpleExpressionNode;
 
-  const arg = prop.arg as SimpleExpressionNode;
-  const exp = prop.exp as SimpleExpressionNode;
-
-  if (rawName === 'v-show') {
-    handleAttributeBlock({
-      propsIR,
-      name: 'style',
-      value: `{display: ${exp.content} ? '' : 'none'}`,
-      isStaticKey: true,
-      isStaticValue: exp.isStatic,
+  // 未识别指令
+  if (!isSupportedDirectives(rawName)) {
+    const { source, filename } = getContext();
+    logger.warn(`Unknown directive: ${rawName}`, {
+      loc: node.loc,
+      source,
+      file: filename,
     });
     return;
   }
 
-  if (isVModel(rawName)) {
-    handleVModel(node, prop, propsIR);
-    return;
+  // 精确匹配指令
+  switch (rawName) {
+    case 'v-html':
+      return (handleVHtml(prop, nodeIR), true);
+    case 'v-text':
+      return (handleVText(propExp.content, nodeIR), true);
+    case 'v-show':
+      return handleVShow(prop, nodeIR);
+    case 'v-for':
+      return handleVFor(prop, nodeIR);
   }
 
-  if (isVBind(rawName)) {
-    handleAttributeBlock({
-      propsIR,
-      name: arg.content,
-      value: exp.content,
-      isStaticKey: arg.isStatic,
-      isStaticValue: exp.isStatic,
-    });
-    return;
-  }
-
-  if (isVOn(rawName)) {
-    handleEventBlock(prop, propsIR);
-    return;
-  }
-
-  if (isVSlot(rawName)) {
-    handleSlotDirective(prop, propsIR);
-    return;
-  }
-}
-
-export function handleSpecialDirective(prop: DirectiveNode, propsIR: PropsIR): void {
-  const arg = prop.arg as SimpleExpressionNode;
-  const exp = prop.exp as SimpleExpressionNode;
-
-  const name = arg?.content || prop.rawName || prop.name;
-  const value = exp?.content || 'true';
-
-  const block = createExpressionBlock(prop, BlockTypes.DIRECTIVE) as DirectiveBlock;
-
-  if (name === 'v-for') {
-    block.exp.parsed = { for: parseVForExp(value) };
-  }
-
-  block.exp.content = value;
-  propsIR.directives.push(block);
+  // 泛匹配指令
+  if (isVModel(rawName)) return handleVModel(prop, node, nodeIR);
+  if (isVBind(rawName)) return handleDynamicAttribute(prop, nodeIR);
+  if (isVOn(rawName)) return handleEvent(prop, nodeIR);
+  if (isVSlot(rawName)) return handleSlotDirective(prop, nodeIR);
 }
