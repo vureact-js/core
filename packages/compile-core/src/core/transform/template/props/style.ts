@@ -1,6 +1,9 @@
+import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { camelCase } from '@utils/camelCase';
 
 export function parseStyleString(styleStr: string): string {
+  if (!strCodeTypes.isSimpleExpression(styleStr)) return styleStr;
+
   const trimmed = styleStr.trim();
   if (!trimmed) return '{}';
 
