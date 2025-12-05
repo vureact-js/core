@@ -1,10 +1,10 @@
-export interface VForParseResult {
-  source: string;
-  value: string;
-  key?: string;
-  index?: string;
-  isDestructured: boolean;
-  destructuringType?: 'object' | 'array';
+import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
+import { ElementNodeIR, ElementNodeMeta } from '../nodes/element';
+import { NodeTypes } from '../nodes/types';
+
+export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
+  nodeIR.type = NodeTypes.MapTraversal;
+  nodeIR.meta.mapTraversal = parseVForExp((prop.exp as SimpleExpressionNode).content);
 }
 
 /**
@@ -13,7 +13,7 @@ export interface VForParseResult {
  * @returns 解析结果
  * @throws 语法错误
  */
-export function parseVForExp(expression: string): VForParseResult {
+export function parseVForExp(expression: string): ElementNodeMeta['mapTraversal'] {
   /**
    * 智能分割参数列表，不破坏解构语法
    * @example
@@ -71,7 +71,7 @@ export function parseVForExp(expression: string): VForParseResult {
 
   // 6. 构建解析结果
   const value = params[0]!;
-  const result: VForParseResult = {
+  const result: ElementNodeMeta['mapTraversal'] = {
     source,
     value,
     isDestructured: isDestructuringPattern(value),
