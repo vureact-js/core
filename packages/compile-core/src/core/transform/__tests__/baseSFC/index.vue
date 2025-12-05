@@ -1,13 +1,10 @@
 <template>
-  <div class="template-showcase" :class="[{ 'active-image': isActive }, 'active']">
-    <input type="text" v-model="searchText" placeholder="输入并双向绑定" />
-    <p>v-model 的值: {{ searchText }}</p>
-
-    <h1 id="1" :id="dynamicId">
+  <div class="template-showcase">
+    <h1 id="1" :id="dynamicId" class="title" :class="cls">
       {{ pageTitle }}
     </h1>
 
-    <div v-show="show" style="width: auto" :style="{ background: 'red' }">拥有3个 style 项</div>
+    <div v-show="show" style="background: red" :style="{ color: 'red' }">拥有3个 style 项</div>
 
     <p v-once>这个内容只会渲染一次: {{ initialValue }}</p>
 
@@ -16,7 +13,11 @@
     <button v-on:click="handleClick(1)" @click.stop="count++" :disabled="isButtonDisabled">
       点击我触发事件
     </button>
+
+    <input type="text" v-model="searchText" placeholder="输入并双向绑定" />
     <input type="text" @keydown.enter.prevent="handleEnter" />
+
+    <p>v-model 的值: {{ searchText }}</p>
 
     <div v-if="userType === 'admin'">管理员权限内容</div>
     <div v-else-if="userType === 'editor'">编辑者权限内容</div>
@@ -34,6 +35,8 @@
     <div v-for="(value, key, index) in userInfo" :key="key">
       {{ index + 1 }}: {{ key }} 是 {{ value }}
     </div>
+
+    <div v-text="textContent"></div>
 
     <div v-html="rawHtmlContent"></div>
 
@@ -56,10 +59,12 @@
     <input ref="inputRef" type="text" placeholder="用于获取 DOM 引用" />
 
     <MyChildComponent>
-      <template #header="{ data }">header插槽</template>
+      <template #header="data">header插槽</template>
       <p>默认插槽</p>
       <template #footer>footer插槽</template>
     </MyChildComponent>
+
+    <div v-bind="{ class: 'cls', style: { display: 'none' } }">v-bind={...}</div>
   </div>
 </template>
 
