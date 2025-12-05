@@ -10,13 +10,13 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { handleAttributeBlock } from './attributes';
-import { createEventBlock, EventBindinBlock } from './eventBindings';
-import { PropsIR } from './index';
+import { PropsIR } from '.';
+import { ElementNodeIR } from '../nodes/element';
+import { createPropsIR } from './utils';
 
 export type InputType = 'text' | 'checkbox' | 'radio' | 'select' | 'textarea';
 
-export function handleVModel(node: VueElementNode, prop: DirectiveNode, propsIR: PropsIR): void {
+export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: ElementNodeIR) {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
@@ -37,18 +37,12 @@ export function handleVModel(node: VueElementNode, prop: DirectiveNode, propsIR:
   const isComponent = node.tagType === ElementTypes.COMPONENT;
   const inputType = !isComponent ? getInputType(node) : undefined;
 
-  const name = arg?.content ?? getModelPropName(isComponent, inputType);
+  const name = arg?.content ?? getModelPropName(inputType);
 
   // 解析目标（value 变量名 和 setter 函数名）
   const { varName, setterName } = parseModelTarget(exp.content);
 
-  handleAttributeBlock({
-    propsIR,
-    name,
-    value: varName,
-    isStaticKey: true,
-    isStaticValue: exp.isStatic,
-  });
+  nodeIR.props.push(createPropsIR('v-model', name, varName, exp.isStatic));
 
   const modifiers = prop.modifiers.map((m) => m.content);
   const eventBlock = createModelEventIR(setterName, inputType, modifiers);
@@ -56,7 +50,7 @@ export function handleVModel(node: VueElementNode, prop: DirectiveNode, propsIR:
   // 由于 v-model 只能接受变量名，因此可以作为 update 函数名
   if (isComponent) eventBlock.name = createVModelEvName(name);
 
-  propsIR.eventBindings.push(eventBlock);
+  nodeIR.props.push(eventBlock);
 }
 
 function parseModelTarget(valueExp: string): { varName: string; setterName: string } {
@@ -67,9 +61,7 @@ function parseModelTarget(valueExp: string): { varName: string; setterName: stri
   return { varName: valueExp, setterName };
 }
 
-function getModelPropName(isComponent: boolean, inputType?: InputType): string {
-  if (isComponent) return 'modelValue';
-
+function getModelPropName(inputType?: InputType): string {
   if (inputType === 'checkbox' || inputType === 'radio') {
     return 'checked';
   }
@@ -80,7 +72,7 @@ function createModelEventIR(
   setterName: string,
   inputType?: InputType,
   modifiers: string[] = [],
-): EventBindinBlock {
+): PropsIR {
   const eventName = getModelEventName(inputType, modifiers);
 
   // 值提取器（e.target.value / e.target.checked 等）
@@ -92,14 +84,7 @@ function createModelEventIR(
   // 生成箭头函数体（字符串形式，但由结构化数据组装）
   const handlerBody = `${setterName}(${processedValue})`;
 
-  return createEventBlock({
-    name: eventName,
-    exp: {
-      complete: true,
-      content: `e => ${handlerBody}`,
-    },
-    isManual: true,
-  });
+  return createPropsIR(eventName, eventName, `e => ${handlerBody}`, false);
 }
 
 function getModelEventName(inputType?: InputType, modifiers: string[] = []): string {
