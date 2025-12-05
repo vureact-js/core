@@ -6,6 +6,7 @@ export const strCodeTypes = {
   isIdentifier,
   isSimpleExpression,
   isCallExpression,
+  isStringLiteral,
 };
 
 /**
@@ -77,6 +78,15 @@ export function isCallExpression(code: string): boolean {
   try {
     const node = parseExpression(code);
     return t.isCallExpression(node);
+  } catch {
+    return false;
+  }
+}
+
+export function isStringLiteral(code: string): boolean {
+  try {
+    const node = parseExpression(code);
+    return t.isStringLiteral(node) || t.isTemplateLiteral(node);
   } catch {
     return false;
   }
