@@ -1,5 +1,6 @@
 import { RootNode } from '@vue/compiler-core';
-import { ElementNodeIR, transformChildren } from './nodes';
+import { transformChildren } from './nodes';
+import { ElementNodeIR } from './nodes/element';
 
 export interface TemplateBlockIR {
   chilren: ElementNodeIR[];
