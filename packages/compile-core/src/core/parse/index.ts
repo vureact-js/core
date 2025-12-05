@@ -37,8 +37,6 @@ export function parse(source: string, options?: Partial<ParseOptions>): VueASTDe
         loc: (err as CompilerError).loc,
       });
     });
-
-    logger.printAll();
   }
 
   return parseSFCDescriptor(descriptor);
