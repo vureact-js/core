@@ -1,111 +1,118 @@
-import { RuntimeHelper } from '@core/transform/types';
-import { isSimpleExpression } from '@shared/getStrCodeBabelType';
-import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
+import { getContext } from '@core/transform/context';
+import { strCodeTypes } from '@shared/getStrCodeBabelType';
+import { AttributeNode, DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { enablePropsRuntimeAssistance } from '../../shared';
-import { BaseBlock, BlockTypes, PropsIR } from './index';
+import { ElementNodeIR } from '../nodes/element';
+import { PropsIR } from './index';
 import { parseStyleString } from './style';
+import { createPropsIR, isClassAttr, isStyleAttr } from './utils';
 
-export type AttributeBlock = BaseBlock &
-  RuntimeHelper & {
-    rawName: string;
-    name: string;
-    value: {
-      content: string;
-      toBeMerged?: string | [string, string];
-    };
-    /*
-      非静态键需生成 jsx 对象展开运算符： {...{[name]: value}}
-    */
-    isStatic: boolean;
-  };
+export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
+  const name = prop.name;
+  const content = prop.value?.content ?? 'true';
+  const attr = createPropsIR(name, name, content);
 
-type HandleAttributeBlockOptions = Omit<CreateAttrOptions, 'rawName'> & { propsIR: PropsIR };
+  // 特殊处理：ref 收集
+  if (name === 'ref') {
+    const { nodeRefs } = getContext();
+    nodeRefs.add(content);
+  }
 
-const attrsToBeMerged = ['class', 'style'];
+  processAttributeIR(attr, nodeIR, false);
+}
 
-export function handleAttributeBlock(opts: HandleAttributeBlockOptions) {
-  const { name, value, propsIR, isStaticKey, isStaticValue } = opts;
+export function handleDynamicAttribute(prop: DirectiveNode, nodeIR: ElementNodeIR) {
+  const arg = prop.arg as SimpleExpressionNode;
+  const exp = prop.exp as SimpleExpressionNode;
 
-  let isExisted = false;
+  const name = arg?.content ?? '';
+  const content = exp?.content;
 
-  propsIR.attributes.some((attr) => {
-    if (name === attr.rawName) {
-      const newValue: AttributeBlock['value'] = {
-        content: normalizeValue(value, isStaticValue),
-      };
+  const dynamicAttr = createPropsIR(prop.rawName!, name, content, exp.isStatic);
 
-      updateValue(attr, newValue);
+  if (!name) dynamicAttr.isKeyLessVBind = true;
 
-      isExisted = true;
-      return true;
-    }
-  });
+  dynamicAttr.isStatic = arg?.isStatic ?? true;
 
-  if (!isExisted) {
-    const attr = createAttributeBlock({ name, value, isStaticKey, isStaticValue });
+  processAttributeIR(dynamicAttr, nodeIR, true);
+}
+
+function processAttributeIR(attr: PropsIR, nodeIR: ElementNodeIR, isDynamic: boolean) {
+  // 处理 style 属性的特殊情况
+  if (attr.name === 'style') {
+    attr.value.content = parseStyleString(attr.value.content);
+  }
+
+  // 查找已存在的同名属性
+  const found = nodeIR.props.find((p) => p.name === attr.name && (!isDynamic || attr.isStatic));
+
+  if (found) {
+    mergeAttributeIR(found, attr);
+    return;
+  }
+
+  // 动态属性需要启用运行时辅助
+  if (isDynamic) {
     enablePropsRuntimeAssistance(attr);
-    propsIR.attributes.push(attr);
+  }
+
+  nodeIR.props.push(attr);
+}
+
+function mergeAttributeIR(target: PropsIR, source: PropsIR) {
+  const sourceContent = source.value.content;
+
+  // 只有 class 和 style 需要合并
+  if (isClassAttr(source.name)) {
+    mergeClassAttribute(target, sourceContent);
+    return;
+  }
+
+  if (isStyleAttr(source.name)) {
+    mergeStyleAttribute(target, sourceContent);
+    return;
+  }
+
+  // 非 class 和 style 直接覆盖最新值
+  for (const key in source) {
+    // @ts-ignore
+    target[key] = source[key];
   }
 }
 
-function updateValue(attr: AttributeBlock, newValue: AttributeBlock['value']) {
-  const { rawName } = attr;
-  const newContent = newValue.content;
-
-  // Vue 只有 class 和 style 支持合并
-  if (attrsToBeMerged.includes(rawName)) {
-    if (rawName === 'class') {
-      attr.value.toBeMerged = newContent;
-      return;
-    }
-
-    if (rawName === 'style') {
-      const oldMergeItem = attr.value.toBeMerged;
-      if (oldMergeItem && typeof oldMergeItem === 'string') {
-        attr.value.toBeMerged = [oldMergeItem, newContent];
-        return;
-      }
-      attr.value.toBeMerged = isSimpleExpression(newContent)
-        ? parseStyleString(newContent)
-        : newContent;
-    }
-  } else {
-    // 不支持合并的属性直接覆盖
-    attr.value = newValue;
+function mergeClassAttribute(target: PropsIR, sourceContent: string) {
+  // 简单值直接拼接合并
+  if (strCodeTypes.isStringLiteral(sourceContent)) {
+    target.value.content += ` + ${sourceContent}`;
+    return;
   }
 
-  enablePropsRuntimeAssistance(attr);
+  // 复杂表达式需运行时 vBindCls 处理
+  target.value.isBabelParseExp = false;
+  target.value.combines = sourceContent;
+
+  enablePropsRuntimeAssistance(target);
 }
 
-export type CreateAttrOptions = {
-  name: string;
-  value: string;
-  rawName?: string;
-  isStaticKey: boolean;
-  isStaticValue: boolean;
-};
+function mergeStyleAttribute(target: PropsIR, sourceContent: string) {
+  if (sourceContent === '{}') return;
 
-export function createAttributeBlock(opts: CreateAttrOptions): AttributeBlock {
-  const { name: key, value, rawName = key, isStaticKey, isStaticValue } = opts;
+  const targetStyle = target.value.content;
 
-  const name = vueAttrToReactProp(key);
+  if (!target.value.combines) {
+    // style combines 没有内容则说明总共只有2项需要合并
+    target.value.combines = [targetStyle, sourceContent];
+    // 使用 Object.assign
+    target.value.content = `{Object.assign(${targetStyle}, ${sourceContent})}`;
+    return;
+  }
 
-  const content = normalizeValue(value, isStaticValue);
+  const targetCombines = target.value.combines;
 
-  const attrValue: AttributeBlock['value'] = {
-    content,
-  };
-
-  return {
-    type: BlockTypes.ATTRIBUTE,
-    rawName,
-    name,
-    value: attrValue,
-    isStatic: isStaticKey,
-    runtimeHelper: {} as RuntimeHelper['runtimeHelper'],
-  };
-}
-
-function normalizeValue(value: string, isStatic: boolean): string {
-  return isStatic && value !== 'true' && value !== 'false' ? `'${value}'` : value;
+  // style combines 已有内容且使用数组保存，则总共3项需要合并
+  if (Array.isArray(targetCombines)) {
+    targetCombines.push(sourceContent);
+    // 使用对象展开运算符
+    target.value.content = `{${targetCombines.map((s) => `...${s}`).join(',')}}`;
+  }
 }
