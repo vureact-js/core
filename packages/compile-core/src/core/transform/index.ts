@@ -26,6 +26,7 @@ export function transform(vueDescriptor: VueASTDescriptor): ReactIRDescriptor {
     ...getContext(),
   };
 
+  // todo 阶段完成后移除
   if (logger.getLogs().length) {
     logger.printAll();
   }
