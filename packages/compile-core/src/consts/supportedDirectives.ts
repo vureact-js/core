@@ -1,0 +1,18 @@
+export const SupportedDirectives: string[] = [
+  'v-text',
+  'v-html',
+  'v-show',
+  'v-if',
+  'v-else',
+  'v-else-if',
+  'v-for',
+  'v-on',
+  'v-once',
+  'v-bind',
+  'v-model',
+  'v-pre',
+  'v-cloak',
+  'v-slot',
+  'v-memo',
+  'v-is',
+];
