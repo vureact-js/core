@@ -2,32 +2,27 @@ import { RuntimeModules } from '@consts/runtimeModules';
 import { getRuntimeModuleByName } from '@shared/getRuntimeModuleByName';
 import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { getContext } from './context';
-import { BlockTypes, PropBlock } from './template/props';
-import { AttributeBlock } from './template/props/attributes';
-import { EventBindinBlock } from './template/props/eventBindings';
+import { PropsIR, PropTypes } from './template/props';
+import { isClassAttr } from './template/props/utils';
 import { RuntimeHelper, RuntimeModuleName } from './types';
 
-export function enablePropsRuntimeAssistance(block: PropBlock) {
-  if (block.type === BlockTypes.ATTRIBUTE) {
-    const attr = block as AttributeBlock;
-
-    if (attr.rawName === 'class') {
-      if (
-        !strCodeTypes.isSimpleExpression(attr.value.content) ||
-        !strCodeTypes.isSimpleExpression(attr.value.toBeMerged as string)
-      ) {
-        setRuntimeHelper(attr.runtimeHelper, 'vBindCls');
-      }
+export function enablePropsRuntimeAssistance(propsIR: PropsIR) {
+  if (isClassAttr(propsIR.name)) {
+    // class的值如果是非静态字符串一律由运行时 vBindCls 处理
+    if (
+      (propsIR.value.content && !strCodeTypes.isStringLiteral(propsIR.value.content)) ||
+      (propsIR.value.combines && !strCodeTypes.isStringLiteral(propsIR.value.combines as string))
+    ) {
+      propsIR.value.isBabelParseExp = false;
+      setRuntimeHelper(propsIR.runtimeHelper, 'vBindCls');
     }
-
     return;
   }
 
-  if (block.type === BlockTypes.EVENT) {
-    const event = block as EventBindinBlock;
-
-    if (event.modifiers?.length) {
-      setRuntimeHelper(event.runtimeHelper, 'vOn');
+  if (propsIR.type === PropTypes.EVENT) {
+    if (propsIR.modifiers?.length) {
+      propsIR.value.isBabelParseExp = false;
+      setRuntimeHelper(propsIR.runtimeHelper, 'vOn');
     }
 
     return;
