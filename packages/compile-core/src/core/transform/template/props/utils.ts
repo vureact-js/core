@@ -1,3 +1,4 @@
+import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
 import { PropsIR, PropTypes } from '.';
@@ -22,6 +23,7 @@ export function createPropsIR(
 }
 
 export function normalizeValue(value: string, isStatic: boolean): string {
+  if (strCodeTypes.isStringLiteral(value)) return value;
   return isStatic && value !== 'true' && value !== 'false' ? `'${value}'` : value;
 }
 
