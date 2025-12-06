@@ -2,6 +2,7 @@ import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
+import { PropTypes } from '.';
 import { enablePropsRuntimeAssistance } from '../../shared';
 import { ElementNodeIR } from '../nodes/element';
 import { createPropsIR } from './utils';
@@ -20,6 +21,7 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const name = `on${camelCase(capitalize(arg.content))}`;
   const event = createPropsIR(prop.rawName!, name, expContent, exp.isStatic);
 
+  event.type = PropTypes.EVENT;
   event.isStatic = arg.isStatic;
   event.modifiers = prop.modifiers.map((m) => m.content);
 
