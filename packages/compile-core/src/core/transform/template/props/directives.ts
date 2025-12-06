@@ -13,6 +13,7 @@ import { handleSlotDirective } from './slots';
 import { isVBind, isVModel, isVOn, isVSlot } from './utils';
 import { handleVFor } from './vfor';
 import { handleVHtml } from './vhtml';
+import { handleVMemo } from './vmemo';
 import { handleVModel } from './vmodel';
 import { handleVShow } from './vshow';
 import { handleVText } from './vtext';
@@ -42,6 +43,9 @@ export function handleDirective(
       return (handleVHtml(prop, nodeIR), true);
     case 'v-text':
       return (handleVText(propExp.content, nodeIR), true);
+    case 'v-once':
+    case 'v-memo':
+      return handleVMemo(prop, nodeIR);
     case 'v-show':
       return handleVShow(prop, nodeIR);
     case 'v-for':
