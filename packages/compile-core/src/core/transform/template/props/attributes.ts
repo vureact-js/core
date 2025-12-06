@@ -104,7 +104,7 @@ function mergeStyleAttribute(target: PropsIR, sourceContent: string) {
     // style combines 没有内容则说明总共只有2项需要合并
     target.value.combines = [targetStyle, sourceContent];
     // 使用 Object.assign
-    target.value.content = `{Object.assign(${targetStyle}, ${sourceContent})}`;
+    target.value.content = `Object.assign(${targetStyle}, ${sourceContent})`;
     return;
   }
 
