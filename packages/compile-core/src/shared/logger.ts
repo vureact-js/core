@@ -38,7 +38,7 @@ export class Logger {
   }
 
   info(message: any, opts: LogOptions = {}): void {
-    this.addLog('info', kleur.blue(message), opts);
+    this.addLog('info', kleur.cyan(message), opts);
   }
 
   private addLog(level: 'warn' | 'error' | 'info', message: any, opts: LogOptions): void {
@@ -59,18 +59,24 @@ export class Logger {
   }
 
   private levelColor(level: string): kleur.Color {
-    return level === 'error' ? kleur.red : level === 'warn' ? kleur.yellow : kleur.blue;
+    return level === 'error' ? kleur.red : level === 'warn' ? kleur.yellow : kleur.cyan;
   }
 
   private formatHeader(log: LogEntry): string {
     const levelLabel = log.level.toUpperCase();
     const color = this.levelColor(log.level);
-    const location =
-      log.file && log.line != null && log.column != null
-        ? `${log.file}${kleur.gray(`:${log.line}:${log.column}`)}`
-        : (log.file ?? kleur.gray('from an unknown file:'));
 
-    return `${color(`[${levelLabel}]`)} ${log.message}\n\n  ${kleur.cyan(location)}\n`;
+    let location = '';
+
+    if (log.level !== 'info') {
+      if (log?.line != null && log?.column != null) {
+        location = `\n\n  ${log.file}${kleur.grey(`:${log.line}:${log.column}`)}`;
+      } else {
+        location = `\n\n  log.file ?? ${kleur.grey('from an unknown file:')}`;
+      }
+    }
+
+    return `${color(`[${levelLabel}]`)} ${log.message}${kleur.grey(location)}\n`;
   }
 
   private formatContext(log: LogEntry): string {
@@ -150,10 +156,10 @@ export class Logger {
 
     if (errorCount > 0 || warnCount > 0) {
       console.log(
-        `${kleur.red(`✖ ${errorCount} error(s)`)}, ${kleur.yellow(`${warnCount} warning(s)`)}, ${kleur.blue(`${infoCount} info message(s)`)}`,
+        `${kleur.red(`✖  ${errorCount} error(s)`)}, ${kleur.yellow(`${warnCount} warning(s)`)}, ${kleur.cyan(`${infoCount} info message(s)`)}`,
       );
     } else {
-      console.log(kleur.blue(`ℹ ${infoCount} info message(s)`));
+      console.log(kleur.cyan(`ℹ  ${infoCount} info message(s)`));
     }
   }
 
