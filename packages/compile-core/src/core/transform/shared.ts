@@ -1,10 +1,10 @@
 import { RuntimeModules } from '@consts/runtimeModules';
 import { getRuntimeModuleByName } from '@shared/getRuntimeModuleByName';
 import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
+import { RuntimeHelper, RuntimeModuleName } from '@src/types/runtimeHepler';
 import { getContext } from './context';
 import { PropsIR, PropTypes } from './template/props';
 import { isClassAttr } from './template/props/utils';
-import { RuntimeHelper, RuntimeModuleName } from './types';
 
 export function enablePropsRuntimeAssistance(propsIR: PropsIR) {
   if (isClassAttr(propsIR.name)) {
@@ -37,8 +37,9 @@ export function setRuntimeHelper(
 
   if (!moduleMap) return;
 
-  const { module, onDemand } = moduleMap;
+  const { module, onDemand, usage } = moduleMap;
 
+  runtimeHelper.usage = usage;
   runtimeHelper.name = name;
   runtimeHelper.module = module;
 
