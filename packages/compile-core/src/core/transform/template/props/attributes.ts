@@ -3,7 +3,7 @@ import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { AttributeNode, DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { enablePropsRuntimeAssistance } from '../../shared';
 import { ElementNodeIR } from '../nodes/element';
-import { PropsIR } from './index';
+import { PropsIR, PropTypes } from './index';
 import { parseStyleString } from './style';
 import { createPropsIR, isClassAttr, isStyleAttr } from './utils';
 
@@ -32,6 +32,7 @@ export function handleDynamicAttribute(prop: DirectiveNode, nodeIR: ElementNodeI
 
   if (!name) dynamicAttr.isKeyLessVBind = true;
 
+  dynamicAttr.type = PropTypes.DYNAMIC_ATTRIBUTE;
   dynamicAttr.isStatic = arg?.isStatic ?? true;
 
   processAttributeIR(dynamicAttr, nodeIR, true);
