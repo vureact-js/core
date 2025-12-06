@@ -7,8 +7,6 @@ export const enum RuntimeModules {
 export const VR_Runtime = {
   vOn: 'vOn',
   vBindCls: 'vBindCls',
-  Memo: 'Memo',
-  Once: 'Once',
 };
 
 export const RV3_Components = {
