@@ -1,4 +1,4 @@
-import { RuntimeHelper } from '@core/transform/types';
+import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../nodes/element';
 import { handleAttribute } from './attributes';
@@ -36,10 +36,9 @@ export interface PropsIR extends RuntimeHelper {
 
 export enum PropTypes {
   ATTRIBUTE = 1,
-  DIRECTIVE = 2,
-  SLOT = 3,
-  EVENT = 4,
-  DYNAMIC_ATTRIBUTE = 5,
+  SLOT = 2,
+  EVENT = 3,
+  DYNAMIC_ATTRIBUTE = 4,
 }
 
 export function transformProps(node: VueElementNode, nodeIR: ElementNodeIR) {
