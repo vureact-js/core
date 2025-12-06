@@ -1,10 +1,10 @@
-import { RuntimeHelper } from '@core/transform/types';
+import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { TemplateChildNodeIR, transformChildren } from '.';
 import { PropsIR, transformProps } from '../props';
 import { NodeTypes } from './types';
 
-export interface ElementNodeIR extends RuntimeHelper {
+export interface ElementNodeIR {
   type: NodeTypes;
   tag: string;
   props: PropsIR[];
@@ -15,9 +15,11 @@ export interface ElementNodeIR extends RuntimeHelper {
   meta: Partial<ElementNodeMeta>;
   /* 收集组件中定义的 slots emits props */
   defineProps: Record<string, any>;
+  /* 使用 useMemo 缓存 */
+  isMemo?: boolean;
 }
 
-export interface ElementNodeMeta {
+export interface ElementNodeMeta extends RuntimeHelper {
   mapTraversal: {
     source: string;
     value: string;
@@ -26,6 +28,11 @@ export interface ElementNodeMeta {
     isDestructured: boolean;
     destructuringType?: 'object' | 'array';
   };
+  /* 
+    从v-memo得到的值是字符串数组 '[]'，
+    但在生成阶段创建表达式会自动转成数组
+  */
+  memoDeps: string;
 }
 
 export function transformElement(node: VueElementNode): ElementNodeIR {
@@ -61,6 +68,5 @@ export function createElementNode(
     children: [],
     meta: {},
     defineProps: {},
-    runtimeHelper: {} as RuntimeHelper['runtimeHelper'],
   };
 }
