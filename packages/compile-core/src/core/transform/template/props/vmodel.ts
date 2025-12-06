@@ -123,7 +123,7 @@ function applyModifiers(valueExtractor: string, modifiers: string[]): string {
 
   // number 修饰符（Vue 核心规则：空字符串不转换）
   if (modifiers.includes('number')) {
-    expr = `(${expr} ? Number(${expr}) : '')`;
+    expr = `(${expr} ? parseFloat(${expr}) : '')`;
   }
 
   return expr;
