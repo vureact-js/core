@@ -1,5 +1,5 @@
 <template>
-  <div class="template-showcase">
+  <div class="template-showcase" v-memo="[value1, value2]">
     <h1 id="1" :id="dynamicId" class="title" :class="cls">
       {{ pageTitle }}
     </h1>
