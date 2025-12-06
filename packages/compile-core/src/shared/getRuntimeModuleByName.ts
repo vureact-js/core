@@ -1,11 +1,18 @@
 import { RuntimeModules, RV3_Components, VR_Runtime } from '@consts/runtimeModules';
-import { RuntimeModuleName } from '@core/transform/types';
+import { RuntimeHelperUsageMethods } from '@src/consts/runtimeHelperUsageMethods';
+import { HelperUsageMethods, RuntimeModuleName } from '@src/types/runtimeHepler';
 
 type ModlueMap = Record<string, { onDemand: boolean; module: RuntimeModules }>;
 
-export const getRuntimeModuleByName = (name: RuntimeModuleName) => {
+export const getRuntimeModuleByName = (
+  name: RuntimeModuleName,
+): {
+  usage: HelperUsageMethods;
+  onDemand: boolean;
+  module: RuntimeModules;
+} => {
   const map = createModuleMap();
-  return map[name];
+  return { ...map[name]!, usage: RuntimeHelperUsageMethods[name] };
 };
 
 const createModuleMap = () => {
