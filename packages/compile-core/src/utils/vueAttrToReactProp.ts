@@ -1,7 +1,7 @@
 import { camelCase } from './camelCase';
 
 export const vueAttrToReactProp = (name: string): string => {
-  const whitelist = /^data-|datatype/;
+  const whitelist = /^data-|datatype|^aria-/;
 
   switch (name) {
     case 'v-html':
