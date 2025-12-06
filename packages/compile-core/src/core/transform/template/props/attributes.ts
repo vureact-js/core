@@ -4,12 +4,20 @@ import { AttributeNode, DirectiveNode, SimpleExpressionNode } from '@vue/compile
 import { enablePropsRuntimeAssistance } from '../../shared';
 import { ElementNodeIR } from '../nodes/element';
 import { PropsIR, PropTypes } from './index';
+import { handleDynamicIs, handleStaticIs } from './is';
 import { parseStyleString } from './style';
 import { createPropsIR, isClassAttr, isStyleAttr } from './utils';
 
 export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
   const name = prop.name;
   const content = prop.value?.content ?? 'true';
+
+  // 特殊处理：is
+  if (name === 'is') {
+    handleStaticIs(content, nodeIR);
+    return;
+  }
+
   const attr = createPropsIR(name, name, content);
 
   // 特殊处理：ref 收集
@@ -27,6 +35,12 @@ export function handleDynamicAttribute(prop: DirectiveNode, nodeIR: ElementNodeI
 
   const name = arg?.content ?? '';
   const content = exp?.content;
+
+  // 特殊处理：is
+  if (name === 'is') {
+    handleDynamicIs(prop, nodeIR);
+    return;
+  }
 
   const dynamicAttr = createPropsIR(prop.rawName!, name, content, exp.isStatic);
 
