@@ -1,4 +1,4 @@
-import { RuntimeHelper } from '@core/transform/types';
+import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
 import { PropsIR, PropTypes } from '.';
 
