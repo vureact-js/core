@@ -1,61 +1,66 @@
-import { enablePropsRuntimeAssistance } from '@core/transform/shared';
 import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { PropsIR } from '.';
+import { isSimpleStyle, parseStyleString } from './style';
 import { isClassAttr, isStyleAttr } from './utils';
 
-export function mergeAttributeIR(target: PropsIR, source: PropsIR) {
-  const sourceContent = source.value.content;
+export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
+  const newContent = newAttr.value.content;
 
   // 只有 class 和 style 需要合并
-  if (isClassAttr(source.name)) {
-    mergeClassAttribute(target, sourceContent);
+  if (isClassAttr(newAttr.rawName)) {
+    mergeClass(oldAttr, newContent);
     return;
   }
 
-  if (isStyleAttr(source.name)) {
-    mergeStyleAttribute(target, sourceContent);
+  if (isStyleAttr(newAttr.rawName)) {
+    mergeStyles(oldAttr, newContent);
     return;
   }
 
   // 非 class 和 style 直接覆盖最新值
-  for (const key in source) {
+  for (const key in newAttr) {
     // @ts-ignore
-    target[key] = source[key];
+    oldAttr[key] = newAttr[key];
   }
 }
 
-function mergeClassAttribute(target: PropsIR, sourceContent: string) {
-  // 简单值直接拼接合并
-  if (strCodeTypes.isStringLiteral(sourceContent)) {
-    target.value.content += ` + ${sourceContent}`;
-    return;
+function mergeClass(oldAttr: PropsIR, newContent: string) {
+  const oldContent = oldAttr.value.content;
+
+  oldAttr.value.merge = [oldContent, newContent];
+
+  if (strCodeTypes.isStringLiteral(newContent)) {
+    // 简单值直接拼接合并
+    const cur = oldContent.replace(/'/g, '');
+    const last = newContent.replace(/'/g, '');
+
+    oldAttr.value.content = `${cur} ${last}`;
   }
-
-  // 复杂表达式需运行时 vBindCls 处理
-  target.value.isBabelParseExp = false;
-  target.value.combines = sourceContent;
-
-  enablePropsRuntimeAssistance(target);
 }
 
-function mergeStyleAttribute(target: PropsIR, sourceContent: string) {
-  if (sourceContent === '{}') return;
+function mergeStyles(oldAttr: PropsIR, newContent: string) {
+  const oldStyle = oldAttr.value.content;
+  const newStyle = parseStyleString(newContent);
 
-  const targetStyle = target.value.content;
+  let merged = oldAttr.value.merge;
 
-  if (!target.value.combines) {
-    // style combines 没有内容则说明总共只有2项需要合并
-    target.value.combines = [targetStyle, sourceContent];
-    // 使用 Object.assign
-    target.value.content = `Object.assign(${targetStyle}, ${sourceContent})`;
-    return;
+  if (!merged?.length) {
+    merged = oldAttr.value.merge = [oldStyle, newStyle];
+  } else {
+    merged.push(newStyle);
   }
 
-  const targetCombines = target.value.combines;
+  if (isSimpleStyle(oldStyle) && isSimpleStyle(newStyle)) {
+    // 合并新旧 style 2项
+    if (merged.length === 1) {
+      oldAttr.value.content = `Object.assign(${oldStyle}, ${newStyle})`;
+      return;
+    }
 
-  // style combines 已有内容且使用数组保存，则总共3项需要合并
-  if (Array.isArray(targetCombines)) {
-    targetCombines.push(sourceContent);
-    target.value.content = `Object.assign({}, ${targetCombines.map((s) => `${s}`).join(',')})`;
+    // 合并项已有内容，则总共3项需要合并
+    // 为什么会有3项，因为 v-show 单独占了 style.display 一项
+    if (merged.length > 1) {
+      oldAttr.value.content = `Object.assign({}, ${merged.map((s) => `${s}`).join(',')})`;
+    }
   }
 }
