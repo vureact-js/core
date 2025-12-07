@@ -5,6 +5,6 @@ import { createPropsIR } from './utils';
 export function handleVShow(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const exp = prop.exp as SimpleExpressionNode;
   nodeIR.props.push(
-    createPropsIR(':style', 'style', `{display: ${exp.content} ? '' : 'none'}`, false),
+    createPropsIR(':style', 'style', `{display: ${exp.content} ? '' : 'none'}`),
   );
 }

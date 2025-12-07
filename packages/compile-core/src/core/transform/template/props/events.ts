@@ -19,7 +19,7 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   }
 
   const name = `on${camelCase(capitalize(arg.content))}`;
-  const event = createPropsIR(prop.rawName!, name, expContent, exp.isStatic);
+  const event = createPropsIR(prop.rawName!, name, expContent);
 
   event.type = PropTypes.EVENT;
   event.isStatic = arg.isStatic;
@@ -28,8 +28,6 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   // 修饰符交给运行时 vOn
   if (event.modifiers.length) {
     event.name = `${event.name}.${event.modifiers.join('.')}`;
-    event.value.isBabelParseExp = false;
-
     enablePropsRuntimeAssistance(event);
   }
 

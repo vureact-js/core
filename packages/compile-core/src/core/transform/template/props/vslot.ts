@@ -14,7 +14,7 @@ export function handleVSlot(
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
-  const slot = createPropsIR(prop.rawName || '', arg.content, exp?.content ?? '', false);
+  const slot = createPropsIR(prop.rawName || '', arg.content, exp?.content ?? '');
   slot.type = PropTypes.SLOT;
 
   nodeIR.props.push(slot);

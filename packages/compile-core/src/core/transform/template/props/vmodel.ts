@@ -42,7 +42,7 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
   // 解析目标（value 变量名 和 setter 函数名）
   const { varName, setterName } = parseModelTarget(exp.content);
 
-  nodeIR.props.push(createPropsIR('v-model', name, varName, exp.isStatic));
+  nodeIR.props.push(createPropsIR('v-model', name, varName));
 
   const modifiers = prop.modifiers.map((m) => m.content);
   const eventBlock = createModelEventIR(setterName, inputType, modifiers);
@@ -84,7 +84,7 @@ function createModelEventIR(
   // 生成箭头函数体（字符串形式，但由结构化数据组装）
   const handlerBody = `${setterName}(${processedValue})`;
 
-  return createPropsIR(eventName, eventName, `e => ${handlerBody}`, false);
+  return createPropsIR(eventName, eventName, `e => ${handlerBody}`);
 }
 
 function getModelEventName(inputType?: InputType, modifiers: string[] = []): string {
