@@ -27,6 +27,9 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
 
   const attr = createPropsIR(name, name, content);
 
+  attr.type = PropTypes.ATTRIBUTE;
+  attr.value.isIdentifier = false;
+
   // 特殊处理：ref 收集
   if (name === 'ref') {
     const { nodeRefs } = getContext();
@@ -45,8 +48,7 @@ export function handleDynamicAttribute(
   const exp = prop.exp as SimpleExpressionNode;
 
   const name = arg?.content ?? '';
-
-  let content = exp?.content;
+  const content = exp?.content ?? 'true';
 
   // 特殊处理：is
   if (name === 'is') {
@@ -54,15 +56,18 @@ export function handleDynamicAttribute(
     return;
   }
 
-  const dynamicAttr = createPropsIR(prop.rawName!, name, content, exp.isStatic);
-
-  dynamicAttr.type = PropTypes.DYNAMIC_ATTRIBUTE;
-  dynamicAttr.isStatic = arg?.isStatic ?? true;
+  const dynamicAttr = createPropsIR(prop.rawName!, name, content);
 
   if (prop.rawName === 'v-bind' && !name) {
     dynamicAttr.isKeyLessVBind = true;
     existsInKeyLessVBind(node.props, dynamicAttr);
   }
+
+  const isStaticKey = arg?.isStatic ?? true;
+  const isIdentifier = !strCodeTypes.isStringLiteral(content);
+
+  dynamicAttr.isStatic = isStaticKey;
+  dynamicAttr.value.isIdentifier = isIdentifier;
 
   processPropsIR(dynamicAttr, nodeIR, true);
 }
@@ -70,7 +75,9 @@ export function handleDynamicAttribute(
 function processPropsIR(attr: PropsIR, nodeIR: ElementNodeIR, isDynamic: boolean) {
   // 处理 style 属性的特殊情况
   if (attr.name === 'style') {
-    attr.value.content = parseStyleString(attr.value.content);
+    // 先解析为对象，后标记为标识符
+    attr.value.content = parseStyleString(attr.value.content, attr.value.isIdentifier);
+    attr.value.isIdentifier = true;
   }
 
   // 查找已存在的同名属性
