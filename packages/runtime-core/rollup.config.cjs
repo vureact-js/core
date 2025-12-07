@@ -53,7 +53,7 @@ export default [
       }),
 
       typescript({
-        tsconfig: './tsconfig.json',
+        tsconfig: './tsconfig-rollup.json',
         declaration: false,
         // declaration: tsconfig.declaration,
         // declarationDir: tsconfig.declarationDir,
