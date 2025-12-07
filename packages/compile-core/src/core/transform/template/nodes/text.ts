@@ -5,9 +5,9 @@ export interface TextNodeIR {
   content: string;
 }
 
-export function createTextNodeIR(content: string): TextNodeIR {
+export function createTextNodeIR(content: string, isComment = false): TextNodeIR {
   return {
-    type: NodeTypes.TEXT,
+    type: !isComment ? NodeTypes.TEXT : NodeTypes.COMMENT,
     content,
   };
 }
