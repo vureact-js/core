@@ -1,6 +1,5 @@
 import { RuntimeModules } from '@consts/runtimeModules';
 import { getRuntimeModuleByName } from '@shared/getRuntimeModuleByName';
-import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { RuntimeHelper, RuntimeModuleName } from '@src/types/runtimeHepler';
 import { getContext } from './context';
 import { PropsIR, PropTypes } from './template/props';
@@ -13,21 +12,13 @@ export function enablePropsRuntimeAssistance(propsIR: PropsIR) {
 
   const restPropValue = (restContent = false) => {
     if (restContent) propsIR.value.content = '';
-    propsIR.value.isBabelParseExp = false;
+    propsIR.value.isIdentifier = true;
   };
 
-  if (isClassAttr(rawName)) {
-    const newContent = propsIR.value.merge?.[1];
-
-    // class的值如果是非静态字符串一律由运行时 vBindCls 处理
-    if (
-      (content && !strCodeTypes.isStringLiteral(content)) ||
-      (newContent && !strCodeTypes.isStringLiteral(newContent))
-    ) {
-      restPropValue(true);
-      setRuntimeHelper(propsIR.runtimeHelper, 'vBindCls');
-    }
-
+  // class的值如果是标识符则一律由运行时 vBindCls 处理
+  if (isClassAttr(rawName) && propsIR.value.isIdentifier) {
+    restPropValue(true);
+    setRuntimeHelper(propsIR.runtimeHelper, 'vBindCls');
     return;
   }
 
