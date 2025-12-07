@@ -4,7 +4,9 @@
       {{ pageTitle }}
     </h1>
 
-    <div v-show="show" style="background: red" :style="{ color: 'red' }">拥有3个 style 项</div>
+    <div v-show="show" style="background: red" :style="styles">拥有3个 style 项</div>
+
+    <div v-bind="bindProps">会覆盖所有属性</div>
 
     <p v-once>这个内容只会渲染一次: {{ initialValue }}</p>
 
@@ -15,15 +17,22 @@
     </button>
 
     <input type="text" v-model="searchText" placeholder="输入并双向绑定" />
+    <input type="text" v-model.lazy="searchText" placeholder="lazy" />
+    <input type="text" v-model.trim="searchText" placeholder="trim" />
+    <input type="text" v-model.number="searchText" placeholder="number" />
+    <input type="text" v-model.lazy.trim.number="searchText" placeholder="lazy + trim + number" />
     <input type="text" @keydown.enter.prevent="handleEnter" />
 
     <p>v-model 的值: {{ searchText }}</p>
 
+    <div v-show="isLoading">加载中... (v-show)</div>
+
+    <span is="div"></span>
+    <div :is="MyChildComponent">动态组件 is</div>
+
     <div v-if="userType === 'admin'">管理员权限内容</div>
     <div v-else-if="userType === 'editor'">编辑者权限内容</div>
     <div v-else>普通用户或未登录</div>
-
-    <div v-show="isLoading">加载中... (v-show)</div>
 
     <h2>待办事项列表</h2>
     <ul>
@@ -63,8 +72,6 @@
       <p>默认插槽</p>
       <template #footer>footer插槽</template>
     </MyChildComponent>
-
-    <div v-bind="{ class: 'cls', style: { display: 'none' } }">v-bind={...}</div>
   </div>
 </template>
 
