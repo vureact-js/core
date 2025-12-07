@@ -4,34 +4,56 @@ import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { RuntimeHelper, RuntimeModuleName } from '@src/types/runtimeHepler';
 import { getContext } from './context';
 import { PropsIR, PropTypes } from './template/props';
-import { isClassAttr } from './template/props/utils';
+import { isSimpleStyle } from './template/props/style';
+import { isClassAttr, isStyleAttr } from './template/props/utils';
 
 export function enablePropsRuntimeAssistance(propsIR: PropsIR) {
-  if (isClassAttr(propsIR.name)) {
+  const rawName = propsIR.rawName;
+  const content = propsIR.value.content;
+
+  const restPropValue = (restContent = false) => {
+    if (restContent) propsIR.value.content = '';
+    propsIR.value.isBabelParseExp = false;
+  };
+
+  if (isClassAttr(rawName)) {
+    const newContent = propsIR.value.merge?.[1];
+
     // class的值如果是非静态字符串一律由运行时 vBindCls 处理
     if (
-      (propsIR.value.content && !strCodeTypes.isStringLiteral(propsIR.value.content)) ||
-      (propsIR.value.combines && !strCodeTypes.isStringLiteral(propsIR.value.combines as string))
+      (content && !strCodeTypes.isStringLiteral(content)) ||
+      (newContent && !strCodeTypes.isStringLiteral(newContent))
     ) {
-      propsIR.value.isBabelParseExp = false;
+      restPropValue(true);
       setRuntimeHelper(propsIR.runtimeHelper, 'vBindCls');
     }
+
+    return;
+  }
+
+  if (isStyleAttr(rawName)) {
+    // style的值是非简单对象，一律由运行时 vBindStyle 处理
+    if (
+      (content && !isSimpleStyle(content)) ||
+      propsIR.value.merge?.some((m) => !isSimpleStyle(m))
+    ) {
+      restPropValue(true);
+      setRuntimeHelper(propsIR.runtimeHelper, 'vBindStyle');
+    }
+
     return;
   }
 
   if (propsIR.type === PropTypes.EVENT) {
     if (propsIR.modifiers?.length) {
-      propsIR.value.isBabelParseExp = false;
       setRuntimeHelper(propsIR.runtimeHelper, 'vOn');
     }
 
     return;
   }
 
-  // 无 key 的 v-bind
-  if (propsIR.rawName === 'v-bind' && !propsIR.name) {
-    propsIR.isKeyLessVBind = true;
-    propsIR.value.isBabelParseExp = false;
+  if (propsIR.isKeyLessVBind) {
+    restPropValue();
     setRuntimeHelper(propsIR.runtimeHelper, 'vBind');
   }
 }
