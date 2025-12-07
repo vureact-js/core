@@ -2,9 +2,12 @@ import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { camelCase } from '@utils/camelCase';
 
 export function parseStyleString(styleStr: string): string {
-  if (!strCodeTypes.isSimpleExpression(styleStr)) return styleStr;
+  if (!strCodeTypes.isStringLiteral(styleStr)) {
+    return styleStr;
+  }
 
   const trimmed = styleStr.trim();
+
   if (!trimmed) return '{}';
 
   const newStr = styleStr.split('');
@@ -37,4 +40,8 @@ export function parseStyleString(styleStr: string): string {
   const obj = pairs.map(({ key, value }) => `${camelCase(key)}:'${value}'`).join(',');
 
   return `{${obj}}`;
+}
+
+export function isSimpleStyle(str: string): boolean {
+  return str.startsWith('Object.assign') || strCodeTypes.isObjectLiteral(str);
 }
