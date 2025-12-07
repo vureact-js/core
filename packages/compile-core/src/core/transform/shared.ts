@@ -27,6 +27,13 @@ export function enablePropsRuntimeAssistance(propsIR: PropsIR) {
 
     return;
   }
+
+  // 无 key 的 v-bind
+  if (propsIR.rawName === 'v-bind' && !propsIR.name) {
+    propsIR.isKeyLessVBind = true;
+    propsIR.value.isBabelParseExp = false;
+    setRuntimeHelper(propsIR.runtimeHelper, 'vBind');
+  }
 }
 
 export function setRuntimeHelper(
