@@ -1,46 +1,47 @@
 import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { camelCase } from '@utils/camelCase';
 
-export function parseStyleString(styleStr: string): string {
-  if (!strCodeTypes.isStringLiteral(styleStr)) {
+
+export function parseStyleString(styleStr: string, isId: boolean): string {
+  // 只检查动态绑定的 style 是否为 css text
+  if (isId && !strCodeTypes.isStringLiteral(styleStr)) {
     return styleStr;
   }
 
   const trimmed = styleStr.trim();
-
   if (!trimmed) return '{}';
 
-  const newStr = styleStr.split('');
+  const result: string[] = [];
+  const obj = parseCssText(trimmed);
 
-  // 去除首尾引号
-  newStr.shift();
-  newStr.pop();
+  for (const key in obj) {
+    result.push(`${key}: '${obj[key]}'`);
+  }
 
-  const pairs = newStr
-    .join('')
-    .split(';')
-    .map((p) => p.trim())
-    .filter(Boolean) // 过滤空字符串
-    .map((p) => {
-      const colonIndex = p.indexOf(':');
-
-      if (colonIndex === -1) return null; // 无效格式
-
-      const key = p.slice(0, colonIndex).trim();
-      const value = p.slice(colonIndex + 1).trim();
-
-      if (!key || !value) return null; // 键或值缺失
-
-      return { key, value };
-    })
-    .filter(Boolean) as Array<{ key: string; value: string }>;
-
-  if (pairs.length === 0) return '{}';
-
-  const obj = pairs.map(({ key, value }) => `${camelCase(key)}:'${value}'`).join(',');
-
-  return `{${obj}}`;
+  return `{${result.join(',')}}`;
 }
+
+function parseCssText(cssText: string): Record<string, string> {
+  const res: Record<string, string> = {};
+  const listDelimiter = /;(?![^(]*\))/g; // 防止切分 url(...) 中的分号
+  const propertyDelimiter = /:(.+)/;
+
+  cssText.split(listDelimiter).forEach((item) => {
+    if (!item) return;
+    const tmp = item.split(propertyDelimiter);
+
+    if (tmp.length > 1) {
+      const k = tmp[0]!.trim();
+      const v = tmp[1]!.trim();
+
+      if (k && v) {
+        res[camelCase(k)] = v;
+      }
+    }
+  });
+  return res;
+}
+
 
 export function isSimpleStyle(str: string): boolean {
   return str.startsWith('Object.assign') || strCodeTypes.isObjectLiteral(str);
