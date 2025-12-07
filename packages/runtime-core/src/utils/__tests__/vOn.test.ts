@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { vOn } from '../vOn';
 
 describe('vOn', () => {
