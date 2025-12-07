@@ -1,8 +1,7 @@
 export const enum NodeTypes {
+  COMPONENT = 'component',
   ELEMENT = 'element',
   TEXT = 'text',
   COMMENT = 'comment',
-  CONDITIONAL = 'conditional',
-  JSX_EXPRESSION = 'jsxExpression',
-  MapTraversal = 'mapTraversal',
+  JSX_INTERPOLATION = 'jsxInterpolation',
 }
