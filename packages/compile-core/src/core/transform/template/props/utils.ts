@@ -3,20 +3,15 @@ import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
 import { PropsIR, PropTypes } from '.';
 
-export function createPropsIR(
-  rawName: string,
-  name: string,
-  content: string,
-  valueIsStatic = true,
-): PropsIR {
+export function createPropsIR(rawName: string, name: string, content: string): PropsIR {
   return {
-    type: PropTypes.ATTRIBUTE,
+    type: PropTypes.DYNAMIC_ATTRIBUTE,
     name: rawName !== 'v-for' ? vueAttrToReactProp(name) : name,
     rawName,
     isStatic: true,
     value: {
-      content: normalizeValue(content ?? 'true', valueIsStatic),
-      isBabelParseExp: true,
+      content,
+      isIdentifier: true,
     },
     runtimeHelper: {} as RuntimeHelper['runtimeHelper'],
   };

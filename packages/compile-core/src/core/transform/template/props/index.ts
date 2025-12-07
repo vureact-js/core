@@ -16,14 +16,16 @@ export interface PropsIR extends RuntimeHelper {
   // 事件绑定
   value: {
     content: string;
+    /*
+    isIdentifier: false
+    t.stringLiteral(content)
+
+    isIdentifier: true
+    t.jsxExpressionContainer(t.identifier(content))
+   */
+    isIdentifier: boolean;
     /* 临时存储合并项 */
     merge?: string[];
-    /* 
-     默认值 true。
-     可通过 babel parseExpression 直接生成 ast node，
-     如果包含需运行时辅助的则不可用。
-    */
-    isBabelParseExp: boolean;
   };
   /* 
    无参数的 v-bind={...}，需运行时 vBind 处理
