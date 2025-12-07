@@ -27,6 +27,8 @@ export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     deps = '[]';
   }
 
-  nodeIR.isMemo = true;
-  nodeIR.meta.memoDeps = deps;
+  nodeIR.meta.memo = {
+    isMemo: true,
+    value: deps,
+  };
 }
