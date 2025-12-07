@@ -17,7 +17,7 @@ export interface PropsIR extends RuntimeHelper {
   value: {
     content: string;
     /* 临时存储合并项 */
-    combines?: string | string[];
+    merge?: string[];
     /* 
      默认值 true。
      可通过 babel parseExpression 直接生成 ast node，
@@ -26,10 +26,7 @@ export interface PropsIR extends RuntimeHelper {
     isBabelParseExp: boolean;
   };
   /* 
-   无参数 v-bind。
-   生成阶段需配合 type 是否为动态属性，
-   以及 name 是否为空、isKeyLessVBind 是否为 true，
-   如果成立则创建jsx属性表达式 {...{value.content}}
+   无参数的 v-bind={...}，需运行时 vBind 处理
   */
   isKeyLessVBind?: boolean;
 }
@@ -41,7 +38,11 @@ export enum PropTypes {
   DYNAMIC_ATTRIBUTE = 4,
 }
 
-export function transformProps(node: VueElementNode, nodeIR: ElementNodeIR) {
+export function transformProps(
+  node: VueElementNode,
+  nodeIR: ElementNodeIR,
+  nodesIR: ElementNodeIR[],
+) {
   for (const prop of node.props) {
     if (prop.type === NodeTypes.ATTRIBUTE) {
       handleAttribute(prop, nodeIR);
@@ -49,7 +50,7 @@ export function transformProps(node: VueElementNode, nodeIR: ElementNodeIR) {
     }
 
     if (prop.type === NodeTypes.DIRECTIVE) {
-      const stop = handleDirective(node, prop, nodeIR);
+      const stop = handleDirective(node, prop, nodeIR, nodesIR);
       if (stop) break;
     }
   }
