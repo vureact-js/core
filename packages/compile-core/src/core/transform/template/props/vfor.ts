@@ -1,11 +1,14 @@
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR, ElementNodeMeta } from '../nodes/element';
-import { NodeTypes } from '../nodes/types';
 
 export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
-  nodeIR.type = NodeTypes.MapTraversal;
-  nodeIR.meta.mapTraversal = parseVForExp((prop.exp as SimpleExpressionNode).content);
+  nodeIR.meta.loop = {
+    isLoop: true,
+    value: parseVForExp((prop.exp as SimpleExpressionNode).content),
+  };
 }
+
+type ParseResult = ElementNodeMeta['loop']['value'];
 
 /**
  * 解析 v-for 表达式所有合法形式
@@ -13,7 +16,7 @@ export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
  * @returns 解析结果
  * @throws 语法错误
  */
-export function parseVForExp(expression: string): ElementNodeMeta['mapTraversal'] {
+export function parseVForExp(expression: string): ParseResult{
   /**
    * 智能分割参数列表，不破坏解构语法
    * @example
@@ -71,7 +74,7 @@ export function parseVForExp(expression: string): ElementNodeMeta['mapTraversal'
 
   // 6. 构建解析结果
   const value = params[0]!;
-  const result: ElementNodeMeta['mapTraversal'] = {
+  const result: ParseResult= {
     source,
     value,
     isDestructured: isDestructuringPattern(value),
