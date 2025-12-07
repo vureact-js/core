@@ -4,16 +4,14 @@ import { isSimpleStyle, parseStyleString } from './style';
 import { isClassAttr, isStyleAttr } from './utils';
 
 export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
-  const newContent = newAttr.value.content;
-
   // 只有 class 和 style 需要合并
   if (isClassAttr(newAttr.rawName)) {
-    mergeClass(oldAttr, newContent);
+    mergeClass(oldAttr, newAttr);
     return;
   }
 
   if (isStyleAttr(newAttr.rawName)) {
-    mergeStyles(oldAttr, newContent);
+    mergeStyles(oldAttr, newAttr);
     return;
   }
 
@@ -24,23 +22,33 @@ export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
   }
 }
 
-function mergeClass(oldAttr: PropsIR, newContent: string) {
+function mergeClass(oldAttr: PropsIR, newAttr: PropsIR) {
   const oldContent = oldAttr.value.content;
+  const newContent = newAttr.value.content;
 
-  oldAttr.value.merge = [oldContent, newContent];
+  // 通过 isIdentifier 判断属性是否是 class="" 还是 v-bind:class="''"
+  // 要么class前者是静态属性，后者是动态，要么相反
 
-  if (strCodeTypes.isStringLiteral(newContent)) {
-    // 简单值直接拼接合并
+  // 简单值直接拼接合并
+  if (
+    (!oldAttr.value.isIdentifier && strCodeTypes.isStringLiteral(newContent)) ||
+    (!newAttr.value.isIdentifier && strCodeTypes.isStringLiteral(oldContent))
+  ) {
     const cur = oldContent.replace(/'/g, '');
     const last = newContent.replace(/'/g, '');
 
     oldAttr.value.content = `${cur} ${last}`;
+
+    return;
   }
+
+  oldAttr.value.isIdentifier = true;
+  oldAttr.value.merge = [oldContent, newContent];
 }
 
-function mergeStyles(oldAttr: PropsIR, newContent: string) {
+function mergeStyles(oldAttr: PropsIR, newAttr: PropsIR) {
   const oldStyle = oldAttr.value.content;
-  const newStyle = parseStyleString(newContent);
+  const newStyle = parseStyleString(newAttr.value.content, newAttr.value.isIdentifier);
 
   let merged = oldAttr.value.merge;
 
@@ -62,5 +70,7 @@ function mergeStyles(oldAttr: PropsIR, newContent: string) {
     if (merged.length > 1) {
       oldAttr.value.content = `Object.assign({}, ${merged.map((s) => `${s}`).join(',')})`;
     }
+
+    return;
   }
 }
