@@ -50,3 +50,7 @@ export function isClassAttr(name?: string): boolean {
 export function isStyleAttr(name?: string): boolean {
   return /^(style|:style|v-bind:style)$/.test(name ?? '');
 }
+
+export function isVConditional(name?: string): boolean {
+  return /v-if|v-else|v-else-if/.test(name ?? '');
+}
