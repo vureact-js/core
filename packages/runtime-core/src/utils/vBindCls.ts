@@ -4,7 +4,7 @@ export type VBindClsInput = string | Record<string, any> | VBindClsInput[];
  * vBindCls - Runtime helper for Vue v-bind:class directive in React JSX
  *
  * @param input - Supports string, object, array, and mixed types
- * @param additional - Supplementary items to be merged (optional)
+ * @param merge - Supplementary items to be merged (optional)
  * @returns Final class name string with space-separated, deduplicated, and trimmed values
  *
  * @example
@@ -15,12 +15,12 @@ export type VBindClsInput = string | Record<string, any> | VBindClsInput[];
  * vBindCls({ foo: true }, 'bar')                               // "foo bar"
  * vBindCls(['a', 'b'], ['c', { d: true }])                     // "a b c d"
  */
-export function vBindCls(input: VBindClsInput, additional?: VBindClsInput): string {
+export function vBindCls(input: VBindClsInput, merge?: VBindClsInput): string {
   const baseResult = processInput(input);
-  if (additional === undefined) return baseResult;
+  if (merge === undefined) return baseResult;
 
-  const additionalResult = processInput(additional);
-  return mergeClassStrings(baseResult, additionalResult);
+  const mergedResult = processInput(merge);
+  return mergeClassStrings(baseResult, mergedResult);
 }
 
 function processInput(input: VBindClsInput): string {
@@ -75,12 +75,12 @@ function processInput(input: VBindClsInput): string {
   return normalizeSpaces(String(input));
 }
 
-function mergeClassStrings(base: string, additional: string): string {
-  if (!base) return additional;
-  if (!additional) return base;
+function mergeClassStrings(base: string, merge: string): string {
+  if (!base) return merge;
+  if (!merge) return base;
 
   const baseClasses = normalizeSpaces(base).split(' ');
-  const additionalClasses = normalizeSpaces(additional).split(' ');
+  const additionalClasses = normalizeSpaces(merge).split(' ');
 
   // 去重并保持顺序
   const merged = new Set([...baseClasses, ...additionalClasses]);
