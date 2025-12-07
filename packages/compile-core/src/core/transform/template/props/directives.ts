@@ -9,19 +9,21 @@ import {
 import { ElementNodeIR } from '../nodes/element';
 import { handleDynamicAttribute } from './attributes';
 import { handleEvent } from './events';
-import { handleSlotDirective } from './slots';
-import { isVBind, isVModel, isVOn, isVSlot } from './utils';
+import { isVBind, isVConditional, isVModel, isVOn, isVSlot } from './utils';
 import { handleVFor } from './vfor';
 import { handleVHtml } from './vhtml';
+import { handleVIf } from './vif';
 import { handleVMemo } from './vmemo';
 import { handleVModel } from './vmodel';
 import { handleVShow } from './vshow';
+import { handleVSlot } from './vslot';
 import { handleVText } from './vtext';
 
 export function handleDirective(
   node: VueElementNode,
   prop: DirectiveNode,
   nodeIR: ElementNodeIR,
+  nodesIR: ElementNodeIR[],
 ): boolean | void {
   const { exp, rawName } = prop;
   const propExp = exp as SimpleExpressionNode;
@@ -36,6 +38,10 @@ export function handleDirective(
     });
     return;
   }
+
+  // 精确匹配指令
+  // v-if/else/else-if
+  if (isVConditional(rawName)) return handleVIf(prop, nodeIR, nodesIR);
 
   // 精确匹配指令
   switch (rawName) {
@@ -54,7 +60,7 @@ export function handleDirective(
 
   // 泛匹配指令
   if (isVModel(rawName)) return handleVModel(prop, node, nodeIR);
-  if (isVBind(rawName)) return handleDynamicAttribute(prop, nodeIR);
+  if (isVBind(rawName)) return handleDynamicAttribute(prop,node, nodeIR);
   if (isVOn(rawName)) return handleEvent(prop, nodeIR);
-  if (isVSlot(rawName)) return handleSlotDirective(prop, nodeIR);
+  if (isVSlot(rawName)) return handleVSlot(prop, nodeIR, nodesIR);
 }
