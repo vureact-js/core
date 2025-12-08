@@ -5,10 +5,10 @@ import {
   NodeTypes as VueNodeTypes,
 } from '@vue/compiler-core';
 import { ElementNodeIR, transformElement } from './element';
-import { createInterpolationNodeIR } from './interpolation';
+import { createInterpolationNodeIR, InterpolationNodeIR } from './interpolation';
 import { createTextNodeIR, TextNodeIR } from './text';
 
-export type TemplateChildNodeIR = ElementNodeIR | TextNodeIR;
+export type TemplateChildNodeIR = ElementNodeIR | TextNodeIR | InterpolationNodeIR;
 
 export function transformChildren(nodes: TemplateChildNode[], result: TemplateChildNodeIR[]) {
   for (const node of nodes) {
