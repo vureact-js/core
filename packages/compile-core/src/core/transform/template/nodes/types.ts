@@ -1,4 +1,5 @@
 export const enum NodeTypes {
+  FRAGMENT='fragment',
   COMPONENT = 'component',
   ELEMENT = 'element',
   TEXT = 'text',
