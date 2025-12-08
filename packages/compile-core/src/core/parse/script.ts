@@ -1,11 +1,11 @@
-import { ParserPlugin, parse as scriptParse } from '@babel/parser';
+import { ParserPlugin, parse as babelParse } from '@babel/parser';
 import { SFCScriptBlock } from '@vue/compiler-sfc';
 import { VueASTDescriptor } from '.';
 
 export function parseScript(block: SFCScriptBlock | null): VueASTDescriptor['script'] {
   if (!block) return null;
 
-  const getLang = (): ParserPlugin[] => {
+  const plugins = (): ParserPlugin[] => {
     switch (block.lang) {
       case 'ts':
         return ['typescript'];
@@ -23,6 +23,6 @@ export function parseScript(block: SFCScriptBlock | null): VueASTDescriptor['scr
 
   return {
     source: block,
-    ast: scriptParse(block.content, { sourceType: 'module', plugins: [...getLang()] }),
+    ast: babelParse(block.content, { sourceType: 'module', plugins: plugins() }),
   };
 }
