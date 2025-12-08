@@ -2,13 +2,13 @@ import { ParseResult as BabelParseResult } from '@babel/parser';
 import { logger } from '@shared/logger';
 import { CompilerError, RootNode } from '@vue/compiler-core';
 import {
-  parse as parseSFC,
-  SFCDescriptor,
+  parse as parseVueSFC,
   SFCScriptBlock,
   SFCStyleBlock,
   SFCTemplateBlock,
 } from '@vue/compiler-sfc';
-import { parseSFCDescriptor } from './sfc';
+import { parseScript } from './script';
+import { parseTemplate } from './template';
 
 export interface ParseOptions {
   filename: string;
@@ -18,7 +18,11 @@ export interface VueASTDescriptor {
   template: ASTBlock<SFCTemplateBlock, RootNode>;
   script: ASTBlock<SFCScriptBlock, BabelParseResult>;
   styles: SFCStyleBlock[];
-  meta: SFCDescriptor;
+  meta: {
+    filename: string;
+    source: string;
+    cssVars: string[];
+  };
 }
 
 export type ASTBlock<S, T> = {
@@ -26,8 +30,10 @@ export type ASTBlock<S, T> = {
   ast: T;
 } | null;
 
-export function parse(source: string, options?: Partial<ParseOptions>): VueASTDescriptor {
-  const { descriptor, errors } = parseSFC(source, { filename: options?.filename });
+export function parse(vueCode: string, options?: Partial<ParseOptions>): VueASTDescriptor {
+  const { descriptor, errors } = parseVueSFC(vueCode, { filename: options?.filename });
+  
+  const { template, script, scriptSetup, styles, filename, source, cssVars } = descriptor;
 
   if (errors.length) {
     errors.forEach((err) => {
@@ -39,5 +45,14 @@ export function parse(source: string, options?: Partial<ParseOptions>): VueASTDe
     });
   }
 
-  return parseSFCDescriptor(descriptor);
+  return {
+    template: parseTemplate(template),
+    script: parseScript(script || scriptSetup),
+    styles,
+    meta: {
+      filename,
+      source,
+      cssVars,
+    },
+  };
 }
