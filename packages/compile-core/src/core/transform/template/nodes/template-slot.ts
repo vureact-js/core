@@ -1,0 +1,25 @@
+import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
+import { transformChildren } from '.';
+import { handleVSlot, SlotPropsIR } from '../props/vslot';
+import { ElementNodeIR } from './element';
+import { wrapWithFragmentIR } from './fragment';
+
+export function handleTemplateSlot(tmplSlotNode: VueElementNode, parentIR: ElementNodeIR) {
+  let slotPropIR = {} as SlotPropsIR;
+
+  // <template v-slot> 插槽属性有且只能同时存在一个
+
+  for (const slotProp of tmplSlotNode.props) {
+    if (slotProp.type === NodeTypes.DIRECTIVE) {
+      slotPropIR = handleVSlot(slotProp);
+    }
+  }
+
+  const slotContent = slotPropIR.returnValue;
+
+  transformChildren(tmplSlotNode, parentIR, slotContent);
+
+  slotPropIR.returnValue = wrapWithFragmentIR(slotContent);
+
+  parentIR.props.push(slotPropIR);
+}
