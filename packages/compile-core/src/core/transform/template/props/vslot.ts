@@ -7,8 +7,10 @@ export interface SlotPropsIR {
   name: string;
   rawName: string;
   isStatic: boolean;
-  callbackArgs: string;
-  returnValue: TemplateChildNodeIR[];
+  callback: {
+    arg: string;
+    exp: TemplateChildNodeIR[];
+  };
 }
 
 export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
@@ -20,7 +22,9 @@ export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
     name: arg.content,
     rawName: prop.rawName ?? 'default',
     isStatic: arg.isStatic,
-    callbackArgs: exp?.content,
-    returnValue: [],
+    callback: {
+      arg: exp?.content,
+      exp: [],
+    },
   };
 }

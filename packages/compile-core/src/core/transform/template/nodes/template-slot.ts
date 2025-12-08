@@ -15,11 +15,11 @@ export function handleTemplateSlot(tmplSlotNode: VueElementNode, parentIR: Eleme
     }
   }
 
-  const slotContent = slotPropIR.returnValue;
+  const slotContent = slotPropIR.callback.exp;
 
   transformChildren(tmplSlotNode, parentIR, slotContent);
 
-  slotPropIR.returnValue = wrapWithFragmentIR(slotContent);
+  slotPropIR.callback.exp = wrapWithFragmentIR(slotContent);
 
   parentIR.props.push(slotPropIR);
 }
