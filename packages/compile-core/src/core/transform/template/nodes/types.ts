@@ -1,8 +1,8 @@
 export const enum NodeTypes {
-  FRAGMENT='fragment',
-  COMPONENT = 'component',
-  ELEMENT = 'element',
-  TEXT = 'text',
-  COMMENT = 'comment',
-  JSX_INTERPOLATION = 'jsxInterpolation',
+  FRAGMENT = 0,
+  ELEMENT = 1,
+  TEXT = 2,
+  COMMENT = 3,
+  JSX_INTERPOLATION = 4,
+  COMPONENT = 5,
 }
