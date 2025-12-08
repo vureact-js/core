@@ -1,4 +1,4 @@
-import { baseParse as templateParse } from '@vue/compiler-core';
+import { baseParse } from '@vue/compiler-core';
 import { SFCTemplateBlock } from '@vue/compiler-sfc';
 import { VueASTDescriptor } from '.';
 
@@ -6,7 +6,7 @@ export function parseTemplate(block: SFCTemplateBlock | null): VueASTDescriptor[
   if (!block?.content) return null;
 
   return {
-    ast: templateParse(block.content, {
+    ast: baseParse(block.content, {
       onError() {},
     }),
   };
