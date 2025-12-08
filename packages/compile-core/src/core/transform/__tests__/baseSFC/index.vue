@@ -1,6 +1,7 @@
 <template>
+  <!-- 这是一条注释 -->
   <div class="template-showcase" v-memo="[value1, value2]">
-    <h1 id="1" :id="dynamicId" class="title" :class="cls">
+    <h1 id="1" :id="dynamicId" class="title" :class="'cls'">
       {{ pageTitle }}
     </h1>
 
@@ -68,9 +69,15 @@
     <input ref="inputRef" type="text" placeholder="用于获取 DOM 引用" />
 
     <MyChildComponent>
-      <template #header="data">header插槽</template>
-      <p>默认插槽</p>
-      <template #footer>footer插槽</template>
+      <template #header="data">
+        <header>header 插槽</header>
+      </template>
+
+      <section>默认插槽</section>
+
+      <template #footer>
+        <footer>footer插槽</footer>
+      </template>
     </MyChildComponent>
   </div>
 </template>
