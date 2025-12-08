@@ -8,7 +8,7 @@ import {
   SFCStyleBlock,
   SFCTemplateBlock,
 } from '@vue/compiler-sfc';
-import { parseSFCDescriptor } from './parseSFCDescriptor';
+import { parseSFCDescriptor } from './sfc';
 
 export interface ParseOptions {
   filename: string;
