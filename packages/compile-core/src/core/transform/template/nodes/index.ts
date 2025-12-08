@@ -1,5 +1,6 @@
 import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import {
+  ElementTypes,
   SimpleExpressionNode,
   TemplateChildNode,
   NodeTypes as VueNodeTypes,
@@ -14,8 +15,11 @@ export function transformChildren(nodes: TemplateChildNode[], result: TemplateCh
   for (const node of nodes) {
     if (node.type === VueNodeTypes.ELEMENT) {
       const nodeIR = transformElement(node, result as ElementNodeIR[]);
-      
-      result.push(nodeIR);
+
+      // 忽略 <template> 和 <slot> 元素
+      if (node.tagType !== ElementTypes.TEMPLATE && node.tagType !== ElementTypes.SLOT) {
+        result.push(nodeIR);
+      }
 
       continue;
     }
