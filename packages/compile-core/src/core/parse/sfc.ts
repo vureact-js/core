@@ -1,8 +1,8 @@
 import { SFCDescriptor } from '@vue/compiler-sfc';
 import { VueASTDescriptor } from '.';
-import { parseScript } from './parseScript';
-import { parseStyles } from './parseStyles';
-import { parseTemplate } from './parseTemplate';
+import { parseStyles } from './style';
+import { parseScript } from './script';
+import { parseTemplate } from './template';
 
 export function parseSFCDescriptor(descriptor: SFCDescriptor): VueASTDescriptor {
   const { template, script, scriptSetup, styles, ...meta } = descriptor;
