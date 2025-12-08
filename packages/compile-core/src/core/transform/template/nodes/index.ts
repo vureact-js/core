@@ -1,24 +1,27 @@
 import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import {
-  ElementTypes,
   SimpleExpressionNode,
-  TemplateChildNode,
   NodeTypes as VueNodeTypes,
+  ParentNode as VueParentNode,
 } from '@vue/compiler-core';
+import { TemplateChildNodeIR } from '..';
 import { ElementNodeIR, transformElement } from './element';
-import { createInterpolationNodeIR, InterpolationNodeIR } from './interpolation';
-import { createTextNodeIR, TextNodeIR } from './text';
+import { createInterpolationNodeIR } from './interpolation';
+import { isSlotElement } from './shared';
+import { createTextNodeIR } from './text';
 
-export type TemplateChildNodeIR = ElementNodeIR | TextNodeIR | InterpolationNodeIR;
-
-export function transformChildren(nodes: TemplateChildNode[], result: TemplateChildNodeIR[]) {
-  for (const node of nodes) {
+export function transformChildren(
+  parent: VueParentNode,
+  parentIR: ElementNodeIR,
+  childrenIR: TemplateChildNodeIR[],
+) {
+  for (const node of parent.children) {
     if (node.type === VueNodeTypes.ELEMENT) {
-      const nodeIR = transformElement(node, result as ElementNodeIR[]);
+      const nodeIR = transformElement(node, parentIR, childrenIR as ElementNodeIR[]);
 
-      // 忽略 <template> 和 <slot> 元素
-      if (node.tagType !== ElementTypes.TEMPLATE && node.tagType !== ElementTypes.SLOT) {
-        result.push(nodeIR);
+      // 忽略 <template #named> 和 <slot>
+      if (nodeIR && !isSlotElement(node)) {
+        childrenIR.push(nodeIR);
       }
 
       continue;
@@ -28,18 +31,18 @@ export function transformChildren(nodes: TemplateChildNode[], result: TemplateCh
       const content = (node.content as SimpleExpressionNode).content;
       const isIdentifier = !strCodeTypes.isStringLiteral(content);
 
-      result.push(createInterpolationNodeIR(content, isIdentifier));
+      childrenIR.push(createInterpolationNodeIR(content, isIdentifier));
 
       continue;
     }
 
     if (node.type === VueNodeTypes.TEXT) {
-      result.push(createTextNodeIR(node.content));
+      childrenIR.push(createTextNodeIR(node.content));
       continue;
     }
 
     if (node.type === VueNodeTypes.COMMENT) {
-      result.push(createTextNodeIR(node.content, true));
+      childrenIR.push(createTextNodeIR(node.content, true));
     }
   }
 }
