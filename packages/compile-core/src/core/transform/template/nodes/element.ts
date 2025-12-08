@@ -1,13 +1,17 @@
 import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
-import { TemplateChildNodeIR, transformChildren } from '.';
+import { transformChildren } from '.';
+import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
+import { SlotPropsIR } from '../props/vslot';
+import { isSlotElement } from './shared';
+import { handleTemplateSlot } from './template-slot';
 import { NodeTypes } from './types';
 
 export interface ElementNodeIR {
   type: NodeTypes;
   tag: string;
-  props: PropsIR[];
+  props: (PropsIR | SlotPropsIR)[];
   children: TemplateChildNodeIR[];
   isSelfClosing?: boolean;
   ref?: string;
@@ -51,8 +55,17 @@ export interface ElementNodeMeta extends RuntimeHelper {
   };
 }
 
-export function transformElement(node: VueElementNode, nodesIR: ElementNodeIR[]): ElementNodeIR {
+export function transformElement(
+  node: VueElementNode,
+  parentIR: ElementNodeIR,
+  nodesIR: ElementNodeIR[],
+): ElementNodeIR | void {
   const { tag, tagType, children, isSelfClosing } = node;
+
+  if (isSlotElement(node)) {
+    handleTemplateSlot(node, parentIR);
+    return;
+  }
 
   const nodeIR = createElementNode({
     type: getDefaultNodeType(tagType),
@@ -63,7 +76,7 @@ export function transformElement(node: VueElementNode, nodesIR: ElementNodeIR[])
   transformProps(node, nodeIR, nodesIR);
 
   if (children.length) {
-    transformChildren(children, nodeIR.children);
+    transformChildren(node, nodeIR, nodeIR.children);
   }
 
   return nodeIR;
