@@ -1,6 +1,5 @@
-import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
-
 
 export function parseStyleString(styleStr: string, isId: boolean): string {
   // 只检查动态绑定的 style 是否为 css text
@@ -41,7 +40,6 @@ function parseCssText(cssText: string): Record<string, string> {
   });
   return res;
 }
-
 
 export function isSimpleStyle(str: string): boolean {
   return str.startsWith('Object.assign') || strCodeTypes.isObjectLiteral(str);

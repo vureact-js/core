@@ -1,4 +1,4 @@
-import { strCodeTypes } from '@shared/getStrCodeBabelType';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import { PropsIR } from '.';
 import { isSimpleStyle, parseStyleString } from './style';
 import { isClassAttr, isStyleAttr } from './utils';

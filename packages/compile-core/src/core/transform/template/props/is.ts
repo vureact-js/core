@@ -1,6 +1,6 @@
 import { compileContext } from '@shared/compile-context';
-import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { logger } from '@src/shared/logger';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../nodes/element';

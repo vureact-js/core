@@ -1,4 +1,4 @@
-import { strCodeTypes } from '@shared/getStrCodeBabelType';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';

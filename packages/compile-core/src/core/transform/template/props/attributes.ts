@@ -1,6 +1,6 @@
 import { compileContext } from '@shared/compile-context';
-import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { logger } from '@shared/logger';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import {
   AttributeNode,
   DirectiveNode,

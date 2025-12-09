@@ -1,7 +1,7 @@
 import { createVModelEvName } from '@core/transform/utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
-import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import { capitalize } from '@utils/capitalize';
 import {
   DirectiveNode,

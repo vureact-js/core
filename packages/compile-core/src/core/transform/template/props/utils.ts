@@ -1,4 +1,4 @@
-import { strCodeTypes } from '@shared/getStrCodeBabelType';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
 import { PropsIR, PropTypes } from '.';

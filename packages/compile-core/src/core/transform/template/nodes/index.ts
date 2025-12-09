@@ -1,4 +1,4 @@
-import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
+import { strCodeTypes } from '@src/shared/string-code-types';
 import {
   SimpleExpressionNode,
   NodeTypes as VueNodeTypes,
