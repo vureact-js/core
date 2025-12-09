@@ -1,13 +1,15 @@
 import { strCodeTypes } from '@src/shared/string-code-types';
 import {
+  ElementTypes,
+  isVSlot,
   SimpleExpressionNode,
+  ElementNode as VueElementNode,
   NodeTypes as VueNodeTypes,
   ParentNode as VueParentNode,
 } from '@vue/compiler-core';
 import { TemplateChildNodeIR } from '..';
 import { ElementNodeIR, transformElement } from './element';
 import { createInterpolationNodeIR } from './interpolation';
-import { isSlotElement } from './shared';
 import { createTextNodeIR } from './text';
 
 export function transformChildren(
@@ -46,3 +48,13 @@ export function transformChildren(
     }
   }
 }
+
+const isSlotElement = (node: VueElementNode): boolean => {
+  if (node.tagType === ElementTypes.TEMPLATE) {
+    if (node.props[0] !== undefined) {
+      return isVSlot(node.props[0]);
+    }
+  }
+
+  return node.tagType === ElementTypes.SLOT;
+};
