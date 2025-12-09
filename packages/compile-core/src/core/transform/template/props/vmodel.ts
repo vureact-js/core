@@ -1,4 +1,3 @@
-import { createVModelEvName } from '@core/transform/utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { strCodeTypes } from '@src/shared/string-code-types';
@@ -48,7 +47,7 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
   const eventBlock = createModelEventIR(setterName, inputType, modifiers);
 
   // 由于 v-model 只能接受变量名，因此可以作为 update 函数名
-  if (isComponent) eventBlock.name = createVModelEvName(name);
+  if (isComponent) eventBlock.name = `onUpdate${capitalize(name)}`;
 
   nodeIR.props.push(eventBlock);
 }
