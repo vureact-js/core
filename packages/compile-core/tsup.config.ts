@@ -13,7 +13,7 @@ export default defineConfig({
     'src/index.ts',
     'src/core/parse/index.ts',
     'src/core/transform/index.ts',
-    'src/core/generate/index.ts',
+    'src/core/codegen/index.ts',
   ],
   banner: {
     js: banner,

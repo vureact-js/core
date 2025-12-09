@@ -20,9 +20,9 @@
       "import": "./lib/core/transform/index.js",
       "types": "./lib/core/transform/index.d.ts"
     },
-    "./generate": {
-      "import": "./lib/core/generate/index.js",
-      "types": "./lib/core/generate/index.d.ts"
+    "./codegen": {
+      "import": "./lib/core/codegen/index.js",
+      "types": "./lib/core/codegen/index.d.ts"
     }
   },
   "files": [
@@ -53,7 +53,7 @@
     "test": "tsx watch",
     "dev:parse": "tsx watch src/core/parse/__tests__/index.ts",
     "dev:transform": "tsx watch src/core/transform/__tests__/index.ts",
-    "dev:generate": "tsx watch src/core/generate/__tests__/index.ts"
+    "dev:codegen": "tsx watch src/core/codegen/__tests__/index.ts"
   },
   "dependencies": {
     "@babel/generator": "^7.28.3",
