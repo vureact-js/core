@@ -5,9 +5,8 @@ import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
 import { isSlotElement } from '../shared/is-slot-node';
-import { handleTemplateSlot } from './template-slot';
 import { NodeTypes } from '../shared/node-types';
-
+import { transformVSlot } from './template-slot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
   type: NodeTypes;
@@ -68,7 +67,7 @@ export function transformElement(
   const { tag, tagType, children, isSelfClosing } = node;
 
   if (isSlotElement(node)) {
-    handleTemplateSlot(node, parentIR);
+    transformVSlot(node, parentIR);
     return;
   }
 

@@ -4,7 +4,7 @@ import { handleVSlot, SlotPropsIR } from '../props/vslot';
 import { wrapWithFragmentIR } from '../shared/fragment';
 import { ElementNodeIR } from './element';
 
-export function handleTemplateSlot(tmplSlotNode: VueElementNode, parentIR: ElementNodeIR) {
+export function transformVSlot(tmplSlotNode: VueElementNode, parentIR: ElementNodeIR) {
   let slotPropIR = {} as SlotPropsIR;
 
   // <template v-slot> 插槽属性有且只能同时存在一个
