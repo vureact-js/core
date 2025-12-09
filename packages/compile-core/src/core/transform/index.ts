@@ -33,7 +33,5 @@ export function transform(vueDescriptor: VueASTDescriptor): ReactIRDescriptor {
 
   clearContext();
 
-  console.log(JSON.stringify(template?.chilren, null, 2));
-
   return descriptor;
 }
