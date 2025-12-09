@@ -1,5 +1,5 @@
 import { TemplateChildNodeIR } from '..';
-import { NodeTypes } from '../nodes/types';
+import { NodeTypes } from './node-types';
 
 export interface FragmentNodeIR {
   type: NodeTypes;

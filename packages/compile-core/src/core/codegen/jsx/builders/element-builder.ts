@@ -1,9 +1,8 @@
 import * as t from '@babel/types';
 import { TemplateChildNodeIR } from '@core/transform/template';
 import { ElementNodeIR } from '@core/transform/template/nodes/element';
-import { InterpolationNodeIR } from '@core/transform/template/nodes/interpolation';
-import { TextNodeIR } from '@core/transform/template/nodes/text';
-import { NodeTypes } from '@core/transform/template/nodes/types';
+import { BaseSimpleNodeIR } from '@core/transform/template/shared/create-simple-node';
+import { NodeTypes } from '@core/transform/template/shared/node-types';
 import { JSXChild, JSXProp } from '../types';
 import { buildProps } from './prop-builder';
 import { buildFragment, buildJSXExpression, buildText } from './simple-builder';
@@ -33,12 +32,12 @@ export function buildElement(nodeIR: TemplateChildNodeIR): JSXChild | null {
   const isComment = nodeIR.type === NodeTypes.COMMENT;
 
   if (isText || isComment) {
-    const node = nodeIR as TextNodeIR;
+    const node = nodeIR as BaseSimpleNodeIR;
     return buildText(node.content, isComment);
   }
 
   if (nodeIR.type === NodeTypes.JSX_INTERPOLATION) {
-    const node = nodeIR as InterpolationNodeIR;
+    const node = nodeIR as BaseSimpleNodeIR;
     return buildJSXExpression(node.content);
   }
 
