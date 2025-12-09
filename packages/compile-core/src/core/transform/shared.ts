@@ -1,7 +1,7 @@
-import { RuntimeModules } from '@consts/runtimeModules';
+import { RuntimeHelperUsageMethods } from '@consts/runtimeHelperUsageMethods';
+import { RuntimeModules, RV3_Components, VR_Runtime } from '@consts/runtimeModules';
 import { compileContext } from '@shared/compile-context';
-import { getRuntimeModuleByName } from '@shared/getRuntimeModuleByName';
-import { RuntimeHelper, RuntimeModuleName } from '@src/types/runtimeHepler';
+import { HelperUsageMethods, RuntimeHelper, RuntimeModuleName } from '@src/types/runtimeHepler';
 import { PropsIR, PropTypes } from './template/props';
 import { isSimpleStyle } from './template/props/style';
 import { isClassAttr, isStyleAttr } from './template/props/utils';
@@ -84,3 +84,35 @@ function addImport(module: RuntimeModules, name: RuntimeModuleName, onDemand: bo
     items: [{ name, onDemand }],
   });
 }
+
+type ModlueMap = Record<string, { onDemand: boolean; module: RuntimeModules }>;
+
+export const getRuntimeModuleByName = (
+  name: RuntimeModuleName,
+): {
+  usage: HelperUsageMethods;
+  onDemand: boolean;
+  module: RuntimeModules;
+} => {
+  const map = createModuleMap();
+  return { ...map[name]!, usage: RuntimeHelperUsageMethods[name] };
+};
+
+const createModuleMap = () => {
+  const map: ModlueMap = {};
+
+  for (const key in VR_Runtime) {
+    map[key] = {
+      onDemand: true,
+      module: RuntimeModules.RUNTIME,
+    };
+  }
+  for (const key in RV3_Components) {
+    map[key] = {
+      onDemand: true,
+      module: RuntimeModules.RV3_COMPONENTS,
+    };
+  }
+
+  return map;
+};
