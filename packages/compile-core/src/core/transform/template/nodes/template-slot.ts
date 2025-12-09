@@ -1,8 +1,8 @@
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformChildren } from '.';
 import { handleVSlot, SlotPropsIR } from '../props/vslot';
+import { wrapWithFragmentIR } from '../shared/fragment';
 import { ElementNodeIR } from './element';
-import { wrapWithFragmentIR } from './fragment';
 
 export function handleTemplateSlot(tmplSlotNode: VueElementNode, parentIR: ElementNodeIR) {
   let slotPropIR = {} as SlotPropsIR;

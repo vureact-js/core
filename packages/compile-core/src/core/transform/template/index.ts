@@ -1,9 +1,9 @@
 import { RootNode as VueRootNode } from '@vue/compiler-core';
 import { transformChildren } from './nodes';
 import { ElementNodeIR } from './nodes/element';
-import { FragmentNodeIR, wrapWithFragmentIR } from './nodes/fragment';
 import { InterpolationNodeIR } from './nodes/interpolation';
 import { TextNodeIR } from './nodes/text';
+import { FragmentNodeIR, wrapWithFragmentIR } from './shared/fragment';
 
 export interface TemplateBlockIR {
   children: TemplateChildNodeIR[];
