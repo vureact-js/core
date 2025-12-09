@@ -8,19 +8,23 @@ import { isSlotElement } from './shared';
 import { handleTemplateSlot } from './template-slot';
 import { NodeTypes } from './types';
 
-export interface ElementNodeIR {
+export interface ElementNodeIR extends BaseElementNodeIR {
   type: NodeTypes;
-  tag: string;
   props: (PropsIR | SlotPropsIR)[];
   children: TemplateChildNodeIR[];
-  isSelfClosing?: boolean;
-  ref?: string;
-  meta: Partial<ElementNodeMeta>;
+  meta: Partial<ElementNodeIRMeta>;
   /* 收集组件中定义的 slots emits props */
   defineProps: Record<string, any>;
 }
 
-export interface ElementNodeMeta extends RuntimeHelper {
+export interface BaseElementNodeIR {
+  tag: string;
+  isComponent?: boolean;
+  isSelfClosing?: boolean;
+  ref?: string;
+}
+
+export interface ElementNodeIRMeta extends RuntimeHelper {
   /* 
    字段 value 是 string 的原因，
    是因为从 vue 解析得到的值都是字符串类型，
@@ -67,9 +71,11 @@ export function transformElement(
     return;
   }
 
+  const isComponent = tagType === ElementTypes.COMPONENT;
+
   const nodeIR = createElementNode({
-    type: getDefaultNodeType(tagType),
     tag,
+    isComponent,
     isSelfClosing,
   });
 
@@ -82,18 +88,13 @@ export function transformElement(
   return nodeIR;
 }
 
-export function createElementNode(
-  opts: Omit<ElementNodeIR, 'props' | 'children' | 'runtimeHelper' | 'meta' | 'defineProps'>,
-): ElementNodeIR {
+export function createElementNode(opts: BaseElementNodeIR): ElementNodeIR {
   return {
+    type: NodeTypes.ELEMENT,
     ...opts,
     props: [],
     children: [],
     meta: {},
     defineProps: {},
   };
-}
-
-function getDefaultNodeType(tagType: ElementTypes): NodeTypes {
-  return tagType === ElementTypes.COMPONENT ? NodeTypes.COMPONENT : NodeTypes.ELEMENT;
 }
