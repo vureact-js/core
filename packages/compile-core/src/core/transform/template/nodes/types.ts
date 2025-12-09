@@ -4,5 +4,4 @@ export const enum NodeTypes {
   TEXT = 2,
   COMMENT = 3,
   JSX_INTERPOLATION = 4,
-  COMPONENT = 5,
 }
