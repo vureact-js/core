@@ -1,5 +1,5 @@
+import { SupportedDirectives } from '@consts/supportedDirectives';
 import { compileContext } from '@shared/compile-context';
-import { isSupportedDirectives } from '@shared/isSupportedDirectives';
 import { logger } from '@shared/logger';
 import {
   DirectiveNode,
@@ -62,3 +62,8 @@ export function handleDirective(
   if (isVBind(rawName)) return handleDynamicAttribute(prop, node, nodeIR);
   if (isVOn(rawName)) return handleEvent(prop, nodeIR);
 }
+
+const isSupportedDirectives = (rawName: string = ''): boolean => {
+  if (!rawName.startsWith('v-')) return true;
+  return SupportedDirectives.some((dir) => rawName.match(dir) !== null);
+};
