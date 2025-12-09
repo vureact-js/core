@@ -3,8 +3,8 @@ import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
-import { enablePropsRuntimeAssistance } from '../../shared';
 import { ElementNodeIR } from '../nodes/element';
+import { enablePropsRuntimeAssistance } from '../shared/enable-props-runtime';
 import { createPropsIR } from './utils';
 
 export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
