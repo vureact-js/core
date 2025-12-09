@@ -1,4 +1,4 @@
-import { getContext } from '@core/transform/context';
+import { compileContext } from '@shared/compile-context';
 import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { logger } from '@src/shared/logger';
 import { camelCase } from '@utils/camelCase';
@@ -30,7 +30,7 @@ export function handleDynamicIs(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     return;
   }
 
-  const { source, filename } = getContext();
+  const { source, filename } = compileContext.context;
 
   logger.error('The expected type of v-bind:is is string or Component (identifier).', {
     loc: prop.loc,

@@ -1,4 +1,4 @@
-import { getContext } from '@core/transform/context';
+import { compileContext } from '@shared/compile-context';
 import { isSupportedDirectives } from '@shared/isSupportedDirectives';
 import { logger } from '@shared/logger';
 import {
@@ -29,7 +29,7 @@ export function handleDirective(
 
   // 未识别指令
   if (!isSupportedDirectives(rawName)) {
-    const { source, filename } = getContext();
+    const { source, filename } = compileContext.context;
     logger.warn(`Unknown directive: ${rawName}`, {
       loc: node.loc,
       source,

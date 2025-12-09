@@ -1,4 +1,4 @@
-import { getContext } from '@core/transform/context';
+import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../nodes/element';
@@ -19,7 +19,7 @@ export function handleVIf(
       const { conditionalBranch } = lastNode.meta;
 
       if (!conditionalBranch.if && !conditionalBranch.elseIf) {
-        const { source, filename } = getContext();
+        const { source, filename } = compileContext.context;
 
         logger.error('v-else/v-else-if has no adjacent v-if or v-else-if.', {
           source,

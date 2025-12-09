@@ -1,5 +1,5 @@
-import { getContext } from '@core/transform/context';
 import { createVModelEvName } from '@core/transform/utils';
+import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import { capitalize } from '@utils/capitalize';
@@ -22,7 +22,7 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
 
   // 只允许使用变量标识符
   if (!strCodeTypes.isIdentifier(exp.content)) {
-    const { source, filename } = getContext();
+    const { source, filename } = compileContext.context;
 
     logger.error('v-model value must be a valid JavaScript variable identifier.', {
       loc: prop.loc,

@@ -1,6 +1,6 @@
-import { getContext } from '@core/transform/context';
+import { compileContext } from '@shared/compile-context';
+import { strCodeTypes } from '@shared/getStrCodeBabelType';
 import { logger } from '@shared/logger';
-import { strCodeTypes } from '@src/shared/getStrCodeBabelType';
 import {
   AttributeNode,
   DirectiveNode,
@@ -32,7 +32,7 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
 
   // 特殊处理：ref 收集
   if (name === 'ref') {
-    const { nodeRefs } = getContext();
+    const { nodeRefs } = compileContext.context;
     nodeRefs.add(content);
   }
 
@@ -84,8 +84,8 @@ function processPropsIR(attr: PropsIR, nodeIR: ElementNodeIR, isDynamic: boolean
   const found = nodeIR.props.find((p) => p.name === attr.name && (!isDynamic || attr.isStatic));
 
   if (found) {
-    mergePropsIR(found, attr);
-    enablePropsRuntimeAssistance(found);
+    mergePropsIR(found as PropsIR, attr);
+    enablePropsRuntimeAssistance(found as PropsIR);
     return;
   }
 
@@ -109,7 +109,7 @@ function existsInKeyLessVBind(vueProps: (AttributeNode | DirectiveNode)[], props
       const key = `${prop.name}:`;
 
       if (propIRContent.includes(key)) {
-        const { source, filename } = getContext();
+        const { source, filename } = compileContext.context;
 
         logger.warn(
           `Because of the keyless v-bind, '${key.replace(':', '')}' has been specified multiple times; the latest value will override previous ones.`,

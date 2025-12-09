@@ -1,7 +1,7 @@
 import { RuntimeModules } from '@consts/runtimeModules';
+import { compileContext } from '@shared/compile-context';
 import { getRuntimeModuleByName } from '@shared/getRuntimeModuleByName';
 import { RuntimeHelper, RuntimeModuleName } from '@src/types/runtimeHepler';
-import { getContext } from './context';
 import { PropsIR, PropTypes } from './template/props';
 import { isSimpleStyle } from './template/props/style';
 import { isClassAttr, isStyleAttr } from './template/props/utils';
@@ -67,7 +67,7 @@ export function setRuntimeHelper(
 }
 
 function addImport(module: RuntimeModules, name: RuntimeModuleName, onDemand: boolean) {
-  const { imports } = getContext();
+  const { imports } = compileContext.context;
 
   const foundModule = imports.find((imp) => (imp.module = module));
 

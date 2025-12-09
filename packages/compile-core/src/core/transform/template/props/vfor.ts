@@ -1,5 +1,5 @@
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR, ElementNodeMeta } from '../nodes/element';
+import { ElementNodeIR, ElementNodeIRMeta } from '../nodes/element';
 
 export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   nodeIR.meta.loop = {
@@ -8,7 +8,7 @@ export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   };
 }
 
-type ParseResult = ElementNodeMeta['loop']['value'];
+type ParseResult = ElementNodeIRMeta['loop']['value'];
 
 /**
  * 解析 v-for 表达式所有合法形式
@@ -16,7 +16,7 @@ type ParseResult = ElementNodeMeta['loop']['value'];
  * @returns 解析结果
  * @throws 语法错误
  */
-export function parseVForExp(expression: string): ParseResult{
+export function parseVForExp(expression: string): ParseResult {
   /**
    * 智能分割参数列表，不破坏解构语法
    * @example
@@ -74,7 +74,7 @@ export function parseVForExp(expression: string): ParseResult{
 
   // 6. 构建解析结果
   const value = params[0]!;
-  const result: ParseResult= {
+  const result: ParseResult = {
     source,
     value,
     isDestructured: isDestructuringPattern(value),

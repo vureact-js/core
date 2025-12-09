@@ -1,4 +1,4 @@
-import { getContext } from '@core/transform/context';
+import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../nodes/element';
@@ -10,7 +10,7 @@ export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   // 判定为 v-memo
   if (deps !== undefined) {
     if (!deps.trim() || (!deps.startsWith('[') && !deps.endsWith(']'))) {
-      const { source, filename } = getContext();
+      const { source, filename } = compileContext.context;
 
       logger.warn(
         'The expected value of v-memo is an array; otherwise, memoization will be skipped.',
