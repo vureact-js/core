@@ -6,7 +6,7 @@ import { InterpolationNodeIR } from './nodes/interpolation';
 import { TextNodeIR } from './nodes/text';
 
 export interface TemplateBlockIR {
-  chilren: TemplateChildNodeIR[];
+  children: TemplateChildNodeIR[];
 }
 
 export type TemplateChildNodeIR = ElementNodeIR | TextNodeIR | InterpolationNodeIR | FragmentNodeIR;
@@ -14,11 +14,11 @@ export type TemplateChildNodeIR = ElementNodeIR | TextNodeIR | InterpolationNode
 export function transformTemplate(root?: VueRootNode): TemplateBlockIR | null {
   if (!root) return null;
 
-  const chilren: TemplateChildNodeIR[] = [];
+  const children: TemplateChildNodeIR[] = [];
 
-  transformChildren(root, chilren[0] as ElementNodeIR, chilren);
+  transformChildren(root, children[0] as ElementNodeIR, children);
 
   return {
-    chilren: wrapWithFragmentIR(chilren),
+    children: wrapWithFragmentIR(children),
   };
 }
