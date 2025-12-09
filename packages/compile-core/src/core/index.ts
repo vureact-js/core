@@ -1,3 +1,4 @@
+import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 
 export * from './parse';
@@ -9,4 +10,6 @@ export function compile() {
   if (logger.getLogs().length) {
     logger.printAll();
   }
+
+  compileContext.clear();
 }
