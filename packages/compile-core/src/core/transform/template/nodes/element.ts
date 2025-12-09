@@ -4,7 +4,7 @@ import { transformChildren } from '.';
 import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
-import { isSlotElement } from './shared';
+import { isSlotElement } from '../shared/is-slot-node';
 import { handleTemplateSlot } from './template-slot';
 import { NodeTypes } from './types';
 
