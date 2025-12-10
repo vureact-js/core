@@ -7,9 +7,9 @@ import {
 import { TemplateChildNodeIR } from '..';
 import { createInterpolationNodeIR, createTextNodeIR } from '../shared/create-simple-node';
 import { isSlotElement } from '../shared/is-slot-node';
-import { ElementNodeIR, transformElement } from './element';
+import { ElementNodeIR, transformElement } from './node';
 
-export function transformChildren(
+export function transformNodes(
   parent: VueParentNode,
   parentIR: ElementNodeIR,
   childrenIR: TemplateChildNodeIR[],
