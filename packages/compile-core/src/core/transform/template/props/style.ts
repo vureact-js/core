@@ -1,9 +1,9 @@
 import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 
-export function parseStyleString(styleStr: string, isId: boolean): string {
-  // 只检查动态绑定的 style 是否为 css text
-  if (isId && !strCodeTypes.isStringLiteral(styleStr)) {
+export function parseStyleString(styleStr: string): string {
+  // 不处理非 cssText
+  if (isSimpleStyle(styleStr) || strCodeTypes.isIdentifier(styleStr)) {
     return styleStr;
   }
 

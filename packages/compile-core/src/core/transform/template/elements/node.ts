@@ -1,4 +1,4 @@
-import { RuntimeHelper } from '@src/types/runtimeHepler';
+import { Expression } from '@babel/types';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformNodes } from '.';
 import { TemplateChildNodeIR } from '..';
@@ -24,19 +24,14 @@ export interface BaseElementNodeIR {
   ref?: string;
 }
 
-export interface ElementNodeIRMeta extends RuntimeHelper {
-  /* 
-   字段 value 是 string 的原因，
-   是因为从 vue 解析得到的值都是字符串类型，
-   但在生成阶段创建表达式会自动转成对应类型。
-  */
-
+export interface ElementNodeIRMeta {
   // v-if/v-else-if/v-else
-  conditionalBranch: {
+  condition: {
     if?: boolean;
     elseIf?: boolean;
     else?: boolean;
     value: string;
+    babelExp: Expression;
   };
 
   // v-for
@@ -56,6 +51,7 @@ export interface ElementNodeIRMeta extends RuntimeHelper {
   memo: {
     isMemo?: boolean;
     value: string;
+    babelExp: Expression;
   };
 }
 

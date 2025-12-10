@@ -4,6 +4,7 @@ import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
+import { preParseProp } from '../shared/pre-parse/prop';
 import { createPropsIR } from './utils';
 
 export function handleStaticIs(content: string, nodeIR: ElementNodeIR) {
@@ -13,7 +14,10 @@ export function handleStaticIs(content: string, nodeIR: ElementNodeIR) {
     const name = content.split('vue:')[1]!;
     nodeIR.tag = camelCase(name);
   } else {
-    nodeIR.props.push(createPropsIR('is', 'is', content));
+    const propIR = createPropsIR('is', 'is', content);
+    propIR.value.isStringLiteral = true;
+    preParseProp(propIR);
+    nodeIR.props.push(propIR);
   }
 }
 

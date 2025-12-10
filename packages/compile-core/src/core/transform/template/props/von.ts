@@ -4,7 +4,7 @@ import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
 import { ElementNodeIR } from '../elements/node';
-import { enablePropsRuntimeAssistance } from '../shared/enable-props-runtime';
+import { preParseProp } from '../shared/pre-parse/prop';
 import { createPropsIR } from './utils';
 
 export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
@@ -19,17 +19,19 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   }
 
   const name = `on${camelCase(capitalize(arg.content))}`;
-  const event = createPropsIR(prop.rawName!, name, expContent);
+  const eventIR = createPropsIR(prop.rawName!, name, expContent);
 
-  event.type = PropTypes.EVENT;
-  event.isStatic = arg.isStatic;
-  event.modifiers = prop.modifiers.map((m) => m.content);
+  eventIR.type = PropTypes.EVENT;
+  eventIR.isStatic = arg.isStatic;
+  eventIR.modifiers = prop.modifiers.map((m) => m.content);
 
-  // 修饰符交给运行时 vOn
-  if (event.modifiers.length) {
-    event.name = `${event.name}.${event.modifiers.join('.')}`;
-    enablePropsRuntimeAssistance(event);
+  // 事件修饰符交给运行时 vOn
+  if (eventIR.modifiers.length) {
+    const eventName = `${eventIR.name}.${eventIR.modifiers.join('.')}`;
+    eventIR.name = eventName;
   }
 
-  nodeIR.props.push(event);
+  preParseProp(eventIR);
+
+  nodeIR.props.push(eventIR);
 }

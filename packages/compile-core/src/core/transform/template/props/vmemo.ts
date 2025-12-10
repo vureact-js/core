@@ -1,3 +1,4 @@
+import { parseFragmentExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
@@ -30,5 +31,6 @@ export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   nodeIR.meta.memo = {
     isMemo: true,
     value: deps,
+    babelExp: parseFragmentExp(deps),
   };
 }

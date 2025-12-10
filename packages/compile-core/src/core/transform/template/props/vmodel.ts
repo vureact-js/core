@@ -11,6 +11,7 @@ import {
 } from '@vue/compiler-core';
 import { PropsIR } from '.';
 import { ElementNodeIR } from '../elements/node';
+import { preParseProp } from '../shared/pre-parse/prop';
 import { createPropsIR } from './utils';
 
 export type InputType = 'text' | 'checkbox' | 'radio' | 'select' | 'textarea';
@@ -41,15 +42,24 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
   // 解析目标（value 变量名 和 setter 函数名）
   const { varName, setterName } = parseModelTarget(exp.content);
 
-  nodeIR.props.push(createPropsIR('v-model', name, varName));
+  const propIR = createPropsIR('v-model', name, varName);
 
-  const modifiers = prop.modifiers.map((m) => m.content);
-  const eventBlock = createModelEventIR(setterName, inputType, modifiers);
+  const eventIR = createModelEventIR(
+    setterName,
+    inputType,
+    prop.modifiers.map((m) => m.content),
+  );
 
   // 由于 v-model 只能接受变量名，因此可以作为 update 函数名
-  if (isComponent) eventBlock.name = `onUpdate${capitalize(name)}`;
+  if (isComponent) {
+    eventIR.name = `onUpdate${capitalize(name)}`;
+  }
 
-  nodeIR.props.push(eventBlock);
+  preParseProp(propIR);
+  preParseProp(eventIR);
+
+  nodeIR.props.push(propIR);
+  nodeIR.props.push(eventIR);
 }
 
 function parseModelTarget(valueExp: string): { varName: string; setterName: string } {

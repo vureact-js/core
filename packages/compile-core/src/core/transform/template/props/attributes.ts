@@ -1,6 +1,6 @@
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
-import { strCodeTypes } from '@src/shared/string-code-types';
+import { strCodeTypes } from '@shared/string-code-types';
 import {
   AttributeNode,
   DirectiveNode,
@@ -8,7 +8,7 @@ import {
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { enablePropsRuntimeAssistance } from '../shared/enable-props-runtime';
+import { preParseProp } from '../shared/pre-parse/prop';
 import { PropsIR, PropTypes } from './index';
 import { handleDynamicIs, handleStaticIs } from './is';
 import { mergePropsIR } from './merge';
@@ -28,7 +28,7 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
   const attr = createPropsIR(name, name, content);
 
   attr.type = PropTypes.ATTRIBUTE;
-  attr.value.isIdentifier = false;
+  attr.value.isStringLiteral = true;
 
   // 特殊处理：ref 收集
   if (name === 'ref') {
@@ -36,7 +36,7 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
     nodeRefs.add(content);
   }
 
-  processPropsIR(attr, nodeIR, false);
+  processPropsIR(attr, nodeIR);
 }
 
 export function handleDynamicAttribute(
@@ -58,57 +58,64 @@ export function handleDynamicAttribute(
 
   const dynamicAttr = createPropsIR(prop.rawName!, name, content);
 
-  if (prop.rawName === 'v-bind' && !name) {
-    dynamicAttr.isKeyLessVBind = true;
-    existsInKeyLessVBind(node.props, dynamicAttr);
-  }
+  dynamicAttr.isStatic = arg?.isStatic ?? true;
 
-  const isStaticKey = arg?.isStatic ?? true;
-  const isIdentifier = !strCodeTypes.isStringLiteral(content);
-
-  dynamicAttr.isStatic = isStaticKey;
-  dynamicAttr.value.isIdentifier = isIdentifier;
-
-  processPropsIR(dynamicAttr, nodeIR, true);
+  processPropsIR(dynamicAttr, nodeIR, true, node.props);
 }
 
-function processPropsIR(attr: PropsIR, nodeIR: ElementNodeIR, isDynamic: boolean) {
+function processPropsIR(
+  attr: PropsIR,
+  nodeIR: ElementNodeIR,
+  isDynamic?: boolean,
+  vueProps?: any[],
+) {
+  let content = attr.value.content;
+
+  // 处理无参数 v-bind
+  if (attr.rawName === 'v-bind' && !attr.name) {
+    attr.isKeyLessVBind = true;
+    warnKeyLessVBind(vueProps!, attr);
+  }
+
   // 处理 style 属性的特殊情况
   if (attr.name === 'style') {
-    // 先解析为对象，后标记为标识符
-    attr.value.content = parseStyleString(attr.value.content, attr.value.isIdentifier);
-    attr.value.isIdentifier = true;
+    attr.value.isStringLiteral = false;
+    content = attr.value.content = parseStyleString(content);
+  }
+
+  if (isDynamic) {
+    attr.value.isStringLiteral = strCodeTypes.isStringLiteral(content);
   }
 
   // 查找已存在的同名属性
-  const found = nodeIR.props.find((p) => p.name === attr.name && (!isDynamic || attr.isStatic));
+  const found = nodeIR.props.find(
+    (p) =>
+      p.type !== PropTypes.SLOT &&
+      attr.type !== PropTypes.SLOT &&
+      p.name === attr.name &&
+      p.isStatic &&
+      attr.isStatic,
+  ) as PropsIR;
 
   if (found) {
     mergePropsIR(found as PropsIR, attr);
-    enablePropsRuntimeAssistance(found as PropsIR);
-    return;
+  } else {
+    nodeIR.props.push(attr);
   }
 
-  // 动态属性需要启用运行时辅助
-  if (isDynamic) {
-    enablePropsRuntimeAssistance(attr);
-  }
-
-  nodeIR.props.push(attr);
+  preParseProp(found ?? attr);
 }
 
-function existsInKeyLessVBind(vueProps: (AttributeNode | DirectiveNode)[], propsIR: PropsIR) {
-  const propIRContent = propsIR.value.content;
-
-  // 不检查非对象值
-  if (!strCodeTypes.isObjectLiteral(propIRContent)) return;
+function warnKeyLessVBind(vueProps: (AttributeNode | DirectiveNode)[], propsIR: PropsIR) {
+  const strObj = propsIR.value.content;
 
   vueProps.some((prop) => {
     // 只检查 class 和 style，vue 只支持这两个属性的值合并
     if (isClassAttr(prop.name) || isStyleAttr(prop.name)) {
       const key = `${prop.name}:`;
 
-      if (propIRContent.includes(key)) {
+      // 警告可能被覆盖
+      if (strObj.includes(key)) {
         const { source, filename } = compileContext.context;
 
         logger.warn(

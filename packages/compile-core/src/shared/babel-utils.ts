@@ -1,4 +1,6 @@
-import { ParserOptions, ParserPlugin } from '@babel/parser';
+import { parseExpression, ParserOptions, ParserPlugin } from '@babel/parser';
+import { Expression, stringLiteral } from '@babel/types';
+import { compileContext } from './compile-context';
 
 export type LangType = 'js' | 'jsx' | 'ts' | 'tsx';
 
@@ -46,4 +48,24 @@ export function getBabelParseOptions(
     ...baseOptions,
     plugins: [...new Set(plugins)],
   };
+}
+
+export function parseFragmentExp(value: string, isStringLiteral = false): Expression {
+  if (isStringLiteral) {
+    return stringLiteral(value);
+  }
+
+  try {
+    const { lang, filename } = compileContext.context;
+
+    const expression = parseExpression(
+      value,
+      getBabelParseOptions(lang.script, 'vueTemplate', filename),
+    );
+
+    return expression;
+  } catch {
+    // 回退方案：作为直接作为字符串处理
+    return stringLiteral(value);
+  }
 }

@@ -1,10 +1,10 @@
-import { RuntimeHelper } from '@src/types/runtimeHepler';
+import { Expression } from '@babel/types';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
 import { handleAttribute } from './attributes';
 import { handleDirective } from './directives';
 
-export interface PropsIR extends RuntimeHelper {
+export interface PropsIR {
   type: PropTypes;
   rawName?: string;
   name: string;
@@ -16,17 +16,15 @@ export interface PropsIR extends RuntimeHelper {
   // 事件绑定
   value: {
     content: string;
-    /*
-    isIdentifier: false
-    t.stringLiteral(content)
-
-    isIdentifier: true
-    t.jsxExpressionContainer(t.identifier(content))
-   */
-    isIdentifier: boolean;
+    isStringLiteral?: boolean;
     /* 临时存储合并项 */
     merge?: string[];
+    babelExp: {
+      content: string;
+      ast: Expression;
+    };
   };
+
   /* 
    无参数的 v-bind={...}，需运行时 vBind 处理
   */

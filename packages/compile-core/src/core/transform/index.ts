@@ -1,7 +1,7 @@
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { VueASTDescriptor } from '../parse';
-import { TemplateBlockIR, transformTemplate } from './template';
+import { TemplateBlockIR, transformRoot } from './template';
 
 export interface ReactIRDescriptor {
   template: TemplateBlockIR | null;
@@ -19,7 +19,7 @@ export function transform(vueDescriptor: VueASTDescriptor): ReactIRDescriptor {
     },
   });
 
-  const template = transformTemplate(vueDescriptor.template?.ast);
+  const template = transformRoot(vueDescriptor.template?.ast);
 
   const descriptor: ReactIRDescriptor = {
     template,

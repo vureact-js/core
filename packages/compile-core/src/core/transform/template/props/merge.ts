@@ -1,5 +1,6 @@
-import { strCodeTypes } from '@src/shared/string-code-types';
-import { PropsIR } from '.';
+import { parseFragmentExp } from '@shared/babel-utils';
+import { PropsIR, PropTypes } from '.';
+import { wrapSingleQuotes } from '../shared/wrap-single-quotes';
 import { isSimpleStyle, parseStyleString } from './style';
 import { isClassAttr, isStyleAttr } from './utils';
 
@@ -7,18 +8,14 @@ export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
   // 只有 class 和 style 需要合并
   if (isClassAttr(newAttr.rawName)) {
     mergeClass(oldAttr, newAttr);
-    return;
-  }
-
-  if (isStyleAttr(newAttr.rawName)) {
+  } else if (isStyleAttr(newAttr.rawName)) {
     mergeStyles(oldAttr, newAttr);
-    return;
-  }
-
-  // 非 class 和 style 直接覆盖最新值
-  for (const key in newAttr) {
-    // @ts-ignore
-    oldAttr[key] = newAttr[key];
+  } else {
+    // 非 class 和 style 直接覆盖最新值
+    for (const key in newAttr) {
+      // @ts-ignore
+      oldAttr[key] = newAttr[key];
+    }
   }
 }
 
@@ -26,29 +23,39 @@ function mergeClass(oldAttr: PropsIR, newAttr: PropsIR) {
   const oldContent = oldAttr.value.content;
   const newContent = newAttr.value.content;
 
-  // 通过 isIdentifier 判断属性是否是 class="" 还是 v-bind:class="''"
-  // 要么class前者是静态属性，后者是动态，要么相反
+  const oldIsAttr = oldAttr.type === PropTypes.ATTRIBUTE;
+  const newIsAttr = newAttr.type === PropTypes.ATTRIBUTE;
 
-  // 简单值直接拼接合并
-  if (
-    (!oldAttr.value.isIdentifier && strCodeTypes.isStringLiteral(newContent)) ||
-    (!newAttr.value.isIdentifier && strCodeTypes.isStringLiteral(oldContent))
-  ) {
-    const cur = oldContent.replace(/'/g, '');
-    const last = newContent.replace(/'/g, '');
+  const oldIsStr = oldAttr.value.isStringLiteral;
+  const newIsStr = newAttr.value.isStringLiteral;
 
-    oldAttr.value.content = `${cur} ${last}`;
+  const stripSingleQuotes = (s: string) => s.replace(/^'|'$/g, '');
+
+  // class="a" & :class="'b'"  或  :class="'a'" & class="b"
+  if (newIsStr && oldIsStr) {
+    const left = !oldIsAttr ? stripSingleQuotes(oldContent) : oldContent;
+    const right = !newIsAttr ? stripSingleQuotes(newContent) : newContent;
+    const merged = `${left} ${right}`.trim();
+
+    oldAttr.value.content = merged;
+    oldAttr.value.babelExp.ast = parseFragmentExp(merged);
 
     return;
   }
 
-  oldAttr.value.isIdentifier = true;
-  oldAttr.value.merge = [oldContent, newContent];
+  // 运行时工具处理（默认情况）
+
+  // 需对静态属性值手动包裹括号
+  const oldCls = wrapSingleQuotes(oldContent, oldIsAttr);
+  const newCls = wrapSingleQuotes(newContent, newIsAttr);
+
+  oldAttr.value.isStringLiteral = false;
+  oldAttr.value.merge = [oldCls, newCls];
 }
 
 function mergeStyles(oldAttr: PropsIR, newAttr: PropsIR) {
   const oldStyle = oldAttr.value.content;
-  const newStyle = parseStyleString(newAttr.value.content, newAttr.value.isIdentifier);
+  const newStyle = parseStyleString(newAttr.value.content);
 
   let merged = oldAttr.value.merge;
 
@@ -58,6 +65,7 @@ function mergeStyles(oldAttr: PropsIR, newAttr: PropsIR) {
     merged.push(newStyle);
   }
 
+  // 合并新旧 style 都是解析过的 style object
   if (isSimpleStyle(oldStyle) && isSimpleStyle(newStyle)) {
     // 合并新旧 style 2项
     if (merged.length === 1) {
@@ -73,4 +81,6 @@ function mergeStyles(oldAttr: PropsIR, newAttr: PropsIR) {
 
     return;
   }
+
+  // 其他情况由运行时工具处理
 }
