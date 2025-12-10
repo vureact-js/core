@@ -1,12 +1,12 @@
 import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
-import { transformChildren } from '.';
+import { transformNodes } from '.';
 import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
 import { isSlotElement } from '../shared/is-slot-node';
 import { NodeTypes } from '../shared/node-types';
-import { transformVSlot } from './template-slot';
+import { transformVSlot } from './slot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
   type: NodeTypes;
@@ -82,7 +82,7 @@ export function transformElement(
   transformProps(node, nodeIR, nodesIR);
 
   if (children.length) {
-    transformChildren(node, nodeIR, nodeIR.children);
+    transformNodes(node, nodeIR, nodeIR.children);
   }
 
   return nodeIR;
