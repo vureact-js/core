@@ -7,7 +7,7 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 import { enablePropsRuntimeAssistance } from '../shared/enable-props-runtime';
 import { PropsIR, PropTypes } from './index';
 import { handleDynamicIs, handleStaticIs } from './is';

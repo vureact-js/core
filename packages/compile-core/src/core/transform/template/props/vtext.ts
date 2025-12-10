@@ -1,5 +1,5 @@
-import { ElementNodeIR } from '../nodes/element';
-import { createTextNodeIR } from '../nodes/text';
+import { ElementNodeIR } from '../elements/node';
+import { createTextNodeIR } from '../elements/text';
 
 export function handleVText(content: string, nodeIR: ElementNodeIR) {
   nodeIR.children = [createTextNodeIR(content)];

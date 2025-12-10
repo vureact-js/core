@@ -6,7 +6,7 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 import { handleDynamicAttribute } from './attributes';
 import { handleEvent } from './events';
 import { isVBind, isVConditional, isVModel, isVOn } from './utils';

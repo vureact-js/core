@@ -10,7 +10,7 @@ import {
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
 import { PropsIR } from '.';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 import { createPropsIR } from './utils';
 
 export type InputType = 'text' | 'checkbox' | 'radio' | 'select' | 'textarea';

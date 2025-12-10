@@ -3,7 +3,7 @@ import { logger } from '@src/shared/logger';
 import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 import { createPropsIR } from './utils';
 
 export function handleStaticIs(content: string, nodeIR: ElementNodeIR) {

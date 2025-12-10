@@ -1,7 +1,7 @@
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 
 export function handleVIf(
   prop: DirectiveNode,

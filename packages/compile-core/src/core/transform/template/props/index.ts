@@ -1,6 +1,6 @@
 import { RuntimeHelper } from '@src/types/runtimeHepler';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 import { handleAttribute } from './attributes';
 import { handleDirective } from './directives';
 

@@ -1,5 +1,5 @@
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../nodes/element';
+import { ElementNodeIR } from '../elements/node';
 import { createPropsIR } from './utils';
 
 export function handleVHtml(prop: DirectiveNode, nodeIR: ElementNodeIR) {

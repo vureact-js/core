@@ -1,8 +1,8 @@
 import * as t from '@babel/types';
 import { TemplateChildNodeIR } from '@core/transform/template';
-import { ElementNodeIR } from '@core/transform/template/nodes/element';
 import { BaseSimpleNodeIR } from '@core/transform/template/shared/create-simple-node';
 import { NodeTypes } from '@core/transform/template/shared/node-types';
+import { ElementNodeIR } from '@src/core/transform/template/elements/node';
 import { JSXChild, JSXProp } from '../types';
 import { buildProps } from './prop-builder';
 import { buildFragment, buildJSXExpression, buildText } from './simple-builder';
