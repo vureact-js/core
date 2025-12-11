@@ -1,11 +1,11 @@
-import { Expression } from '@babel/types';
+import { ArrayExpression } from '@babel/types';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformNodes } from '.';
 import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
 import { isSlotElement } from '../shared/is-slot-node';
-import { NodeTypes } from '../shared/types';
+import { BabelExp, NodeTypes } from '../shared/types';
 import { transformVSlot } from './slot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
@@ -38,7 +38,7 @@ export type ConditionMeta = {
   elseIf?: boolean;
   else?: boolean;
   value: string;
-  babelExp: Expression;
+  babelExp: BabelExp;
 };
 
 export type LoopMeta = {
@@ -54,7 +54,7 @@ export type LoopMeta = {
 export type MemoMeta = {
   isMemo?: boolean;
   value: string;
-  babelExp: Expression;
+  babelExp: BabelExp<ArrayExpression>;
 };
 
 export function transformElement(

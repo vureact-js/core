@@ -1,6 +1,7 @@
 import { Expression, JSXIdentifier } from '@babel/types';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
+import { BabelExp } from '../shared/types';
 import { handleAttribute } from './attributes';
 import { handleDirective } from './directives';
 
@@ -12,7 +13,7 @@ export interface PropsIR {
   modifiers?: string[];
   value: PropIRValue;
   isKeyLessVBind?: boolean;
-  babelExp: PropIRBabelExp<JSXIdentifier | Expression>;
+  babelExp: BabelExp<JSXIdentifier | Expression>;
 }
 
 export enum PropTypes {
@@ -26,12 +27,7 @@ export type PropIRValue = {
   content: string;
   isStringLiteral?: boolean;
   merge?: string[];
-  babelExp: PropIRBabelExp;
-};
-
-export type PropIRBabelExp<T = Expression> = {
-  content: string;
-  ast: T;
+  babelExp: BabelExp;
 };
 
 export function transformProps(

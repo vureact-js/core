@@ -1,6 +1,7 @@
 import { strCodeTypes } from '@src/shared/string-code-types';
 import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
-import { PropIRBabelExp, PropsIR, PropTypes } from '.';
+import { PropsIR, PropTypes } from '.';
+import { BabelExp } from '../shared/types';
 
 export function createPropsIR(rawName: string, name: string, content: string): PropsIR {
   return {
@@ -11,9 +12,9 @@ export function createPropsIR(rawName: string, name: string, content: string): P
     value: {
       content,
       isStringLiteral: false,
-      babelExp: {} as PropIRBabelExp
+      babelExp: {} as BabelExp,
     },
-    babelExp: {} as PropIRBabelExp,
+    babelExp: {} as BabelExp,
   };
 }
 
