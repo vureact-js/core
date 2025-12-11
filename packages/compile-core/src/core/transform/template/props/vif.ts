@@ -1,8 +1,8 @@
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
-import { parseFragmentExp } from '@src/shared/babel-utils';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
+import { preParseCondition } from '../shared/pre-parse/node';
 
 export function handleVIf(
   prop: DirectiveNode,
@@ -41,10 +41,5 @@ export function handleVIf(
     return error;
   }
 
-  const value = exp?.content ?? 'true';
-  nodeIR.meta.condition = {
-    [name]: true,
-    value,
-    babelExp: parseFragmentExp(value),
-  };
+  preParseCondition(nodeIR, name, exp?.content ?? 'true');
 }

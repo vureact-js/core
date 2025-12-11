@@ -1,8 +1,8 @@
-import { parseFragmentExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
+import { preParseMemo } from '../shared/pre-parse/node';
 
 export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const exp = prop.exp as SimpleExpressionNode;
@@ -28,9 +28,5 @@ export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     deps = '[]';
   }
 
-  nodeIR.meta.memo = {
-    isMemo: true,
-    value: deps,
-    babelExp: parseFragmentExp(deps),
-  };
+  preParseMemo(nodeIR, deps);
 }
