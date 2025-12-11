@@ -11,10 +11,10 @@ export function buildElement(nodeIR: TemplateChildNodeIR): JSXChild | null {
   const isFragment = nodeIR.type === NodeTypes.FRAGMENT;
   const isElement = nodeIR.type === NodeTypes.ELEMENT;
 
-  if (isFragment || isElement) {
-    const node = nodeIR as ElementNodeIR;
+  const elNode = nodeIR as ElementNodeIR;
 
-    const children = node.children
+  if (isFragment || isElement) {
+    const children = elNode.children
       .map((child) => buildElement(child))
       .filter(Boolean) as JSXChild[];
 
@@ -22,23 +22,24 @@ export function buildElement(nodeIR: TemplateChildNodeIR): JSXChild | null {
       return buildFragment(children);
     }
 
-    // todo 条件节点、map节点
+    // todo 条件节点、map节点、memo节点
 
-    const props = buildProps(node.props);
-    return createElement(node.tag, props, children, node.isSelfClosing);
+    const props = buildProps(elNode.props);
+    return createElement(elNode.tag, props, children, elNode.isSelfClosing);
   }
 
-  const isText = nodeIR.type === NodeTypes.TEXT;
-  const isComment = nodeIR.type === NodeTypes.COMMENT;
+  const simpleNode = elNode as unknown as BaseSimpleNodeIR;
 
-  if (isText || isComment) {
-    const node = nodeIR as BaseSimpleNodeIR;
-    return buildText(node.content, isComment);
+  if (nodeIR.type === NodeTypes.TEXT) {
+    return buildText(simpleNode.content);
+  }
+
+  if (nodeIR.type === NodeTypes.COMMENT) {
+    return buildJSXExpression(simpleNode.babelExp);
   }
 
   if (nodeIR.type === NodeTypes.JSX_INTERPOLATION) {
-    const node = nodeIR as BaseSimpleNodeIR;
-    return buildJSXExpression(node.content);
+    return buildJSXExpression(simpleNode.babelExp);
   }
 
   return null;
