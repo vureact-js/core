@@ -1,5 +1,5 @@
 import { parseExpression, ParserOptions, ParserPlugin } from '@babel/parser';
-import { Expression, stringLiteral } from '@babel/types';
+import { Expression, identifier, stringLiteral } from '@babel/types';
 import { compileContext } from './compile-context';
 
 export type LangType = 'js' | 'jsx' | 'ts' | 'tsx';
@@ -50,7 +50,11 @@ export function getBabelParseOptions(
   };
 }
 
-export function parseFragmentExp(value: string, isStringLiteral = false): Expression {
+export function parseFragmentExp(
+  value: string,
+  isStringLiteral = false,
+  context: ParseContext = 'vueTemplate',
+): Expression {
   if (isStringLiteral) {
     return stringLiteral(value);
   }
@@ -58,14 +62,11 @@ export function parseFragmentExp(value: string, isStringLiteral = false): Expres
   try {
     const { lang, filename } = compileContext.context;
 
-    const expression = parseExpression(
-      value,
-      getBabelParseOptions(lang.script, 'vueTemplate', filename),
-    );
+    const expression = parseExpression(value, getBabelParseOptions(lang.script, context, filename));
 
     return expression;
   } catch {
-    // 回退方案：作为直接作为字符串处理
-    return stringLiteral(value);
+    // 回退方案：利用 identifier 的代码还原输出
+    return identifier(value);
   }
 }
