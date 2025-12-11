@@ -1,4 +1,4 @@
-import { Expression } from '@babel/types';
+import { Expression, JSXIdentifier } from '@babel/types';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
 import { handleAttribute } from './attributes';
@@ -8,27 +8,11 @@ export interface PropsIR {
   type: PropTypes;
   rawName?: string;
   name: string;
-  /*
-   非静态键需生成 jsx 对象展开运算符： {...{[name]: value}}
-  */
   isStatic?: boolean;
   modifiers?: string[];
-  // 事件绑定
-  value: {
-    content: string;
-    isStringLiteral?: boolean;
-    /* 临时存储合并项 */
-    merge?: string[];
-    babelExp: {
-      content: string;
-      ast: Expression;
-    };
-  };
-
-  /* 
-   无参数的 v-bind={...}，需运行时 vBind 处理
-  */
+  value: PropIRValue;
   isKeyLessVBind?: boolean;
+  babelExp: PropIRBabelExp<JSXIdentifier | Expression>;
 }
 
 export enum PropTypes {
@@ -37,6 +21,18 @@ export enum PropTypes {
   EVENT = 3,
   DYNAMIC_ATTRIBUTE = 4,
 }
+
+export type PropIRValue = {
+  content: string;
+  isStringLiteral?: boolean;
+  merge?: string[];
+  babelExp: PropIRBabelExp;
+};
+
+export type PropIRBabelExp<T = Expression> = {
+  content: string;
+  ast: T;
+};
 
 export function transformProps(
   node: VueElementNode,
