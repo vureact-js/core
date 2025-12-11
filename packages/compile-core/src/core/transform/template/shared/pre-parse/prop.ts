@@ -1,3 +1,4 @@
+import * as t from '@babel/types';
 import { parseFragmentExp } from '@shared/babel-utils';
 import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runtime-utils';
 import { PropsIR, PropTypes } from '../../props';
@@ -40,15 +41,40 @@ function getNeedRuntimeHandler(propsIR: PropsIR): ((propsIR: PropsIR) => string)
 }
 
 function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: boolean) {
-  const {
-    value: { content, isStringLiteral },
-  } = propsIR;
+  // 不包含模板 slot 的解析，需要在生成阶段处理
 
-  const previewCode = babelCode || content;
+  const propValue = babelCode || propsIR.value.content;
 
-  if (clearContent) propsIR.value.content = '';
-  propsIR.value.babelExp.content = previewCode;
-  propsIR.value.babelExp.ast = parseFragmentExp(previewCode, isStringLiteral);
+  const handleName = () => {
+    const { name, isStatic } = propsIR;
+    const exp: PropsIR['babelExp'] = {
+      content: name,
+      ast: t.jsxIdentifier(name),
+    };
+
+    if (!isStatic) {
+      const spread = `{[${name}]: ${propValue}}`;
+
+      exp.content = spread;
+      exp.ast = parseFragmentExp(spread);
+    }
+
+    propsIR.babelExp = exp;
+  };
+
+  const handleValue = () => {
+    if (!propsIR.isStatic) return;
+
+    const { babelExp, isStringLiteral } = propsIR.value;
+
+    babelExp.content = propValue;
+    babelExp.ast = parseFragmentExp(propValue, isStringLiteral);
+
+    if (clearContent) propsIR.value.content = '';
+  };
+
+  handleName();
+  handleValue();
 }
 
 function handleClass(propsIR: PropsIR): string {
