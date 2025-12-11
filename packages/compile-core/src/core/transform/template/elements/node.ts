@@ -26,34 +26,36 @@ export interface BaseElementNodeIR {
 
 export interface ElementNodeIRMeta {
   // v-if/v-else-if/v-else
-  condition: {
-    if?: boolean;
-    elseIf?: boolean;
-    else?: boolean;
-    value: string;
-    babelExp: Expression;
-  };
-
+  condition: ConditionMeta;
   // v-for
-  loop: {
-    isLoop?: boolean;
-    value: {
-      source: string;
-      value: string;
-      key?: string;
-      index?: string;
-      isDestructured: boolean;
-      destructuringType?: 'object' | 'array';
-    };
-  };
-
+  loop: LoopMeta;
   // v-memo/v-once
-  memo: {
-    isMemo?: boolean;
-    value: string;
-    babelExp: Expression;
-  };
+  memo: MemoMeta;
 }
+
+export type ConditionMeta = {
+  if?: boolean;
+  elseIf?: boolean;
+  else?: boolean;
+  value: string;
+  babelExp: Expression;
+};
+
+export type LoopMeta = {
+  isLoop?: boolean;
+  value: {
+    source: string;
+    value: string;
+    key?: string;
+    index?: string;
+  };
+};
+
+export type MemoMeta = {
+  isMemo?: boolean;
+  value: string;
+  babelExp: Expression;
+};
 
 export function transformElement(
   node: VueElementNode,
