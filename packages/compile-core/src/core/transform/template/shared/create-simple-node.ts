@@ -1,5 +1,5 @@
 import { Expression } from '@babel/types';
-import { NodeTypes } from './node-types';
+import { NodeTypes } from './types';
 
 export interface BaseSimpleNodeIR {
   type: NodeTypes;

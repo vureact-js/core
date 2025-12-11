@@ -5,7 +5,7 @@ import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
 import { isSlotElement } from '../shared/is-slot-node';
-import { NodeTypes } from '../shared/node-types';
+import { NodeTypes } from '../shared/types';
 import { transformVSlot } from './slot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
