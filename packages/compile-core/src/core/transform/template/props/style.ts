@@ -42,5 +42,5 @@ function parseCssText(cssText: string): Record<string, string> {
 }
 
 export function isSimpleStyle(str: string): boolean {
-  return str.startsWith('Object.assign') || strCodeTypes.isObjectLiteral(str);
+  return str.startsWith('Object.assign') || (str.startsWith('{') && str.endsWith('}'));
 }
