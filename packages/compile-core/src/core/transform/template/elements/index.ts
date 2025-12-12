@@ -14,19 +14,19 @@ export function transformNodes(
   parentIR: ElementNodeIR,
   childrenIR: TemplateChildNodeIR[],
 ) {
-  for (const node of parent.children) {
-    if (node.type === VueNodeTypes.ELEMENT) {
-      const nodeIR = transformElement(node, parentIR, childrenIR as ElementNodeIR[]);
+  for (const vueNode of parent.children) {
+    if (vueNode.type === VueNodeTypes.ELEMENT) {
+      const nodeIR = transformElement(vueNode, parentIR, childrenIR as ElementNodeIR[]);
       // 忽略 <template #named> 和 <slot>
-      if (nodeIR && !isSlotElement(node)) {
+      if (nodeIR && !isSlotElement(vueNode)) {
         childrenIR.push(nodeIR);
       }
 
       continue;
     }
 
-    if (node.type === VueNodeTypes.INTERPOLATION) {
-      const content = (node.content as SimpleExpressionNode).content;
+    if (vueNode.type === VueNodeTypes.INTERPOLATION) {
+      const content = (vueNode.content as SimpleExpressionNode).content;
       const nodeIR = createInterpolationNodeIR(content);
       preParseInterp(nodeIR, content);
       childrenIR.push(nodeIR);
@@ -34,13 +34,13 @@ export function transformNodes(
       continue;
     }
 
-    if (node.type === VueNodeTypes.TEXT) {
-      childrenIR.push(createTextNodeIR(node.content));
+    if (vueNode.type === VueNodeTypes.TEXT) {
+      childrenIR.push(createTextNodeIR(vueNode.content));
       continue;
     }
 
-    if (node.type === VueNodeTypes.COMMENT) {
-      const { content } = node;
+    if (vueNode.type === VueNodeTypes.COMMENT) {
+      const { content } = vueNode;
       const nodeIR = createTextNodeIR(content, true);
       preParseComment(nodeIR);
       childrenIR.push(nodeIR);
