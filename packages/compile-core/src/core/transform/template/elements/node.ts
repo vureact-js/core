@@ -39,6 +39,7 @@ export type ConditionMeta = {
   else?: boolean;
   value: string;
   babelExp: BabelExp;
+  next?: ElementNodeIR;
 };
 
 export type LoopMeta = {
