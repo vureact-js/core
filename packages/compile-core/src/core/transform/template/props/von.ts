@@ -13,8 +13,10 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
 
   let expContent = exp.content.trim();
 
-  // 包装调用表达式 @click="count++" 或者 @click="handleClick"
-  if (strCodeTypes.isCallExpression(expContent) || !strCodeTypes.isSimpleExpression(expContent)) {
+  const isCall = /\(*\)$/;
+  // wrapped call expression or simple expression.
+  // e.g. @click="handleClick()" or @click="count++"
+  if (isCall.test(expContent) || !strCodeTypes.isSimpleExpression(expContent)) {
     expContent = `() => ${expContent}`;
   }
 
