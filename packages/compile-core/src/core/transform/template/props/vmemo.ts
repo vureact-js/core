@@ -1,16 +1,17 @@
+import { ArrayExpression } from '@babel/types';
+import { parseFragmentExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { preParseMemo } from '../shared/pre-parse/node';
 
 export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const exp = prop.exp as SimpleExpressionNode;
-  let deps = exp?.content;
+  let value = exp?.content;
 
   // 判定为 v-memo
-  if (deps !== undefined) {
-    if (!deps.trim() || (!deps.startsWith('[') && !deps.endsWith(']'))) {
+  if (value !== undefined) {
+    if (!value.trim() || (!value.startsWith('[') && !value.endsWith(']'))) {
       const { source, filename } = compileContext.context;
 
       logger.warn(
@@ -25,8 +26,16 @@ export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     }
   } else {
     // 判定为 v-once
-    deps = '[]';
+    value = '[]';
   }
 
-  preParseMemo(nodeIR, deps);
+  nodeIR.meta.memo = {
+    isHandled: false,
+    isMemo: true,
+    value,
+    babelExp: {
+      content: value,
+      ast: parseFragmentExp(value) as ArrayExpression,
+    },
+  };
 }

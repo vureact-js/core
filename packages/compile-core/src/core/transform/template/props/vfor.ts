@@ -4,6 +4,7 @@ import { ElementNodeIR, LoopMeta } from '../elements/node';
 export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   nodeIR.meta.loop = {
     isLoop: true,
+    isHandled: false,
     value: getForResult(prop.forParseResult!),
   };
   // loop node 较特殊，在转换阶段不参与预解析

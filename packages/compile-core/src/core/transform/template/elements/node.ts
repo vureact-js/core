@@ -15,6 +15,7 @@ export interface ElementNodeIR extends BaseElementNodeIR {
   meta: Partial<ElementNodeIRMeta>;
   /* 收集组件中定义的 slots emits props */
   defineProps: Record<string, any>;
+  isHandled: boolean;
 }
 
 export interface BaseElementNodeIR {
@@ -40,6 +41,7 @@ export type ConditionMeta = {
   value: string;
   babelExp: BabelExp;
   next?: ElementNodeIR;
+  isHandled: boolean;
 };
 
 export type LoopMeta = {
@@ -50,24 +52,26 @@ export type LoopMeta = {
     key?: string;
     index?: string;
   };
+  isHandled: boolean;
 };
 
 export type MemoMeta = {
   isMemo?: boolean;
   value: string;
   babelExp: BabelExp<ArrayExpression>;
+  isHandled: boolean;
 };
 
 export function transformElement(
   node: VueElementNode,
   parentIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
-): ElementNodeIR | void {
+): ElementNodeIR | null {
   const { tag, tagType, children, isSelfClosing } = node;
 
   if (isSlotElement(node)) {
     transformVSlot(node, parentIR);
-    return;
+    return null;
   }
 
   const isComponent = tagType === ElementTypes.COMPONENT;
@@ -95,5 +99,6 @@ export function createElementNode(opts: BaseElementNodeIR): ElementNodeIR {
     children: [],
     meta: {},
     defineProps: {},
+    isHandled: false,
   };
 }
