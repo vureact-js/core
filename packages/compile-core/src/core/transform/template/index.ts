@@ -2,7 +2,7 @@ import { RootNode as VueRootNode } from '@vue/compiler-core';
 import { transformNodes } from './elements';
 import { ElementNodeIR } from './elements/node';
 import { BaseSimpleNodeIR } from './shared/create-simple-node';
-import { FragmentNodeIR, wrapWithFragmentIR } from './shared/fragment';
+import { FragmentNodeIR } from './shared/fragment';
 
 export interface TemplateBlockIR {
   children: TemplateChildNodeIR[];
@@ -18,6 +18,6 @@ export function transformRoot(root?: VueRootNode): TemplateBlockIR | null {
   transformNodes(root, children[0] as ElementNodeIR, children);
 
   return {
-    children: wrapWithFragmentIR(children),
+    children,
   };
 }
