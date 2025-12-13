@@ -5,33 +5,58 @@ import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
 import { ElementNodeIR } from '../elements/node';
 import { preParseProp } from '../shared/pre-parse/prop';
+import { findSameProp } from '../shared/utils';
+import { mergePropsIR } from './merge';
 import { createPropsIR } from './utils';
 
 export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
-  let expContent = exp.content.trim();
+  const modifiers = prop.modifiers.map((m) => m.content);
+  const hasCapture = modifiers.findIndex((mod) => mod === 'capture');
 
-  const isCall = /\(*\)$/;
-  // wrapped call expression or simple expression.
-  // e.g. @click="handleClick()" or @click="count++"
-  if (isCall.test(expContent) || !strCodeTypes.isSimpleExpression(expContent)) {
-    expContent = `() => ${expContent}`;
+  let eventName = `on${camelCase(capitalize(arg.content))}`;
+  let handler = exp.content.trim();
+
+  if (hasCapture > -1) {
+    // capture 模式 react 已有，无需参与运行时处理
+    eventName = modifiers[hasCapture] ? `${eventName}Capture` : eventName;
+    modifiers.splice(hasCapture, 1);
   }
 
-  const name = `on${camelCase(capitalize(arg.content))}`;
-  const eventIR = createPropsIR(prop.rawName!, name, expContent);
+  let vOnEvName = '';
+
+  if (modifiers.length) {
+    vOnEvName = `${arg.content}.${modifiers?.join('.')}`;
+  } else {
+    const isCall = /\(*\)$/;
+    if (isCall.test(handler) || !strCodeTypes.isSimpleExpression(handler)) {
+      // 非 vOn 处理的自调用/非函数需要包裹
+      handler = `() => ${handler}`;
+    }
+  }
+
+  // 创建事件IR
+  const eventIR = createPropsIR(prop.rawName!, eventName, handler);
 
   eventIR.type = PropTypes.EVENT;
   eventIR.isStatic = arg.isStatic;
-  eventIR.modifiers = prop.modifiers.map((m) => m.content);
+  eventIR.modifiers = modifiers;
 
-  (eventIR as any).__name = arg.content;
+  // 设置临时属性
+  (eventIR as any).__vOnEvName = vOnEvName;
 
   preParseProp(eventIR);
 
-  delete (eventIR as any).__name;
+  delete (eventIR as any).__vOnEvName;
+
+  // 合并可能存在的重复事件
+  const found = findSameProp(nodeIR.props, eventIR);
+  if (found) {
+    mergePropsIR(found, eventIR);
+    return;
+  }
 
   nodeIR.props.push(eventIR);
 }
