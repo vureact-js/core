@@ -1,3 +1,4 @@
+import { parseFragmentExp } from '@shared/babel-utils';
 import {
   SimpleExpressionNode,
   NodeTypes as VueNodeTypes,
@@ -6,7 +7,6 @@ import {
 import { TemplateChildNodeIR } from '..';
 import { createInterpolationNodeIR, createTextNodeIR } from '../shared/create-simple-node';
 import { isSlotElement } from '../shared/is-slot-node';
-import { preParseComment, preParseInterp } from '../shared/pre-parse/node';
 import { ElementNodeIR, transformElement } from './node';
 
 export function transformNodes(
@@ -14,9 +14,11 @@ export function transformNodes(
   parentIR: ElementNodeIR,
   childrenIR: TemplateChildNodeIR[],
 ) {
+  let nodeIR: TemplateChildNodeIR | null;
+
   for (const vueNode of parent.children) {
     if (vueNode.type === VueNodeTypes.ELEMENT) {
-      const nodeIR = transformElement(vueNode, parentIR, childrenIR as ElementNodeIR[]);
+      nodeIR = transformElement(vueNode, parentIR, childrenIR as ElementNodeIR[]);
       // 忽略 <template #named> 和 <slot>
       if (nodeIR && !isSlotElement(vueNode)) {
         childrenIR.push(nodeIR);
@@ -27,8 +29,10 @@ export function transformNodes(
 
     if (vueNode.type === VueNodeTypes.INTERPOLATION) {
       const content = (vueNode.content as SimpleExpressionNode).content;
-      const nodeIR = createInterpolationNodeIR(content);
-      preParseInterp(nodeIR, content);
+
+      nodeIR = createInterpolationNodeIR(content);
+      nodeIR.babelExp = parseFragmentExp(nodeIR.content);
+
       childrenIR.push(nodeIR);
 
       continue;
@@ -41,8 +45,10 @@ export function transformNodes(
 
     if (vueNode.type === VueNodeTypes.COMMENT) {
       const { content } = vueNode;
-      const nodeIR = createTextNodeIR(content, true);
-      preParseComment(nodeIR);
+
+      nodeIR = createTextNodeIR(content, true);
+      nodeIR.babelExp = parseFragmentExp(nodeIR.content);
+
       childrenIR.push(nodeIR);
     }
   }
