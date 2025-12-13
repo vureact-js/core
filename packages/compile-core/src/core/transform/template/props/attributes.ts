@@ -7,8 +7,8 @@ import {
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { checkPropIsDynamicKey } from '../shared/check-prop-dynamic-key';
 import { preParseProp } from '../shared/pre-parse/prop';
+import { checkPropIsDynamicKey, findSameProp } from '../shared/utils';
 import { PropsIR, PropTypes } from './index';
 import { handleDynamicIs, handleStaticIs } from './is';
 import { mergePropsIR } from './merge';
@@ -82,17 +82,10 @@ function processPropsIR(propIR: PropsIR, nodeIR: ElementNodeIR, isDynamic?: bool
   }
 
   // 查找已存在的同名属性
-  const found = nodeIR.props.find(
-    (p) =>
-      p.type !== PropTypes.SLOT &&
-      propIR.type !== PropTypes.SLOT &&
-      p.name === propIR.name &&
-      p.isStatic &&
-      propIR.isStatic,
-  ) as PropsIR;
+  const found = findSameProp(nodeIR.props, propIR);
 
   if (found) {
-    mergePropsIR(found as PropsIR, propIR);
+    mergePropsIR(found, propIR);
   } else {
     nodeIR.props.push(propIR);
   }
