@@ -17,6 +17,7 @@ export interface SlotPropsIR {
 export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
+  const params = exp?.content ? `(${exp?.content})` : '()';
 
   checkPropIsDynamicKey(prop);
 
@@ -28,7 +29,7 @@ export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
     rawName: prop.rawName ?? 'default',
     isStatic: arg.isStatic,
     callback: {
-      arg: exp?.content,
+      arg: params,
       exp: [],
     },
   };
