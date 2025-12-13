@@ -1,5 +1,3 @@
-import { capitalize } from './capitalize';
-
 const RUNTIME_MODIFIERS = ['stop', 'prevent', 'self', 'left', 'middle', 'right', 'once'];
 
 const MOUSE_BUTTONS = { left: 0, middle: 1, right: 2 } as const;
@@ -16,9 +14,7 @@ const KEY_MAP = {
   right: 'ArrowRight',
 } as const;
 
-type VOnEvent<T> = {
-  [x: string]: (...args: T[]) => void;
-};
+type EventCallback<T> = (...args: any[]) => T;
 
 /**
  * vOn - Runtime helper for Vue v-on directive in React JSX
@@ -29,68 +25,69 @@ type VOnEvent<T> = {
  *
  * @example
  *
- * //@click.stop.self="handler" -> vOn('click.stop.self', handler);
- * //@click="count++" -> vOn('click.stop.self', count++);
+ * <div onClick={vOn('click.once', count++)} />
+ * <div onMouseDown={vOn('mousedown.right', e => {})} />
+ * <div onKeyDown={vOn('keydown.enter', e => {})} />
  */
-export function vOn<T>(event: string, handler: T): VOnEvent<T>;
-export function vOn<T>(event: string, handler: (...args: T[]) => void): VOnEvent<T> {
-  const [name, ...modifiers] = event.split('.');
-  const eventName = !name?.startsWith('on') ? `on${capitalize(name!)}` : name;
+export function vOn<T>(event: string, handler: T): EventCallback<T>;
+export function vOn<T>(event: string, handler: EventCallback<T>): EventCallback<T> {
+  const [_, ...modifiers] = event.split('.');
+  const callback = typeof handler !== 'function' ? () => handler : handler;
 
-  if (typeof handler !== 'function') {
-    return {
-      [eventName]: () => handler,
-    };
-  }
+  const evModifiers = modifiers.filter((m) => RUNTIME_MODIFIERS.includes(m) || m in KEY_MAP);
 
-  const runtimeModifiers = modifiers.filter((m) => RUNTIME_MODIFIERS.includes(m) || m in KEY_MAP);
-
-  if (!runtimeModifiers.length) {
-    return { [eventName]: (...args) => handler(...args) };
+  if (!evModifiers.length) {
+    return (...args) => callback(...args);
   }
 
   let once = false;
 
-  return {
-    [eventName]: (...args: any[]) => {
-      if (once) return;
+  return (...args: any[]): T => {
+    const returnVoid = undefined as T;
 
-      const [event, ..._] = args;
+    if (once) return returnVoid;
 
-      // 先验证所有条件修饰符（若失败则提前 return）
-      for (const modifier of runtimeModifiers) {
-        switch (modifier) {
-          case 'self':
-            if (event?.target !== event?.currentTarget) return;
-            break;
-          case 'left':
-          case 'middle':
-          case 'right':
-            if (event?.button !== MOUSE_BUTTONS[modifier]) return;
-            break;
-          default:
-            // 键盘按键验证
-            const expectedKey = KEY_MAP[modifier as keyof typeof KEY_MAP];
-            if (expectedKey && event?.key !== expectedKey) return;
-        }
+    const [e] = args;
+
+    // 先验证所有条件修饰符（若失败则提前 return）
+    for (const modifier of evModifiers) {
+      switch (modifier) {
+        case 'self':
+          if (e?.target !== e?.currentTarget) {
+            return returnVoid;
+          }
+          break;
+        case 'left':
+        case 'middle':
+        case 'right':
+          if (e?.button !== MOUSE_BUTTONS[modifier]) {
+            return returnVoid;
+          }
+          break;
+        default:
+          // 键盘按键验证
+          const expectedKey = KEY_MAP[modifier as keyof typeof KEY_MAP];
+          if (expectedKey && e?.key !== expectedKey) {
+            return returnVoid;
+          }
       }
+    }
 
-      // 验证通过，应用所有动作修饰符
-      for (const modifier of runtimeModifiers) {
-        switch (modifier) {
-          case 'once':
-            once = true;
-            break;
-          case 'stop':
-            event?.stopPropagation?.();
-            break;
-          case 'prevent':
-            event?.preventDefault?.();
-            break;
-        }
+    // 验证通过，应用所有动作修饰符
+    for (const modifier of evModifiers) {
+      switch (modifier) {
+        case 'once':
+          once = true;
+          break;
+        case 'stop':
+          e?.stopPropagation?.();
+          break;
+        case 'prevent':
+          e?.preventDefault?.();
+          break;
       }
+    }
 
-      handler(...args);
-    },
+    return callback(...args);
   };
 }
