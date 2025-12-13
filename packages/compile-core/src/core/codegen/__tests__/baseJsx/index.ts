@@ -19,6 +19,16 @@ export function baseJsx() {
   console.timeEnd('generate jsx duration');
 
   if (jsx) {
-    writeFileSync(path.resolve(__dirname, './preview.jsx'), generate(jsx).code, 'utf-8');
+    writeFileSync(
+      path.resolve(__dirname, './preview.jsx'),
+      generate(jsx, {
+        jsescOption: {
+          // 配置 jsesc 避免 Unicode 转义
+          minimal: true, // 只转义必要的字符
+          quotes: 'double',
+        },
+      }).code,
+      'utf-8',
+    );
   }
 }
