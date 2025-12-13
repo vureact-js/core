@@ -27,13 +27,11 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   eventIR.isStatic = arg.isStatic;
   eventIR.modifiers = prop.modifiers.map((m) => m.content);
 
-  // 事件修饰符交给运行时 vOn
-  if (eventIR.modifiers.length) {
-    const eventName = `${eventIR.name}.${eventIR.modifiers.join('.')}`;
-    eventIR.name = eventName;
-  }
+  (eventIR as any).__name = arg.content;
 
   preParseProp(eventIR);
+
+  delete (eventIR as any).__name;
 
   nodeIR.props.push(eventIR);
 }

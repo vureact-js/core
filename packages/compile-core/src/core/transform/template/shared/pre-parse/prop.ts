@@ -98,10 +98,16 @@ function handleEvent(propsIR: PropsIR): string {
   const {
     name,
     isStatic,
+    modifiers,
     value: { content },
   } = propsIR;
-  const evName = wrapSingleQuotes(name, isStatic);
-  return vOnRuntime(evName, content);
+  let evName = name;
+
+  if (modifiers?.length) {
+    evName = `${(propsIR as any).__name}.${modifiers?.join('.')}`;
+  }
+
+  return vOnRuntime(wrapSingleQuotes(evName, isStatic), content);
 }
 
 function handleKeylessBind(propsIR: PropsIR): string {
