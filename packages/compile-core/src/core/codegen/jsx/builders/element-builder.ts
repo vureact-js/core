@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { TemplateChildNodeIR } from '@core/transform/template';
-import { BaseSimpleNodeIR } from '@core/transform/template/shared/create-simple-node';
+import { BaseSimpleNodeIR } from '@core/transform/template/elements/node-creators';
 import { ElementNodeIR } from '@src/core/transform/template/elements/node';
 import { NodeTypes } from '@src/core/transform/template/shared/types';
 import { buildChildren } from '..';
@@ -63,9 +63,9 @@ function createElement(
   selfClosing?: boolean,
 ): t.JSXElement {
   const jsxTag = t.jsxIdentifier(tag);
-
+  const isSelfClosing = selfClosing ?? !children.length;
   return t.jsxElement(
-    t.jsxOpeningElement(jsxTag, props, selfClosing),
+    t.jsxOpeningElement(jsxTag, props, isSelfClosing),
     t.jsxClosingElement(jsxTag),
     children,
   );
