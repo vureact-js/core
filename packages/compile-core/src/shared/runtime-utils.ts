@@ -1,4 +1,4 @@
-import { RuntimeModules, VR_Runtime } from '@consts/runtimeModules';
+import { RuntimeModules, RV3_Components, VR_Runtime } from '@consts/runtimeModules';
 import { compileContext } from './compile-context';
 
 export function clsRuntime(arg: string, merge?: string): string {
@@ -33,6 +33,12 @@ export function vBindRuntime(strObj: string): string {
   recordImport(RuntimeModules.RUNTIME, fnName, true);
 
   return `${fnName}(${strObj})`;
+}
+
+export function IsComponent(): keyof typeof RV3_Components {
+  const comp = RV3_Components.Component;
+  recordImport(RuntimeModules.RV3_COMPONENTS, comp, true);
+  return comp as any;
 }
 
 function recordImport(module: RuntimeModules, name: string, onDemand: boolean) {
