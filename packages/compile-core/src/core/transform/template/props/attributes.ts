@@ -27,13 +27,13 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
 
   const attr = createPropsIR(name, name, content);
 
-  attr.type = PropTypes.ATTRIBUTE;
-  attr.value.isStringLiteral = true;
-
   // 特殊处理：ref 收集
   if (name === 'ref') {
     const { nodeRefs } = compileContext.context;
     nodeRefs.add(content);
+  } else {
+    attr.type = PropTypes.ATTRIBUTE;
+    attr.value.isStringLiteral = true;
   }
 
   processPropsIR(attr, nodeIR);
