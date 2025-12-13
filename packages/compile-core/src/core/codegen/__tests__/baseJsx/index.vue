@@ -1,6 +1,6 @@
 <template>
   <!-- 这是一条注释 -->
-  <div class="template-showcase" v-memo="[value1, value2]">
+  <div class="template-showcase">
     <h1 id="1" :id="dynamicId" class="title" :class="cls">
       {{ pageTitle }}
     </h1>
@@ -31,6 +31,10 @@
     <span is="div"></span>
     <div :is="MyChildComponent">动态组件 is</div>
 
+    <div v-memo="[value]">缓存优化节点</div>
+
+    <div v-once>只渲染一次</div>
+
     <div v-if="userType === 'admin'">管理员权限内容</div>
     <div v-else-if="userType === 'editor'">编辑者权限内容</div>
     <div v-else>普通用户或未登录</div>
@@ -50,9 +54,8 @@
 
     <div v-html="rawHtmlContent"></div>
 
-    <div v-pre>{{ 这段内容将作为纯文本显示，不会被 Vue 编译 }}</div>
-
     <MyChildComponent
+      v-memo="[currentUserId]"
       :user-id="currentUserId"
       static-text="这是一个静态 Prop"
       @child-event="handleChildEvent"
