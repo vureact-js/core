@@ -4,7 +4,7 @@ import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runt
 import { PropsIR, PropTypes } from '../../props';
 import { isSimpleStyle } from '../../props/style';
 import { isClassAttr, isStyleAttr } from '../../props/utils';
-import { wrapSingleQuotes } from '../wrap-single-quotes';
+import { wrapSingleQuotes } from '../../shared/utils';
 
 export function preParseProp(propsIR: PropsIR) {
   const handler = getNeedRuntimeHandler(propsIR);
@@ -98,15 +98,9 @@ function handleEvent(propsIR: PropsIR): string {
   const {
     name,
     isStatic,
-    modifiers,
     value: { content },
   } = propsIR;
-  let evName = name;
-
-  if (modifiers?.length) {
-    evName = `${(propsIR as any).__name}.${modifiers?.join('.')}`;
-  }
-
+  const evName = (propsIR as any).__vOnEvName || name;
   return vOnRuntime(wrapSingleQuotes(evName, isStatic), content);
 }
 
