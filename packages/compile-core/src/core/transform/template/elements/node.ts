@@ -4,8 +4,8 @@ import { transformNodes } from '.';
 import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
-import { isSlotElement } from '../shared/is-slot-node';
 import { BabelExp, NodeTypes } from '../shared/types';
+import { isSlotElement } from '../shared/utils';
 import { transformVSlot } from './slot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {

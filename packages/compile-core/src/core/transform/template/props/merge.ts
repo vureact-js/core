@@ -1,8 +1,8 @@
 import { parseFragmentExp } from '@shared/babel-utils';
 import { PropsIR, PropTypes } from '.';
-import { wrapSingleQuotes } from '../shared/wrap-single-quotes';
 import { isSimpleStyle, parseStyleString } from './style';
 import { isClassAttr, isStyleAttr } from './utils';
+import { wrapSingleQuotes } from '../shared/utils';
 
 export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
   // 只有 class 和 style 需要合并

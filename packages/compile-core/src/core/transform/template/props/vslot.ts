@@ -1,7 +1,7 @@
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
 import { TemplateChildNodeIR } from '..';
-import { checkPropIsDynamicKey } from '../shared/check-prop-dynamic-key';
+import { checkPropIsDynamicKey } from '../shared/utils';
 
 export interface SlotPropsIR {
   type: PropTypes.SLOT;
