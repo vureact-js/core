@@ -1,6 +1,9 @@
+import { parseFragmentExp } from '@shared/babel-utils';
 import { ElementNodeIR } from '../elements/node';
-import { createTextNodeIR } from '../shared/create-simple-node';
+import { createInterpolationNodeIR } from '../elements/node-creators';
 
 export function handleVText(content: string, nodeIR: ElementNodeIR) {
-  nodeIR.children = [createTextNodeIR(content)];
+  const interpIR = createInterpolationNodeIR(content);
+  interpIR.babelExp = parseFragmentExp(content);
+  nodeIR.children = [interpIR];
 }
