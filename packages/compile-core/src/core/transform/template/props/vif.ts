@@ -1,28 +1,33 @@
+import { parseFragmentExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { preParseCondition } from '../shared/pre-parse/node';
 
 export function handleVIf(
   prop: DirectiveNode,
   nodeIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
 ): boolean | void {
-  const exp = prop.exp as SimpleExpressionNode;
   const name = prop.name === 'else-if' ? 'elseIf' : prop.name;
+  const value = (prop.exp as SimpleExpressionNode)?.content ?? 'true';
+
   const prevNode = nodesIR[nodesIR.length - 1];
   const isElseOrElseIf = name === 'else' || name === 'elseIf';
 
   let error = false;
+
   // 验证条件分支正确性
-  if (isElseOrElseIf) {
+  if (isElseOrElseIf && prevNode) {
     // 查找同级的前一个点是否为 if 分支
-    if (prevNode?.meta.condition) {
+    if (prevNode.meta.condition) {
       const { condition } = prevNode.meta;
       // 非 if & else-if 是错误的
       if (!condition.if && !condition.elseIf) {
         error = true;
+      } else {
+        // 将当前节点保存到前一个if/else if分支的next里
+        prevNode!.meta.condition!.next = nodeIR;
       }
     } else {
       // if分支都没有
@@ -40,11 +45,13 @@ export function handleVIf(
     return error;
   }
 
-  preParseCondition(nodeIR, name, exp?.content ?? 'true');
-
-  // 构建链式节点数据
-  if (prevNode?.meta.condition && isElseOrElseIf) {
-    // 将当前节点保存到前一个if/else if分支的next里
-    prevNode!.meta.condition!.next = nodeIR;
-  }
+  nodeIR.meta.condition = {
+    isHandled: false,
+    [name]: true,
+    value,
+    babelExp: {
+      content: value,
+      ast: parseFragmentExp(value),
+    },
+  };
 }
