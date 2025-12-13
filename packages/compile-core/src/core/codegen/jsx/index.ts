@@ -1,5 +1,7 @@
 import { ReactIRDescriptor } from '@core/transform';
+import { TemplateChildNodeIR } from '@core/transform/template';
 import { buildElement } from './builders/element-builder';
+import { buildFragment } from './builders/simple-builder';
 import { JSXChild } from './types';
 
 export function generateJsx(ir: ReactIRDescriptor): JSXChild | null {
@@ -9,9 +11,18 @@ export function generateJsx(ir: ReactIRDescriptor): JSXChild | null {
     return null;
   }
 
-  // jsx 的根元素有且只能有一个
-  // 转换阶段已经对多根节点处理成一个 fragment 包裹
-  const [root] = templateBlock.children;
+  return buildChildren(templateBlock.children, true) as JSXChild;
+}
 
-  return buildElement(root!);
+export function buildChildren(
+  children: TemplateChildNodeIR[],
+  isRoot = false,
+): JSXChild | JSXChild[] {
+  const jsx = children.map(buildElement).filter(Boolean) as JSXChild[];
+
+  if (isRoot) {
+    return buildFragment(jsx);
+  }
+
+  return jsx;
 }
