@@ -17,6 +17,8 @@
       点击我触发事件
     </button>
 
+    <button @click.capture.once="handleCapture">触发捕获模式事件</button>
+
     <input type="text" v-model="searchText" placeholder="输入并双向绑定" />
     <input type="text" v-model.lazy="searchText" placeholder="lazy" />
     <input type="text" v-model.trim="searchText" placeholder="trim" />
