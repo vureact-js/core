@@ -1,7 +1,6 @@
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformNodes } from '.';
 import { handleVSlot, SlotPropsIR } from '../props/vslot';
-import { wrapWithFragmentIR } from '../shared/fragment';
 import { ElementNodeIR } from './node';
 
 export function transformVSlot(tmplSlotNode: VueElementNode, parentIR: ElementNodeIR) {
@@ -16,10 +15,8 @@ export function transformVSlot(tmplSlotNode: VueElementNode, parentIR: ElementNo
   }
 
   const slotContent = slotPropIR.callback.exp;
-
   transformNodes(tmplSlotNode, parentIR, slotContent);
 
-  slotPropIR.callback.exp = wrapWithFragmentIR(slotContent);
-
+  slotPropIR.callback.exp = slotContent;
   parentIR.props.push(slotPropIR);
 }
