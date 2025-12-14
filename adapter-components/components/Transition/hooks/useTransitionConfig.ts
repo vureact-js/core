@@ -155,7 +155,7 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
 
     const baseCls = {
       enter: enterFromClass || name ? `${name}-enter-from` : '',
-      enterActiveClass: enterActiveClass || name ? `${name}-enter-active` : '',
+      enterActive: enterActiveClass || name ? `${name}-enter-active` : '',
       enterDone: enterToClass || name ? `${name}-enter-to` : '',
       exit: leaveFromClass || name ? `${name}-leave-from` : '',
       exitActive: leaveActiveClass || name ? `${name}-leave-active` : '',
@@ -166,7 +166,7 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     if (appear) {
       const appearCls = {
         appear: appearFromClass || baseCls.enter,
-        appearActiveClass: appearActiveClass || baseCls.enterActiveClass,
+        appearActive: appearActiveClass || baseCls.enterActive,
         appearDone: appearToClass || baseCls.enterDone,
       };
 
