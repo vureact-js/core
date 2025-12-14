@@ -26,9 +26,9 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
   htmlProps?: HTMLAttributes<HTMLElement>;
   /**
    * Used to customize the CSS class names applied during the transition.
-   * For example: `moveClassName="xxx"`
+   * For example: `moveClass="xxx"`
    */
-  moveClassName?: string;
+  moveClass?: string;
 }
 
 export default memo(TransitionGroup);
@@ -51,10 +51,7 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
 
   const playWait = useRef(50);
 
-  const moveClassName = useMemo(
-    () => transitionProps.moveClassName || '',
-    [transitionProps.moveClassName],
-  );
+  const moveClass = useMemo(() => transitionProps.moveClass || '', [transitionProps.moveClass]);
 
   const handleStateChange = useCallback((key: string, state: TransitionState) => {
     const busyNodes = busyNodesRef.current;
@@ -108,8 +105,8 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   );
 
   useLayoutEffect(() => {
-    // 必须有 moveClassName 才使用 FLIP
-    if (!moveClassName || !Children.count(children)) {
+    // 必须有 moveClass 才使用 FLIP
+    if (!moveClass || !Children.count(children)) {
       return;
     }
 
@@ -167,12 +164,12 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
           // P (Play) - 在下一帧应用
           // 延迟 "Play" 阶段，让 Enter/Leave 动画先启动。
           const playTimeout = setTimeout(() => {
-            el.classList.add(moveClassName);
+            el.classList.add(moveClass);
             el.style.transform = '';
             el.style.transition = '';
 
             const onTransitionEnd = () => {
-              el.classList.remove(moveClassName);
+              el.classList.remove(moveClass);
               el.removeEventListener('transitionend', onTransitionEnd);
             };
             el.addEventListener('transitionend', onTransitionEnd);
@@ -191,7 +188,7 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
       cancelAnimationFrame(rafId);
       cleanUpTimeouts.forEach((fn) => fn());
     };
-  }, [children, moveClassName]);
+  }, [children, moveClass]);
 
   return (
     <div ref={containerRef} style={{ display: 'contents' }} data-transition-group-host>
