@@ -6,6 +6,7 @@ import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
 import { BabelExp, NodeTypes } from '../shared/types';
 import { isSlotElement } from '../shared/utils';
+import { handleBuiltinComponent, markBuiltinComponent } from './built-in-components';
 import { transformVSlot } from './slot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
@@ -16,6 +17,7 @@ export interface ElementNodeIR extends BaseElementNodeIR {
   /* 收集组件中定义的 slots emits props */
   defineProps: Record<string, any>;
   isHandled: boolean;
+  isBuiltIn?: boolean;
 }
 
 export interface BaseElementNodeIR {
@@ -32,6 +34,8 @@ export interface ElementNodeIRMeta {
   loop: LoopMeta;
   // v-memo/v-once
   memo: MemoMeta;
+  // v-show
+  show: ShowMeta;
 }
 
 export type ConditionMeta = {
@@ -62,6 +66,12 @@ export type MemoMeta = {
   isHandled: boolean;
 };
 
+export type ShowMeta = {
+  isShow?: boolean;
+  value: string;
+  babelExp: BabelExp;
+};
+
 export function transformElement(
   node: VueElementNode,
   parentIR: ElementNodeIR,
@@ -82,7 +92,11 @@ export function transformElement(
     isSelfClosing,
   });
 
+  markBuiltinComponent(nodeIR);
+
   transformProps(node, nodeIR, nodesIR);
+
+  handleBuiltinComponent(nodeIR, parentIR, node.loc);
 
   if (children.length) {
     transformNodes(node, nodeIR, nodeIR.children);
