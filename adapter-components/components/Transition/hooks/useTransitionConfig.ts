@@ -27,15 +27,15 @@ export interface BaseTransitionProps {
   /**
    * Props for customizing transition classes.
    */
-  enterFrom?: string;
-  enterActive?: string;
-  enterTo?: string;
-  appearFrom?: string;
-  appearActive?: string;
-  appearTo?: string;
-  leaveFrom?: string;
-  leaveActive?: string;
-  leaveTo?: string;
+  enterFromClass?: string;
+  enterActiveClass?: string;
+  enterToClass?: string;
+  appearFromClass?: string;
+  appearActiveClass?: string;
+  appearToClass?: string;
+  leaveFromClass?: string;
+  leaveActiveClass?: string;
+  leaveToClass?: string;
   /**
    * Callback fired before the "entering" status is applied.
    */
@@ -85,13 +85,13 @@ export interface BaseTransitionProps {
 export interface TransitionConfig extends TransitionActions {
   classNames?: {
     enter?: string;
-    enterActive?: string;
+    enterActiveClass?: string;
     enterDone?: string;
     exit?: string;
     exitActive?: string;
     exitDone?: string;
     appear?: string;
-    appearActive?: string;
+    appearActiveClass?: string;
     appearDone?: string;
   };
   timeout: number | { enter: number; exit: number; appear?: number };
@@ -128,15 +128,15 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     css = true,
     appear = false,
     duration = defaultDuration,
-    enterFrom,
-    enterActive,
-    enterTo,
-    appearFrom,
-    appearActive,
-    appearTo,
-    leaveFrom,
-    leaveActive,
-    leaveTo,
+    enterFromClass,
+    enterActiveClass,
+    enterToClass,
+    appearFromClass,
+    appearActiveClass,
+    appearToClass,
+    leaveFromClass,
+    leaveActiveClass,
+    leaveToClass,
     onBeforeEnter,
     onEnter,
     onAfterEnter,
@@ -154,20 +154,20 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     if (!css) return 'NO_CSS_' as undefined;
 
     const baseCls = {
-      enter: enterFrom || name ? `${name}-enter-from` : '',
-      enterActive: enterActive || name ? `${name}-enter-active` : '',
-      enterDone: enterTo || name ? `${name}-enter-to` : '',
-      exit: leaveFrom || name ? `${name}-leave-from` : '',
-      exitActive: leaveActive || name ? `${name}-leave-active` : '',
-      exitDone: leaveTo || name ? `${name}-leave-to` : '',
+      enter: enterFromClass || name ? `${name}-enter-from` : '',
+      enterActiveClass: enterActiveClass || name ? `${name}-enter-active` : '',
+      enterDone: enterToClass || name ? `${name}-enter-to` : '',
+      exit: leaveFromClass || name ? `${name}-leave-from` : '',
+      exitActive: leaveActiveClass || name ? `${name}-leave-active` : '',
+      exitDone: leaveToClass || name ? `${name}-leave-to` : '',
     };
 
     // 只有当 appear 为 true 时才添加 appear 类名映射
     if (appear) {
       const appearCls = {
-        appear: appearFrom || baseCls.enter,
-        appearActive: appearActive || baseCls.enterActive,
-        appearDone: appearTo || baseCls.enterDone,
+        appear: appearFromClass || baseCls.enter,
+        appearActiveClass: appearActiveClass || baseCls.enterActiveClass,
+        appearDone: appearToClass || baseCls.enterDone,
       };
 
       return {
@@ -179,15 +179,15 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     return baseCls;
   }, [
     css,
-    enterFrom,
-    enterActive,
-    enterTo,
-    appearFrom,
-    appearActive,
-    appearTo,
-    leaveFrom,
-    leaveActive,
-    leaveTo,
+    enterFromClass,
+    enterActiveClass,
+    enterToClass,
+    appearFromClass,
+    appearActiveClass,
+    appearToClass,
+    leaveFromClass,
+    leaveActiveClass,
+    leaveToClass,
     appear,
     name,
   ]);
