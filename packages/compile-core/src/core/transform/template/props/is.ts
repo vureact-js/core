@@ -37,5 +37,6 @@ export function handleDynamicIs(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   preParseProp(propIR);
 
   nodeIR.tag = IsComponent();
+  nodeIR.isComponent = true;
   nodeIR.props.push(propIR);
 }
