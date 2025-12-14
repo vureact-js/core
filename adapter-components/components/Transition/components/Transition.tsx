@@ -35,13 +35,13 @@ export interface TransitionProps extends BaseTransitionProps {
    */
   mode?: 'in-out' | 'out-in';
   /**
+   * @private
    * Please do not use this internal prop intended for development.
-   * @internal
    */
   __USE_THE_CONFIGURED_PROPS?: boolean;
   /**
-   * Internal prop to report animation state to the parent group.
-   * @internal
+   * @private
+   * reporting animation state to the parent group.
    */
   onStateChange?: (key: string, state: TransitionState) => void;
 }
