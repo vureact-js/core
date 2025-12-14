@@ -49,6 +49,10 @@ export interface BaseTransitionProps {
    */
   onAfterEnter?: (el: HTMLElement) => void;
   /**
+   * Callback fired before the "appear" status is applied.
+   */
+  onBeforAppear?: (el: HTMLElement) => void;
+  /**
    * Callback fired after the "appearing" status is applied.
    */
   onAppear?: (el: HTMLElement, done: () => void) => void;
@@ -139,6 +143,7 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
     onBeforeLeave,
     onLeave,
     onAfterLeave,
+    onBeforAppear,
     onAppear,
     onAfterAppear,
   } = props;
@@ -202,11 +207,13 @@ export function useTransitionConfig(props: BaseTransitionProps): TransitionConfi
   // 事件处理函数
   const handleEnter = useCallback(
     (node: HTMLElement) => {
-      if (!appear) {
+      if (appear) {
+        onBeforAppear?.(node);
+      } else {
         onBeforeEnter?.(node);
       }
     },
-    [appear, onBeforeEnter],
+    [appear, onBeforAppear, onBeforeEnter],
   );
 
   const handleEntering = useCallback(
