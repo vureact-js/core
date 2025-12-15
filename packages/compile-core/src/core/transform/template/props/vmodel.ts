@@ -23,7 +23,6 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
   // 只允许使用变量标识符
   if (!strCodeTypes.isIdentifier(exp.content)) {
     const { source, filename } = compileContext.context;
-
     logger.error('v-model value must be a valid JavaScript variable identifier.', {
       loc: prop.loc,
       file: filename,
@@ -55,6 +54,8 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
 
   nodeIR.props.push(propIR);
   nodeIR.props.push(eventIR);
+
+  addToModels(varName, setterName);
 }
 
 function parseModelTarget(valueExp: string): { varName: string; setterName: string } {
@@ -81,7 +82,7 @@ function createModelEventIR(
   const eventName = getModelEventName(inputType, modifiers, isComponent);
 
   // 值提取器（e.target.value / e.target.checked 等）
-  const valueExtractor = getValueExtractor(inputType);
+  const valueExtractor = getValueExtractor(inputType, isComponent);
 
   // 修饰符处理器（trim / number / lazy）
   const processedValue = applyModifiers(valueExtractor, modifiers);
@@ -109,7 +110,7 @@ function getModelEventName(
   return !isComponent ? 'onChange' : 'onUpdateModelValue';
 }
 
-function getValueExtractor(inputType?: InputType): string {
+function getValueExtractor(inputType?: InputType, isComponent = false): string {
   const extractors: Record<InputType | 'default', string> = {
     checkbox: 'e.target.checked',
     radio: 'e.target.value',
@@ -119,7 +120,7 @@ function getValueExtractor(inputType?: InputType): string {
     default: 'e.target.value',
   };
 
-  return extractors[inputType || 'default'];
+  return !isComponent ? extractors[inputType || 'default'] : 'e';
 }
 
 function applyModifiers(valueExtractor: string, modifiers: string[]): string {
@@ -152,4 +153,16 @@ function getInputType(node: VueElementNode, isComponent: boolean): InputType | u
 function isTextInputType(type?: string): boolean {
   if (!type) return true; // 默认 text
   return ['text', 'password', 'email', 'search', 'tel', 'url', 'number'].includes(type);
+}
+
+function addToModels(varName: string, setterName: string) {
+  const { models } = compileContext.context;
+  const has = models.some((m) => m.varName === varName);
+
+  if (has) return;
+
+  models.push({
+    varName,
+    setterName,
+  });
 }
