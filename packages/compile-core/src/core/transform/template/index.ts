@@ -1,8 +1,7 @@
 import { RootNode as VueRootNode } from '@vue/compiler-core';
 import { transformNodes } from './elements';
 import { ElementNodeIR } from './elements/node';
-import { BaseSimpleNodeIR } from './shared/create-simple-node';
-import { FragmentNodeIR } from './shared/fragment';
+import { BaseSimpleNodeIR, FragmentNodeIR } from './elements/node-creators';
 
 export interface TemplateBlockIR {
   children: TemplateChildNodeIR[];
