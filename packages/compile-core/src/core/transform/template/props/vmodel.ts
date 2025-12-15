@@ -35,9 +35,8 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
 
   // 识别元素类型
   const isComponent = node.tagType === ElementTypes.COMPONENT;
-  const inputType = !isComponent ? getInputType(node) : undefined;
-
-  const name = arg?.content ?? getModelPropName(inputType);
+  const inputType = getInputType(node, isComponent);
+  const name = arg?.content ?? getModelPropName(inputType, isComponent);
 
   // 解析目标（value 变量名 和 setter 函数名）
   const { varName, setterName } = parseModelTarget(exp.content);
@@ -48,12 +47,8 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
     setterName,
     inputType,
     prop.modifiers.map((m) => m.content),
+    isComponent,
   );
-
-  // 由于 v-model 只能接受变量名，因此可以作为 update 函数名
-  if (isComponent) {
-    eventIR.name = `onUpdate${capitalize(name)}`;
-  }
 
   preParseProp(propIR);
   preParseProp(eventIR);
@@ -70,19 +65,20 @@ function parseModelTarget(valueExp: string): { varName: string; setterName: stri
   return { varName: valueExp, setterName };
 }
 
-function getModelPropName(inputType?: InputType): string {
+function getModelPropName(inputType?: InputType, isComponent = false): string {
   if (inputType === 'checkbox' || inputType === 'radio') {
     return 'checked';
   }
-  return 'value';
+  return !isComponent ? 'value' : 'modelValue';
 }
 
 function createModelEventIR(
   setterName: string,
   inputType?: InputType,
   modifiers: string[] = [],
+  isComponent = false,
 ): PropsIR {
-  const eventName = getModelEventName(inputType, modifiers);
+  const eventName = getModelEventName(inputType, modifiers, isComponent);
 
   // 值提取器（e.target.value / e.target.checked 等）
   const valueExtractor = getValueExtractor(inputType);
@@ -96,17 +92,21 @@ function createModelEventIR(
   return createPropsIR(eventName, eventName, `e => ${handlerBody}`);
 }
 
-function getModelEventName(inputType?: InputType, modifiers: string[] = []): string {
+function getModelEventName(
+  inputType?: InputType,
+  modifiers: string[] = [],
+  isComponent = false,
+): string {
   // lazy 修饰符强制 onChange
   if (modifiers.includes('lazy')) return 'onChange';
 
   // 文本类用 onInput（实时更新）
-  if (inputType === 'textarea' || isTextInputType(inputType)) {
+  if (inputType === 'textarea' || (!isComponent && isTextInputType(inputType))) {
     return 'onInput';
   }
 
-  // 其他用 onChange
-  return 'onChange';
+  // 其他非组件节点则用 onChange，否则使用 onUpdateModelValue
+  return !isComponent ? 'onChange' : 'onUpdateModelValue';
 }
 
 function getValueExtractor(inputType?: InputType): string {
@@ -138,7 +138,8 @@ function applyModifiers(valueExtractor: string, modifiers: string[]): string {
   return expr;
 }
 
-function getInputType(node: VueElementNode): InputType | undefined {
+function getInputType(node: VueElementNode, isComponent: boolean): InputType | undefined {
+  if (isComponent) return;
   if (node.tag !== 'input') return node.tag as InputType; // textarea, select
 
   const typeProp = node.props.find(
