@@ -15,5 +15,5 @@ export function transformBaseSFC() {
 
   console.timeEnd('parse and transform duration');
 
-  console.log(JSON.stringify(result.template?.children, null, 2));
+  // console.log(JSON.stringify(result.template?.children, null, 2));
 }
