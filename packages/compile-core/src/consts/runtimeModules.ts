@@ -9,7 +9,7 @@ export const VR_Runtime = {
   vBind: 'vBind',
   vBindCls: 'vBindCls',
   vBindStyle: 'vBindStyle',
-};
+} as const;
 
 export const RV3_Components = {
   KeepAlive: 'KeepAlive',
@@ -18,4 +18,19 @@ export const RV3_Components = {
   Transition: 'Transition',
   Teleport: 'Teleport',
   Component: 'Component',
-};
+} as const;
+
+export const RV3_HOOKS = {
+  useBeforeMount: 'useBeforeMount',
+  useBeforeUnMount: 'useBeforeUnMount',
+  useBeforeUpdate: 'useBeforeUpdate',
+  useMounted: 'useMounted',
+  useReadonly: 'useReadonly',
+  useShallowReadonly: 'useShallowReadonly',
+  useShallowState: 'useShallowState',
+  $useState: '$useState',
+  useUnmounted: 'useUnmounted',
+  useUpdated: 'useUpdated',
+  useWatch: 'useWatch',
+  useWatchEffect: 'useWatchEffect',
+} as const;
