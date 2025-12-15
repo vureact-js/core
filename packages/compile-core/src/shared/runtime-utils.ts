@@ -41,21 +41,19 @@ export function IsComponent(): keyof typeof RV3_Components {
   return comp as any;
 }
 
-function recordImport(module: RuntimeModules, name: string, onDemand: boolean) {
+export function recordImport(module: RuntimeModules, name: string, onDemand: boolean) {
   const { imports } = compileContext.context;
 
-  const foundModule = imports.find((imp) => (imp.module = module));
+  if (imports.has(module)) {
+    const list = imports.get(module)!;
+    const foundItem = list.find((item) => item.name === name);
 
-  if (foundModule) {
-    const foundItem = foundModule.items.find((item) => item.name === name);
     if (!foundItem) {
-      foundModule.items.push({ name, onDemand });
+      list.push({ name, onDemand });
     }
+
     return;
   }
 
-  imports.push({
-    module,
-    items: [{ name, onDemand }],
-  });
+  imports.set(module, [{ name, onDemand }]);
 }
