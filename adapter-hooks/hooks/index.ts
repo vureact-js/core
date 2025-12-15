@@ -5,3 +5,5 @@ export * from './useUnmounted';
 export * from './useUpdated';
 export * from './useWatch';
 export * from './useWatchEffect';
+export * from './useShallowState';
+export * from './useShallowReadonly';
