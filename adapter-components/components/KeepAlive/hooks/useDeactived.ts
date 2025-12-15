@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { useInnerKeepAliveKey, useKeepAliveLifeContext } from '../context';
 
 /**
- * Called when removed from the DOM, cached, or
- * unloaded from the component.
+ * Called when removed from the DOM, cached, or unloaded from the component.
+ *
+ * @see https://react-vue3-components.vercel.app/en/components/keep-alive
  */
 export function useDeactived(fn: () => void) {
   const key = useInnerKeepAliveKey();

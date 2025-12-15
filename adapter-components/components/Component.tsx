@@ -14,7 +14,9 @@ export interface ComponentProps extends Record<string, any> {
 export default memo(Component);
 
 /**
- * Equivalent to Vue dynamic component, with the same usage.
+ * Equivalent to Vue dynamic component, with the same props and usage.
+ *
+ * @see https://react-vue3-components.vercel.app/en/components/dynamic-component
  */
 function Component({ is, children, ...anyProps }: PropsWithChildren<ComponentProps>) {
   switch (getReactType(is)) {

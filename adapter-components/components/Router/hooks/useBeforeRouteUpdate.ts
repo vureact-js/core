@@ -5,6 +5,8 @@ import { type ComponentGuards } from '../guards/GuardManager';
 /**
  * will trigger when the current route is updated, and only for route parameter changes.
  *
+ * @see https://react-vue3-components.vercel.app/en/router/navigation-guards
+ *
  * @param fn update guard
  */
 export function useBeforeRouteUpdate(fn: ComponentGuards['guard']) {

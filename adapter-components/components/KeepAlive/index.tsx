@@ -45,7 +45,9 @@ const globalOffscreenContainer: HTMLElement | null =
   typeof document !== 'undefined' ? (() => document.createElement('div'))() : null;
 
 /**
- * Equivalent to Vue's KeepAlive component, with the same usage.
+ * Equivalent to Vue `<KeepAlive>` component, with the same props and usage.
+ *
+ * @see https://react-vue3-components.vercel.app/en/components/keep-alive
  */
 function KeepAlive(props: PropsWithChildren<KeepAliveProps>) {
   const { include, exclude, max = 10, children } = props;
