@@ -1,6 +1,7 @@
 import { strCodeTypes } from '@shared/string-code-types';
 import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
+import { randomHash } from '@utils/random-hash';
 import {
   DirectiveNode,
   ElementTypes,
@@ -10,6 +11,8 @@ import {
 } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
 import { PropsIR, PropTypes } from '../props';
+import { createPropsIR } from '../props/utils';
+import { preParseProp } from './pre-parse/prop';
 
 export function findSameProp(source: ElementNodeIR['props'], target: PropsIR): PropsIR | undefined {
   const found = source.find(
@@ -60,4 +63,11 @@ export function checkPropIsDynamicKey(prop: DirectiveNode) {
       },
     );
   }
+}
+
+export function addKeyToNode(nodeIR: ElementNodeIR) {
+  const keyProp = createPropsIR('key', 'key', randomHash());
+  keyProp.value.isStringLiteral = true;
+  preParseProp(keyProp);
+  nodeIR.props.push(keyProp);
 }
