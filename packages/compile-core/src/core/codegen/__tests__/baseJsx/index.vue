@@ -26,6 +26,8 @@
     <input type="text" v-model.lazy.trim.number="searchText" placeholder="lazy + trim + number" />
     <input type="text" @keydown.enter.prevent="handleEnter" />
 
+    <MyComp v-model="value">在组件上使用 v-model</MyComp>
+
     <p>v-model 的值: {{ searchText }}</p>
 
     <div v-show="isLoading">加载中... (v-show)</div>
