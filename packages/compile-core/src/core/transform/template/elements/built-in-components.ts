@@ -1,6 +1,7 @@
-import { RV3_Components } from '@consts/runtimeModules';
+import { RuntimeModules, RV3_Components } from '@consts/runtimeModules';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
+import { recordImport } from '@shared/runtime-utils';
 import { SourceLocation } from '@vue/compiler-core';
 import { addKeyToNode } from '../shared/utils';
 import { ElementNodeIR } from './node';
@@ -8,6 +9,7 @@ import { ElementNodeIR } from './node';
 export function markBuiltinComponent(nodeIR: ElementNodeIR) {
   if (nodeIR.isComponent && nodeIR.tag in RV3_Components) {
     nodeIR.isBuiltIn = true;
+    recordImport(RuntimeModules.RV3_COMPONENTS, nodeIR.tag, true);
   }
 }
 
