@@ -5,6 +5,8 @@ export interface CompileContextType {
   filename: string;
   /* 收集模板 ref. <div ref="name" /> */
   nodeRefs: Set<string>;
+  /* 收集模板 v-model，用于创建 usestate */
+  models: Array<{ varName: string; setterName: string }>;
   imports: ImportItem[];
   lang: {
     script: LangType;
@@ -33,6 +35,7 @@ class CompileContext {
       source: '',
       filename: '',
       imports: [],
+      models: [],
       nodeRefs: new Set(),
       lang: {
         script: 'js',
