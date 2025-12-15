@@ -7,17 +7,16 @@ export interface CompileContextType {
   nodeRefs: Set<string>;
   /* 收集模板 v-model，用于创建 usestate */
   models: Array<{ varName: string; setterName: string }>;
-  imports: ImportItem[];
+  imports: Map<string, ImportItem[]>;
   lang: {
     script: LangType;
     style: string[];
   };
+  /* 收集 script 中定义的响应式变量名 */
+  dependencies: Set<string>;
 }
 
-export type ImportItem = {
-  module: string;
-  items: Array<{ name: string; onDemand: boolean }>;
-};
+export type ImportItem = { name: string; onDemand: boolean };
 
 class CompileContext {
   private ctx: CompileContextType;
@@ -34,13 +33,14 @@ class CompileContext {
     return {
       source: '',
       filename: '',
-      imports: [],
+      imports: new Map(),
       models: [],
       nodeRefs: new Set(),
       lang: {
         script: 'js',
         style: [],
       },
+      dependencies: new Set(),
     };
   };
 
