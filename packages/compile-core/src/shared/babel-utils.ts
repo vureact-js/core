@@ -7,7 +7,7 @@ export type LangType = 'js' | 'jsx' | 'ts' | 'tsx';
 type ParseContext = 'script' | 'vueTemplate' | 'expression';
 
 export function getBabelParseOptions(
-  lang: LangType,
+  lang: LangType = 'js',
   context: ParseContext = 'script',
   filename = 'vue-sfc',
 ): ParserOptions {
