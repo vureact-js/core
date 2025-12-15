@@ -24,6 +24,10 @@
   >
   </Suspense>
 
+  <Transition>
+    <div>...</div>
+  </Transition>
+
   <Transition name="fade">
     <div v-if="ok">toggled content</div>
   </Transition>
@@ -33,11 +37,9 @@
   </Transition>
 
   <Transition>
-    <div>...</div>
-  </Transition>
-
-  <Transition :if="show">
-    <div>...</div>
+    <div v-if="a">one</div>
+    <div v-else-if="b">two</div>
+    <div v-else="c">three</div>
   </Transition>
 
   <Transition
