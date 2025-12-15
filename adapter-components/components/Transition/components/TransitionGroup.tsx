@@ -12,7 +12,7 @@ import {
 } from 'react';
 import { TransitionGroup as ReactTransitionGroup } from 'react-transition-group';
 import { BaseTransitionProps, useTransitionConfig } from '../hooks/useTransitionConfig';
-import Transition, { TransitionState } from './Transition';
+import BaseTransition, { TransitionState } from './BaseTransition';
 
 export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> {
   /**
@@ -33,6 +33,11 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
 
 export default memo(TransitionGroup);
 
+/**
+ * Equivalent to Vue `<TransitionGroup>` components, with the same props and usage.
+ *
+ * @see https://react-vue3-components.vercel.app/en/components/transition-group
+ */
 function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   const { children, htmlProps, tag = null, ...transitionProps } = props;
 
@@ -80,7 +85,7 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
       const key = (child as ReactElement)?.key?.toString() ?? `tg-${index}`;
 
       return (
-        <Transition
+        <BaseTransition
           show
           key={key}
           {...transitionConfig}
@@ -88,7 +93,7 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
           onStateChange={handleStateChange}
         >
           {child}
-        </Transition>
+        </BaseTransition>
       );
     });
   }, [children, handleStateChange, transitionConfig]);
