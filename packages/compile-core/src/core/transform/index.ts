@@ -1,10 +1,12 @@
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { VueASTDescriptor } from '../parse';
+import { ScriptBlockIR, transformScript } from './script';
 import { TemplateBlockIR, transformRoot } from './template';
 
 export interface ReactIRDescriptor {
   template: TemplateBlockIR | null;
+  script: ScriptBlockIR | null;
 }
 
 export function transform(vueDescriptor: VueASTDescriptor): ReactIRDescriptor {
@@ -20,9 +22,11 @@ export function transform(vueDescriptor: VueASTDescriptor): ReactIRDescriptor {
   });
 
   const template = transformRoot(vueDescriptor.template?.ast);
+  const script = transformScript(vueDescriptor.script?.ast);
 
   const descriptor: ReactIRDescriptor = {
     template,
+    script,
   };
 
   // todo 阶段完成后移除
