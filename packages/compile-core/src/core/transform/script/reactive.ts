@@ -1,11 +1,11 @@
 import { NodePath, types as t, traverse } from '@babel/core';
 import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { compileContext } from '@src/shared/compile-context';
 import { ScriptBlockIR } from '.';
 import { build$useState } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-declarator';
 import { checkNodeIsInBlock, getVarKind } from './shared/babel-utils';
+import { collectDependency } from './shared/collect-dependency';
 import { reactiveVarDecl } from './shared/reactive-variable-declarator';
 
 const ADAPT_APIS = {
@@ -30,7 +30,6 @@ export function transformReactive(ast: ScriptBlockIR) {
 
 function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
   const { node } = path;
-  const { dependencies } = compileContext.context;
 
   reactiveVarDecl.init(node);
 
@@ -58,5 +57,5 @@ function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
   });
 
   path.replaceWith(newNode);
-  dependencies.add(varName);
+  collectDependency(varName);
 }
