@@ -1,45 +1,85 @@
 import * as t from '@babel/types';
 import { capitalize } from '@utils/capitalize';
-import { markReactive, ReactiveTypes } from '../shared/utils';
 import { CallExpArgs, VarDeclKind } from '../types';
-import { build$useState } from './react-hook-builder';
+import { buildUseMemo, buildUseReadonly, buildUseState$ } from './react-hook-builder';
 
 interface BaseOptions {
-  reactiveType?: ReactiveTypes;
+  isShallow?: boolean;
   varType?: t.TypeAnnotation | t.TSTypeAnnotation | t.Noop | null;
   callTypeParameters?: t.TSTypeParameterInstantiation | null;
   callTypeAnnotation?: t.TSType | null;
 }
 
 class ReactHookVarDeclarator {
-  $useState(
-    kind: VarDeclKind,
-    name: string,
-    args: CallExpArgs,
-    opts?: Partial<
-      BaseOptions & {
-        setterPrefix: string;
-      }
-    >,
-  ): t.VariableDeclaration {
-    const setterName = `${opts?.setterPrefix || 'set'}${capitalize(name)}`;
+  private createVarId(
+    name: string | [string, string],
+    typeAnnotation: any,
+  ): t.Identifier | t.ArrayPattern {
+    const identifier =
+      typeof name === 'string'
+        ? t.identifier(name)
+        : t.arrayPattern([t.identifier(name[0]), t.identifier(name[1])]);
 
-    const id = t.arrayPattern([t.identifier(name), t.identifier(setterName)]);
-    id.typeAnnotation = opts?.varType;
+    identifier.typeAnnotation = typeAnnotation;
 
-    const init = build$useState(args);
+    return identifier;
+  }
+
+  private handleCallFn(hook: t.CallExpression, opts?: BaseOptions): t.CallExpression {
+    const init = hook;
     init.typeParameters = opts?.callTypeParameters;
 
     if (t.isTSAsExpression(init) && opts?.callTypeAnnotation) {
-      (init as t.TSAsExpression).typeAnnotation = opts.callTypeAnnotation;
+      (init as t.TSAsExpression).typeAnnotation = opts?.callTypeAnnotation;
     }
 
-    const node = t.variableDeclarator(id, init);
-    const result = t.variableDeclaration(kind, [node]);
+    return init;
+  }
 
-    markReactive(result, opts?.reactiveType);
+  useState$(
+    kind: VarDeclKind,
+    name: string,
+    args: CallExpArgs,
+    opts?: BaseOptions & {
+      setterPrefix?: string;
+    },
+  ): t.VariableDeclaration {
+    const setterPrefix = opts?.setterPrefix || 'set';
+    const setterName = `${setterPrefix}${capitalize(name)}`;
 
-    return result;
+    const declarator = t.variableDeclarator(
+      this.createVarId([name, setterName], opts?.varType),
+      this.handleCallFn(buildUseState$(args, opts?.isShallow), opts),
+    );
+
+    return t.variableDeclaration(kind, [declarator]);
+  }
+
+  useMemo(
+    kind: VarDeclKind,
+    name: string,
+    args: CallExpArgs,
+    opts?: BaseOptions,
+  ): t.VariableDeclaration {
+    const declarator = t.variableDeclarator(
+      this.createVarId(name, opts?.varType),
+      this.handleCallFn(buildUseMemo(args), opts),
+    );
+
+    return t.variableDeclaration(kind, [declarator]);
+  }
+
+  useReadonly(
+    kind: VarDeclKind,
+    name: string,
+    args: CallExpArgs,
+    opts?: BaseOptions,
+  ): t.VariableDeclaration {
+    const declarator = t.variableDeclarator(
+      this.createVarId(name, opts?.varType),
+      this.handleCallFn(buildUseReadonly(args, opts?.isShallow), opts),
+    );
+    return t.variableDeclaration(kind, [declarator]);
   }
 }
 
