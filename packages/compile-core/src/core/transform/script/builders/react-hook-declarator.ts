@@ -1,9 +1,11 @@
 import * as t from '@babel/types';
 import { capitalize } from '@utils/capitalize';
+import { markReactive, ReactiveTypes } from '../shared/utils';
 import { CallExpArgs, VarDeclKind } from '../types';
 import { build$useState } from './react-hook-builder';
 
-interface TSTypeConfig {
+interface BaseOptions {
+  reactiveType?: ReactiveTypes;
   varType?: t.TypeAnnotation | t.TSTypeAnnotation | t.Noop | null;
   callTypeParameters?: t.TSTypeParameterInstantiation | null;
   callTypeAnnotation?: t.TSType | null;
@@ -15,13 +17,13 @@ class ReactHookVarDeclarator {
     name: string,
     args: CallExpArgs,
     opts?: Partial<
-      TSTypeConfig & {
+      BaseOptions & {
         setterPrefix: string;
       }
     >,
   ): t.VariableDeclaration {
     const setterName = `${opts?.setterPrefix || 'set'}${capitalize(name)}`;
-    
+
     const id = t.arrayPattern([t.identifier(name), t.identifier(setterName)]);
     id.typeAnnotation = opts?.varType;
 
@@ -32,7 +34,12 @@ class ReactHookVarDeclarator {
       (init as t.TSAsExpression).typeAnnotation = opts.callTypeAnnotation;
     }
 
-    return t.variableDeclaration(kind, [t.variableDeclarator(id, init)]);
+    const node = t.variableDeclarator(id, init);
+    const result = t.variableDeclaration(kind, [node]);
+
+    markReactive(result, opts?.reactiveType);
+
+    return result;
   }
 }
 

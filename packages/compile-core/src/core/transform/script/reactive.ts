@@ -7,6 +7,7 @@ import { reactHookVarDecl } from './builders/react-hook-declarator';
 import { checkNodeIsInBlock, getVarKind } from './shared/babel-utils';
 import { collectDependency } from './shared/collect-dependency';
 import { reactiveVarDecl } from './shared/reactive-variable-declarator';
+import { ReactiveTypes } from './shared/utils';
 
 const ADAPT_APIS = {
   ref: RV3_HOOKS.$useState,
@@ -51,6 +52,7 @@ function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
 
   const { parameters, annotation } = reactiveVarDecl.apiTSTypes();
   const newNode = reactHookVarDecl.$useState(kind, varName, apiArgs, {
+    reactiveType: apiName! as ReactiveTypes,
     varType: reactiveVarDecl.varType(),
     callTypeParameters: parameters,
     callTypeAnnotation: annotation,
