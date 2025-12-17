@@ -1,4 +1,5 @@
 export const enum RuntimeModules {
+  REACT = 'react',
   RUNTIME = 'vureact-runtime',
   RV3_HOOKS = 'react-vue3-hooks',
   RV3_COMPONENTS = 'react-vue3-components',
@@ -28,7 +29,7 @@ export const RV3_HOOKS = {
   useReadonly: 'useReadonly',
   useShallowReadonly: 'useShallowReadonly',
   useShallowState: 'useShallowState',
-  $useState: '$useState',
+  useState$: 'useState$',
   useUnmounted: 'useUnmounted',
   useUpdated: 'useUpdated',
   useWatch: 'useWatch',
