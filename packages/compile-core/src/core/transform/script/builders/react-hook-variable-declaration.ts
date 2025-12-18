@@ -1,0 +1,134 @@
+import * as t from '@babel/types';
+import { React_Hooks, RV3_HOOKS } from '@consts/runtimeModules';
+import { capitalize } from '@utils/capitalize';
+import { VarDeclCallExpDestructureResult } from '../shared/destructure-var-decl-call-exp';
+import { ReactiveTypes } from '../types';
+import { buildUseMemo, buildUseReadonly, buildUseState$ } from './react-hook-builder';
+
+interface VarDeclHookCreateOptions extends VarDeclCallExpDestructureResult {
+  reactiveType: ReactiveTypes;
+  deps?: t.ArrayExpression;
+  shallow?: boolean;
+  setterNamePrefix?: string;
+}
+
+interface DeclarationExtensionMeta {
+  isReactive?: boolean;
+  reactiveType?: ReactiveTypes;
+}
+
+/**
+ * @private
+ *
+ * @description
+ * create react hook variable declaration
+ */
+class ReactHookVariableDeclaration {
+  private createDeclaration(hookName: string, options: VarDeclHookCreateOptions) {
+    const { kind, name, callExpArgs, setterNamePrefix, deps, shallow, tsTypes } = options;
+
+    let varName = name!;
+    let declarator: t.VariableDeclarator;
+
+    switch (hookName) {
+      case RV3_HOOKS.useState$: {
+        const setterName = `${setterNamePrefix || 'set'}${capitalize(varName)}`;
+        declarator = this.createDeclarator(
+          [varName, setterName],
+          buildUseState$(callExpArgs, shallow),
+          tsTypes,
+        );
+        break;
+      }
+
+      case React_Hooks.useMemo: {
+        declarator = this.createDeclarator(varName, buildUseMemo(callExpArgs, deps), tsTypes);
+        break;
+      }
+
+      case RV3_HOOKS.useReadonly: {
+        declarator = this.createDeclarator(
+          varName,
+          buildUseReadonly(callExpArgs, shallow),
+          tsTypes,
+        );
+        break;
+      }
+    }
+
+    return t.variableDeclaration(kind, [declarator!]);
+  }
+
+  private createDeclarator(
+    name: string | [string, string],
+    init: t.CallExpression,
+    tsTypes: VarDeclHookCreateOptions['tsTypes'],
+  ) {
+    return t.variableDeclarator(
+      this.handleIdentifer(name, tsTypes.varId),
+      this.handleCallExpTSType(init, tsTypes.callExp),
+    );
+  }
+
+  private handleIdentifer(
+    name: string | [string, string],
+    typeAnnotation: any,
+  ): t.Identifier | t.ArrayPattern {
+    let identifier;
+
+    if (typeof name === 'string') {
+      identifier = t.identifier(name);
+    } else {
+      identifier = t.arrayPattern([t.identifier(name[0]), t.identifier(name[1])]);
+    }
+
+    identifier.typeAnnotation = typeAnnotation;
+
+    return identifier;
+  }
+
+  private handleCallExpTSType(
+    callExp: t.CallExpression,
+    tsTypes: VarDeclHookCreateOptions['tsTypes']['callExp'],
+  ): t.CallExpression {
+    const { typeAnnotation, typeParameters } = tsTypes;
+
+    if (t.isTSAsExpression(callExp) && typeAnnotation) {
+      (callExp as t.TSAsExpression).typeAnnotation = typeAnnotation;
+    }
+
+    callExp.typeParameters = typeParameters;
+
+    return callExp;
+  }
+
+  private setExtensionMeta(node: t.VariableDeclaration, opts: DeclarationExtensionMeta) {
+    opts.isReactive = opts.isReactive ?? true;
+    opts.reactiveType = opts.reactiveType || 'ref';
+    (node as any).__extensionMeta = opts;
+  }
+
+  getExtensionMeta(node: t.VariableDeclaration): DeclarationExtensionMeta {
+    return (node as any).__extensionMeta;
+  }
+
+  useState$(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
+    const result = this.createDeclaration(RV3_HOOKS.useState$, opts);
+    this.setExtensionMeta(result, { reactiveType: opts!.reactiveType });
+    return result;
+  }
+
+  useMemo(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
+    const result = this.createDeclaration(React_Hooks.useMemo, opts);
+    this.setExtensionMeta(result, { reactiveType: 'computed' });
+    return result;
+  }
+
+  useReadonly(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
+    const result = this.createDeclaration(RV3_HOOKS.useReadonly, opts);
+    this.setExtensionMeta(result, { reactiveType: opts!.reactiveType });
+    return result;
+  }
+}
+
+export const reactHookVarDecl = new ReactHookVariableDeclaration();
