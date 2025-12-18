@@ -3,9 +3,10 @@ import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { ScriptBlockIR } from '.';
 import { buildUseState$ } from './builders/react-hook-builder';
-import { reactHookVarDecl } from './builders/react-hook-declarator';
-import { checkNodeIsInBlock, getVarKind } from './shared/babel-utils';
-import { reactiveVarDecl } from './shared/reactive-variable-declarator';
+import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
+import { checkNodeIsInBlock } from './shared/babel-utils';
+import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
+import { ReactiveTypes } from './types';
 
 const adaptApis = {
   ref: RV3_HOOKS.useState$,
@@ -22,32 +23,23 @@ export function transformReactive(ast: ScriptBlockIR) {
 }
 
 function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
-  const { node } = path;
-
-  reactiveVarDecl.init(node);
-
-  const kind = getVarKind(path);
-  const varName = reactiveVarDecl.varName();
-  const apiName = reactiveVarDecl.apiName();
-  const apiArgs = reactiveVarDecl.apiArgs();
-  const useState$Api = adaptApis[apiName as keyof typeof adaptApis];
+  const result = varDeclCallExp.destructure(path);
+  const useState$Api = adaptApis[result.callExpName as keyof typeof adaptApis];
 
   if (!useState$Api) return;
 
   checkNodeIsInBlock(path);
   recordImport(RuntimeModules.RV3_HOOKS, useState$Api, true);
 
-  if (!varName) {
-    path.replaceWith(buildUseState$(apiArgs));
+  if (!result.name) {
+    path.replaceWith(buildUseState$(result.callExpArgs));
     return;
   }
 
-  const { parameters, annotation } = reactiveVarDecl.apiTSTypes();
-  const newNode = reactHookVarDecl.useState$(kind, varName, apiArgs, {
-    isShallow: varName.startsWith('shallow'),
-    varType: reactiveVarDecl.varType(),
-    callTypeParameters: parameters,
-    callTypeAnnotation: annotation,
+  const newNode = reactHookVarDecl.useState$({
+    ...result,
+    reactiveType: result.callExpName as ReactiveTypes,
+    shallow: result.name.startsWith('shallow'),
   });
 
   path.replaceWith(newNode);
