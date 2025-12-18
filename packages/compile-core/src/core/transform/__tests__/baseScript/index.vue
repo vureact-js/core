@@ -1,9 +1,10 @@
 <script setup lang="ts">
 // @ts-nocheck
-const count1 = ref(0);
-const count2 = ref(0) as number;
-const count3 = ref<number>(0);
-const count4: number = ref(0);
-const obj = reactive({ a: 'b' });
-const double = computed(() => count.value * 2);
+const count = ref<number | string>([1]);
+
+const obj = reactive({ f: () => 1 });
+
+const value = readonly(1);
+
+const double = computed(() => count.value[0] + obj.f());
 </script>
