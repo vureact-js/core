@@ -39,17 +39,57 @@ export function isReferencedIdentifier(path: NodePath<t.Identifier>): boolean {
   if (path.parentPath.isMemberExpression()) {
     return path.parentPath.node.object === path.node;
   }
-  
+
   // 排除对象属性键名
   if (path.parentPath.isObjectProperty()) {
     return path.parentPath.node.value === path.node;
   }
-  
+
   // 排除函数参数名
   if (path.parentPath.isFunction()) {
     return !path.parentPath.node.params.includes(path.node);
   }
-  
+
   // 其他情况都认为是变量引用
   return true;
+}
+
+export function getRootIdentifier(
+  path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
+): NodePath<t.Identifier> | null {
+  let currentNode: t.Expression = path.node;
+
+  // 沿着 object 链向上查找，直到找到标识符
+  while (t.isMemberExpression(currentNode) || t.isOptionalMemberExpression(currentNode)) {
+    currentNode = currentNode.object;
+  }
+
+  // 如果最终找到的是标识符，返回对应的路径
+  if (t.isIdentifier(currentNode)) {
+    // 需要找到这个标识符的路径
+    // 可以通过查找父节点链来找到它
+    let currentPath: NodePath | null = path;
+
+    while (currentPath && !(currentPath.isIdentifier() && currentPath.node === currentNode)) {
+      if (
+        t.isMemberExpression(currentPath.node) ||
+        t.isOptionalMemberExpression(currentPath.node)
+      ) {
+        // 如果当前节点是 MemberExpression，检查它的 object
+        if (currentPath.node.object === currentNode) {
+          // 返回 object 的路径
+          return currentPath.get('object') as NodePath<t.Identifier>;
+        }
+      }
+
+      // 移动到父路径
+      currentPath = currentPath.parentPath;
+    }
+
+    if (currentPath?.isIdentifier()) {
+      return currentPath as NodePath<t.Identifier>;
+    }
+  }
+
+  return null;
 }
