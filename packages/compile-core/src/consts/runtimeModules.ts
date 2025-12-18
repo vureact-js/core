@@ -35,3 +35,7 @@ export const RV3_HOOKS = {
   useWatch: 'useWatch',
   useWatchEffect: 'useWatchEffect',
 } as const;
+
+export const React_Hooks = {
+  useMemo: 'useMemo',
+} as const;
