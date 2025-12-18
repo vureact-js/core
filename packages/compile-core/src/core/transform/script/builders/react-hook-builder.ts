@@ -12,6 +12,7 @@ export function buildUseReadonly(_arguments: CallExpArgs, shallow = false): t.Ca
   return t.callExpression(t.identifier(api), _arguments);
 }
 
-export function buildUseMemo(_arguments: CallExpArgs): t.CallExpression {
+export function buildUseMemo(_arguments: CallExpArgs, deps?: t.ArrayExpression): t.CallExpression {
+  _arguments.push(deps || t.arrayExpression());
   return t.callExpression(t.identifier('useMemo'), _arguments);
 }
