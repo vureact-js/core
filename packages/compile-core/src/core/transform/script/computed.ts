@@ -5,10 +5,10 @@ import { logger } from '@src/shared/logger';
 import { recordImport } from '@src/shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { analyzeFunctionDependencies } from './dependency';
+import { analyzeFunctionDependencies } from './shared/analyze-dependency';
 import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
-import { ReactiveTypes } from './types';
+import { ReactiveTypes } from './shared/types';
 
 const adaptApis = {
   computed: 'useMemo',
