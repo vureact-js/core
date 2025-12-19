@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
 import { reactHookBuilder } from './builders/react-hook-builder';
-import { analyzeFunctionDependencies } from './dependency';
+import { analyzeFunctionDependencies } from './shared/analyze-dependency';
 
 export function transformFunction(path: NodePath<t.Function>) {
   if (!isTopLevel(path)) return;

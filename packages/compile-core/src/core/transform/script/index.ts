@@ -1,10 +1,10 @@
 import { traverse } from '@babel/core';
 import { ParseResult } from '@babel/parser';
+import { stripReactiveValueSuffix } from './strip-value-suffix';
 import { transformComputed } from './computed';
 import { transformFunction } from './function';
 import { transformReactive } from './reactive';
 import { transformReadonly } from './readonly';
-import { stripReactiveValueSuffix } from './strip-value-suffix';
 
 export type ScriptBlockIR = ParseResult;
 

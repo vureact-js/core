@@ -5,7 +5,7 @@ import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
-import { ReactiveTypes } from './types';
+import { ReactiveTypes } from './shared/types';
 
 const adaptApis = {
   ref: RV3_HOOKS.useState$,

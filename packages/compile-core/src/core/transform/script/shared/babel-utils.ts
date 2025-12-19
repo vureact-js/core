@@ -2,7 +2,7 @@ import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
-import { VarDeclKind } from '../types';
+import { VarDeclKind } from './types';
 
 export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   const {

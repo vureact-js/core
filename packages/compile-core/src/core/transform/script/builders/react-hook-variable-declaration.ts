@@ -2,7 +2,7 @@ import * as t from '@babel/types';
 import { React_Hooks, RV3_HOOKS } from '@consts/runtimeModules';
 import { capitalize } from '@utils/capitalize';
 import { VarDeclCallExpDestructureResult } from '../shared/destructure-var-decl-call-exp';
-import { ReactiveTypes } from '../types';
+import { ReactiveTypes } from '../shared/types';
 import { reactHookBuilder } from './react-hook-builder';
 
 interface VarDeclHookCreateOptions extends VarDeclCallExpDestructureResult {

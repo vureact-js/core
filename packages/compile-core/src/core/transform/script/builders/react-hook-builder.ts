@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { React_Hooks, RV3_HOOKS } from '@consts/runtimeModules';
-import { CallExpArgs } from '../types';
+import { CallExpArgs } from '../shared/types';
 
 type FunctionOrCallExpArg = t.Function | CallExpArgs;
 

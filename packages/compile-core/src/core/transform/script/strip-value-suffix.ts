@@ -5,7 +5,7 @@ import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { ScriptBlockIR } from '.';
 import { getRootIdentifier } from './shared/babel-utils';
-import { ReactiveTypes } from './types';
+import { ReactiveTypes } from './shared/types';
 
 const VALUE_SUFFIX_APIS = new Set<ReactiveTypes>([
   'ref',

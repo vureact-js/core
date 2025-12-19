@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
-import { CallExpArgs, VarDeclKind } from '../types';
 import { getVarKind } from './babel-utils';
+import { CallExpArgs, VarDeclKind } from './types';
 
 export interface VarDeclCallExpDestructureResult {
   kind: VarDeclKind;
@@ -21,7 +21,7 @@ export interface VarDeclTSTypes {
 
 /**
  * @private
- * 
+ *
  * @description
  * destructure variable declaration call expression.
  */
