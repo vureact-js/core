@@ -13,14 +13,15 @@ export function analyzeFunctionDependencies(
   traverse(
     fnBody,
     {
-      MemberExpression(memberPath) {
-        const dep = analyzeMemberExpDep(memberPath);
+      'MemberExpression|OptionalMemberExpression'(memberPath) {
+        const path = memberPath as NodePath<t.MemberExpression | t.OptionalMemberExpression>;
+        const dep = analyzeMemberExpDep(path);
 
         if (!dep) return;
         dependencies.add(dep);
 
         // 标记根标识符已被处理
-        const rootIdentifier = getRootIdentifier(memberPath);
+        const rootIdentifier = getRootIdentifier(path);
         if (rootIdentifier) {
           processedIdentifiers.add(rootIdentifier.node);
         }
@@ -36,36 +37,33 @@ export function analyzeFunctionDependencies(
     parentPath.scope, // 在收集依赖时，必须按照作用域链查找
   );
 
-  const arr = Array.from(dependencies).map((str) =>
-    str.includes('.') ? t.stringLiteral(str) : t.identifier(str),
-  );
-
-  return t.arrayExpression(arr);
+  const ids = Array.from(dependencies).map(t.identifier);
+  return t.arrayExpression(ids);
 }
 
-export function analyzeMemberExpDep(path: NodePath<t.MemberExpression>): string | undefined {
-  // 获取根标识符
-  const rootIdentifier = getRootIdentifier(path);
-  if (!rootIdentifier) return;
+export function analyzeMemberExpDep(
+  path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
+): string | undefined {
+  const rootName = findRootIdIsReactive(path);
 
-  const rootName = rootIdentifier.node.name;
-
-  // 查找根标识符的绑定
-  const binding = rootIdentifier.scope.getBinding(rootName);
-  if (!binding || !isReactiveBinding(binding.path)) {
-    return; // 根变量不是响应式变量
-  }
+  if (!rootName) return;
 
   // 构建属性访问链
   const propertyChain = getPropertyChain(path.node);
 
   let dependencyPath = rootName;
 
-  if (propertyChain.length) {
-    propertyChain.forEach((prop) => {
-      dependencyPath += typeof prop === 'number' ? `[${prop}]` : `.${prop}`;
-    });
-  }
+  propertyChain.forEach(({ name, optional }) => {
+    if (typeof name === 'number') {
+      dependencyPath += `[${name}]`;
+      return;
+    }
+
+    if (typeof name === 'string') {
+      const optionalFlag = optional ? '?' : '';
+      dependencyPath += `${optionalFlag}.${name}`;
+    }
+  });
 
   return dependencyPath;
 }
@@ -85,26 +83,55 @@ export function analyzeIdentifierDep(path: NodePath<t.Identifier>): string | und
   }
 }
 
-function getPropertyChain(node: t.MemberExpression): string[] {
-  const properties: (string | number)[] = [];
+type PropertyChains = { name: string | number; optional: boolean };
+
+function getPropertyChain(node: t.MemberExpression | t.OptionalMemberExpression): PropertyChains[] {
+  const properties: PropertyChains[] = [];
+
   let current: t.Expression = node;
 
   // 递归倒序收集属性链
-  while (t.isMemberExpression(current)) {
-    if (t.isIdentifier(current.property)) {
-      properties.push(current.property.name);
-    } else if (t.isStringLiteral(current.property) || t.isNumericLiteral(current.property)) {
-      properties.push(current.property.value);
+  while (t.isMemberExpression(current) || t.isOptionalMemberExpression(current)) {
+    const prop: PropertyChains = {
+      name: '',
+      optional: !!current.optional,
+    };
+
+    const { property } = current;
+
+    if (t.isIdentifier(property)) {
+      prop.name = property.name;
+    } else if (t.isStringLiteral(property) || t.isNumericLiteral(property)) {
+      prop.name = property.value;
     } else {
       // 对于其他类型的属性，我们无法处理，返回空
-
       return [];
     }
+
+    properties.push(prop);
     current = current.object;
   }
 
   // 属性链回归正序
-  return (properties as string[]).reverse();
+  return properties.reverse();
+}
+
+function findRootIdIsReactive(
+  path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
+): string | undefined {
+  // 获取根标识符
+  const rootIdentifier = getRootIdentifier(path);
+  if (!rootIdentifier) return;
+
+  const rootName = rootIdentifier.node.name;
+
+  // 查找根标识符的绑定
+  const binding = rootIdentifier.scope.getBinding(rootName);
+  if (!binding || !isReactiveBinding(binding.path)) {
+    return; // 根变量不是响应式变量
+  }
+
+  return rootName;
 }
 
 function isReactiveBinding(path: NodePath): boolean {
