@@ -1,7 +1,7 @@
 import { NodePath, traverse } from '@babel/core';
 import * as t from '@babel/types';
-import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { getRootIdentifier, isReferencedIdentifier } from './shared/babel-utils';
+import { reactHookVarDecl } from '../builders/react-hook-variable-declaration';
+import { getRootIdentifier, isReferencedIdentifier } from './babel-utils';
 
 export function analyzeFunctionDependencies(
   fnBody: t.Expression | t.BlockStatement,
