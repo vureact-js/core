@@ -38,4 +38,5 @@ export const RV3_HOOKS = {
 
 export const React_Hooks = {
   useMemo: 'useMemo',
+  useCallback: 'useCallback',
 } as const;
