@@ -3,7 +3,7 @@ import { React_Hooks, RV3_HOOKS } from '@consts/runtimeModules';
 import { capitalize } from '@utils/capitalize';
 import { VarDeclCallExpDestructureResult } from '../shared/destructure-var-decl-call-exp';
 import { ReactiveTypes } from '../types';
-import { buildUseMemo, buildUseReadonly, buildUseState$ } from './react-hook-builder';
+import { reactHookBuilder } from './react-hook-builder';
 
 interface VarDeclHookCreateOptions extends VarDeclCallExpDestructureResult {
   reactiveType: ReactiveTypes;
@@ -35,21 +35,25 @@ class ReactHookVariableDeclaration {
         const setterName = `${setterNamePrefix || 'set'}${capitalize(varName)}`;
         declarator = this.createDeclarator(
           [varName, setterName],
-          buildUseState$(callExpArgs, shallow),
+          reactHookBuilder.useState$(callExpArgs, shallow),
           tsTypes,
         );
-        break;
-      }
-
-      case React_Hooks.useMemo: {
-        declarator = this.createDeclarator(varName, buildUseMemo(callExpArgs, deps), tsTypes);
         break;
       }
 
       case RV3_HOOKS.useReadonly: {
         declarator = this.createDeclarator(
           varName,
-          buildUseReadonly(callExpArgs, shallow),
+          reactHookBuilder.useReadonly(callExpArgs, shallow),
+          tsTypes,
+        );
+        break;
+      }
+
+      case React_Hooks.useMemo: {
+        declarator = this.createDeclarator(
+          varName,
+          reactHookBuilder.useMemo(callExpArgs, deps),
           tsTypes,
         );
         break;
