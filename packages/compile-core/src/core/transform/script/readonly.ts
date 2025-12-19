@@ -1,8 +1,7 @@
-import { NodePath, types as t, traverse } from '@babel/core';
+import { NodePath, types as t } from '@babel/core';
 import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { ScriptBlockIR } from '.';
-import { buildUseReadonly } from './builders/react-hook-builder';
+import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
@@ -13,13 +12,7 @@ const adaptApis = {
   shallowReadonly: RV3_HOOKS.useShallowReadonly,
 } as const;
 
-export function transformReadonly(ast: ScriptBlockIR) {
-  traverse(ast, {
-    VariableDeclarator: handleVariableDeclarator,
-  });
-}
-
-function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
+export function transformReadonly(path: NodePath<t.VariableDeclarator>) {
   const result = varDeclCallExp.destructure(path);
   const useReadonlyApi = adaptApis[result.callExpName as keyof typeof adaptApis];
 
@@ -29,7 +22,7 @@ function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
   recordImport(RuntimeModules.RV3_HOOKS, useReadonlyApi, true);
 
   if (!result.name) {
-    path.replaceWith(buildUseReadonly(result.callExpArgs));
+    path.replaceWith(reactHookBuilder.useReadonly(result.callExpArgs));
     return;
   }
 

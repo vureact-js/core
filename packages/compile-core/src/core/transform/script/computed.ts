@@ -1,10 +1,9 @@
-import { NodePath, types as t, traverse } from '@babel/core';
+import { NodePath, types as t } from '@babel/core';
 import { compileContext } from '@shared/compile-context';
 import { RuntimeModules } from '@src/consts/runtimeModules';
 import { logger } from '@src/shared/logger';
 import { recordImport } from '@src/shared/runtime-utils';
-import { ScriptBlockIR } from '.';
-import { buildUseMemo } from './builders/react-hook-builder';
+import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { analyzeFunctionDependencies } from './dependency';
 import { checkNodeIsInBlock } from './shared/babel-utils';
@@ -15,13 +14,7 @@ const adaptApis = {
   computed: 'useMemo',
 } as const;
 
-export function transformComputed(ast: ScriptBlockIR) {
-  traverse(ast, {
-    VariableDeclarator: handleVariableDeclarator,
-  });
-}
-
-function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
+export function transformComputed(path: NodePath<t.VariableDeclarator>) {
   const result = varDeclCallExp.destructure(path);
   const useMemoApi = adaptApis[result.callExpName as keyof typeof adaptApis];
 
@@ -45,7 +38,7 @@ function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
   recordImport(RuntimeModules.REACT, useMemoApi, true);
 
   if (!result.name) {
-    path.replaceWith(buildUseMemo(result.callExpArgs, deps));
+    path.replaceWith(reactHookBuilder.useMemo(result.callExpArgs, deps));
     return;
   }
 

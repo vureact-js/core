@@ -1,8 +1,7 @@
-import { NodePath, types as t, traverse } from '@babel/core';
+import { NodePath, types as t } from '@babel/core';
 import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { ScriptBlockIR } from '.';
-import { buildUseState$ } from './builders/react-hook-builder';
+import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
@@ -15,14 +14,7 @@ const adaptApis = {
   shallowReactive: RV3_HOOKS.useShallowState,
 } as const;
 
-export function transformReactive(ast: ScriptBlockIR) {
-  traverse(ast, {
-    // 处理响应式 api 变量声明
-    VariableDeclarator: handleVariableDeclarator,
-  });
-}
-
-function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
+export function transformReactive(path: NodePath<t.VariableDeclarator>) {
   const result = varDeclCallExp.destructure(path);
   const useState$Api = adaptApis[result.callExpName as keyof typeof adaptApis];
 
@@ -32,7 +24,7 @@ function handleVariableDeclarator(path: NodePath<t.VariableDeclarator>) {
   recordImport(RuntimeModules.RV3_HOOKS, useState$Api, true);
 
   if (!result.name) {
-    path.replaceWith(buildUseState$(result.callExpArgs));
+    path.replaceWith(reactHookBuilder.useState$(result.callExpArgs));
     return;
   }
 
