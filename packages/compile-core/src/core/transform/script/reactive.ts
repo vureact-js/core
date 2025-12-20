@@ -18,15 +18,10 @@ export function transformReactive(path: NodePath<t.VariableDeclarator>) {
   const result = varDeclCallExp.destructure(path);
   const useState$Api = adaptApis[result.callExpName as keyof typeof adaptApis];
 
-  if (!useState$Api) return;
+  if (!useState$Api || !result.name) return;
 
   checkNodeIsInBlock(path);
   recordImport(RuntimeModules.RV3_HOOKS, useState$Api, true);
-
-  if (!result.name) {
-    path.replaceWith(reactHookBuilder.useState$(result.callExpArgs));
-    return;
-  }
 
   const newNode = reactHookVarDecl.useState$({
     ...result,
@@ -35,4 +30,12 @@ export function transformReactive(path: NodePath<t.VariableDeclarator>) {
   });
 
   path.replaceWith(newNode);
+}
+
+export function transformUndeclaredReactiveCall(path: NodePath<t.CallExpression>) {
+  const { callee, arguments: args } = path.node;
+
+  if (t.isIdentifier(callee) && callee.name in adaptApis) {
+    path.replaceWith(reactHookBuilder.useState$(args));
+  }
 }
