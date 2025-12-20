@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
 
+/**
+ * @private
+ */
 export function useIsFirstMount(): boolean {
   const isFirstMount = useRef(true);
 

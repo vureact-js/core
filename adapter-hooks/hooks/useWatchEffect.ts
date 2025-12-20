@@ -5,6 +5,7 @@ import { createWatchStopHandle, type WatchStopHandle } from './useWatch';
 
 /**
  * `useWatchEffect` is similar to Vue's `watchEffect` and returns a stop function.
+ * @see https://react-vue3-hooks.vercel.app/en/hooks/useWatchEffect
  */
 export function useWatchEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
   return handleEffect(fn, deps, 'post');
@@ -12,6 +13,7 @@ export function useWatchEffect(fn: EffectCallback, deps?: DependencyList): Watch
 
 /**
  * `useWatchPostEffect` is similar to Vue's `watchPostEffect` and returns a stop function.
+ * @see https://react-vue3-hooks.vercel.app/en/hooks/useWatchPostEffect
  */
 export function useWatchPostEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
   return handleEffect(fn, deps, 'post');
@@ -19,11 +21,15 @@ export function useWatchPostEffect(fn: EffectCallback, deps?: DependencyList): W
 
 /**
  * `useWatchSyncEffect` is similar to Vue's `watchSyncEffect` and returns a stop function.
+ * @see https://react-vue3-hooks.vercel.app/en/hooks/useWatchSyncEffect
  */
 export function useWatchSyncEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
   return handleEffect(fn, deps, 'sync');
 }
 
+/**
+ * @private
+ */
 export function handleEffect(
   fn: EffectCallback,
   deps?: DependencyList,

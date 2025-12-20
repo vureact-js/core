@@ -2,6 +2,8 @@ import { type Destructor } from '../types';
 import { isPromise } from '../utils/is';
 
 /**
+ * @private
+ *
  * 通用 Effect 执行器，
  * 无论函数是同步还是异步，都返回同步的清理函数
  *

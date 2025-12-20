@@ -1,3 +1,6 @@
+/**
+ * @see https://react-vue3-hooks.vercel.app/en/utils/nextTick
+ */
 export function nextTick<T, R>(this: T, fn?: (this: T) => R | Promise<R>): Promise<R> {
   return new Promise((resolve) => {
     const execute = () => {

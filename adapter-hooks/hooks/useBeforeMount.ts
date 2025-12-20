@@ -2,8 +2,9 @@ import { useLayoutEffect } from 'react';
 import { EffectCallback } from '../types';
 
 /**
- * Synchronously executed after DOM mounting and before painting,
- * it is the timing closest to onBeforeMount.
+ * Synchronously executed after DOM mounting and before painting.
+ *
+ * @see https://react-vue3-hooks.vercel.app/en/hooks/useBeforeMount
  */
 export function useBeforeMount(fn: EffectCallback) {
   useLayoutEffect(() => {

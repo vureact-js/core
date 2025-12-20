@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 import { type EffectCallback } from '../types';
 
+/**
+ * @see https://react-vue3-hooks.vercel.app/en/hooks/useMounted
+ */
 export function useMounted(fn: EffectCallback) {
   useEffect(() => {
     fn();

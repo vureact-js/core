@@ -9,6 +9,8 @@ type ReadonlyObject<T> = Readonly<T>;
  *
  * @param initialState
  * @param shallow only freezes the shallow layer of the object.
+ *
+ * @see https://react-vue3-hooks.vercel.app/en/hooks/useReadonly
  */
 export function useReadonly<T extends object>(
   initialState: T,
