@@ -16,15 +16,10 @@ export function transformReadonly(path: NodePath<t.VariableDeclarator>) {
   const result = varDeclCallExp.destructure(path);
   const useReadonlyApi = adaptApis[result.callExpName as keyof typeof adaptApis];
 
-  if (!useReadonlyApi) return;
+  if (!useReadonlyApi || !result.name) return;
 
   checkNodeIsInBlock(path);
   recordImport(RuntimeModules.RV3_HOOKS, useReadonlyApi, true);
-
-  if (!result.name) {
-    path.replaceWith(reactHookBuilder.useReadonly(result.callExpArgs));
-    return;
-  }
 
   const newNode = reactHookVarDecl.useReadonly({
     ...result,
@@ -33,4 +28,12 @@ export function transformReadonly(path: NodePath<t.VariableDeclarator>) {
   });
 
   path.replaceWith(newNode);
+}
+
+export function transformUndeclaredReadonlyCall(path: NodePath<t.CallExpression>) {
+  const { callee, arguments: args } = path.node;
+
+  if (t.isIdentifier(callee) && callee.name in adaptApis) {
+    path.replaceWith(reactHookBuilder.useReadonly(args));
+  }
 }
