@@ -4,7 +4,7 @@ import { reactHookBuilder } from './builders/react-hook-builder';
 import { analyzeFunctionDependencies } from './shared/analyze-dependency';
 
 export function transformFunction(path: NodePath<t.Function>) {
-  if (!isTopLevel(path)) return;
+  if (t.isFunctionDeclaration(path.node) || !isTopLevel(path)) return;
 
   const { node } = path;
   const deps = analyzeFunctionDependencies(node.body, path);
