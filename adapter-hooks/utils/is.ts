@@ -28,3 +28,6 @@ export function isObject(value: any): value is object {
 export function isPrimitive(value: unknown): boolean {
   return value === null || (typeof value !== 'object' && typeof value !== 'function');
 }
+
+export const isMapSetArray = (value: any): boolean =>
+  Array.isArray(value) || value instanceof Map || value instanceof Set;
