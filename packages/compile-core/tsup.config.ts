@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 const banner = `/**
  * vureact v1.0.0
  * (c) 2025-present Owen Dells
- * @license MIT
+ * @license Apache
  **/
 `;
 
@@ -27,8 +27,10 @@ export default defineConfig({
     '@babel/parser',
     '@babel/traverse',
     '@babel/types',
+    '@babel/core',
     '@vue/compiler-core',
     '@vue/compiler-sfc',
+    'kleur',
   ],
   sourcemap: true,
 });
