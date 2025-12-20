@@ -18,7 +18,7 @@ export function transformComputed(path: NodePath<t.VariableDeclarator>) {
   const result = varDeclCallExp.destructure(path);
   const useMemoApi = adaptApis[result.callExpName as keyof typeof adaptApis];
 
-  if (!useMemoApi) return;
+  if (!useMemoApi || !result.name) return;
 
   const [initValue] = result.callExpArgs;
 
@@ -37,11 +37,6 @@ export function transformComputed(path: NodePath<t.VariableDeclarator>) {
   checkNodeIsInBlock(path);
   recordImport(RuntimeModules.REACT, useMemoApi, true);
 
-  if (!result.name) {
-    path.replaceWith(reactHookBuilder.useMemo(result.callExpArgs, deps));
-    return;
-  }
-
   const newNode = reactHookVarDecl.useMemo({
     ...result,
     deps,
@@ -49,4 +44,12 @@ export function transformComputed(path: NodePath<t.VariableDeclarator>) {
   });
 
   path.replaceWith(newNode);
+}
+
+export function transformUndeclaredComputedCall(path: NodePath<t.CallExpression>) {
+  const { callee, arguments: args } = path.node;
+
+  if (t.isIdentifier(callee) && callee.name in adaptApis) {
+    path.replaceWith(reactHookBuilder.useMemo(args));
+  }
 }
