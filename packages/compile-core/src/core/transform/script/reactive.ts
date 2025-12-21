@@ -37,6 +37,8 @@ export function transformUndeclaredReactiveCall(path: NodePath<t.CallExpression>
   const { callee, arguments: args } = path.node;
 
   if (t.isIdentifier(callee) && callee.name in adaptApis) {
+    checkNodeIsInBlock(path);
+    recordImport(RuntimeModules.RV3_HOOKS, RV3_HOOKS.useState$, true);
     path.replaceWith(reactHookBuilder.useState$(args));
   }
 }

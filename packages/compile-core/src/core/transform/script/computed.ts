@@ -1,8 +1,8 @@
 import { NodePath, types as t } from '@babel/core';
+import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { compileContext } from '@shared/compile-context';
-import { RuntimeModules } from '@src/consts/runtimeModules';
-import { logger } from '@src/shared/logger';
-import { recordImport } from '@src/shared/runtime-utils';
+import { logger } from '@shared/logger';
+import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { analyzeFunctionDependencies } from './shared/analyze-dependency';
@@ -11,7 +11,7 @@ import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
 import { ReactiveTypes } from './shared/types';
 
 const adaptApis = {
-  computed: 'useMemo',
+  computed: React_Hooks.useMemo,
 } as const;
 
 export function transformComputed(path: NodePath<t.VariableDeclarator>) {
@@ -50,6 +50,8 @@ export function transformUndeclaredComputedCall(path: NodePath<t.CallExpression>
   const { callee, arguments: args } = path.node;
 
   if (t.isIdentifier(callee) && callee.name in adaptApis) {
+    checkNodeIsInBlock(path);
+    recordImport(RuntimeModules.REACT, React_Hooks.useMemo, true);
     path.replaceWith(reactHookBuilder.useMemo(args));
   }
 }
