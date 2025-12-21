@@ -11,6 +11,20 @@ const value = readonly(1);
 
 const double = computed(() => count.value[0] + state?.foo);
 
+const stateRef = toRef(state, 'foo');
+
+const stateRef2 = toRef(
+  reactive({
+    foo: 1,
+    bar: 2,
+  }),
+  foo,
+);
+
+const numRef = toRef(1);
+
+const stateRefs = toRefs(state);
+
 ref(1);
 reactive({});
 readonly(1);
@@ -28,7 +42,7 @@ const 函数 = (参数: number): number => {
 };
 
 const fn2 = function () {
-  state.foo;
+  state.foo + stateRefs.bar;
 };
 
 function fn3() {
