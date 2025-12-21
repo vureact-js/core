@@ -5,6 +5,7 @@ import { transformFunction } from './function';
 import { transformReactive, transformUndeclaredReactiveCall } from './reactive';
 import { transformReadonly, transformUndeclaredReadonlyCall } from './readonly';
 import { stripReactiveValueSuffix } from './strip-value-suffix';
+import { transformToRef, transformUndeclaredToRefCall } from './toRef';
 
 export type ScriptBlockIR = ParseResult;
 
@@ -18,12 +19,14 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
       transformReactive(path);
       transformComputed(path);
       transformReadonly(path);
+      transformToRef(path);
     },
 
     CallExpression(path) {
       transformUndeclaredReactiveCall(path);
       transformUndeclaredComputedCall(path);
       transformUndeclaredReadonlyCall(path);
+      transformUndeclaredToRefCall(path);
     },
 
     Function(path) {
