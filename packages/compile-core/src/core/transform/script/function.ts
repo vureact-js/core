@@ -1,7 +1,10 @@
 import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
+import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
+import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { analyzeFunctionDependencies } from './shared/analyze-dependency';
+import { checkNodeIsInBlock } from './shared/babel-utils';
 
 export function transformFunction(path: NodePath<t.Function>) {
   if (t.isFunctionDeclaration(path.node) || !isTopLevel(path)) return;
@@ -9,6 +12,9 @@ export function transformFunction(path: NodePath<t.Function>) {
   const { node } = path;
   const deps = analyzeFunctionDependencies(node.body, path);
   const newNode = reactHookBuilder.useCallback(node, deps);
+
+  checkNodeIsInBlock(path);
+  recordImport(RuntimeModules.REACT, React_Hooks.useCallback, true);
 
   path.replaceWith(newNode);
 }
