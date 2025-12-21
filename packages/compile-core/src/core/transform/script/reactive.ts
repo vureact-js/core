@@ -9,6 +9,7 @@ import { ReactiveTypes } from './shared/types';
 
 const adaptApis = {
   ref: RV3_HOOKS.useState$,
+  toRefs: RV3_HOOKS.useState$,
   reactive: RV3_HOOKS.useState$,
   shallowRef: RV3_HOOKS.useShallowState,
   shallowReactive: RV3_HOOKS.useShallowState,
