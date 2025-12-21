@@ -127,14 +127,16 @@ function findRootIdIsReactive(
 
   // 查找根标识符的绑定
   const binding = rootIdentifier.scope.getBinding(rootName);
-  if (!binding || !isReactiveBinding(binding.path)) {
+  if (!isReactiveBinding(binding?.path)) {
     return; // 根变量不是响应式变量
   }
 
   return rootName;
 }
 
-function isReactiveBinding(path: NodePath): boolean {
+export function isReactiveBinding(path?: NodePath): boolean {
+  if (!path) return false;
+
   const { node } = path;
 
   // 确保源是变量声明式
