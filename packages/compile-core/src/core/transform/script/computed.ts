@@ -5,7 +5,7 @@ import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { analyzeFunctionDependencies } from './shared/analyze-dependency';
+import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
 import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
 import { ReactiveTypes } from './shared/types';
@@ -32,7 +32,7 @@ export function transformComputed(path: NodePath<t.VariableDeclarator>) {
     return;
   }
 
-  const deps = analyzeFunctionDependencies(initValue.body, path);
+  const deps = analyzeFuncBodyDeps(initValue.body, path);
 
   checkNodeIsInBlock(path);
   recordImport(RuntimeModules.REACT, useMemoApi, true);
