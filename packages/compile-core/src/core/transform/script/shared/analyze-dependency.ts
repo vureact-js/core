@@ -1,9 +1,24 @@
 import { NodePath, traverse } from '@babel/core';
 import * as t from '@babel/types';
-import { reactHookVarDecl } from '../builders/react-hook-variable-declaration';
-import { getRootIdentifier, isReferencedIdentifier } from './babel-utils';
+import { getNodeExtensionMeta, getRootIdentifier, isReferencedIdentifier } from './babel-utils';
 
-export function analyzeFunctionDependencies(
+export function analyzeFuncArgDeps(
+  arg: t.Expression,
+  parentPath: NodePath,
+): t.ArrayExpression | undefined {
+  if (t.isFunction(arg)) {
+    return analyzeFuncBodyDeps(arg.body, parentPath);
+  }
+
+  if (t.isIdentifier(arg)) {
+    const binding = parentPath.scope.getBinding(arg.name);
+    if (isReactiveBinding(binding?.path)) {
+      return t.arrayExpression([arg]);
+    }
+  }
+}
+
+export function analyzeFuncBodyDeps(
   fnBody: t.Expression | t.BlockStatement,
   parentPath: NodePath,
 ): t.ArrayExpression {
@@ -136,15 +151,6 @@ function findRootIdIsReactive(
 
 export function isReactiveBinding(path?: NodePath): boolean {
   if (!path) return false;
-
   const { node } = path;
-
-  // 确保源是变量声明式
-  if (t.isVariableDeclaration(node)) {
-    // 查找节点拓展元是否已标记为响应式
-    const { isReactive } = reactHookVarDecl.getExtensionMeta(node);
-    return !!isReactive;
-  }
-
-  return false;
+  return !!getNodeExtensionMeta(node)?.isReactive;
 }
