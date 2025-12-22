@@ -3,18 +3,23 @@ import * as t from '@babel/types';
 import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
-import { analyzeFunctionDependencies } from './shared/analyze-dependency';
-import { checkNodeIsInBlock } from './shared/babel-utils';
+import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
+import { checkNodeIsInBlock, setNodeExtensionMeta } from './shared/babel-utils';
 
 export function transformFunction(path: NodePath<t.Function>) {
-  if (t.isFunctionDeclaration(path.node) || !isTopLevel(path)) return;
+  const { node, parent } = path;
 
-  const { node } = path;
-  const deps = analyzeFunctionDependencies(node.body, path);
-  const newNode = reactHookBuilder.useCallback(node, deps);
+  if (t.isFunctionDeclaration(node) || !isTopLevel(path)) return;
 
   checkNodeIsInBlock(path);
   recordImport(RuntimeModules.REACT, React_Hooks.useCallback, true);
+
+  const deps = analyzeFuncBodyDeps(node.body, path);
+  const newNode = reactHookBuilder.useCallback(node, deps);
+
+  if (deps.elements.length && t.isVariableDeclarator(parent)) {
+    setNodeExtensionMeta(parent, { isReactive: true, reactiveType: 'indirect' });
+  }
 
   path.replaceWith(newNode);
 }
