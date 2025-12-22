@@ -40,6 +40,30 @@ class ReactHookBuilder {
   useCallback(args: FunctionOrCallExpArg, deps?: t.ArrayExpression): t.CallExpression {
     return this.baseBuildWithDeps(React_Hooks.useCallback, args, deps);
   }
+
+  useBeforeMount(args: CallExpArgs): t.CallExpression {
+    return this.baseBuild(RV3_HOOKS.useBeforeMount, args);
+  }
+
+  useMounted(args: CallExpArgs): t.CallExpression {
+    return this.baseBuild(RV3_HOOKS.useMounted, args);
+  }
+
+  useBeforeUnmount(args: CallExpArgs): t.CallExpression {
+    return this.baseBuild(RV3_HOOKS.useBeforeUnMount, args);
+  }
+
+  useUnmounted(args: CallExpArgs): t.CallExpression {
+    return this.baseBuild(RV3_HOOKS.useUnmounted, args);
+  }
+
+  useBeforeUpdate(args: CallExpArgs, deps?: t.ArrayExpression): t.CallExpression {
+    return this.baseBuildWithDeps(RV3_HOOKS.useBeforeUpdate, args, deps);
+  }
+
+  useUpdate(args: CallExpArgs, deps?: t.ArrayExpression): t.CallExpression {
+    return this.baseBuildWithDeps(RV3_HOOKS.useUpdated, args, deps);
+  }
 }
 
 export const reactHookBuilder = new ReactHookBuilder();
