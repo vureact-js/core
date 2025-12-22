@@ -48,7 +48,7 @@ export class Logger {
     const logLine = loc?.start?.line;
     const logColumn = loc?.start?.column;
 
-    this.logs.push({
+    this.logs.unshift({
       level,
       message,
       file: file ? relative(process.cwd(), file) : undefined,
@@ -66,17 +66,17 @@ export class Logger {
     const levelLabel = log.level.toUpperCase();
     const color = this.levelColor(log.level);
 
-    let location = '';
+    let location = '\n\n  File: ';
 
     if (log.level !== 'info') {
       if (log?.line != null && log?.column != null) {
-        location = `\n\n  ${log.file}${kleur.grey(`:${log.line}:${log.column}`)}`;
+        location += `${log.file}${`:${log.line}:${log.column}`}`;
       } else {
-        location = `\n\n  log.file ?? ${kleur.grey('from an unknown file:')}`;
+        location += log.file ?? 'from an unknown file:';
       }
     }
 
-    return `${color(`[${levelLabel}]`)} ${log.message}${kleur.grey(location)}\n`;
+    return `${color(`[${levelLabel}]`)} ${log.message}${kleur.gray(location)}\n`;
   }
 
   private formatContext(log: LogEntry): string {
@@ -112,14 +112,14 @@ export class Logger {
 
       // 在错误行下方添加指针标记
       if (i === lineIndex) {
-        const prefixLength = 4 + lineNumWidth + 3; // "  > " + 行号 + " | "
+        const prefixLength = 4 + lineNumWidth + 4; // "  > " + 行号 + " | "
 
         // 防止列号越界，确保指针不会超出该行长度
         const maxColumn = Math.max(0, lineContent.length);
         const pointerColumn = Math.min(column - 1, maxColumn);
 
         const pointerIndent = ' '.repeat(prefixLength + pointerColumn);
-        result.push(color(`${pointerIndent}${`^`.repeat(prefixLength)}`));
+        result.push(color(`${pointerIndent}${`^`}`));
       }
     }
 
@@ -156,11 +156,13 @@ export class Logger {
 
     if (errorCount > 0 || warnCount > 0) {
       console.log(
-        `${kleur.red(`✖  ${errorCount} error(s)`)}, ${kleur.yellow(`${warnCount} warning(s)`)}, ${kleur.cyan(`${infoCount} info message(s)`)}`,
+        `${kleur.red(`❌ ${errorCount} error(s)`)}, ⚠️ ${kleur.yellow(`${warnCount} warning(s)`)}, ℹ️ ${kleur.cyan(`${infoCount} info message(s)`)}`,
       );
     } else {
-      console.log(kleur.cyan(`ℹ  ${infoCount} info message(s)`));
+      console.log(kleur.cyan(`ℹ️ ${infoCount} info message(s)`));
     }
+
+    console.log();
   }
 
   clear(): void {
