@@ -2,6 +2,7 @@ import { traverse } from '@babel/core';
 import { ParseResult } from '@babel/parser';
 import { transformComputed, transformUndeclaredComputedCall } from './computed';
 import { transformFunction } from './function';
+import { transformLifecycle } from './lifecycle';
 import { transformReactive, transformUndeclaredReactiveCall } from './reactive';
 import { transformReadonly, transformUndeclaredReadonlyCall } from './readonly';
 import { stripReactiveValueSuffix } from './strip-value-suffix';
@@ -27,6 +28,8 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
       transformUndeclaredComputedCall(path);
       transformUndeclaredReadonlyCall(path);
       transformUndeclaredToRefCall(path);
+
+      transformLifecycle(path);
     },
 
     Function(path) {
