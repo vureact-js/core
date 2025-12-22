@@ -48,4 +48,38 @@ const fn2 = function () {
 function fn3() {
   count.value;
 }
+
+onBeforeMount(() => {
+  console.log('beforeMount');
+});
+
+onMounted(async () => {
+  console.log('mounted');
+});
+
+onBeforeUnmount(() => {
+  console.log('beforeUnmount');
+});
+
+onUnmounted(function () {
+  console.log('unmounted');
+});
+
+onBeforeUpdate(() => {
+  state.foo;
+  console.log('beforeUpdate');
+});
+
+const updated = () => {
+  count.value;
+  console.log('updated');
+};
+
+onUpdated(updated);
+
+const updatedWithNoDeps = () => {
+  console.log('updated');
+};
+
+onUpdated(updatedWithNoDeps);
 </script>
