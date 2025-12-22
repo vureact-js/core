@@ -2,7 +2,7 @@ import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
-import { VarDeclKind } from './types';
+import { ReactiveTypes, VarDeclKind } from './types';
 
 export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   const {
@@ -92,4 +92,19 @@ export function getRootIdentifier(
   }
 
   return null;
+}
+
+export interface BabelNodeExtensionMeta {
+  isReactive?: boolean;
+  reactiveType?: ReactiveTypes;
+}
+
+export function getNodeExtensionMeta(node: t.Node): BabelNodeExtensionMeta {
+  return (node as any).__extensionMeta;
+}
+
+export function setNodeExtensionMeta(node: t.Node, opts: BabelNodeExtensionMeta) {
+  opts.isReactive = opts.isReactive ?? true;
+  opts.reactiveType = opts.reactiveType || 'ref';
+  (node as any).__extensionMeta = opts;
 }
