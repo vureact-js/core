@@ -14,4 +14,5 @@ export type ReactiveTypes =
   | 'shallowReactive'
   | 'computed'
   | 'readonly'
-  | 'shallowReadonly';
+  | 'shallowReadonly'
+  | 'indirect'; // 指明间接引用了响应式状态
