@@ -1,6 +1,7 @@
 import * as t from '@babel/types';
 import { React_Hooks, RV3_HOOKS } from '@consts/runtimeModules';
 import { capitalize } from '@utils/capitalize';
+import { setNodeExtensionMeta } from '../shared/babel-utils';
 import { VarDeclCallExpDestructureResult } from '../shared/destructure-var-decl-call-exp';
 import { ReactiveTypes } from '../shared/types';
 import { reactHookBuilder } from './react-hook-builder';
@@ -10,11 +11,6 @@ interface VarDeclHookCreateOptions extends VarDeclCallExpDestructureResult {
   deps?: t.ArrayExpression;
   shallow?: boolean;
   setterNamePrefix?: string;
-}
-
-interface DeclarationExtensionMeta {
-  isReactive?: boolean;
-  reactiveType?: ReactiveTypes;
 }
 
 /**
@@ -106,31 +102,21 @@ class ReactHookVariableDeclaration {
     return callExp;
   }
 
-  private setExtensionMeta(node: t.VariableDeclaration, opts: DeclarationExtensionMeta) {
-    opts.isReactive = opts.isReactive ?? true;
-    opts.reactiveType = opts.reactiveType || 'ref';
-    (node as any).__extensionMeta = opts;
-  }
-
-  getExtensionMeta(node: t.VariableDeclaration): DeclarationExtensionMeta {
-    return (node as any).__extensionMeta;
-  }
-
   useState$(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
     const result = this.createDeclaration(RV3_HOOKS.useState$, opts);
-    this.setExtensionMeta(result, { reactiveType: opts!.reactiveType });
+    setNodeExtensionMeta(result, { reactiveType: opts!.reactiveType });
     return result;
   }
 
   useMemo(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
     const result = this.createDeclaration(React_Hooks.useMemo, opts);
-    this.setExtensionMeta(result, { reactiveType: 'computed' });
+    setNodeExtensionMeta(result, { reactiveType: 'computed' });
     return result;
   }
 
   useReadonly(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
     const result = this.createDeclaration(RV3_HOOKS.useReadonly, opts);
-    this.setExtensionMeta(result, { reactiveType: opts!.reactiveType });
+    setNodeExtensionMeta(result, { reactiveType: 'readonly' });
     return result;
   }
 }
