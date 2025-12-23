@@ -1,11 +1,9 @@
 import { NodePath, types as t } from '@babel/core';
 import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
-import { compileContext } from '@shared/compile-context';
-import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { analyzeFuncArgDeps } from './shared/analyze-dependency';
-import { checkNodeIsInBlock } from './shared/babel-utils';
+import { warnVueHookArguments, warnVueHookInBlock } from './shared/unsupported-warn';
 
 const adaptApis = {
   onBeforeMount: RV3_HOOKS.useBeforeMount,
@@ -26,28 +24,8 @@ export function transformLifecycle(path: NodePath<t.CallExpression>) {
 
   if (!adaptApi) return;
 
-  const { source, filename } = compileContext.context;
-
-  if (args.length > 1) {
-    logger.warn('Ignored unsupported lifecycle options.', {
-      source,
-      file: filename,
-      loc: args[1]!.loc!,
-    });
-    args.pop();
-  }
-
-  const [callExp] = args;
-
-  if (t.isFunction(callExp) && callExp.params.length) {
-    logger.warn('Ignored unsupported lifecycle param.', {
-      source,
-      file: filename,
-      loc: callExp.params[0]!.loc!,
-    });
-  }
-
-  checkNodeIsInBlock(path);
+  warnVueHookInBlock(path);
+  warnVueHookArguments(args);
   recordImport(RuntimeModules.RV3_HOOKS, adaptApi, true);
 
   switch (adaptApi) {
@@ -69,7 +47,7 @@ export function transformLifecycle(path: NodePath<t.CallExpression>) {
 
     case adaptApis.onBeforeUpdate:
     case adaptApis.onUpdated: {
-      const deps = analyzeFuncArgDeps(callExp as t.Expression, path);
+      const deps = analyzeFuncArgDeps(args[0] as t.Expression, path);
 
       if (adaptApi === adaptApis.onBeforeUpdate) {
         path.replaceWith(reactHookBuilder.useBeforeUpdate(args, deps));

@@ -4,14 +4,15 @@ import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
-import { checkNodeIsInBlock, setNodeExtensionMeta } from './shared/babel-utils';
+import { setNodeExtensionMeta } from './shared/babel-utils';
+import { warnVueHookInBlock } from './shared/unsupported-warn';
 
 export function transformFunction(path: NodePath<t.Function>) {
   const { node, parent } = path;
 
   if (t.isFunctionDeclaration(node) || !isTopLevel(path)) return;
 
-  checkNodeIsInBlock(path);
+  warnVueHookInBlock(path);
   recordImport(RuntimeModules.REACT, React_Hooks.useCallback, true);
 
   const deps = analyzeFuncBodyDeps(node.body, path);

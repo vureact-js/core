@@ -3,9 +3,9 @@ import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
 import { ReactiveTypes } from './shared/types';
+import { warnVueHookInBlock } from './shared/unsupported-warn';
 
 const adaptApis = {
   readonly: RV3_HOOKS.useReadonly,
@@ -18,7 +18,7 @@ export function transformReadonly(path: NodePath<t.VariableDeclarator>) {
 
   if (!useReadonlyApi || !result.name) return;
 
-  checkNodeIsInBlock(path);
+  warnVueHookInBlock(path);
   recordImport(RuntimeModules.RV3_HOOKS, useReadonlyApi, true);
 
   const newNode = reactHookVarDecl.useReadonly({
@@ -34,7 +34,7 @@ export function transformUndeclaredReadonlyCall(path: NodePath<t.CallExpression>
   const { callee, arguments: args } = path.node;
 
   if (t.isIdentifier(callee) && callee.name in adaptApis) {
-    checkNodeIsInBlock(path);
+    warnVueHookInBlock(path);
     recordImport(RuntimeModules.RV3_HOOKS, RV3_HOOKS.useReadonly, true);
     path.replaceWith(reactHookBuilder.useReadonly(args));
   }

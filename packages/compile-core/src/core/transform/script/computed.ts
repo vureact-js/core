@@ -6,9 +6,9 @@ import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
-import { checkNodeIsInBlock } from './shared/babel-utils';
 import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
 import { ReactiveTypes } from './shared/types';
+import { warnVueHookInBlock } from './shared/unsupported-warn';
 
 const adaptApis = {
   computed: React_Hooks.useMemo,
@@ -34,7 +34,7 @@ export function transformComputed(path: NodePath<t.VariableDeclarator>) {
 
   const deps = analyzeFuncBodyDeps(initValue.body, path);
 
-  checkNodeIsInBlock(path);
+  warnVueHookInBlock(path);
   recordImport(RuntimeModules.REACT, useMemoApi, true);
 
   const newNode = reactHookVarDecl.useMemo({
@@ -50,7 +50,7 @@ export function transformUndeclaredComputedCall(path: NodePath<t.CallExpression>
   const { callee, arguments: args } = path.node;
 
   if (t.isIdentifier(callee) && callee.name in adaptApis) {
-    checkNodeIsInBlock(path);
+    warnVueHookInBlock(path);
     recordImport(RuntimeModules.REACT, React_Hooks.useMemo, true);
     path.replaceWith(reactHookBuilder.useMemo(args));
   }
