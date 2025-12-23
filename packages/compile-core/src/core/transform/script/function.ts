@@ -10,7 +10,7 @@ import { warnVueHookInBlock } from './shared/unsupported-warn';
 export function transformFunction(path: NodePath<t.Function>) {
   const { node, parent } = path;
 
-  if (t.isFunctionDeclaration(node) || !isTopLevel(path)) return;
+  if (t.isFunctionDeclaration(node) || isCallbackFunction(path) || !isTopLevel(path)) return;
 
   warnVueHookInBlock(path);
   recordImport(RuntimeModules.REACT, React_Hooks.useCallback, true);
@@ -35,31 +35,9 @@ function isTopLevel(path: NodePath<t.Function>): boolean {
     return false;
   }
 
-  // 情况1：函数声明（FunctionDeclaration）
-  if (t.isFunctionDeclaration(node)) {
-    return checkFunctionDeclarationTopLevel(path);
-  }
-
-  // 情况2：箭头函数或函数表达式
+  // 箭头函数或函数表达式
   if (t.isArrowFunctionExpression(node) || t.isFunctionExpression(node)) {
     return checkArrowOrFunctionExpressionTopLevel(path);
-  }
-
-  return false;
-}
-
-function checkFunctionDeclarationTopLevel(path: NodePath<t.Function>): boolean {
-  const parentPath = path.parentPath;
-
-  // 函数声明只有直接位于 Program 下才是顶层
-  if (parentPath.isProgram()) {
-    return true;
-  }
-
-  // 或者函数声明在导出声明中
-  if (parentPath.isExportNamedDeclaration() || parentPath.isExportDefaultDeclaration()) {
-    const exportParent = parentPath.parentPath;
-    return exportParent ? exportParent.isProgram() : false;
   }
 
   return false;
@@ -169,4 +147,32 @@ function checkExpressionTopLevel(path: NodePath<t.Node>): boolean {
   }
 
   return current.isProgram();
+}
+
+function isCallbackFunction(path: NodePath<t.Function>): boolean {
+  const parentPath = path.parentPath;
+
+  if (!parentPath) {
+    return false;
+  }
+
+  // 如果父节点是调用表达式，并且这个函数是参数之一，那么它是回调
+  if (parentPath.isCallExpression()) {
+    const callExpressionPath = parentPath as NodePath<t.CallExpression>;
+    const args = callExpressionPath.node.arguments;
+
+    // 检查这个函数节点是否是调用表达式的参数
+    return args.some((arg) => arg === path.node);
+  }
+
+  // 如果父节点是数组表达式，可能也是回调
+  if (parentPath.isArrayExpression()) {
+    const arrayExpressionPath = parentPath as NodePath<t.ArrayExpression>;
+    const elements = arrayExpressionPath.node.elements;
+
+    // 检查这个函数节点是否是数组的元素
+    return elements.some((element) => element === path.node);
+  }
+
+  return false;
 }
