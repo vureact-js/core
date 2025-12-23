@@ -3,7 +3,7 @@ import { defineConfig } from 'tsup';
 const banner = `/**
  * vureact v1.0.0
  * (c) 2025-present Owen Dells
- * @license Apache
+ * @license MIT
  **/
 `;
 
