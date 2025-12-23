@@ -34,6 +34,8 @@ export const RV3_HOOKS = {
   useUpdated: 'useUpdated',
   useWatch: 'useWatch',
   useWatchEffect: 'useWatchEffect',
+  useWatchPostEffect: 'useWatchPostEffect',
+  useWatchSyncEffect: 'useWatchSyncEffect',
 } as const;
 
 export const React_Hooks = {
