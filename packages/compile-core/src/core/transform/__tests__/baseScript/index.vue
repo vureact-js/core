@@ -82,4 +82,17 @@ const updatedWithNoDeps = () => {
 };
 
 onUpdated(updatedWithNoDeps);
+
+watchEffect(() => {
+  if (state.foo >= 10) {
+    fn2();
+  }
+  state.foo++;
+  console.log('watchEffect');
+});
+
+watchSyncEffect(() => {
+  state.foo++;
+  console.log('watchSyncEffect');
+});
 </script>
