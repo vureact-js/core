@@ -7,7 +7,8 @@ import { transformReactive, transformUndeclaredReactiveCall } from './reactive';
 import { transformReadonly, transformUndeclaredReadonlyCall } from './readonly';
 import { stripReactiveValueSuffix } from './strip-value-suffix';
 import { transformToRef, transformUndeclaredToRefCall } from './toRef';
-import { tranformWatchEffect, transformWatch } from './watch';
+import { transformWatch } from './watch';
+import { tranformWatchEffect } from './watchEffect';
 
 export type ScriptBlockIR = ParseResult;
 
