@@ -12,7 +12,7 @@ export function warnVueHookArguments(args: CallExpArgs) {
   const { source, filename } = compileContext.context;
 
   if (t.isFunction(callExp) && callExp.params.length) {
-    logger.warn('Ignored unsupported Vue hook params.', {
+    logger.warn('Unsupported Vue hook params may result in reference errors.', {
       source,
       file: filename,
       loc: callExp.params[0]!.loc!,
@@ -25,6 +25,7 @@ export function warnVueHookArguments(args: CallExpArgs) {
       file: filename,
       loc: opt!.loc!,
     });
+    args.length = 1;
   }
 }
 
@@ -36,7 +37,7 @@ export function warnVueHookInBlock(path: NodePath) {
   const inBlock = path.findParent((p) => t.isBlockStatement(p.node) && !t.isFunction(p.parent));
 
   if (inBlock) {
-    logger.warn(
+    logger.error(
       'Hook cannot be used inside conditional statements, loops, switch cases, or try-catch blocks.',
       {
         source,
