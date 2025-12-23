@@ -56,6 +56,7 @@
     "dev:codegen": "tsx watch src/core/codegen/__tests__/index.ts"
   },
   "dependencies": {
+    "@babel/core": "^7.28.5",
     "@babel/generator": "^7.28.3",
     "@babel/parser": "^7.28.4",
     "@babel/traverse": "^7.28.4",
