@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "pnpm@8.12.0",
+  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "build:vureact": "pnpm -F vureact build",
     "build:vureact-runtime": "pnpm -F vureact-runtime build",
@@ -11,7 +11,6 @@
     "test:vOn": "pnpm -F vureact-runtime test -- vOn.test.ts"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
     "@eslint/js": "^9.39.0",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^28.0.9",
