@@ -1,6 +1,6 @@
 import { NodePath, traverse } from '@babel/core';
 import * as t from '@babel/types';
-import { getNodeExtensionMeta, getRootIdentifier, isReferencedIdentifier } from './babel-utils';
+import { getNodeExtensionMeta, getRootIdByNodePath, isReferencedIdentifier } from './babel-utils';
 
 export function analyzeFuncArgDeps(
   arg: t.Expression,
@@ -36,7 +36,7 @@ export function analyzeFuncBodyDeps(
         dependencies.add(dep);
 
         // 标记根标识符已被处理
-        const rootIdentifier = getRootIdentifier(path);
+        const rootIdentifier = getRootIdByNodePath(path);
         if (rootIdentifier) {
           processedIdentifiers.add(rootIdentifier.node);
         }
@@ -135,7 +135,7 @@ function findRootIdIsReactive(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
 ): string | undefined {
   // 获取根标识符
-  const rootIdentifier = getRootIdentifier(path);
+  const rootIdentifier = getRootIdByNodePath(path);
   if (!rootIdentifier) return;
 
   const rootName = rootIdentifier.node.name;

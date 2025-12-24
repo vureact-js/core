@@ -32,7 +32,7 @@ export function isReferencedIdentifier(path: NodePath<t.Identifier>): boolean {
   return true;
 }
 
-export function getRootIdentifier(
+export function getRootIdByNodePath(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
 ): NodePath<t.Identifier> | null {
   let currentNode: t.Expression = path.node;
