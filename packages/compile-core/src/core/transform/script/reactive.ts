@@ -3,7 +3,7 @@ import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
+import { requiredVarDeclHandling } from './shared/required-before-transform';
 import { ReactiveTypes } from './shared/types';
 import { warnVueHookInBlock } from './shared/unsupported-warn';
 
@@ -16,18 +16,14 @@ const adaptApis = {
 } as const;
 
 export function transformReactive(path: NodePath<t.VariableDeclarator>) {
-  const result = varDeclCallExp.destructure(path);
-  const useState$Api = adaptApis[result.callExpName as keyof typeof adaptApis];
+  const result = requiredVarDeclHandling(path, adaptApis);
 
-  if (!useState$Api || !result.name) return;
-
-  warnVueHookInBlock(path);
-  recordImport(RuntimeModules.RV3_HOOKS, useState$Api, true);
+  if (!result) return;
 
   const newNode = reactHookVarDecl.useState$({
     ...result,
     reactiveType: result.callExpName as ReactiveTypes,
-    shallow: result.name.startsWith('shallow'),
+    shallow: result.name?.startsWith('shallow'),
   });
 
   path.replaceWith(newNode);

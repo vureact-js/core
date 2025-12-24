@@ -6,7 +6,7 @@ import { recordImport } from '@shared/runtime-utils';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
 import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
-import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
+import { requiredVarDeclHandling } from './shared/required-before-transform';
 import { ReactiveTypes } from './shared/types';
 import { warnVueHookInBlock } from './shared/unsupported-warn';
 
@@ -15,28 +15,23 @@ const adaptApis = {
 } as const;
 
 export function transformComputed(path: NodePath<t.VariableDeclarator>) {
-  const result = varDeclCallExp.destructure(path);
-  const useMemoApi = adaptApis[result.callExpName as keyof typeof adaptApis];
+  const result = requiredVarDeclHandling(path, adaptApis);
 
-  if (!useMemoApi || !result.name) return;
+  if (!result) return;
 
-  const [initValue] = result.callExpArgs;
+  const [fnBody] = result.callExpArgs;
 
-  if (!initValue || !t.isFunction(initValue)) {
+  if (!fnBody || !t.isFunction(fnBody)) {
     const { source, filename } = compileContext.context;
     logger.error('computed must receive a getter function.', {
       source,
-      loc: initValue!.loc!,
+      loc: fnBody!.loc!,
       file: filename,
     });
     return;
   }
 
-  const deps = analyzeFuncBodyDeps(initValue.body, path);
-
-  warnVueHookInBlock(path);
-  recordImport(RuntimeModules.REACT, useMemoApi, true);
-
+  const deps = analyzeFuncBodyDeps(fnBody.body, path);
   const newNode = reactHookVarDecl.useMemo({
     ...result,
     deps,
