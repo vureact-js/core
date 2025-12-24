@@ -65,6 +65,10 @@ class ReactHookBuilder {
     return this.baseBuildWithDeps(RV3_HOOKS.useUpdated, args, deps);
   }
 
+  useWatch(args: CallExpArgs): t.CallExpression {
+    return this.baseBuild(RV3_HOOKS.useWatch, args);
+  }
+
   useWatchEffect(args: CallExpArgs, deps?: t.ArrayExpression, timing?: 'post' | 'sync') {
     return this.baseBuildWithDeps(
       timing === 'sync'
