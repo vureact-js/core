@@ -18,7 +18,8 @@ export function transformFunction(path: NodePath<t.Function>) {
   const deps = analyzeFuncBodyDeps(node.body, path);
   const newNode = reactHookBuilder.useCallback(node, deps);
 
-  if (deps.elements.length && t.isVariableDeclarator(parent)) {
+  // 不论有无依赖都标记为间接响应式，只因是 useCallback
+  if (t.isVariableDeclarator(parent)) {
     setNodeExtensionMeta(parent, { isReactive: true, reactiveType: 'indirect' });
   }
 
