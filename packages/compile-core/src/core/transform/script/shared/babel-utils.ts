@@ -12,7 +12,6 @@ export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   return 'const';
 }
 
-
 export function getRootIdByNodePath(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
 ): NodePath<t.Identifier> | null {
@@ -53,10 +52,30 @@ export function getRootIdByNodePath(
   return null;
 }
 
+export function getRootIdByNode(node: t.Node): t.Identifier | null {
+  // 获取表达式中访问的根标识符
+  let rootId: t.Identifier | null = null;
+
+  if (t.isIdentifier(node)) {
+    rootId = node;
+  } else if (t.isMemberExpression(node) || t.isOptionalMemberExpression(node)) {
+    // 遍历获取根标识符
+    let current: t.Expression = node;
+    while (t.isMemberExpression(current) || t.isOptionalMemberExpression(node)) {
+      current = (current as t.MemberExpression).object;
+    }
+    if (t.isIdentifier(current)) {
+      rootId = current;
+    }
+  }
+
+  return rootId;
+}
+
 export interface BabelNodeExtensionMeta {
   isReactive?: boolean;
   reactiveType?: ReactiveTypes;
-  getterName: string;
+  getterName?: string;
   setterName?: string;
 }
 
