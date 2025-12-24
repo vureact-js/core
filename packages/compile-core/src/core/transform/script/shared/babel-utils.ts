@@ -75,6 +75,8 @@ export function getRootIdentifier(
 export interface BabelNodeExtensionMeta {
   isReactive?: boolean;
   reactiveType?: ReactiveTypes;
+  getterName: string;
+  setterName?: string;
 }
 
 export function getNodeExtensionMeta(node: t.Node): BabelNodeExtensionMeta {

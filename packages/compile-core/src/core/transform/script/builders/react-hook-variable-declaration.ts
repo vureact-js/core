@@ -21,16 +21,18 @@ interface VarDeclHookCreateOptions extends VarDeclCallExpDestructureResult {
  */
 class ReactHookVariableDeclaration {
   private createDeclaration(hookName: string, options: VarDeclHookCreateOptions) {
-    const { kind, name, callExpArgs, setterNamePrefix, deps, shallow, tsTypes } = options;
+    const { kind, name, callExpArgs, setterNamePrefix, deps, shallow, tsTypes, reactiveType } =
+      options;
 
-    let varName = name!;
+    let getterName = name!;
+    let setterName;
     let declarator: t.VariableDeclarator;
 
     switch (hookName) {
       case RV3_HOOKS.useState$: {
-        const setterName = `${setterNamePrefix || 'set'}${capitalize(varName)}`;
+        setterName = `${setterNamePrefix || 'set'}${capitalize(getterName)}`;
         declarator = this.createDeclarator(
-          [varName, setterName],
+          [getterName, setterName],
           reactHookBuilder.useState$(callExpArgs, shallow),
           tsTypes,
         );
@@ -39,7 +41,7 @@ class ReactHookVariableDeclaration {
 
       case RV3_HOOKS.useReadonly: {
         declarator = this.createDeclarator(
-          varName,
+          getterName,
           reactHookBuilder.useReadonly(callExpArgs, shallow),
           tsTypes,
         );
@@ -48,7 +50,7 @@ class ReactHookVariableDeclaration {
 
       case React_Hooks.useMemo: {
         declarator = this.createDeclarator(
-          varName,
+          getterName,
           reactHookBuilder.useMemo(callExpArgs, deps),
           tsTypes,
         );
@@ -56,7 +58,10 @@ class ReactHookVariableDeclaration {
       }
     }
 
-    return t.variableDeclaration(kind, [declarator!]);
+    const node = t.variableDeclaration(kind, [declarator!]);
+    setNodeExtensionMeta(node, { getterName, setterName, reactiveType });
+
+    return node;
   }
 
   private createDeclarator(
@@ -103,21 +108,15 @@ class ReactHookVariableDeclaration {
   }
 
   useState$(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
-    const result = this.createDeclaration(RV3_HOOKS.useState$, opts);
-    setNodeExtensionMeta(result, { reactiveType: opts!.reactiveType });
-    return result;
+    return this.createDeclaration(RV3_HOOKS.useState$, opts);
   }
 
   useMemo(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
-    const result = this.createDeclaration(React_Hooks.useMemo, opts);
-    setNodeExtensionMeta(result, { reactiveType: 'computed' });
-    return result;
+    return this.createDeclaration(React_Hooks.useMemo, opts);
   }
 
   useReadonly(opts: VarDeclHookCreateOptions): t.VariableDeclaration {
-    const result = this.createDeclaration(RV3_HOOKS.useReadonly, opts);
-    setNodeExtensionMeta(result, { reactiveType: 'readonly' });
-    return result;
+    return this.createDeclaration(RV3_HOOKS.useReadonly, opts);
   }
 }
 
