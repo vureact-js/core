@@ -15,10 +15,11 @@ export function transformWatch(path: NodePath<t.CallExpression>) {
   if (!result) return;
 
   const { args } = result;
+  const { parent } = path;
 
   // 变量声明的 watch 返回值标记为间接响应式
-  if (t.isVariableDeclarator(path.parent)) {
-    setNodeExtensionMeta(path.parent, { isReactive: true, reactiveType: 'indirect' });
+  if (t.isVariableDeclarator(parent)) {
+    setNodeExtensionMeta(parent, { isReactive: true, reactiveType: 'indirect' });
   }
 
   path.replaceWith(reactHookBuilder.useWatch(args));

@@ -3,6 +3,7 @@ import * as t from '@babel/types';
 import { RV3_HOOKS } from '@consts/runtimeModules';
 import { reactHookBuilder } from './builders/react-hook-builder';
 import { analyzeFuncArgDeps } from './shared/analyze-dependency';
+import { setNodeExtensionMeta } from './shared/babel-utils';
 import { requiredCallExpHandling } from './shared/required-before-transform';
 
 const adaptApis = {
@@ -16,6 +17,7 @@ export function tranformWatchEffect(path: NodePath<t.CallExpression>) {
 
   if (!result) return;
 
+  const { parent } = path;
   const { args, adaptApi } = result;
   const deps = analyzeFuncArgDeps(args[0] as t.Expression, path);
 
@@ -24,6 +26,11 @@ export function tranformWatchEffect(path: NodePath<t.CallExpression>) {
     : adaptApi.includes('Post')
       ? 'post'
       : undefined;
+
+  // 变量声明的 watchEffect 返回值标记为间接响应式
+  if (t.isVariableDeclarator(parent)) {
+    setNodeExtensionMeta(parent, { isReactive: true, reactiveType: 'indirect' });
+  }
 
   path.replaceWith(reactHookBuilder.useWatchEffect(args, deps, timing));
 }

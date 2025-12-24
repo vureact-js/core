@@ -20,8 +20,7 @@ export function transformFunction(path: NodePath<t.Function>) {
 
   // 不论有无依赖都标记为间接响应式，只因是 useCallback
   if (t.isVariableDeclarator(parent)) {
-    const getterName = t.isIdentifier(parent.id) ? parent.id.name : 'NONE';
-    setNodeExtensionMeta(parent, { getterName, isReactive: true, reactiveType: 'indirect' });
+    setNodeExtensionMeta(parent, { isReactive: true, reactiveType: 'indirect' });
   }
 
   path.replaceWith(newNode);
