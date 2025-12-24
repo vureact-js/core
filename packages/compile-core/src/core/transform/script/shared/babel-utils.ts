@@ -12,7 +12,7 @@ export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   return 'const';
 }
 
-export function getRootIdByNodePath(
+export function getRootIdByMemberNodePath(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
 ): NodePath<t.Identifier> | null {
   let currentNode: t.Expression = path.node;

@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { ScriptBlockIR } from '.';
-import { getRootIdByNodePath } from './shared/babel-utils';
+import { getRootIdByMemberNodePath } from './shared/babel-utils';
 import { ReactiveTypes } from './shared/types';
 
 const VALUE_SUFFIX_APIS = new Set<ReactiveTypes>([
@@ -53,7 +53,7 @@ function processMemberExpression(path: NodePath<t.MemberExpression>) {
   if (!isValuePropertyAccess(path)) return;
 
   // 获取根标识符
-  const rootIdentifier = getRootIdByNodePath(path);
+  const rootIdentifier = getRootIdByMemberNodePath(path);
   if (!rootIdentifier) return;
 
   // 检查根标识符是否来自需要剥离 .value 的 API
@@ -72,7 +72,7 @@ function processOptionalMemberExpression(path: NodePath<t.OptionalMemberExpressi
   if (!isValuePropertyAccess(path)) return;
 
   // 获取根标识符
-  const rootIdentifier = getRootIdByNodePath(path);
+  const rootIdentifier = getRootIdByMemberNodePath(path);
   if (!rootIdentifier) return;
 
   // 检查根标识符是否来自需要剥离 .value 的 API
@@ -106,7 +106,7 @@ function processNonNullExpression(path: NodePath<t.TSNonNullExpression>) {
   if (expression.isMemberExpression()) {
     if (!isValuePropertyAccess(expression)) return;
 
-    const rootIdentifier = getRootIdByNodePath(expression);
+    const rootIdentifier = getRootIdByMemberNodePath(expression);
     if (!rootIdentifier) return;
 
     if (!isFromValueSuffixAPI(rootIdentifier)) return;
