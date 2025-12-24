@@ -95,4 +95,31 @@ watchSyncEffect(() => {
   state.foo++;
   console.log('watchSyncEffect');
 });
+
+watch(count.value, () => {
+  console.log(count.value);
+});
+
+watch(
+  state,
+  (newVal, oldVal) => {
+    console.log(newVal, oldVal);
+  },
+  { deep: true },
+);
+
+watch(
+  () => count.value,
+  () => {
+    console.log(count.value);
+  },
+  { once: true },
+);
+
+const stop = watch(
+  () => [count.value, state],
+  (newVal) => {
+    console.log(newVal);
+  },
+);
 </script>
