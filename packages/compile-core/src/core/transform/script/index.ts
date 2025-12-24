@@ -3,6 +3,7 @@ import { ParseResult } from '@babel/parser';
 import { transformComputed, transformUndeclaredComputedCall } from './computed';
 import { transformFunction } from './function';
 import { transformLifecycle } from './lifecycle';
+import { transformNextTick } from './nextTick';
 import { transformReactive, transformUndeclaredReactiveCall } from './reactive';
 import { transformReadonly, transformUndeclaredReadonlyCall } from './readonly';
 import { stripReactiveValueSuffix } from './strip-value-suffix';
@@ -34,6 +35,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
       transformWatch(path);
       tranformWatchEffect(path);
       transformLifecycle(path);
+      transformNextTick(path);
     },
 
     Function(path) {
