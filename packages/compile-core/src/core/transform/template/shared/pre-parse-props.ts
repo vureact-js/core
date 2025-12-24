@@ -1,10 +1,10 @@
 import * as t from '@babel/types';
 import { parseFragmentExp } from '@shared/babel-utils';
 import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runtime-utils';
-import { PropsIR, PropTypes } from '../../props';
-import { isSimpleStyle } from '../../props/style';
-import { isClassAttr, isStyleAttr } from '../../props/utils';
-import { wrapSingleQuotes } from '../../shared/utils';
+import { PropsIR, PropTypes } from '../props';
+import { isClassAttr, isStyleAttr } from '../props/utils';
+import { isSimpleStyle } from './parse-style-string';
+import { wrapSingleQuotes } from './utils';
 
 export function preParseProp(propsIR: PropsIR) {
   const handler = getNeedRuntimeHandler(propsIR);

@@ -1,4 +1,4 @@
-import { strCodeTypes } from '@src/shared/string-code-types';
+import { strCodeTypes } from '@shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 
 export function parseStyleString(styleStr: string): string {

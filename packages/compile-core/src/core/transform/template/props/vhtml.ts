@@ -1,6 +1,6 @@
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { preParseProp } from '../shared/pre-parse/prop';
+import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 
 export function handleVHtml(prop: DirectiveNode, nodeIR: ElementNodeIR) {

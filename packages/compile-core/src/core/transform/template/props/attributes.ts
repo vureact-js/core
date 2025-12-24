@@ -7,12 +7,12 @@ import {
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { preParseProp } from '../shared/pre-parse/prop';
+import { mergePropsIR } from '../shared/merge-props';
+import { parseStyleString } from '../shared/parse-style-string';
+import { preParseProp } from '../shared/pre-parse-props';
 import { checkPropIsDynamicKey, findSameProp } from '../shared/utils';
 import { PropsIR, PropTypes } from './index';
 import { handleDynamicIs, handleStaticIs } from './is';
-import { mergePropsIR } from './merge';
-import { parseStyleString } from './style';
 import { createPropsIR } from './utils';
 
 export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {

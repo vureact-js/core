@@ -4,9 +4,9 @@ import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
 import { ElementNodeIR } from '../elements/node';
-import { preParseProp } from '../shared/pre-parse/prop';
+import { mergePropsIR } from '../shared/merge-props';
+import { preParseProp } from '../shared/pre-parse-props';
 import { findSameProp } from '../shared/utils';
-import { mergePropsIR } from './merge';
 import { createPropsIR } from './utils';
 
 export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {

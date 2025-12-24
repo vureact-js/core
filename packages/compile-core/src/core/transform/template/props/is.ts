@@ -3,7 +3,7 @@ import { strCodeTypes } from '@shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { preParseProp } from '../shared/pre-parse/prop';
+import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 
 export function handleStaticIs(content: string, nodeIR: ElementNodeIR) {

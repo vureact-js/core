@@ -12,7 +12,7 @@ import {
 import { ElementNodeIR } from '../elements/node';
 import { PropsIR, PropTypes } from '../props';
 import { createPropsIR } from '../props/utils';
-import { preParseProp } from './pre-parse/prop';
+import { preParseProp } from './pre-parse-props';
 
 export function findSameProp(source: ElementNodeIR['props'], target: PropsIR): PropsIR | undefined {
   const found = source.find(

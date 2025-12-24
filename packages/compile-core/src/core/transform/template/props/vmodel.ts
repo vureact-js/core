@@ -11,7 +11,7 @@ import {
 } from '@vue/compiler-core';
 import { PropsIR } from '.';
 import { ElementNodeIR } from '../elements/node';
-import { preParseProp } from '../shared/pre-parse/prop';
+import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 
 export type InputType = 'text' | 'checkbox' | 'radio' | 'select' | 'textarea';

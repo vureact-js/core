@@ -1,9 +1,9 @@
 import { parseFragmentExp } from '@shared/babel-utils';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
-import { preParseProp } from '../shared/pre-parse/prop';
+import { mergePropsIR } from '../shared/merge-props';
+import { preParseProp } from '../shared/pre-parse-props';
 import { findSameProp } from '../shared/utils';
-import { mergePropsIR } from './merge';
 import { createPropsIR } from './utils';
 
 export function handleVShow(prop: DirectiveNode, nodeIR: ElementNodeIR) {
