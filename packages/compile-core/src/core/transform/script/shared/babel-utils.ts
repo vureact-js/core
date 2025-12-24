@@ -86,3 +86,35 @@ export function setNodeExtensionMeta(node: t.Node, opts: BabelNodeExtensionMeta)
   opts.reactiveType = opts.reactiveType || 'ref';
   (node as any).__extensionMeta = opts;
 }
+
+export function checkIsCallExpInAnyCallback(path: NodePath<t.CallExpression>): boolean {
+  let current = path.parentPath;
+
+  while (current) {
+    // 如果当前节点是一个函数
+    if (
+      current.isFunctionDeclaration() ||
+      current.isFunctionExpression() ||
+      current.isArrowFunctionExpression()
+    ) {
+      // 检查这个函数是否是某个调用表达式的参数
+      const funcParent = current.parentPath;
+
+      if (funcParent && funcParent.isCallExpression()) {
+        const callExp = funcParent.node;
+
+        // 检查这个函数是否是 callExp 的参数之一
+        const isArgument = callExp.arguments.some((arg) => arg === current.node);
+
+        if (isArgument) {
+          return true;
+        }
+      }
+    }
+
+    // @ts-ignore 继续向上查找
+    current = current.parentPath;
+  }
+
+  return false;
+}
