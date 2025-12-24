@@ -4,7 +4,11 @@ import { RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { varDeclCallExp, VarDeclCallExpDestructureResult } from './destructure-var-decl-call-exp';
 import { CallExpArgs } from './types';
-import { warnVueHookArguments, warnVueHookInBlock } from './unsupported-warn';
+import {
+  warnVueHookArguments,
+  warnVueHookInAnyCallback,
+  warnVueHookInBlock,
+} from './unsupported-warn';
 
 export function requiredVarDeclHandling(
   path: NodePath<t.VariableDeclarator>,
@@ -37,11 +41,12 @@ export function requiredCallExpHandling(
 
   if (!adaptApi) return null;
 
-  warnVueHookInBlock(path);
-
-  if (opts.checkHookArgs) warnVueHookArguments(args);
-
   recordImport(RuntimeModules.RV3_HOOKS, adaptApi, true);
+
+  warnVueHookInBlock(path);
+  warnVueHookInAnyCallback(path);
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+  opts.checkHookArgs && warnVueHookArguments(args);
 
   return { args, adaptApi };
 }

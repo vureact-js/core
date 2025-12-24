@@ -2,6 +2,7 @@ import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
+import { checkIsCallExpInAnyCallback } from './babel-utils';
 import { CallExpArgs } from './types';
 
 /**
@@ -45,5 +46,23 @@ export function warnVueHookInBlock(path: NodePath) {
         loc: path.node.loc!,
       },
     );
+  }
+}
+
+/**
+ * 检查 Vue hook 是否嵌套在任意回调中使用
+ */
+export function warnVueHookInAnyCallback(path: NodePath<t.CallExpression>) {
+  const { source, filename } = compileContext.context;
+
+  // 检查当前 hook 是否在任何回调函数中
+  const isInCallback = checkIsCallExpInAnyCallback(path);
+
+  if (isInCallback) {
+    logger.error('Hook cannot be used inside any callback function.', {
+      source,
+      file: filename,
+      loc: path.node.loc!,
+    });
   }
 }
