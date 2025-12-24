@@ -12,25 +12,6 @@ export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   return 'const';
 }
 
-export function isReferencedIdentifier(path: NodePath<t.Identifier>): boolean {
-  // 排除作为属性名的标识符
-  if (path.parentPath.isMemberExpression()) {
-    return path.parentPath.node.object === path.node;
-  }
-
-  // 排除对象属性键名
-  if (path.parentPath.isObjectProperty()) {
-    return path.parentPath.node.value === path.node;
-  }
-
-  // 排除函数参数名
-  if (path.parentPath.isFunction()) {
-    return !path.parentPath.node.params.includes(path.node);
-  }
-
-  // 其他情况都认为是变量引用
-  return true;
-}
 
 export function getRootIdByNodePath(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
