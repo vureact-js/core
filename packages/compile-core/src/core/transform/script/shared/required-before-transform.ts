@@ -24,6 +24,9 @@ export function requiredVarDeclHandling(
 export function requiredCallExpHandling(
   path: NodePath<t.CallExpression>,
   adaptApis: object,
+  opts = {
+    checkHookArgs: true,
+  },
 ): { args: CallExpArgs; adaptApi: string } | null {
   const { callee, arguments: args } = path.node;
 
@@ -35,7 +38,9 @@ export function requiredCallExpHandling(
   if (!adaptApi) return null;
 
   warnVueHookInBlock(path);
-  warnVueHookArguments(args);
+
+  if (opts.checkHookArgs) warnVueHookArguments(args);
+
   recordImport(RuntimeModules.RV3_HOOKS, adaptApi, true);
 
   return { args, adaptApi };
