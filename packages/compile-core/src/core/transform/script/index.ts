@@ -1,47 +1,26 @@
-import { traverse } from '@babel/core';
 import { ParseResult } from '@babel/parser';
-import { transformComputed, transformUndeclaredComputedCall } from './computed';
-import { transformFunction } from './function';
-import { transformLifecycle } from './lifecycle';
-import { transformNextTick } from './nextTick';
-import { transformReactive, transformUndeclaredReactiveCall } from './reactive';
-import { transformReadonly, transformUndeclaredReadonlyCall } from './readonly';
+import { handleVueApiCallExp } from './call-expression';
+import { necessaryOptimization } from './optimizations';
+import { handleReactiveUpdate } from './reactive-update';
 import { stripReactiveValueSuffix } from './strip-value-suffix';
-import { transformToRef, transformUndeclaredToRefCall } from './toRef';
-import { transformWatch } from './watch';
-import { tranformWatchEffect } from './watchEffect';
+import { handleVueApiVariableDecl } from './variable-declarator';
 
 export type ScriptBlockIR = ParseResult;
 
 export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
+  // step 1
   stripReactiveValueSuffix(ast);
 
-  traverse(ast, {
-    VariableDeclarator(path) {
-      transformReactive(path);
-      transformComputed(path);
-      transformReadonly(path);
-      transformToRef(path);
-    },
+  // step 2
+  handleVueApiVariableDecl(ast);
+  necessaryOptimization(ast);
+  handleVueApiCallExp(ast);
 
-    CallExpression(path) {
-      transformUndeclaredReactiveCall(path);
-      transformUndeclaredComputedCall(path);
-      transformUndeclaredReadonlyCall(path);
-      transformUndeclaredToRefCall(path);
-
-      transformWatch(path);
-      tranformWatchEffect(path);
-      transformLifecycle(path);
-      transformNextTick(path);
-    },
-
-    Function(path) {
-      transformFunction(path);
-    },
-  });
+  // step 3
+  handleReactiveUpdate(ast);
 
   return ast;
 }
+ 
