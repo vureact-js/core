@@ -80,6 +80,10 @@ class ReactHookBuilder {
       deps,
     );
   }
+
+  useRef(args: CallExpArgs): t.CallExpression {
+    return this.baseBuild(React_Hooks.useRef, args);
+  }
 }
 
 export const reactHookBuilder = new ReactHookBuilder();
