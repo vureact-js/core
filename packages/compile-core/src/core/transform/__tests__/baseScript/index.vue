@@ -1,5 +1,15 @@
 <script setup lang="ts">
 // @ts-nocheck
+
+const MAX_VALUE = 999;
+
+const person = {
+  name: 'k',
+  age: 1,
+};
+
+const list = [1, 2, 3];
+
 const count = ref<number | string>(1);
 
 const state = reactive({
