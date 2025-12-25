@@ -1,6 +1,10 @@
 import { NodePath, traverse } from '@babel/core';
 import * as t from '@babel/types';
-import { getNodeExtensionMeta, getRootIdByMemberNodePath } from './babel-utils';
+import {
+  getNodeExtensionMeta,
+  getRootIdByMemberNodePath,
+  isRealVariableAccess,
+} from './babel-utils';
 
 export function analyzeFuncArgDeps(
   arg: t.Expression,
@@ -43,8 +47,13 @@ export function analyzeFuncBodyDeps(
       },
 
       Identifier(innerPath) {
-        // 跳过已被 MemberExpression 处理的标识符
-        if (processedIdentifiers.has(innerPath.node)) return;
+        if (
+          processedIdentifiers.has(innerPath.node) || // 跳过已被 MemberExpression 处理的标识符
+          !isRealVariableAccess(innerPath)
+        ) {
+          return;
+        }
+
         const dep = analyzeIdentifierDep(innerPath);
         if (dep) dependencies.add(dep);
       },
@@ -84,9 +93,6 @@ export function analyzeMemberExpDep(
 }
 
 export function analyzeIdentifierDep(path: NodePath<t.Identifier>): string | undefined {
-  // 判断是否是作为变量被引用
-  if (!isReferencedId(path)) return;
-
   const name = path.node.name;
 
   // 查找变量标识符的绑定源
@@ -152,24 +158,4 @@ export function findRootIdIsReactive(
 export function isReactiveBinding(node?: t.Node): boolean {
   if (!node) return false;
   return !!getNodeExtensionMeta(node)?.isReactive;
-}
-
-function isReferencedId(path: NodePath<t.Identifier>): boolean {
-  // 排除作为属性名的标识符
-  if (path.parentPath.isMemberExpression()) {
-    return path.parentPath.node.object === path.node;
-  }
-
-  // 排除对象属性键名
-  if (path.parentPath.isObjectProperty()) {
-    return path.parentPath.node.value === path.node;
-  }
-
-  // 排除函数参数名
-  if (path.parentPath.isFunction()) {
-    return !path.parentPath.node.params.includes(path.node);
-  }
-
-  // 其他情况都认为是变量引用
-  return true;
 }
