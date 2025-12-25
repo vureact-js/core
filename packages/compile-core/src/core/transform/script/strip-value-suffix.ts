@@ -1,8 +1,5 @@
-// strip-value-suffix.ts
 import { NodePath, traverse } from '@babel/core';
 import * as t from '@babel/types';
-import { compileContext } from '@shared/compile-context';
-import { logger } from '@shared/logger';
 import { ScriptBlockIR } from '.';
 import { getRootIdByMemberNodePath } from './shared/babel-utils';
 import { ReactiveTypes } from './shared/types';
@@ -132,22 +129,7 @@ function isValuePropertyAccess(
     return property.value === 'value';
   }
 
-  const { source, filename } = compileContext.context;
-
   // 对于计算属性访问，如 obj[valueKey]，无法静态确定，跳过
-  if (path.node.computed) {
-    logger.warn('Skip computed property accesses that cannot be statically determined.', {
-      source,
-      file: filename,
-      loc: property.loc!,
-    });
-  } else {
-    logger.warn('Unhandled property type.', {
-      source,
-      file: filename,
-      loc: property.loc!,
-    });
-  }
 
   return false;
 }
