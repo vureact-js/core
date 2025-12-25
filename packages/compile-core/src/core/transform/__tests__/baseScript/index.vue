@@ -8,14 +8,14 @@ const person = {
   age: 1,
 };
 
-const list = [1, 2, 3];
+const LIST = [1, MAX_VALUE, person.age];
 
 const count = ref<number | string>(1);
 
 const state = reactive({
   foo: 1,
   bar: 2,
-  list: [],
+  list: LIST,
 });
 
 const value = readonly(1);
@@ -52,8 +52,8 @@ const 函数 = (参数: number): number => {
   return 值;
 };
 
-const fn2 = function () {
-  state.foo = count.value + stateRefs.bar;
+const fn2 = function (count) {
+  state.foo = count + stateRefs.bar;
   state.list.push({
     k: Date.now().toString(),
     v: state.foo,
