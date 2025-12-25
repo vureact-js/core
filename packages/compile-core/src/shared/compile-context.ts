@@ -3,17 +3,16 @@ import { LangType } from './babel-utils';
 export interface CompileContextType {
   source: string;
   filename: string;
-  /* 收集模板 ref. <div ref="name" /> */
-  nodeRefs: Set<string>;
-  /* 收集模板 v-model，用于创建 usestate */
-  models: Array<{ varName: string; setterName: string }>;
   imports: Map<string, ImportItem[]>;
   lang: {
     script: LangType;
     style: string[];
   };
-  /* 收集 script 中定义的响应式变量名 */
-  dependencies: Set<string>;
+  templateVar: {
+    ids: Set<string>; // 普通变量
+    refs: Set<string>; // node ref
+    vModels: Array<{ getterName: string; setterName: string }>; // v-model
+  };
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
@@ -34,13 +33,15 @@ class CompileContext {
       source: '',
       filename: '',
       imports: new Map(),
-      models: [],
-      nodeRefs: new Set(),
       lang: {
         script: 'js',
         style: [],
       },
-      dependencies: new Set(),
+      templateVar: {
+        vModels: [],
+        ids: new Set(),
+        refs: new Set(),
+      },
     };
   };
 
