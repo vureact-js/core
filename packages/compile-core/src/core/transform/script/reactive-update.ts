@@ -64,7 +64,7 @@ export function findIsReactiveAccess(
 
   const binding = path.scope.getBinding(rootId.name);
 
-  if (isReactiveBinding(binding?.path)) {
+  if (isReactiveBinding(binding?.path.node)) {
     return getNodeExtensionMeta(binding!.path.node);
   }
 }

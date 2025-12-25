@@ -12,7 +12,7 @@ export function analyzeFuncArgDeps(
 
   if (t.isIdentifier(arg)) {
     const binding = parentPath.scope.getBinding(arg.name);
-    if (isReactiveBinding(binding?.path)) {
+    if (isReactiveBinding(binding?.path.node)) {
       return t.arrayExpression([arg]);
     }
   }
@@ -93,7 +93,7 @@ export function analyzeIdentifierDep(path: NodePath<t.Identifier>): string | und
   const binding = path.scope.getBinding(name);
 
   // 确保源是变量声明式
-  if (binding && isReactiveBinding(binding.path)) {
+  if (binding && isReactiveBinding(binding.path.node)) {
     return name;
   }
 }
@@ -142,16 +142,15 @@ export function findRootIdIsReactive(
 
   // 查找根标识符的绑定
   const binding = rootId.scope.getBinding(rootName);
-  if (!isReactiveBinding(binding?.path)) {
+  if (!isReactiveBinding(binding?.path.node)) {
     return; // 根变量不是响应式变量
   }
 
   return rootName;
 }
 
-export function isReactiveBinding(path?: NodePath): boolean {
-  if (!path) return false;
-  const { node } = path;
+export function isReactiveBinding(node?: t.Node): boolean {
+  if (!node) return false;
   return !!getNodeExtensionMeta(node)?.isReactive;
 }
 
