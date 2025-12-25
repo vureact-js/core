@@ -1,9 +1,9 @@
 import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
 import { RV3_HOOKS } from '@consts/runtimeModules';
-import { reactHookBuilder } from './builders/react-hook-builder';
-import { setNodeExtensionMeta } from './shared/babel-utils';
-import { requiredCallExpHandling } from './shared/required-before-transform';
+import { reactHookBuilder } from '../builders/react-hook-builder';
+import { setNodeExtensionMeta } from '../shared/babel-utils';
+import { requiredCallExpHandling } from '../shared/required-before-transform';
 
 const adaptApis = {
   watch: RV3_HOOKS.useWatch,

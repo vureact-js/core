@@ -1,8 +1,8 @@
 import { NodePath, types as t } from '@babel/core';
 import { RV3_HOOKS } from '@consts/runtimeModules';
-import { reactHookBuilder } from './builders/react-hook-builder';
-import { analyzeFuncArgDeps } from './shared/analyze-dependency';
-import { requiredCallExpHandling } from './shared/required-before-transform';
+import { reactHookBuilder } from '../builders/react-hook-builder';
+import { analyzeFuncArgDeps } from '../shared/analyze-dependency';
+import { requiredCallExpHandling } from '../shared/required-before-transform';
 
 const adaptApis = {
   onBeforeMount: RV3_HOOKS.useBeforeMount,

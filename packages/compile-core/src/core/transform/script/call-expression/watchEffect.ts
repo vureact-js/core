@@ -1,10 +1,10 @@
 import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
 import { RV3_HOOKS } from '@consts/runtimeModules';
-import { reactHookBuilder } from './builders/react-hook-builder';
-import { analyzeFuncArgDeps } from './shared/analyze-dependency';
-import { setNodeExtensionMeta } from './shared/babel-utils';
-import { requiredCallExpHandling } from './shared/required-before-transform';
+import { reactHookBuilder } from '../builders/react-hook-builder';
+import { analyzeFuncArgDeps } from '../shared/analyze-dependency';
+import { setNodeExtensionMeta } from '../shared/babel-utils';
+import { requiredCallExpHandling } from '../shared/required-before-transform';
 
 const adaptApis = {
   watchEffect: RV3_HOOKS.useWatchEffect,
