@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { parseFragmentExp } from '@shared/babel-utils';
+import { parseTemplateExp } from '@shared/babel-utils';
 import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runtime-utils';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
@@ -56,7 +56,7 @@ function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: bool
       const spread = `{[${name}]: ${propValue}}`;
 
       exp.content = spread;
-      exp.ast = parseFragmentExp(spread);
+      exp.ast = parseTemplateExp(spread);
     }
 
     propsIR.babelExp = exp;
@@ -68,7 +68,7 @@ function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: bool
     const { babelExp, isStringLiteral } = propsIR.value;
 
     babelExp.content = propValue;
-    babelExp.ast = parseFragmentExp(propValue, isStringLiteral);
+    babelExp.ast = parseTemplateExp(propValue, isStringLiteral);
 
     if (clearContent) propsIR.value.content = '';
   };

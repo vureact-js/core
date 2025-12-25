@@ -1,4 +1,4 @@
-import { parseFragmentExp } from '@shared/babel-utils';
+import { parseTemplateExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
@@ -51,7 +51,7 @@ export function handleVIf(
     value,
     babelExp: {
       content: value,
-      ast: parseFragmentExp(value),
+      ast: parseTemplateExp(value),
     },
   };
 }

@@ -2,7 +2,7 @@ import * as t from '@babel/types';
 import { ElementNodeIR } from '@core/transform/template/elements/node';
 import { PropsIR, PropTypes } from '@core/transform/template/props';
 import { SlotPropsIR } from '@core/transform/template/props/vslot';
-import { parseFragmentExp } from '@shared/babel-utils';
+import { parseTemplateExp } from '@shared/babel-utils';
 import { buildChildren } from '..';
 import { JSXProp } from '../types';
 import { buildElement } from './element-builder';
@@ -37,7 +37,7 @@ function buildSlot(propIR: SlotPropsIR) {
   const render = t.arrowFunctionExpression([t.identifier(params)], jsx as t.Expression);
 
   if (!propIR.isStatic) {
-    const spread = parseFragmentExp(`{[${key}]: ${render}}`);
+    const spread = parseTemplateExp(`{[${key}]: ${render}}`);
     return t.jsxSpreadAttribute(spread);
   }
 

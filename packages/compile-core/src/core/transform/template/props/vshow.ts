@@ -1,4 +1,4 @@
-import { parseFragmentExp } from '@shared/babel-utils';
+import { parseTemplateExp } from '@shared/babel-utils';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/node';
 import { mergePropsIR } from '../shared/merge-props';
@@ -18,7 +18,7 @@ export function handleVShow(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     value: test,
     babelExp: {
       content: test,
-      ast: parseFragmentExp(test),
+      ast: parseTemplateExp(test),
     },
   };
 

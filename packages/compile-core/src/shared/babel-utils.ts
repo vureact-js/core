@@ -50,7 +50,14 @@ export function getBabelParseOptions(
   };
 }
 
-export function parseFragmentExp(
+/**
+ * 解析 Vue 模板的各种 js 片段表达式
+ * @param value js 字符串表达式，由 Vue 解析后得到
+ * @param isStringLiteral 是否纯文本
+ * @param context babel 解析方式
+ * @returns {Expression}
+ */
+export function parseTemplateExp(
   value: string,
   isStringLiteral = false,
   context: ParseContext = 'vueTemplate',

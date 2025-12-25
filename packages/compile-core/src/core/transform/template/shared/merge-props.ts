@@ -1,4 +1,4 @@
-import { parseFragmentExp } from '@shared/babel-utils';
+import { parseTemplateExp } from '@shared/babel-utils';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
 import { isSimpleStyle, parseStyleString } from './parse-style-string';
@@ -38,7 +38,7 @@ function mergeClass(oldAttr: PropsIR, newAttr: PropsIR) {
     const merged = `${left} ${right}`.trim();
 
     oldAttr.value.content = merged;
-    oldAttr.value.babelExp.ast = parseFragmentExp(merged);
+    oldAttr.value.babelExp.ast = parseTemplateExp(merged);
 
     return;
   }
