@@ -77,6 +77,7 @@ export interface BabelNodeExtensionMeta {
   reactiveType?: ReactiveTypes;
   getterName?: string;
   setterName?: string;
+  isUseRef?: boolean
 }
 
 export function getNodeExtensionMeta(node: t.Node): BabelNodeExtensionMeta {
