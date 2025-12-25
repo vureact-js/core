@@ -1,15 +1,16 @@
 <script setup lang="ts">
 // @ts-nocheck
-const count = ref<number | string>([1]);
+const count = ref<number | string>(1);
 
 const state = reactive({
   foo: 1,
   bar: 2,
+  list: [],
 });
 
 const value = readonly(1);
 
-const double = computed(() => count.value[0] + state?.foo);
+const double = computed(() => count.value + state?.foo);
 
 const stateRef = toRef(state, 'foo');
 
@@ -42,11 +43,15 @@ const 函数 = (参数: number): number => {
 };
 
 const fn2 = function () {
-  state.foo + stateRefs.bar;
+  state.foo = count.value + stateRefs.bar;
+  state.list.push({
+    k: Date.now().toString(),
+    v: state.foo,
+  });
 };
 
 function fn3() {
-  count.value;
+  count.value++;
 }
 
 onBeforeMount(() => {
@@ -66,12 +71,13 @@ onUnmounted(function () {
 });
 
 onBeforeUpdate(() => {
-  state.foo;
+  state.foo = 0;
   console.log('beforeUpdate');
 });
 
 const updated = () => {
-  count.value;
+  count.value++;
+  fn2();
   console.log('updated');
 };
 
