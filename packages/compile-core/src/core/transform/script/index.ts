@@ -1,6 +1,7 @@
 import { ParseResult } from '@babel/parser';
 import { handleVueApiCallExp } from './call-expression';
-import { necessaryOptimization } from './optimizations';
+import { optimizationConstant } from './optimizations/constant';
+import { optimizationFunction } from './optimizations/function';
 import { handleReactiveUpdate } from './reactive-update';
 import { stripReactiveValueSuffix } from './strip-value-suffix';
 import { handleVueApiVariableDecl } from './variable-declarator';
@@ -15,12 +16,15 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
 
   // step 2
   handleVueApiVariableDecl(ast);
-  necessaryOptimization(ast);
+
+  optimizationFunction(ast);
+
   handleVueApiCallExp(ast);
 
   // step 3
   handleReactiveUpdate(ast);
 
+  optimizationConstant(ast);
+
   return ast;
 }
- 
