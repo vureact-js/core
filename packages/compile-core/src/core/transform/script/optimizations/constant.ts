@@ -4,12 +4,22 @@ import { compileContext } from '@shared/compile-context';
 import { ScriptBlockIR } from '..';
 import { reactHookBuilder } from '../builders/react-hook-builder';
 import { isReactiveBinding } from '../shared/analyze-dependency';
-import { isVariableDeclTopLevel, setNodeExtensionMeta } from '../shared/babel-utils';
+import {
+  getNodeExtensionMeta,
+  isRealVariableAccess,
+  isVariableDeclTopLevel,
+  setNodeExtensionMeta,
+} from '../shared/babel-utils';
 
 export function optimizationConstant(ast: ScriptBlockIR) {
   traverse(ast, {
     VariableDeclarator(path) {
       transformToUseRef(path);
+    },
+
+    // Merry christmas! 2025-12-25 19:43
+    Identifier(path) {
+      transformToUseRefAccess(path);
     },
   });
 }
@@ -30,5 +40,23 @@ function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
 
   node.init = reactHookBuilder.useRef([node.init!]);
 
-  setNodeExtensionMeta(parent, { isUseRef: true, isReactive: false, reactiveType: 'none' });
+  setNodeExtensionMeta(node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
+}
+
+function transformToUseRefAccess(path: NodePath<t.Identifier>) {
+  if (!isRealVariableAccess(path)) return;
+
+  const { node } = path;
+  const binding = path.scope.getBinding(node.name);
+
+  if (!binding) return;
+
+  const meta = getNodeExtensionMeta(binding.path.node);
+
+  if (!meta?.isUseRef) return;
+
+  const newAccessName = `${node.name}.current`;
+
+  node.name = newAccessName;
+  node.loc!.identifierName = newAccessName;
 }
