@@ -3,11 +3,11 @@ import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
-import { reactHookBuilder } from './builders/react-hook-builder';
-import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { varDeclCallExp } from './shared/destructure-var-decl-call-exp';
-import { CallExpArgs, ReactiveTypes } from './shared/types';
-import { warnVueHookInBlock } from './shared/unsupported-warn';
+import { reactHookBuilder } from '../builders/react-hook-builder';
+import { reactHookVarDecl } from '../builders/react-hook-variable-declaration';
+import { varDeclCallExp } from '../shared/destructure-var-decl-call-exp';
+import { CallExpArgs, ReactiveTypes } from '../shared/types';
+import { warnVueHookInBlock } from '../shared/unsupported-warn';
 
 const adaptApis = {
   toRef: RV3_HOOKS.useState$,

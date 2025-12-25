@@ -3,12 +3,12 @@ import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
-import { reactHookBuilder } from './builders/react-hook-builder';
-import { reactHookVarDecl } from './builders/react-hook-variable-declaration';
-import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
-import { requiredVarDeclHandling } from './shared/required-before-transform';
-import { ReactiveTypes } from './shared/types';
-import { warnVueHookInBlock } from './shared/unsupported-warn';
+import { reactHookBuilder } from '../builders/react-hook-builder';
+import { reactHookVarDecl } from '../builders/react-hook-variable-declaration';
+import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
+import { requiredVarDeclHandling } from '../shared/required-before-transform';
+import { ReactiveTypes } from '../shared/types';
+import { warnVueHookInBlock } from '../shared/unsupported-warn';
 
 const adaptApis = {
   computed: React_Hooks.useMemo,
