@@ -2,12 +2,12 @@ import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
 import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { reactHookBuilder } from './builders/react-hook-builder';
-import { analyzeFuncBodyDeps } from './shared/analyze-dependency';
-import { setNodeExtensionMeta } from './shared/babel-utils';
-import { warnVueHookInBlock } from './shared/unsupported-warn';
+import { reactHookBuilder } from '../builders/react-hook-builder';
+import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
+import { setNodeExtensionMeta } from '../shared/babel-utils';
+import { warnVueHookInBlock } from '../shared/unsupported-warn';
 
-export function transformFunction(path: NodePath<t.Function>) {
+export function optimizationFunction(path: NodePath<t.Function>) {
   const { node, parent } = path;
 
   if (t.isFunctionDeclaration(node) || isCallbackFunction(path) || !isTopLevel(path)) return;
