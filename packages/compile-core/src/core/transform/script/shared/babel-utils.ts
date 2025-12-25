@@ -120,3 +120,25 @@ export function checkIsCallExpInAnyCallback(path: NodePath<t.CallExpression>): b
 
   return false;
 }
+
+export function isVariableDeclTopLevel(path: NodePath<t.Node>): boolean {
+  const variableDeclaratorPath = path;
+  const variableDeclarationPath = variableDeclaratorPath.parentPath;
+
+  if (!variableDeclarationPath) {
+    return false;
+  }
+  
+  if (variableDeclarationPath.isProgram()) {
+    return true;
+  }
+
+  const variableDeclarationParentPath = variableDeclarationPath.parentPath;
+
+  // 变量声明在 Program 下
+  if (variableDeclarationParentPath && variableDeclarationParentPath.isProgram()) {
+    return true;
+  }
+
+  return false;
+}
