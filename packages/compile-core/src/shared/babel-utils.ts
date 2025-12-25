@@ -1,5 +1,5 @@
 import { parseExpression, ParserOptions, ParserPlugin } from '@babel/parser';
-import { Expression, identifier, stringLiteral } from '@babel/types';
+import * as t from '@babel/types';
 import { compileContext } from './compile-context';
 
 export type LangType = 'js' | 'jsx' | 'ts' | 'tsx';
@@ -9,11 +9,11 @@ type ParseContext = 'script' | 'vueTemplate' | 'expression';
 export function getBabelParseOptions(
   lang: LangType = 'js',
   context: ParseContext = 'script',
-  filename = 'vue-sfc',
+  filename: string,
 ): ParserOptions {
   const baseOptions: ParserOptions = {
     sourceType: 'module',
-    sourceFilename: filename,
+    sourceFilename: filename ?? 'vue-sfc',
     errorRecovery: true, // 容错模式
   };
 
@@ -61,19 +61,23 @@ export function parseTemplateExp(
   value: string,
   isStringLiteral = false,
   context: ParseContext = 'vueTemplate',
-): Expression {
+): t.Expression {
   if (isStringLiteral) {
-    return stringLiteral(value);
+    return t.stringLiteral(value);
   }
 
   try {
-    const { lang, filename } = compileContext.context;
-
+    const { lang, filename, templateVar } = compileContext.context;
     const expression = parseExpression(value, getBabelParseOptions(lang.script, context, filename));
+
+    if (t.isIdentifier(expression)) {
+      // 记录模板使用的所有变量名
+      templateVar.ids.add(expression.name);
+    }
 
     return expression;
   } catch {
-    // 回退方案：利用 identifier 的代码还原输出
-    return identifier(value);
+    // 回退方案：原样输出
+    return t.identifier(value);
   }
 }
