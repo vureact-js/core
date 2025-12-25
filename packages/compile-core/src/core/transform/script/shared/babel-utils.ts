@@ -77,7 +77,7 @@ export interface BabelNodeExtensionMeta {
   reactiveType?: ReactiveTypes;
   getterName?: string;
   setterName?: string;
-  isUseRef?: boolean
+  isUseRef?: boolean;
 }
 
 export function getNodeExtensionMeta(node: t.Node): BabelNodeExtensionMeta {
@@ -129,7 +129,7 @@ export function isVariableDeclTopLevel(path: NodePath<t.Node>): boolean {
   if (!variableDeclarationPath) {
     return false;
   }
-  
+
   if (variableDeclarationPath.isProgram()) {
     return true;
   }
@@ -138,6 +138,106 @@ export function isVariableDeclTopLevel(path: NodePath<t.Node>): boolean {
 
   // 变量声明在 Program 下
   if (variableDeclarationParentPath && variableDeclarationParentPath.isProgram()) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * 检查标识符是否是真正的变量访问
+ */
+export function isRealVariableAccess(path: NodePath<t.Identifier>): boolean {
+  return isIdentifierAccess(path) && !isPropertyName(path);
+}
+
+export function isIdentifierAccess(path: NodePath<t.Identifier>): boolean {
+  // 1. 检查是否是声明节点
+  if (isIdentifierDeclaration(path)) {
+    return false;
+  }
+
+  // 2. 检查是否是引用
+  const binding = path.scope.getBinding(path.node.name);
+  if (!binding) {
+    return true; // 没有绑定，肯定是访问（可能是全局变量）
+  }
+
+  // 3. 检查是否就是声明节点本身
+  return binding.identifier !== path.node;
+}
+
+function isIdentifierDeclaration(path: NodePath<t.Identifier>): boolean {
+  const parent = path.parentPath;
+
+  if (!parent) return false;
+
+  // 变量声明符的标识符
+  if (parent.isVariableDeclarator() && parent.node.id === path.node) {
+    return true;
+  }
+
+  // 函数声明的标识符
+  if (parent.isFunctionDeclaration() && parent.node.id === path.node) {
+    return true;
+  }
+
+  // 函数表达式的标识符（如果有的话）
+  if (parent.isFunctionExpression() && parent.node.id === path.node) {
+    return true;
+  }
+
+  // 类声明的标识符
+  if (parent.isClassDeclaration() && parent.node.id === path.node) {
+    return true;
+  }
+
+  // 导入声明的标识符
+  if (parent.isImportSpecifier() && parent.node.local === path.node) {
+    return true;
+  }
+
+  if (parent.isImportDefaultSpecifier() && parent.node.local === path.node) {
+    return true;
+  }
+
+  if (parent.isImportNamespaceSpecifier() && parent.node.local === path.node) {
+    return true;
+  }
+
+  // 参数声明
+  if (parent.isFunction() && parent.node.params.includes(path.node)) {
+    return true;
+  }
+
+  // Catch 子句参数
+  if (parent.isCatchClause() && parent.node.param === path.node) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * 检查标识符是否是属性名（不是变量访问）
+ */
+export function isPropertyName(path: NodePath<t.Identifier>): boolean {
+  const parent = path.parentPath;
+
+  if (!parent) return false;
+
+  // 对象属性的键名
+  if (parent.isObjectProperty() && parent.node.key === path.node) {
+    return true;
+  }
+
+  // 类属性的键名
+  if (parent.isClassProperty() && parent.node.key === path.node) {
+    return true;
+  }
+
+  // 成员表达式的属性名
+  if (parent.isMemberExpression() && parent.node.property === path.node) {
     return true;
   }
 
