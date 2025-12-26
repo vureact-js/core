@@ -243,3 +243,15 @@ export function isPropertyName(path: NodePath<t.Identifier>): boolean {
 
   return false;
 }
+
+export function replaceCallName(callExp: t.CallExpression, identifierName: string) {
+  const { callee } = callExp;
+
+  if (!t.isIdentifier(callee)) return;
+
+  callee.name = identifierName;
+
+  if (callee.loc) {
+    callee.loc.identifierName = identifierName;
+  }
+}
