@@ -10,6 +10,8 @@ const person = {
 
 const LIST = [1, MAX_VALUE, person.age];
 
+const elRef = ref<HTMLDivElement | null>(null);
+
 const count = ref<number | string>(1);
 
 const state = reactive({
@@ -23,14 +25,6 @@ const value = readonly(1);
 const double = computed(() => count.value + state?.foo);
 
 const stateRef = toRef(state, 'foo');
-
-const stateRef2 = toRef(
-  reactive({
-    foo: 1,
-    bar: 2,
-  }),
-  foo,
-);
 
 const numRef = toRef(1);
 
@@ -138,4 +132,11 @@ const stop = watch(
     console.log(newVal);
   },
 );
+
+watchEffect((onCleanup) => {
+  count.value;
+  onCleanup(() => {
+    console.log('watchEffect cleanup');
+  });
+});
 </script>
