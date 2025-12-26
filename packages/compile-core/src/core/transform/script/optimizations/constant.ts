@@ -1,7 +1,7 @@
-import { NodePath, traverse } from '@babel/core';
+import { NodePath } from '@babel/core';
+import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
-import { ScriptBlockIR } from '..';
 import { reactHookBuilder } from '../builders/react-hook-builder';
 import { isReactiveBinding } from '../shared/analyze-dependency';
 import {
@@ -11,8 +11,8 @@ import {
   setNodeExtensionMeta,
 } from '../shared/babel-utils';
 
-export function optimizationConstant(ast: ScriptBlockIR) {
-  traverse(ast, {
+export function optimizeConstant(): TraverseOptions {
+  return {
     VariableDeclarator(path) {
       transformToUseRef(path);
     },
@@ -21,7 +21,7 @@ export function optimizationConstant(ast: ScriptBlockIR) {
     Identifier(path) {
       transformToUseRefAccess(path);
     },
-  });
+  };
 }
 
 function transformToUseRef(path: NodePath<t.VariableDeclarator>) {

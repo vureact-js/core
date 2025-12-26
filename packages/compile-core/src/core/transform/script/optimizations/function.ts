@@ -1,19 +1,19 @@
-import { NodePath, traverse } from '@babel/core';
+import { NodePath } from '@babel/core';
+import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { ScriptBlockIR } from '..';
 import { reactHookBuilder } from '../builders/react-hook-builder';
 import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
 import { setNodeExtensionMeta } from '../shared/babel-utils';
 import { warnVueHookInBlock } from '../shared/unsupported-warn';
 
-export function optimizationFunction(ast: ScriptBlockIR) {
-  traverse(ast, {
+export function optimizeFunction(): TraverseOptions {
+  return {
     Function(path) {
       transformToUseCallback(path);
     },
-  });
+  };
 }
 
 function transformToUseCallback(path: NodePath<t.Function>) {
