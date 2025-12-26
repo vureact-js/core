@@ -6,10 +6,7 @@ import {
   isRealVariableAccess,
 } from './babel-utils';
 
-export function analyzeFuncArgDeps(
-  arg: t.Expression,
-  parentPath: NodePath,
-): t.ArrayExpression | undefined {
+export function analyzeFuncArgDeps(arg: t.Expression, parentPath: NodePath): t.ArrayExpression {
   if (t.isFunction(arg)) {
     return analyzeFuncBodyDeps(arg.body, parentPath);
   }
@@ -20,6 +17,8 @@ export function analyzeFuncArgDeps(
       return t.arrayExpression([arg]);
     }
   }
+
+  return t.arrayExpression([]);
 }
 
 export function analyzeFuncBodyDeps(
