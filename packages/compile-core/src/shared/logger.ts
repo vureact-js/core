@@ -48,7 +48,7 @@ export class Logger {
     const logLine = loc?.start?.line;
     const logColumn = loc?.start?.column;
 
-    this.logs.unshift({
+    this.logs.push({
       level,
       message,
       file: file ? relative(process.cwd(), file) : undefined,
