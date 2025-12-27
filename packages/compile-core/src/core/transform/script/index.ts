@@ -3,6 +3,7 @@ import { optimizeConstant } from './optimizations/constant';
 import { optimizeFunction } from './optimizations/function';
 import { processVueSyntax } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
+import { processDefinePropsEmitsApi } from './syntax-processor/main-process/define-props-emits';
 import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
 import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
@@ -18,9 +19,10 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
   processVueSyntax(ast, {
-    preprocess: [stripReactiveValueSuffix, processTemplateNodeRef],
+    preprocess: [processDefinePropsEmitsApi, stripReactiveValueSuffix],
 
     processMain: [
+      processTemplateNodeRef,
       processReactiveApi,
       processReadonlyApi,
       processComputedApi,
