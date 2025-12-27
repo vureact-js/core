@@ -30,11 +30,6 @@ const numRef = toRef(1);
 
 const stateRefs = toRefs(state);
 
-ref(1);
-reactive({});
-readonly(1);
-computed(() => 1);
-
 const 函数 = (参数: number): number => {
   let 值 = 0;
 
@@ -106,6 +101,13 @@ watchSyncEffect(() => {
   console.log('watchSyncEffect');
 });
 
+watchEffect((onCleanup) => {
+  count.value;
+  onCleanup(() => {
+    console.log('watchEffect cleanup');
+  });
+});
+
 watch(count.value, () => {
   console.log(count.value);
 });
@@ -132,11 +134,4 @@ const stop = watch(
     console.log(newVal);
   },
 );
-
-watchEffect((onCleanup) => {
-  count.value;
-  onCleanup(() => {
-    console.log('watchEffect cleanup');
-  });
-});
 </script>
