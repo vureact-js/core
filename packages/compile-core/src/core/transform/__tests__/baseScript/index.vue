@@ -1,6 +1,21 @@
 <script setup lang="ts">
 // @ts-nocheck
 
+const props1 = defineProps(['foo', 'bar']);
+
+const props2 = defineProps<{
+  foo?: string;
+  bar: number;
+}>();
+
+const props3 = defineProps({
+  foo: String,
+  bar: {
+    type: Number,
+    required: true,
+  },
+});
+
 const MAX_VALUE = 999;
 
 const person = {
