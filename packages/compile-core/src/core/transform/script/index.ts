@@ -4,7 +4,6 @@ import { optimizeFunction } from './optimizations/function';
 import { processVueSyntax } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
 import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
-import { processNextTickApi } from './syntax-processor/main-process/nextTick';
 import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
@@ -32,7 +31,6 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
       processWatchApi,
       processWatchEffectApi,
       processLifecycleApi,
-      processNextTickApi,
     ],
 
     postprocess: [processReactiveValueUpdate, optimizeConstant],
