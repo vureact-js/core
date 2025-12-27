@@ -66,3 +66,12 @@ export function warnVueHookInAnyCallback(path: NodePath<t.CallExpression>) {
     });
   }
 }
+
+export function warnVueHookWithoutDeclaration(loc: any) {
+  const { source, filename } = compileContext.context;
+  logger.warn('Calling hooks directly without variable declaration is not supported.', {
+    source,
+    file: filename,
+    loc,
+  });
+}
