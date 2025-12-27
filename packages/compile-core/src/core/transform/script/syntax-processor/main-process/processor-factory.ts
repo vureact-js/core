@@ -79,3 +79,46 @@ export function createCallExpProcessor(
 
   options.onProcessed(adaptName);
 }
+
+interface ProcessPropsOptions {
+  onProcessed: (type: 'defineProps' | 'defineEmits', describe: PropDescribe) => void;
+}
+
+export type PropDescribe = {
+  id: t.Identifier;
+  arg: CallExpArgs;
+  tsType: t.TSTypeParameterInstantiation | null | undefined;
+};
+
+export function createPropsProcessor(
+  path: NodePath<t.CallExpression>,
+  options: ProcessPropsOptions,
+) {
+  const { node, parentPath } = path;
+  const { callee } = node;
+  const { onProcessed } = options;
+
+  if (!t.isIdentifier(callee) || (callee.name !== 'defineProps' && callee.name !== 'defineEmits')) {
+    path.skip();
+    return;
+  }
+
+  const id = parentPath.isVariableDeclarator()
+    ? (parentPath.node.id as t.Identifier)
+    : t.identifier('props');
+
+  const arg = node.arguments;
+  const tsType = node.typeParameters;
+
+  onProcessed(callee.name, {
+    id,
+    arg,
+    tsType,
+  });
+
+  if (parentPath.isVariableDeclaration() || parentPath.isVariableDeclarator()) {
+    parentPath.remove();
+  } else {
+    path.remove();
+  }
+}
