@@ -1,6 +1,5 @@
-import { traverse } from '@babel/core';
+import { ParseResult, traverse } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
-import { ScriptBlockIR } from '..';
 
 interface ProcessOptions<T = ProcessFunction> {
   preprocess: T[];
@@ -8,9 +7,9 @@ interface ProcessOptions<T = ProcessFunction> {
   postprocess: T[];
 }
 
-type ProcessFunction = () => TraverseOptions;
+type ProcessFunction = (ast: ParseResult) => TraverseOptions;
 
-export function processVueSyntax(ast: ScriptBlockIR, options: ProcessOptions) {
+export function processVueSyntax(ast: ParseResult, options: ProcessOptions) {
   const { preprocess, processMain, postprocess } = options;
 
   // 按预定顺序执行流水线
@@ -19,8 +18,8 @@ export function processVueSyntax(ast: ScriptBlockIR, options: ProcessOptions) {
   pipeline(ast, postprocess);
 }
 
-function pipeline(ast: ScriptBlockIR, pipelines: ProcessFunction[]) {
+function pipeline(ast: ParseResult, pipelines: ProcessFunction[]) {
   for (const visitor of pipelines) {
-    traverse(ast, visitor());
+    traverse(ast, visitor(ast));
   }
 }
