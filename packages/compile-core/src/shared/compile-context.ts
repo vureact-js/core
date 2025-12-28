@@ -24,8 +24,8 @@ export type ImportItem = { name: string; onDemand: boolean };
 
 export type DefinePropExp = {
   id: t.Identifier;
-  exp: t.ObjectExpression | t.SpreadElement | t.ObjectPattern;
-  tsType: t.TSTypeParameterInstantiation | null | undefined;
+  exp: t.SpreadElement | t.ObjectPattern;
+  tsTypeParameter: t.TSTypeParameterInstantiation | null | undefined;
 };
 
 class CompileContext {
