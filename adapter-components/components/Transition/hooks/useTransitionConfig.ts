@@ -1,0 +1,288 @@
+import { useCallback, useMemo } from 'react';
+import { TransitionActions } from 'react-transition-group/Transition';
+
+export interface BaseTransitionProps {
+  /**
+   * Used to automatically generate transition CSS class names.
+   * e.g. `name: 'fade'` will auto expand to `.fade-enter`,
+   * `.fade-enter-active`, etc.
+   */
+  name?: string;
+  /**
+   * Whether to apply CSS transition classes.
+   * Default: true
+   */
+  css?: boolean;
+  /**
+   * Whether to apply transition on initial render.
+   * Default: false
+   */
+  appear?: boolean;
+  /**
+   * Specifies explicit durations of the transition.
+   * Default behavior is wait for the first `transitionend`
+   * or `animationend` event on the root transition element.
+   */
+  duration?: number | { enter: number; leave: number };
+  /**
+   * Props for customizing transition classes.
+   */
+  enterFromClass?: string;
+  enterActiveClass?: string;
+  enterToClass?: string;
+  appearFromClass?: string;
+  appearActiveClass?: string;
+  appearToClass?: string;
+  leaveFromClass?: string;
+  leaveActiveClass?: string;
+  leaveToClass?: string;
+  /**
+   * Callback fired before the "entering" status is applied.
+   */
+  onBeforeEnter?: (el: HTMLElement) => void;
+  /**
+   * Callback fired after the "entering" status is applied.
+   */
+  onEnter?: (el: HTMLElement, done: () => void) => void;
+  /**
+   * Callback fired after the "entered" status is applied.
+   */
+  onAfterEnter?: (el: HTMLElement) => void;
+  /**
+   * Callback fired before the "appear" status is applied.
+   */
+  onBeforAppear?: (el: HTMLElement) => void;
+  /**
+   * Callback fired after the "appearing" status is applied.
+   */
+  onAppear?: (el: HTMLElement, done: () => void) => void;
+  /**
+   * Callback fired after the "appeared" status is applied.
+   */
+  onAfterAppear?: (el: HTMLElement) => void;
+  /**
+   * Callback fired before the "exiting" status is applied.
+   */
+  onBeforeLeave?: (el: HTMLElement) => void;
+  /**
+   * Callback fired after the "exiting" status is applied.
+   */
+  onLeave?: (el: HTMLElement, done: () => void) => void;
+  /**
+   * Callback fired after the "exited" status is applied.
+   */
+  onAfterLeave?: (el: HTMLElement) => void;
+  /**
+   * Callback fired when the "entering" state is canceled.
+   */
+  onEnterCancelled?: (el: HTMLElement) => void;
+  /**
+   * Callback fired when the "leaving" state is canceled.
+   */
+  onLeaveCancelled?: (el: HTMLElement) => void;
+}
+
+export interface TransitionConfig extends TransitionActions {
+  classNames?: {
+    enter?: string;
+    enterActiveClass?: string;
+    enterDone?: string;
+    exit?: string;
+    exitActive?: string;
+    exitDone?: string;
+    appear?: string;
+    appearActiveClass?: string;
+    appearDone?: string;
+  };
+  timeout: number | { enter: number; exit: number; appear?: number };
+  appear: boolean;
+  // 事件处理函数
+  onEnter?: (node: HTMLElement) => void;
+  onEntering?: (node: HTMLElement) => void;
+  onEntered?: (node: HTMLElement) => void;
+  onExit?: (node: HTMLElement) => void;
+  onExiting?: (node: HTMLElement) => void;
+  onExited?: (node: HTMLElement) => void;
+}
+
+const defaultDuration = 500;
+const diff = 10;
+
+// 处理 duration 为对象类型的计算
+export const getActualDuration = (
+  duration: BaseTransitionProps['duration'],
+  type: 'enter' | 'leave',
+) => {
+  // 必须比设置的 css 过渡持续时间快 10ms，否则有概率会出现过渡效果结束后出现闪烁
+  if (typeof duration === 'number') {
+    return duration - diff;
+  }
+  return type === 'enter'
+    ? (duration?.enter ?? defaultDuration) - diff
+    : (duration?.leave ?? defaultDuration) - diff;
+};
+
+export function useTransitionConfig(props: BaseTransitionProps): TransitionConfig {
+  const {
+    name = '',
+    css = true,
+    appear = false,
+    duration = defaultDuration,
+    enterFromClass,
+    enterActiveClass,
+    enterToClass,
+    appearFromClass,
+    appearActiveClass,
+    appearToClass,
+    leaveFromClass,
+    leaveActiveClass,
+    leaveToClass,
+    onBeforeEnter,
+    onEnter,
+    onAfterEnter,
+    onBeforeLeave,
+    onLeave,
+    onAfterLeave,
+    onBeforAppear,
+    onAppear,
+    onAfterAppear,
+  } = props;
+
+  // 计算类名配置
+  const classNames = useMemo(() => {
+    // @ts-ignore
+    if (!css) return 'NO_CSS_' as undefined;
+
+    const baseCls = {
+      enter: enterFromClass || name ? `${name}-enter-from` : '',
+      enterActive: enterActiveClass || name ? `${name}-enter-active` : '',
+      enterDone: enterToClass || name ? `${name}-enter-to` : '',
+      exit: leaveFromClass || name ? `${name}-leave-from` : '',
+      exitActive: leaveActiveClass || name ? `${name}-leave-active` : '',
+      exitDone: leaveToClass || name ? `${name}-leave-to` : '',
+    };
+
+    // 只有当 appear 为 true 时才添加 appear 类名映射
+    if (appear) {
+      const appearCls = {
+        appear: appearFromClass || baseCls.enter,
+        appearActive: appearActiveClass || baseCls.enterActive,
+        appearDone: appearToClass || baseCls.enterDone,
+      };
+
+      return {
+        ...appearCls,
+        ...baseCls,
+      };
+    }
+
+    return baseCls;
+  }, [
+    css,
+    enterFromClass,
+    enterActiveClass,
+    enterToClass,
+    appearFromClass,
+    appearActiveClass,
+    appearToClass,
+    leaveFromClass,
+    leaveActiveClass,
+    leaveToClass,
+    appear,
+    name,
+  ]);
+
+  // 计算超时时间
+  const timeout = useMemo(() => {
+    if (typeof duration === 'number') {
+      return duration - diff;
+    }
+    return {
+      enter: getActualDuration(duration, 'enter'),
+      appear: getActualDuration(duration, 'enter'),
+      exit: getActualDuration(duration, 'leave'),
+    };
+  }, [duration]);
+
+  // 事件处理函数
+  const handleEnter = useCallback(
+    (node: HTMLElement) => {
+      if (appear) {
+        onBeforAppear?.(node);
+      } else {
+        onBeforeEnter?.(node);
+      }
+    },
+    [appear, onBeforAppear, onBeforeEnter],
+  );
+
+  const handleEntering = useCallback(
+    (node: HTMLElement) => {
+      if (appear) {
+        onAppear?.(node, () => {});
+      } else {
+        onEnter?.(node, () => {});
+      }
+    },
+    [appear, onAppear, onEnter],
+  );
+
+  const handleEntered = useCallback(
+    (node: HTMLElement) => {
+      if (appear) {
+        onAfterAppear?.(node);
+      } else {
+        onAfterEnter?.(node);
+      }
+    },
+    [appear, onAfterAppear, onAfterEnter],
+  );
+
+  const handleExit = useCallback(
+    (node: HTMLElement) => {
+      onBeforeLeave?.(node);
+    },
+    [onBeforeLeave],
+  );
+
+  const handleExiting = useCallback(
+    (node: HTMLElement) => {
+      onLeave?.(node, () => {});
+    },
+    [onLeave],
+  );
+
+  const handleExited = useCallback(
+    (node: HTMLElement) => {
+      onAfterLeave?.(node);
+    },
+    [onAfterLeave],
+  );
+
+  const config = useMemo<TransitionConfig>(
+    () => ({
+      classNames,
+      timeout,
+      appear,
+      onEnter: handleEnter,
+      onEntering: handleEntering,
+      onEntered: handleEntered,
+      onExit: handleExit,
+      onExiting: handleExiting,
+      onExited: handleExited,
+    }),
+    [
+      appear,
+      classNames,
+      handleEnter,
+      handleEntered,
+      handleEntering,
+      handleExit,
+      handleExited,
+      handleExiting,
+      timeout,
+    ],
+  );
+
+  return config;
+}
