@@ -1,27 +1,24 @@
 export const enum RuntimeModules {
   REACT = 'react',
-  RUNTIME = 'vureact-runtime',
-  RV3_HOOKS = 'react-vue3-hooks',
-  RV3_COMPONENTS = 'react-vue3-components',
+  VUREACT_RUNTIME = '@vureact/runtime',
 }
 
-export const VR_Runtime = {
+export const VuR_Runtime = {
+  // prop utils
   vOn: 'vOn',
   vBind: 'vBind',
   vBindCls: 'vBindCls',
   vBindStyle: 'vBindStyle',
-} as const;
 
-export const RV3_Components = {
+  // built-in components
   KeepAlive: 'KeepAlive',
   Suspense: 'Suspense',
   TransitionGroup: 'TransitionGroup',
   Transition: 'Transition',
   Teleport: 'Teleport',
   Component: 'Component',
-} as const;
 
-export const RV3_HOOKS = {
+  // hooks
   useBeforeMount: 'useBeforeMount',
   useBeforeUnMount: 'useBeforeUnMount',
   useBeforeUpdate: 'useBeforeUpdate',
