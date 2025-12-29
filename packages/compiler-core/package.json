@@ -2,32 +2,17 @@
   "name": "@vureact/compiler-core",
   "version": "1.0.0",
   "description": "A modern automatic compilation tool that quickly converts Vue3 code to React (Jsx/Tsx). It meets the daily business and component engineering needs of small and medium-sized projects, enabling lossless syntax conversion and precise logic migration. Leverage Vue's mental model advantages to write React code—ready to use right after conversion.",
-  "author": "Owen Dells",
+  "author": "Ryan John",
   "license": "MIT",
   "type": "module",
-  "main": "./lib/index.cjs", 
-  "module": "./lib/index.mjs",
-  "types": "./lib/index.d.ts",
+  "main": "./lib/compiler-core.cjs",
+  "module": "./lib/compiler-core.mjs",
+  "types": "./lib/compiler-core.d.ts",
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/index.mjs",
-      "require": "./lib/index.cjs"
-    },
-    "./parse": {
-      "types": "./lib/parse/index.d.ts",
-      "import": "./lib/parse/index.mjs",
-      "require": "./lib/parse/index.cjs"
-    },
-    "./transform": {
-      "types": "./lib/transform/index.d.ts",
-      "import": "./lib/transform/index.mjs",
-      "require": "./lib/transform/index.cjs"
-    },
-    "./codegen": {
-      "types": "./lib/codegen/index.d.ts",
-      "import": "./lib/codegen/index.mjs",
-      "require": "./lib/codegen/index.cjs"
+      "types": "./lib/compiler-core.d.ts",
+      "import": "./lib/compiler-core.mjs",
+      "require": "./lib/compiler-core.cjs"
     }
   },
   "files": [
