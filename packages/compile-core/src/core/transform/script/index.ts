@@ -10,6 +10,7 @@ import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
+import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
 import { splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
@@ -38,10 +39,9 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
   processVueSyntax(ast, {
-    preprocess: [stripReactiveValueSuffix, processDefinePropsEmitsApi],
+    preprocess: [stripReactiveValueSuffix, processDefinePropsEmitsApi, processTemplateNodeRef],
 
     processMain: [
-      processTemplateNodeRef,
       processReactiveApi,
       processReadonlyApi,
       processComputedApi,
@@ -54,7 +54,12 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
       processLifecycleApi,
     ],
 
-    postprocess: [processReactiveValueUpdate, optimizeConstant, splitScriptBlocks],
+    postprocess: [
+      processReactiveValueUpdate,
+      optimizeConstant,
+      insertRequiredImports,
+      splitScriptBlocks,
+    ],
   });
 
   return __scriptBlockIR;
