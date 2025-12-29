@@ -1,4 +1,3 @@
-import * as t from '@babel/types';
 import { LangType } from './babel-utils';
 
 export interface CompileContextType {
@@ -14,19 +13,9 @@ export interface CompileContextType {
     refs: Set<string>; // node ref
     vModels: Array<{ getterName: string; setterName: string }>; // v-model
   };
-  defineProps: {
-    multiple: boolean; // 代表使用了多个 defineProps 进行定义
-    exp: DefinePropExp[];
-  };
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
-
-export type DefinePropExp = {
-  id: t.Identifier;
-  exp: t.SpreadElement | t.ObjectPattern;
-  tsTypeParameter: t.TSTypeParameterInstantiation | null | undefined;
-};
 
 class CompileContext {
   private ctx: CompileContextType;
@@ -52,10 +41,6 @@ class CompileContext {
         vModels: [],
         ids: new Set(),
         refs: new Set(),
-      },
-      defineProps: {
-        multiple: false,
-        exp: [],
       },
     };
   };
