@@ -1,4 +1,5 @@
 import { ParseResult } from '@babel/parser';
+import * as t from '@babel/types';
 import { optimizeConstant } from './optimizations/constant';
 import { optimizeFunction } from './optimizations/function';
 import { processVueSyntax } from './syntax-processor';
@@ -10,16 +11,34 @@ import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
+import { splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
 
-export type ScriptBlockIR = ParseResult;
+export interface ScriptBlockIR {
+  imports: t.ImportDeclaration[];
+  exports: t.ExportDeclaration[];
+  tsTypeDeclarations: t.TypeScript[];
+  defineProp: {
+    multiple: boolean; // 代表使用了多个 defineProps/defineEmits 进行定义
+    items: DefinePropItem[];
+  };
+  body: t.Statement[];
+}
+
+export interface DefinePropItem {
+  id: t.Identifier;
+  exp: t.SpreadElement | t.ObjectPattern;
+  tsType: t.TSTypeParameterInstantiation | null | undefined;
+}
+
+export const __scriptBlockIR = createIR();
 
 export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
   processVueSyntax(ast, {
-    preprocess: [processDefinePropsEmitsApi, stripReactiveValueSuffix],
+    preprocess: [stripReactiveValueSuffix, processDefinePropsEmitsApi],
 
     processMain: [
       processTemplateNodeRef,
@@ -35,8 +54,18 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
       processLifecycleApi,
     ],
 
-    postprocess: [processReactiveValueUpdate, optimizeConstant],
+    postprocess: [processReactiveValueUpdate, optimizeConstant, splitScriptBlocks],
   });
 
-  return ast;
+  return __scriptBlockIR;
+}
+
+function createIR(): ScriptBlockIR {
+  return {
+    imports: [],
+    exports: [],
+    tsTypeDeclarations: [],
+    defineProp: { multiple: false, items: [] },
+    body: [],
+  };
 }
