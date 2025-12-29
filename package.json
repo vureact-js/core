@@ -2,13 +2,12 @@
   "private": true,
   "packageManager": "pnpm@10.26.1",
   "scripts": {
-    "build:vureact": "pnpm -F vureact build",
-    "build:vureact-runtime": "pnpm -F vureact-runtime build",
-    "test:vureact-runtime": "pnpm -F vureact-runtime test:coverage",
-    "test:vBind": "pnpm -F vureact-runtime test -- vBind.test.ts",
-    "test:vBindCls": "pnpm -F vureact-runtime test -- vBindCls.test.ts",
-    "test:vBindStyle": "pnpm -F vureact-runtime test -- vBindStyle.test.ts",
-    "test:vOn": "pnpm -F vureact-runtime test -- vOn.test.ts"
+    "build:compiler-core": "pnpm -F @vureact/compiler-core build",
+    "build:runtime-core": "pnpm -F @vureact/runtime-core build",
+    "test:vBind": "pnpm -F @vureact/runtime-core test -- vBind.test.ts",
+    "test:vBindCls": "pnpm -F @vureact/runtime-core test -- vBindCls.test.ts",
+    "test:vBindStyle": "pnpm -F @vureact/runtime-core test -- vBindStyle.test.ts",
+    "test:vOn": "pnpm -F @vureact/runtime-core test -- vOn.test.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
