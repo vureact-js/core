@@ -3,6 +3,7 @@ import { logger } from '@shared/logger';
 
 export * from './parse';
 export * from './transform';
+export * from './codegen';
 
 export function compile() {
   // todo
