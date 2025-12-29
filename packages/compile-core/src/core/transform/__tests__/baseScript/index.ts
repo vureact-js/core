@@ -15,5 +15,5 @@ export function transformBaseScript() {
 
   console.timeEnd('transform script duration');
 
-  console.log(JSON.stringify(result.script, null, 2));
+  console.log(JSON.stringify(result.script?.tsTypeDeclarations, null, 2));
 }
