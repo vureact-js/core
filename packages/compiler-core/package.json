@@ -5,24 +5,29 @@
   "author": "Owen Dells",
   "license": "MIT",
   "type": "module",
-  "main": "./lib/index.js",
+  "main": "./lib/index.cjs", 
+  "module": "./lib/index.mjs",
   "types": "./lib/index.d.ts",
   "exports": {
     ".": {
-      "import": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs"
     },
     "./parse": {
-      "import": "./lib/core/parse/index.js",
-      "types": "./lib/core/parse/index.d.ts"
+      "types": "./lib/parse/index.d.ts",
+      "import": "./lib/parse/index.mjs",
+      "require": "./lib/parse/index.cjs"
     },
     "./transform": {
-      "import": "./lib/core/transform/index.js",
-      "types": "./lib/core/transform/index.d.ts"
+      "types": "./lib/transform/index.d.ts",
+      "import": "./lib/transform/index.mjs",
+      "require": "./lib/transform/index.cjs"
     },
     "./codegen": {
-      "import": "./lib/core/codegen/index.js",
-      "types": "./lib/core/codegen/index.d.ts"
+      "types": "./lib/codegen/index.d.ts",
+      "import": "./lib/codegen/index.mjs",
+      "require": "./lib/codegen/index.cjs"
     }
   },
   "files": [
