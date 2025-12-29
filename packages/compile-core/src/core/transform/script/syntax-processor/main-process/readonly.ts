@@ -1,12 +1,12 @@
 import { TraverseOptions } from '@babel/traverse';
-import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
+import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { createCallExpProcessor } from './processor-factory';
 
 export function processReadonlyApi(): TraverseOptions {
   const adaptApis = {
-    readonly: RV3_HOOKS.useReadonly,
-    shallowReadonly: RV3_HOOKS.useShallowReadonly,
+    readonly: VuR_Runtime.useReadonly,
+    shallowReadonly: VuR_Runtime.useShallowReadonly,
   } as const;
 
   return {
@@ -14,7 +14,7 @@ export function processReadonlyApi(): TraverseOptions {
       createCallExpProcessor(path, {
         adaptApis,
         onProcessed(adaptName) {
-          recordImport(RuntimeModules.RV3_HOOKS, adaptName, true);
+          recordImport(RuntimeModules.VUREACT_RUNTIME, adaptName, true);
         },
       });
     },

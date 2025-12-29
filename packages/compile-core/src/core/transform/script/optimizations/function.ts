@@ -3,7 +3,6 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { reactHookBuilder } from '../builders/react-hook-builder';
 import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
 import { setNodeExtensionMeta } from '../shared/babel-utils';
 import { warnVueHookInBlock } from '../shared/unsupported-warn';
@@ -25,7 +24,10 @@ function transformToUseCallback(path: NodePath<t.Function>) {
   recordImport(RuntimeModules.REACT, React_Hooks.useCallback, true);
 
   const deps = analyzeFuncBodyDeps(node.body, path);
-  const newNode = reactHookBuilder.useCallback(node, deps);
+  const newNode = t.callExpression(t.identifier(React_Hooks.useCallback), [
+    node as t.Expression,
+    deps,
+  ]);
 
   // 不论有无依赖都标记为间接响应式，只因是 useCallback
   if (t.isVariableDeclarator(parent)) {

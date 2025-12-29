@@ -1,4 +1,4 @@
-import { RuntimeModules, RV3_Components } from '@consts/runtimeModules';
+import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
@@ -7,9 +7,9 @@ import { addKeyToNode } from '../shared/utils';
 import { ElementNodeIR } from './node';
 
 export function markBuiltinComponent(nodeIR: ElementNodeIR) {
-  if (nodeIR.isComponent && nodeIR.tag in RV3_Components) {
+  if (nodeIR.isComponent && nodeIR.tag in VuR_Runtime) {
     nodeIR.isBuiltIn = true;
-    recordImport(RuntimeModules.RV3_COMPONENTS, nodeIR.tag, true);
+    recordImport(RuntimeModules.VUREACT_RUNTIME, nodeIR.tag, true);
   }
 }
 

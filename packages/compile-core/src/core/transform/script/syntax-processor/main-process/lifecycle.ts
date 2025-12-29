@@ -1,26 +1,26 @@
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
+import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncArgDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from './processor-factory';
 
 export function processLifecycleApi(): TraverseOptions {
   const adaptApis = {
-    onBeforeMount: RV3_HOOKS.useBeforeMount,
-    onMounted: RV3_HOOKS.useMounted,
-    onBeforeUnmount: RV3_HOOKS.useBeforeUnMount,
-    onUnmounted: RV3_HOOKS.useUnmounted,
-    onBeforeUpdate: RV3_HOOKS.useBeforeUpdate,
-    onUpdated: RV3_HOOKS.useUpdated,
+    onBeforeMount: VuR_Runtime.useBeforeMount,
+    onMounted: VuR_Runtime.useMounted,
+    onBeforeUnmount: VuR_Runtime.useBeforeUnMount,
+    onUnmounted: VuR_Runtime.useUnmounted,
+    onBeforeUpdate: VuR_Runtime.useBeforeUpdate,
+    onUpdated: VuR_Runtime.useUpdated,
   } as const;
 
   return {
     CallExpression(path) {
       const { node } = path;
 
-      if (t.isIdentifier(node.callee) && node.callee.name === RV3_HOOKS.nextTick) {
-        recordImport(RuntimeModules.RV3_HOOKS, RV3_HOOKS.nextTick, true);
+      if (t.isIdentifier(node.callee) && node.callee.name === VuR_Runtime.nextTick) {
+        recordImport(RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.nextTick, true);
         return;
       }
 
@@ -32,7 +32,7 @@ export function processLifecycleApi(): TraverseOptions {
         addDeps: (fnArg) => analyzeFuncArgDeps(fnArg, path),
 
         onProcessed(adaptName) {
-          recordImport(RuntimeModules.RV3_HOOKS, adaptName, true);
+          recordImport(RuntimeModules.VUREACT_RUNTIME, adaptName, true);
         },
       });
     },

@@ -2,7 +2,8 @@ import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
-import { reactHookBuilder } from '../builders/react-hook-builder';
+import { React_Hooks, RuntimeModules } from '@src/consts/runtimeModules';
+import { recordImport } from '@src/shared/runtime-utils';
 import { isReactiveBinding } from '../shared/analyze-dependency';
 import {
   getNodeExtensionMeta,
@@ -38,8 +39,9 @@ function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
 
   if (t.isIdentifier(node.id) && templateVar.ids.has(node.id.name)) return;
 
-  node.init = reactHookBuilder.useRef([node.init!]);
+  node.init = t.callExpression(t.identifier(React_Hooks.useRef), [node.init!]);
 
+  recordImport(RuntimeModules.REACT, React_Hooks.useRef, true);
   setNodeExtensionMeta(node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }
 

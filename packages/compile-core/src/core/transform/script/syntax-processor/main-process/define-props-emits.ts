@@ -1,27 +1,27 @@
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { compileContext, DefinePropExp } from '@src/shared/compile-context';
+import { compileContext } from '@src/shared/compile-context';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
+import { __scriptBlockIR, DefinePropItem } from '../..';
 import { createPropsProcessor, PropDescribe } from './processor-factory';
 
 export function processDefinePropsEmitsApi(): TraverseOptions {
-  const { defineProps, lang } = compileContext.context;
+  const { lang } = compileContext.context;
+  const { defineProp } = __scriptBlockIR;
+  const isTS = lang.script.startsWith('ts');
 
   return {
     CallExpression(path) {
       createPropsProcessor(path, {
         onProcessed(type, describe) {
-          const isTS = lang.script.startsWith('ts');
           const props =
             type === 'defineProps'
               ? normalizeProps(describe, isTS)
               : normalizeEmits(describe, isTS);
 
-          defineProps.exp.push(props);
-          if (!defineProps.multiple && defineProps.exp.length > 1) {
-            defineProps.multiple = true;
-          }
+          defineProp.items.push(props);
+          defineProp.multiple = defineProp.items.length > 1;
         },
       });
     },
@@ -46,22 +46,22 @@ function normalizeRuntimeExp(
   return t.objectPattern([t.restElement(t.identifier('restProps'))]);
 }
 
-function normalizeProps(describe: PropDescribe, isTS: boolean): DefinePropExp {
+function normalizeProps(describe: PropDescribe, isTS: boolean): DefinePropItem {
   const { id, arg, tsType } = describe;
   return {
     id,
     exp: isTS && tsType ? t.objectPattern([]) : normalizeRuntimeExp(arg),
-    tsTypeParameter: isTS && tsType ? tsType : undefined,
+    tsType,
   };
 }
 
-function normalizeEmits(describe: PropDescribe, isTS: boolean): DefinePropExp {
+function normalizeEmits(describe: PropDescribe, isTS: boolean): DefinePropItem {
   const { id, arg, tsType } = describe;
   const newTs = isTS && tsType ? transformEmitTsType(tsType) : undefined;
   return {
     id,
     exp: newTs ? t.objectPattern([]) : normalizeRuntimeExp(arg, eventToPropName),
-    tsTypeParameter: newTs,
+    tsType: newTs,
   };
 }
 

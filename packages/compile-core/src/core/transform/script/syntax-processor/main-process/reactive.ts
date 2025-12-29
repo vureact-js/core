@@ -1,6 +1,6 @@
 import { types as t } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
-import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
+import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { recordImport } from '@src/shared/runtime-utils';
@@ -11,12 +11,12 @@ import { createCallExpProcessor } from './processor-factory';
 
 export function processReactiveApi(): TraverseOptions {
   const adaptApis = {
-    ref: RV3_HOOKS.useState$,
-    toRef: RV3_HOOKS.useState$,
-    toRefs: RV3_HOOKS.useState$,
-    reactive: RV3_HOOKS.useState$,
-    shallowRef: RV3_HOOKS.useShallowState,
-    shallowReactive: RV3_HOOKS.useShallowState,
+    ref: VuR_Runtime.useState$,
+    toRef: VuR_Runtime.useState$,
+    toRefs: VuR_Runtime.useState$,
+    reactive: VuR_Runtime.useState$,
+    shallowRef: VuR_Runtime.useShallowState,
+    shallowReactive: VuR_Runtime.useShallowState,
   } as const;
 
   return {
@@ -51,7 +51,7 @@ export function processReactiveApi(): TraverseOptions {
             normalizeToRefArgs(path.node.arguments);
           }
 
-          recordImport(RuntimeModules.RV3_HOOKS, adaptName, true);
+          recordImport(RuntimeModules.VUREACT_RUNTIME, adaptName, true);
         },
       });
     },

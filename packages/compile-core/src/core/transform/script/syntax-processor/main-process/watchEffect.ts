@@ -1,16 +1,16 @@
 import { traverse } from '@babel/core';
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { RuntimeModules, RV3_HOOKS } from '@consts/runtimeModules';
+import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncArgDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from './processor-factory';
 
 export function processWatchEffectApi(): TraverseOptions {
   const adaptApis = {
-    watchEffect: RV3_HOOKS.useWatchEffect,
-    watchPostEffect: RV3_HOOKS.useWatchPostEffect,
-    watchSyncEffect: RV3_HOOKS.useWatchSyncEffect,
+    watchEffect: VuR_Runtime.useWatchEffect,
+    watchPostEffect: VuR_Runtime.useWatchPostEffect,
+    watchSyncEffect: VuR_Runtime.useWatchSyncEffect,
   } as const;
 
   return {
@@ -23,7 +23,7 @@ export function processWatchEffectApi(): TraverseOptions {
 
         onProcessed(adaptName) {
           handleCleanup(path);
-          recordImport(RuntimeModules.RV3_HOOKS, adaptName, true);
+          recordImport(RuntimeModules.VUREACT_RUNTIME, adaptName, true);
         },
       });
     },

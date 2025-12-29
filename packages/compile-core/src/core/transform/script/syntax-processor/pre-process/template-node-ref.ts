@@ -2,7 +2,8 @@ import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
-import { React_Hooks } from '@src/consts/runtimeModules';
+import { React_Hooks, RuntimeModules } from '@src/consts/runtimeModules';
+import { recordImport } from '@src/shared/runtime-utils';
 import {
   isVariableDeclTopLevel,
   replaceCallName,
@@ -22,7 +23,7 @@ function transformNodeRefToUseRef(path: NodePath<t.VariableDeclarator>) {
     node: { id, init },
   } = path;
   const { templateVar } = compileContext.context;
-  templateVar.refs.add('elRef');
+
   if (!isVariableDeclTopLevel(path) || !t.isIdentifier(id)) {
     return;
   }
@@ -32,5 +33,6 @@ function transformNodeRefToUseRef(path: NodePath<t.VariableDeclarator>) {
   }
 
   replaceCallName(init, React_Hooks.useRef);
+  recordImport(RuntimeModules.REACT, React_Hooks.useRef, true);
   setNodeExtensionMeta(path.node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }
