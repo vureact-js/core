@@ -8,7 +8,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import pkg from './package.json';
 
 const banner = `/**
- * vureact-runtime v1.0.0
+ * vureact/runtime-core v1.0.0
  * (c) 2025-present Owen Dells
  * @license MIT
  **/
@@ -17,6 +17,13 @@ const banner = `/**
 const external = [
   'react',
   'react-dom',
+  'react-transition-group',
+  'react-router-dom',
+  'freeze-mutate',
+  'immer',
+  'klona',
+  'react-fast-compare',
+  'use-immer',
 ];
 
 export default [
