@@ -1,5 +1,9 @@
 <script setup lang="ts">
 // @ts-nocheck
+import { computed, reactive, ref } from 'vue';
+import Count from 'Count.vue';
+
+interface Props {}
 
 const props1 = defineProps(['foo', 'bar']);
 
@@ -16,30 +20,17 @@ const props3 = defineProps({
   },
 });
 
-// 要点：
-// 1.事件prop名一律使用 on + capitalize(key)，capitalize 已有了，直接调用即可。
-// 2.带有 update: 前缀的去掉冒号，变成 onUpdate + Xxx，
-// 3.isTS 的情况下根据是否有ts泛型进行处理：
-//  3.1.最终ts类型格式都为 -> key: () => type，
-//  3.2.只有事件名，如 ['change',...] 或这种写法 {change: [],...} 则默认函数返回值是 any，
-//  3.3.若有事件参数别忘了附上参数。
-// 4.exp 存储prop对象，tsType 存储 ts 泛型。
-// 5.开始规范化所有 defineEmits 支持的写法。
-
-// 示例：
-// onChange: () => any
-// onUpdate: () => any
-// onUpdateName: () => any
 const emit1 = defineEmits(['change', 'update', 'update:name']);
+
 const emit2 = defineEmits<{
   change: []; // onChange: () => any
   update: [value: number]; // onUpdate: (value: number) => any
 }>();
+
 // onChange: () => void
 // onUpdate: (value: number) => number
 const emit3 = defineEmits<{ (e: 'change'): void; (e: 'update', value: number): number }>();
-// onChange: () => boolean
-// onUpdate: (value: string) => string
+
 const emit4 = defineEmits<{
   change: () => boolean;
   update: (value: string) => string;
