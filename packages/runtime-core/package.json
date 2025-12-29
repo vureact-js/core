@@ -5,7 +5,7 @@
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.mjs",
   "types": "./lib/index.d.ts",
-  "author": "Owen Dells",
+  "author": "Ryan John",
   "license": "MIT",
   "description": "",
   "keywords": [

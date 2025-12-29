@@ -7,10 +7,10 @@ import { dts } from 'rollup-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 const banner = `/**
- * vureact/runtime-core v1.0.0
- * (c) 2025-present Owen Dells
+ * @vureact/runtime-core v1.0.0
+ * (c) 2025-present Ryan John
  * @license MIT
- **/
+ */
 `;
 
 const external = [
