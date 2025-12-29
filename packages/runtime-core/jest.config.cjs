@@ -1,17 +1,9 @@
 module.exports = {
-  displayName: 'runtime-core',
-
-  preset: 'ts-jest',
-
-  testEnvironment: 'jsdom',
-
+  displayName: "runtime-core",
+  testEnvironment: "jsdom",
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    "^.+\\.(ts|tsx)$": "ts-jest"
   },
-
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-
-  transformIgnorePatterns: ['/node_modules/'],
-
-  testMatch: ['<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx)'],
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx"],
+  testMatch: ["<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx)"],
 };
