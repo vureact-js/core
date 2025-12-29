@@ -5,5 +5,4 @@ coverage/
 *.log
 .DS_Store
 bundles-size.html
-packages/compile-core/**/__tests__/**/*preview.jsx
-packages/compile-core/**/__tests__/**/*preview.tsx
+packages/compiler-core/**/__tests__/**/*preview.jsx
