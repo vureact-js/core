@@ -6,7 +6,7 @@ import { VueASTDescriptor } from '.';
 export function parseScript(block: SFCScriptBlock | null): VueASTDescriptor['script'] {
   if (!block) return null;
 
-  const babelParseOpts = getBabelParseOptions(block.lang as 'js');
+  const babelParseOpts = getBabelParseOptions(block.lang as 'js', 'vueTemplate', '');
   const ast = babelParse(block.content, babelParseOpts);
 
   return {
