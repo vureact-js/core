@@ -5,7 +5,6 @@ import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import { dts } from 'rollup-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
-import pkg from './package.json';
 
 const banner = `/**
  * vureact/runtime-core v1.0.0
@@ -26,20 +25,33 @@ const external = [
   'use-immer',
 ];
 
+const entries = {
+  index: 'src/index.ts',
+  'adapter-components': 'src/adapter-components/index.ts',
+  'adapter-hooks': 'src/adapter-hooks/index.ts',
+  'adapter-utils': 'src/adapter-utils/index.ts',
+};
+
 export default [
   {
-    input: 'src/index.ts',
+    input: entries,
+
+    external,
 
     output: [
       {
-        file: pkg.main,
+        dir: 'lib/cjs',
         format: 'cjs',
+        entryFileNames: '[name].cjs', // 保持分包目录结构
+        chunkFileNames: 'chunks/[name]-[hash].cjs', // 公共代码提取到 chunks 目录
         sourcemap: true,
         banner,
       },
       {
-        file: pkg.module,
+        dir: 'lib/esm',
         format: 'es',
+        entryFileNames: '[name].mjs',
+        chunkFileNames: 'chunks/[name]-[hash].mjs',
         sourcemap: true,
         banner,
       },
@@ -102,18 +114,15 @@ export default [
         open: false,
       }),
     ],
-    external,
   },
 
-  {
-    input: 'src/index.ts',
+  ...Object.keys(entries).map((name) => ({
+    input: entries[name],
     output: {
-      file: pkg.types,
+      file: `lib/${name}.d.ts`,
       format: 'es',
     },
-    plugins: [
-      dts(),
-    ],
+    plugins: [dts()],
     external,
-  },
+  })),
 ];
