@@ -1,32 +1,31 @@
 {
-  "name": "vureact-runtime",
+  "name": "@vureact/runtime-core",
   "version": "1.0.0",
   "type": "module",
-  "main": "./lib/cjs/index.min.cjs",
-  "module": "./lib/esm/index.min.mjs",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.mjs",
   "types": "./lib/index.d.ts",
   "author": "Owen Dells",
   "license": "MIT",
   "description": "",
   "keywords": [
     "react",
-    "vureact",
     "vureact-runtime",
-    "vue-to-react",
-    "react-utils",
-    "react-tools",
-    "react-components"
+    "react-hooks",
+    "react-components",
+    "vue-to-react-adapt"
   ],
   "files": [
-    "lib",
-    "LICENSE",
-    "README.md",
-    "README.zh.md"
+    "lib"
   ],
-  "homepage": "https://vureact.vercel.app/runtime/introduction",
+  "homepage": "https://vureact.vercel.app/docs/en/runtime-core",
   "repository": {
     "type": "git",
-    "url": "https://github.com/smirk9581/vureact/packages/runtime-core"
+    "url": "https://github.com/smirk9581/vureact.git",
+    "directory": "packages/runtime-core"
+  },
+  "bugs": {
+    "url": "https://github.com/smirk9581/vureact/issues"
   },
   "scripts": {
     "clean": "rimraf lib",

@@ -1,5 +1,5 @@
 {
-  "name": "vureact",
+  "name": "@vureact/compiler-core",
   "version": "1.0.0",
   "description": "A modern automatic compilation tool that quickly converts Vue3 code to React (Jsx/Tsx). It meets the daily business and component engineering needs of small and medium-sized projects, enabling lossless syntax conversion and precise logic migration. Leverage Vue's mental model advantages to write React code—ready to use right after conversion.",
   "author": "Owen Dells",
@@ -26,10 +26,7 @@
     }
   },
   "files": [
-    "lib",
-    "LICENSE",
-    "README.md",
-    "README.zh.md"
+    "lib"
   ],
   "keywords": [
     "vue",
@@ -38,15 +35,18 @@
     "vue-to-jsx",
     "vue-to-react",
     "react-vue-like",
-    "babel",
+    "vue-sfc-transformer",
     "compiler",
-    "transformer",
-    "template-transformer"
+    "transformer"
   ],
-  "homepage": "https://vureact.vercel.app",
+  "homepage": "https://vureact.vercel.app/docs/en/compiler-core",
   "repository": {
     "type": "git",
-    "url": "https://github.com/smirk9581/vureact/packages/compile-core"
+    "url": "https://github.com/smirk9581/vureact.git",
+    "directory": "packages/compiler-core"
+  },
+  "bugs": {
+    "url": "https://github.com/smirk9581/vureact/issues"
   },
   "scripts": {
     "build": "tsup",
