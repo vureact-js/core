@@ -76,7 +76,7 @@ function Transition(props: TransitionProps) {
   // if passed the mode option, using SwitchTransition to control 'out-in' and 'in-out'
   if (mode) {
     const onlyChild = transition[0] ?? null;
-    return <SwitchTransition mode={mode}>{onlyChild}</SwitchTransition>;
+    return <SwitchTransition mode={mode}>{onlyChild!}</SwitchTransition>;
   }
 
   return (

@@ -1,5 +1,5 @@
 import { ComponentType, createElement, JSX, memo, PropsWithChildren, ReactNode } from 'react';
-import { getReactType } from '../utils';
+import { getReactType } from './utils';
 
 export interface ComponentProps extends Record<string, any> {
   /**
