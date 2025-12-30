@@ -1,16 +1,17 @@
 export const enum RuntimeModules {
   REACT = 'react',
-  VUREACT_RUNTIME = '@vureact/runtime',
+  VUREACT_RUNTIME = '@vureact/runtime-core',
 }
 
 export const VuR_Runtime = {
-  // prop utils
+  // adapter-utils
   vOn: 'vOn',
   vBind: 'vBind',
   vBindCls: 'vBindCls',
   vBindStyle: 'vBindStyle',
+  nextTick: 'nextTick',
 
-  // built-in components
+  // adapter-components
   KeepAlive: 'KeepAlive',
   Suspense: 'Suspense',
   TransitionGroup: 'TransitionGroup',
@@ -18,7 +19,7 @@ export const VuR_Runtime = {
   Teleport: 'Teleport',
   Component: 'Component',
 
-  // hooks
+  // adapter-hooks
   useBeforeMount: 'useBeforeMount',
   useBeforeUnMount: 'useBeforeUnMount',
   useBeforeUpdate: 'useBeforeUpdate',
@@ -33,7 +34,7 @@ export const VuR_Runtime = {
   useWatchEffect: 'useWatchEffect',
   useWatchPostEffect: 'useWatchPostEffect',
   useWatchSyncEffect: 'useWatchSyncEffect',
-  nextTick: 'nextTick',
+
 } as const;
 
 export const React_Hooks = {
