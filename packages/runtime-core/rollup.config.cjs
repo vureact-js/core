@@ -44,7 +44,7 @@ export default [
         dir: 'lib/cjs',
         format: 'cjs',
         entryFileNames: '[name].cjs', // 保持分包目录结构
-        // chunkFileNames: 'chunks/[name]-[hash].cjs', // 公共代码提取到 chunks 目录
+        chunkFileNames: 'chunks/[name]-[hash].cjs', // 公共代码提取到 chunks 目录
         sourcemap: true,
         banner,
       },
@@ -52,6 +52,7 @@ export default [
         dir: 'lib/esm',
         format: 'es',
         entryFileNames: '[name].mjs',
+        chunkFileNames: 'chunks/[name]-[hash].mjs',
         sourcemap: true,
         banner,
       },
