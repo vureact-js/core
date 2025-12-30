@@ -81,11 +81,14 @@ describe('vBindCls', () => {
 
   describe('边界情况', () => {
     it('应处理 null 输入', () => {
+      // @ts-ignore
       expect(vBindCls(null)).toBe('');
+      // @ts-ignore
       expect(vBindCls('foo', null)).toBe('foo');
     });
 
     it('应处理 undefined 输入', () => {
+      // @ts-ignore
       expect(vBindCls(undefined)).toBe('');
       expect(vBindCls('foo', undefined)).toBe('foo');
     });

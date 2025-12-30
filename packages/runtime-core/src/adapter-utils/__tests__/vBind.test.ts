@@ -97,7 +97,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
       const handler = jest.fn();
       // 'click' 现在会被新的 vBind 逻辑捕获并交给 vOn 处理，生成 'onClick' 属性
       const result = vBind({ click: handler });
-      result
+
       expect(result.onClick).toBeDefined();
       expect(typeof result.onClick).toBe('function');
 
