@@ -26,9 +26,10 @@ const external = [
 ];
 
 const entries = {
-  index: 'src/index.ts',
+  'runtime-core': 'src/index.ts',
   'adapter-components': 'src/adapter-components/index.ts',
   'adapter-hooks': 'src/adapter-hooks/index.ts',
+  'adapter-router': 'src/adapter-router/index.ts',
   'adapter-utils': 'src/adapter-utils/index.ts',
 };
 
@@ -43,7 +44,7 @@ export default [
         dir: 'lib/cjs',
         format: 'cjs',
         entryFileNames: '[name].cjs', // 保持分包目录结构
-        chunkFileNames: 'chunks/[name]-[hash].cjs', // 公共代码提取到 chunks 目录
+        // chunkFileNames: 'chunks/[name]-[hash].cjs', // 公共代码提取到 chunks 目录
         sourcemap: true,
         banner,
       },
@@ -51,7 +52,6 @@ export default [
         dir: 'lib/esm',
         format: 'es',
         entryFileNames: '[name].mjs',
-        chunkFileNames: 'chunks/[name]-[hash].mjs',
         sourcemap: true,
         banner,
       },
@@ -68,6 +68,9 @@ export default [
       commonjs(),
 
       alias({
+        entries: {
+          '@src': './src',
+        },
         resolve: ['.ts', '.tsx'],
       }),
 
@@ -104,7 +107,7 @@ export default [
           beautify: false,
           comments: (_, comment) => {
             const text = comment.value;
-            return /Owen Dells/i.test(text);
+            return /@vureact\/runtime-core v1.0.0/i.test(text);
           },
         },
       }),
@@ -119,7 +122,7 @@ export default [
   ...Object.keys(entries).map((name) => ({
     input: entries[name],
     output: {
-      file: `lib/${name}.d.ts`,
+      file: `lib/types/${name}.d.ts`,
       format: 'es',
     },
     plugins: [dts()],
