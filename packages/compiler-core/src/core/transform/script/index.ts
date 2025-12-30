@@ -19,7 +19,7 @@ import { processTemplateNodeRef } from './syntax-processor/pre-process/template-
 export interface ScriptBlockIR {
   imports: t.ImportDeclaration[];
   exports: t.ExportDeclaration[];
-  tsTypeDeclarations: t.TypeScript[];
+  tsTypes: t.TypeScript[];
   defineProp: {
     multiple: boolean; // 代表使用了多个 defineProps/defineEmits 进行定义
     items: DefinePropItem[];
@@ -71,7 +71,7 @@ function createIR(): ScriptBlockIR {
   return {
     imports: [],
     exports: [],
-    tsTypeDeclarations: [],
+    tsTypes: [],
     defineProp: { multiple: false, items: [] },
     body: [],
   };
