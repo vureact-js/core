@@ -4,7 +4,7 @@ import { RouteConfig } from '../creator/createRouter';
 import { useGuardManager } from '../hooks/useGuardManager';
 import { type RouteLocation } from '../hooks/useRoute';
 import { buildFullPath, getRouteByPath } from '../utils';
-import { type ExclusiveGuards, type GuardRouteLocation } from './GuardManager';
+import { type ExclusiveGuards, type GuardRouteLocation } from './guardManager';
 
 interface Props {
   outlet: ReactNode;

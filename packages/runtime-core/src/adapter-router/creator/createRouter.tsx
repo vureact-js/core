@@ -1,11 +1,9 @@
 import { type FunctionComponent, type ReactNode } from 'react';
 import type { DataRouter, NonIndexRouteObject, RouteObject, To } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
-import { isPromise } from '../../../utils';
-import { createRouterProvider } from '../creator/createRouterProvider';
-import { type ExclusiveGuards, type GlobalGuards } from '../guards/GuardManager';
+import { type ExclusiveGuards, type GlobalGuards } from '../guards/guardManager';
 import type { RouterOptions as RouterHookOptions } from '../hooks/useRouter';
-import { buildSearchParams, getRouteConfig, resolvedPath } from '../utils';
+import { buildSearchParams, getRouteConfig, isPromise, resolvedPath } from '../utils';
 import { createAsyncElement, type ComponentLoader } from './createAsyncElement';
 import {
   registerRouteConfig,
@@ -13,6 +11,7 @@ import {
   type GlobalRouteConfig,
 } from './createClobalRouteConfig';
 import { createWebHashHistory, routerFactory, type RouterMode } from './createHistory';
+import { createRouterProvider } from './createRouterProvider';
 
 export interface CreateRouterOptions {
   routes: RouteConfig[];
@@ -78,7 +77,7 @@ export type ReactRoute = RouteObject;
  * Simulate Vue's `createRouter` based on `react-router-dom`
  *
  * @see https://react-vue3-components.vercel.app/en/router/guide
- * 
+ *
  * @param {CreateRouterOptions} options Application routes
  * @param {CreateRouterOptions.routes} options.routes n/a
  * @param {CreateRouterOptions.history} options.history n/a

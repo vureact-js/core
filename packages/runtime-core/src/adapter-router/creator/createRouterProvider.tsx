@@ -2,7 +2,7 @@ import { type FC, type PropsWithChildren, type ReactNode } from 'react';
 import type { DataRouter } from 'react-router-dom';
 import { RouterProvider as ReactRouterProvider } from 'react-router-dom';
 import { RouterContextProvider } from '../context/RouterContext';
-import { GuardManagerImpl } from '../guards/GuardManager';
+import { GuardManagerImpl } from '../guards/guardManager';
 
 type ReturnValues = {
   guardManager: GuardManagerImpl;

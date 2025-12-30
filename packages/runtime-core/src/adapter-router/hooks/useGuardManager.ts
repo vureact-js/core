@@ -1,5 +1,5 @@
 import { useRouterContext } from '../context/RouterContext';
-import { type GuardManagerImpl } from '../guards/GuardManager';
+import { type GuardManagerImpl } from '../guards/guardManager';
 
 export function useGuardManager(): GuardManagerImpl {
   const { guardManager } = useRouterContext();

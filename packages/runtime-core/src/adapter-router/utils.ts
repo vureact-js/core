@@ -132,3 +132,11 @@ export function getRouteByPath(path: string): RouteConfig | null {
 export function getRouteConfig(): Readonly<GlobalRouteConfig> {
   return Object.freeze(_ROUTE_CONFIG_);
 }
+
+export function isPromise(obj: any): obj is Promise<any> {
+  return (
+    !!obj &&
+    (typeof obj === 'object' || typeof obj === 'function') &&
+    typeof obj.then === 'function'
+  );
+}

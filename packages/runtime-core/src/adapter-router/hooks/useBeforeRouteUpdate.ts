@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouterContext } from '../context/RouterContext';
-import { type ComponentGuards } from '../guards/GuardManager';
+import { type ComponentGuards } from '../guards/guardManager';
 
 /**
  * will trigger when the current route is updated, and only for route parameter changes.
