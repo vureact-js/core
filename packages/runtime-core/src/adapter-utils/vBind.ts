@@ -13,6 +13,8 @@ type ObjectType = Record<string, any>;
  *
  * @example
  * <div {...vBind({ id: 'foo', class: { active: true }, onClick: handler })} />
+ * 
+ * @see https://vureact.vercel.app/en/adapter-utils/vBind
  */
 export function vBind(obj: ObjectType): ObjectType {
   const props: ObjectType = {};

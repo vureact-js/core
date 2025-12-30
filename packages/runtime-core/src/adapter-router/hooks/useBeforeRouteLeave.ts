@@ -5,7 +5,7 @@ import { type ComponentGuards } from '../guards/guardManager';
 /**
  * will trigger when leaving the current route, prior to all other guards.
  *
- * @see https://react-vue3-components.vercel.app/en/router/navigation-guards
+ * @see https://vureact.vercel.app/en/adapter-router/navigation-guards
  *
  * @param fn leave guard
  */

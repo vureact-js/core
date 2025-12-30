@@ -36,7 +36,7 @@ export default memo(TransitionGroup);
 /**
  * Equivalent to Vue `<TransitionGroup>` components, with the same props and usage.
  *
- * @see https://react-vue3-components.vercel.app/en/components/transition-group
+ * @see https://vureact.vercel.app/en/adapter-components/transition-group
  */
 function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
   const { children, htmlProps, tag = null, ...transitionProps } = props;

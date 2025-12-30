@@ -5,7 +5,7 @@ import { useInnerKeepAliveKey, useKeepAliveLifeContext } from '../context';
  * The calls are made on the first mount and each time
  * the item is re-inserted from the cache.
  *
- * @see https://react-vue3-components.vercel.app/en/components/keep-alive
+ * @see https://vureact.vercel.app/en/adapter-components/keep-alive
  */
 export function useActived(fn: () => void) {
   const key = useInnerKeepAliveKey();

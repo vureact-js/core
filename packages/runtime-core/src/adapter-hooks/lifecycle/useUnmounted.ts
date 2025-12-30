@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { EffectCallback } from '../shared/types';
 
 /**
- * @see https://react-vue3-hooks.vercel.app/en/hooks/useUnmounted
+ * @see https://vureact.vercel.app/en/adapter-hooks/useUnmounted
  */
 export function useUnmounted(fn: EffectCallback) {
   useEffect(

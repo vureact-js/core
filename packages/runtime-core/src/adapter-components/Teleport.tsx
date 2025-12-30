@@ -24,7 +24,7 @@ export default memo(Teleport);
 /**
  * Equivalent to Vue `<Teleport>` components, with the same usage.
  * 
- * @see https://react-vue3-components.vercel.app/en/components/teleport
+ * @see https://vureact.vercel.app/en/adapter-components/teleport
  */
 function Teleport(props: PropsWithChildren<TeleportProps>) {
   const { to, disabled, defer, children } = props;

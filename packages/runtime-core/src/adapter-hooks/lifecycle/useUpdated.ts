@@ -3,7 +3,7 @@ import { EffectCallback } from '../shared/types';
 import { useIsFirstMount } from '../shared/useIsFirstMount';
 
 /**
- * @see https://react-vue3-hooks.vercel.app/en/hooks/useUpdated
+ * @see https://vureact.vercel.app/en/adapter-hooks/useUpdated
  */
 export function useUpdated(fn: EffectCallback, deps?: DependencyList): void {
   const firstMount = useIsFirstMount();

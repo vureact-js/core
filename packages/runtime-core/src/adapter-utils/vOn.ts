@@ -36,6 +36,8 @@ type EventCallback<E> = (...args: any[]) => E;
  * <div onClick={vOn('click.once', count++)} />
  * <div onMouseDown={vOn('mousedown.right', e => {})} />
  * <div onKeyDown={vOn('keydown.enter', e => {})} />
+ * 
+ * @see https://vureact.vercel.app/en/adapter-utils/vOn
  */
 export function vOn<E = any>(
   event: string,

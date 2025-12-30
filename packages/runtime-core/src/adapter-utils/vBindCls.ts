@@ -14,6 +14,8 @@ export type VBindClsInput = string | Record<string, any> | VBindClsInput[];
  * vBindCls('base', { active: isActive })                       // "base active" or "base"
  * vBindCls({ foo: true }, 'bar')                               // "foo bar"
  * vBindCls(['a', 'b'], ['c', { d: true }])                     // "a b c d"
+ * 
+ * @see https://vureact.vercel.app/en/adapter-utils/vBindCls
  */
 export function vBindCls(input: VBindClsInput, merge?: VBindClsInput): string {
   const baseResult = processInput(input);

@@ -6,7 +6,7 @@ import { useIsFirstMount } from '../shared/useIsFirstMount';
  * Called after DOM update and before browser painting,
  * logically simulating the "pre-update" phase.
  *
- * @see https://react-vue3-hooks.vercel.app/en/hooks/useBeforeUpdate
+ * @see https://vureact.vercel.app/en/adapter-hooks/useBeforeUpdate
  */
 export function useBeforeUpdate(fn: EffectCallback, deps: DependencyList): void {
   const firstMount = useIsFirstMount();

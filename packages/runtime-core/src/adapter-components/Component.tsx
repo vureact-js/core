@@ -16,7 +16,7 @@ export default memo(Component);
 /**
  * Equivalent to Vue dynamic component, with the same props and usage.
  *
- * @see https://react-vue3-components.vercel.app/en/components/dynamic-component
+ * @see https://vureact.vercel.app/en/adapter-components/dynamic-component
  */
 function Component({ is, children, ...anyProps }: PropsWithChildren<ComponentProps>) {
   switch (getReactType(is)) {

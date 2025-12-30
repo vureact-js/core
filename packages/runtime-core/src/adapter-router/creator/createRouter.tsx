@@ -76,7 +76,7 @@ export type ReactRoute = RouteObject;
 /**
  * Simulate Vue's `createRouter` based on `react-router-dom`
  *
- * @see https://react-vue3-components.vercel.app/en/router/guide
+ * @see https://vureact.vercel.app/en/adapter-router/guide
  *
  * @param {CreateRouterOptions} options Application routes
  * @param {CreateRouterOptions.routes} options.routes n/a

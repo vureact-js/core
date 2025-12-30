@@ -21,8 +21,8 @@ export interface RouteLocation {
 /**
  * Simulate Vue's `useRoute`, based on `react-router-dom`.
  *
- * @see https://react-vue3-components.vercel.app/en/router/guide
- * 
+ * @see https://vureact.vercel.app/en/adapter-router/guide
+ *
  * @returns a route object
  *
  * @field `RouteLocation.name`

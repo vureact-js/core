@@ -25,7 +25,7 @@ export function routerFactory(mode: RouterMode, routes: ReactRoute[], opts?: Mem
  * Create a new DataRouter data router that manages the application
  * path via `history.pushState` and `history.replaceState`.
  *
- * @see https://react-vue3-components.vercel.app/en/router/history-mode
+ * @see https://vureact.vercel.app/en/adapter-router/history-mode
  *
  * @returns history route mode
  */
@@ -36,7 +36,7 @@ export function createWebHistory(): RouterMode {
 /**
  * Create a new DataRouter data router that manages the application path via the URL `hash`.
  *
- * @see https://react-vue3-components.vercel.app/en/router/history-mode
+ * @see https://vureact.vercel.app/en/adapter-router/history-mode
  *
  * @returns hash route mode
  */
@@ -49,7 +49,7 @@ export function createWebHashHistory(): RouterMode {
  * path using an in-memory `History` stack. Useful
  * for non-browser environments without a DOM API.
  *
- * @see https://react-vue3-components.vercel.app/en/router/history-mode
+ * @see https://vureact.vercel.app/en/adapter-router/history-mode
  *
  * @returns memory history route mode
  */

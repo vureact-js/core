@@ -13,7 +13,7 @@ export default memo(RouterView);
 /**
  * used to render route components, based on `react-router-dom`.
  *
- * @see https://react-vue3-components.vercel.app/en/router/router-view-custom
+ * @see https://vureact.vercel.app/en/adapter-router/router-view-custom
  * 
  * @param customRender customize the display mode of route components after rendering.
  */

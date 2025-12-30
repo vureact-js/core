@@ -25,7 +25,7 @@ export default memo(Transition);
 /**
  * Equivalent to Vue `<Transition>` components, with the same props and usage.
  *
- * @see https://react-vue3-components.vercel.app/en/components/transition
+ * @see https://vureact.vercel.app/en/adapter-components/transition
  */
 function Transition(props: TransitionProps) {
   const { mode, children, ...rest } = props;

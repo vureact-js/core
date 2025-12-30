@@ -36,14 +36,14 @@ export default memo(RouterLink);
 /**
  * used for navigating routes, based on `react-router-dom`.
  *
- * @see https://react-vue3-components.vercel.app/en/router/extending-router-link
- * 
+ * @see https://vureact.vercel.app/en/adapter-router/extending-router-link
+ *
  * @param to the route address to navigate to when the link is clicked.
  * @param replace call `router.replace` to replace `router.push`
  * @param activeClassName the class is applied to the link when it matches the current route.
  * @param exactActiveClassName the class is applied to the link when it strictly matches the current route.
  * @param customRender Customize whether its content should be wrapped in an `<a>` tag
- * 
+ *
  */
 function RouterLink(props: PropsWithChildren<RouterLinkProps>) {
   const {

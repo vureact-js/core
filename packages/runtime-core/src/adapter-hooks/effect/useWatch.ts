@@ -25,7 +25,7 @@ export type WatchStopHandle = () => void;
  * @param {WatchOptions} options The provided options include `immediate`, `deep`, and `once`.
  * @returns {WatchStopHandle}
  *
- * @see https://react-vue3-hooks.vercel.app/en/hooks/useWatch
+ * @see https://vureact.vercel.app/en/adapter-hooks/useWatch
  */
 export function useWatch<T>(
   source: WatchSource<T>,

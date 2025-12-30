@@ -1,5 +1,5 @@
 /**
- * @see https://react-vue3-hooks.vercel.app/en/utils/nextTick
+ * @see https://vureact.vercel.app/en/adapter-utils/nextTick
  */
 export function nextTick<T, R>(this: T, fn?: (this: T) => R | Promise<R>): Promise<R> {
   return new Promise((resolve) => {

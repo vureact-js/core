@@ -23,8 +23,8 @@ export interface RouterOptions extends NavigateOptions {
 
 /**
  * Simulate Vue's `useRouter`, based on `react-router-dom`.
- * 
- * @see https://react-vue3-components.vercel.app/en/router/navigation
+ *
+ * @see https://vureact.vercel.app/en/adapter-router/navigation
  *
  * @returns a route handler object
  *

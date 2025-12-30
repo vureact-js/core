@@ -14,6 +14,8 @@ export type StyleType = string | Record<string, any> | StyleType[] | null | unde
  * @param target - The primary style source
  * @param merges - Additional style sources to merge
  * @returns A React-compatible style object
+ * 
+ * @see https://vureact.vercel.app/en/adapter-utils/vBindStyle
  */
 
 export function vBindStyle(target: StyleType, ...merges: StyleType[]): object {

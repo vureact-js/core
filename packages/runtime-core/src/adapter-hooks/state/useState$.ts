@@ -24,7 +24,7 @@ export type State<S> = Partial<S>;
  * @param {boolean} [shallow=false] Whether to force the use of shallow updates (native useState). The default value is false, meaning the judgment is made automatically based on the data type.
  * @returns {StateHook<S>} Returns the state value and the update function.
  *
- * @see https://react-vue3-hooks.vercel.app/en/hooks/useState$
+ * @see https://vureact.vercel.app/en/adapter-hooks/useState$
  *
  * @example
  * // 1. Primitive type update (behaves like useState)
