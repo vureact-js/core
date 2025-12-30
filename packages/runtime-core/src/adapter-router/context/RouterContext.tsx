@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext } from 'react';
-import type { GuardManagerImpl } from '../guards/GuardManager';
+import type { GuardManagerImpl } from '../guards/guardManager';
 
 interface RouterContextType {
   guardManager: GuardManagerImpl;
