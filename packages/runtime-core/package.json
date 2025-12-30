@@ -41,7 +41,7 @@
   "files": [
     "lib"
   ],
-  "homepage": "https://vureact-docs.vercel.app/docs/en/runtime-core",
+  "homepage": "https://vureact.vercel.app/docs/en/runtime-core",
   "repository": {
     "type": "git",
     "url": "https://github.com/smirk9581/vureact.git",
