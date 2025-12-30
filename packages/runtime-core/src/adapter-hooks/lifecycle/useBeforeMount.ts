@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import { EffectCallback } from '../types';
+import { EffectCallback } from '../shared/types';
 
 /**
  * Synchronously executed after DOM mounting and before painting.

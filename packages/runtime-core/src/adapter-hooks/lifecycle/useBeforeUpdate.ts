@@ -1,6 +1,6 @@
 import type { DependencyList, EffectCallback } from 'react';
 import { useLayoutEffect } from 'react';
-import { useIsFirstMount } from './useIsFirstMount';
+import { useIsFirstMount } from '../shared/useIsFirstMount';
 
 /**
  * Called after DOM update and before browser painting,

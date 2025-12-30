@@ -1,8 +1,7 @@
 import { enableMapSet } from 'immer';
 import { useCallback, useMemo, useState } from 'react';
 import { Updater, useImmer } from 'use-immer';
-import { isMapSetArray, isObject, isPrimitive } from '../utils/is';
-import { mergeDeep } from '../utils/mergeDeep';
+import { isMapSetArray, isObject, isPrimitive, mergeDeep } from '../shared/utils';
 
 export type StateHook<S> = [S, StateUpdater<S>];
 
@@ -34,12 +33,12 @@ export type State<S> = Partial<S>;
  *
  * // 2. Complex object update (automatic property merging)
  * const [obj, setObj] = useState$({ key: '', config: { a: 1, b: 2 }});
- * setObj({ key: 'h', config: { a: 99 }}); 
+ * setObj({ key: 'h', config: { a: 99 }});
  * // or uses update callback
  * setObj(prev => {
  *   prev.config.a = 99;
  *   return prev;
- * }); 
+ * });
  * // result: { key: 'h' ,config: { a: 99, b: 2 }}
  *
  * // 3. Array update (direct replacement)
@@ -47,7 +46,7 @@ export type State<S> = Partial<S>;
  * setList(prev => {
  *   prev.push(3);
  *   return prev;
- * }); 
+ * });
  * // result: [1, 2, 3]
  */
 export function useState$<S>(initialValue: S | (() => S), shallow: boolean = false): StateHook<S> {

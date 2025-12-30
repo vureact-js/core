@@ -1,6 +1,6 @@
 import { DependencyList, useEffect, useRef } from 'react';
 import isEqual from 'react-fast-compare';
-import { EffectCallback } from '../types';
+import { EffectCallback } from './types';
 
 /**
  * @private

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useUnmounted } from '../lifecycle/useUnmounted';
 import { executeEffect } from '../shared/executeEffect';
-import type { Destructor } from '../types';
-import { isPrimitive } from '../utils/is';
-import { useDeepEffect } from './useDeepEffect';
-import { useIsFirstMount } from './useIsFirstMount';
-import { useUnmounted } from './useUnmounted';
+import type { Destructor } from '../shared/types';
+import { useDeepEffect } from '../shared/useDeepEffect';
+import { useIsFirstMount } from '../shared/useIsFirstMount';
+import { isPrimitive } from '../shared/utils';
 
 export type WatchSource<T = any> = T | (() => T);
 

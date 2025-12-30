@@ -1,6 +1,6 @@
 import { type DependencyList, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { executeEffect } from '../shared/executeEffect';
-import type { Destructor, EffectCallback } from '../types';
+import type { Destructor, EffectCallback } from '../shared/types';
 import { createWatchStopHandle, type WatchStopHandle } from './useWatch';
 
 /**

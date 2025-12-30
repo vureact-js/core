@@ -1,5 +1,5 @@
-import { type Destructor } from '../types';
-import { isPromise } from '../utils/is';
+import { type Destructor } from './types';
+import { isPromise } from './utils';
 
 /**
  * @private

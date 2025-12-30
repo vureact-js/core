@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import { EffectCallback } from '../types';
+import { EffectCallback } from '../shared/types';
 
 /**
  * Synchronously execute the cleanup function
