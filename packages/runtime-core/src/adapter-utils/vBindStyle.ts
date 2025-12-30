@@ -1,4 +1,4 @@
-import { camelCase } from '../utils/camelCase';
+import { camelCase } from './shared';
 
 export type StyleType = string | Record<string, any> | StyleType[] | null | undefined;
 

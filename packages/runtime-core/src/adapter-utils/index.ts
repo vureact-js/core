@@ -1,3 +1,4 @@
+export * from './nextTick';
 export * from './vBind';
 export * from './vBindCls';
 export * from './vBindStyle';

@@ -1,7 +1,9 @@
-import { vueAttrToReactProp } from '../shared';
+import { camelCase } from './shared';
 import { vBindCls } from './vBindCls';
 import { vBindStyle } from './vBindStyle';
 import { vOn } from './vOn';
+
+type ObjectType = Record<string, any>;
 
 /**
  * vBind - Runtime helper for Vue `v-bind={...}` directive in React JSX
@@ -12,8 +14,8 @@ import { vOn } from './vOn';
  * @example
  * <div {...vBind({ id: 'foo', class: { active: true }, onClick: handler })} />
  */
-export function vBind(obj: Record<string, any>) {
-  const props: Record<string, any> = {};
+export function vBind(obj: ObjectType): ObjectType {
+  const props: ObjectType = {};
 
   for (const key in obj) {
     const value = obj[key];
@@ -35,7 +37,7 @@ export function vBind(obj: Record<string, any>) {
     const isSimpleVueEvent = typeof value === 'function' && (!isEventKey || isEventKey2); // 如果是函数，且没有 on/., 视为 Vue 事件
 
     if (isEventKey || isSimpleVueEvent) {
-      const eventProps = vOn(key, value);
+      const eventProps = vOn(key, value, true);
       // vOn 返回的是一个对象 { [eventName]: handler }，需要合并进 props
       Object.assign(props, eventProps);
       continue;
@@ -52,4 +54,22 @@ export function vBind(obj: Record<string, any>) {
   }
 
   return props;
+}
+
+function vueAttrToReactProp(name: string): string {
+  const whitelist = /^data-|datatype|^aria-/;
+
+  switch (name) {
+    case 'v-html':
+      return 'dangerouslySetInnerHTML';
+
+    case 'class':
+      return 'className';
+
+    case 'for':
+      return 'htmlFor';
+
+    default:
+      return whitelist.test(name) ? name : camelCase(name);
+  }
 }
