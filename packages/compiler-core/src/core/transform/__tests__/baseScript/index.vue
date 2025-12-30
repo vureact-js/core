@@ -2,8 +2,13 @@
 // @ts-nocheck
 import { computed, reactive, ref } from 'vue';
 import Count from 'Count.vue';
+import type Type from 'type';
 
 interface Props {}
+
+type A = {};
+
+enum B {}
 
 const props1 = defineProps(['foo', 'bar']);
 
