@@ -2,37 +2,38 @@
   "name": "@vureact/runtime-core",
   "version": "1.0.0",
   "type": "module",
-  "main": "./lib/cjs/index.cjs",
-  "module": "./lib/esm/index.mjs",
-  "types": "./lib/index.d.ts",
+  "main": "./lib/cjs/runtime-core.cjs",
+  "module": "./lib/esm/runtime-core.mjs",
+  "types": "./lib/types/runtime-core.d.ts",
   "author": "Ryan John",
   "license": "MIT",
-  "description": "",
+  "description": "React adapter for Vue 3's built-in components, reactive APIs, partial template v-directive value processing utilities, as well as basic and commonly used Vue Router adaptations.",
   "keywords": [
     "react",
     "vureact-runtime",
     "react-hooks",
     "react-components",
-    "vue-to-react-adapt"
+    "react-vue-like",
+    "react-vue-adapter"
   ],
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/esm/index.mjs",
-      "require": "./lib/cjs/index.cjs"
+      "types": "./lib/types/runtime-core.d.ts",
+      "import": "./lib/esm/runtime-core.mjs",
+      "require": "./lib/cjs/runtime-core.cjs"
     },
     "./adapter-components": {
-      "types": "./lib/adapter-components.d.ts",
+      "types": "./lib/types/adapter-components.d.ts",
       "import": "./lib/esm/adapter-components.mjs",
       "require": "./lib/cjs/adapter-components.cjs"
     },
     "./adapter-hooks": {
-      "types": "./lib/adapter-hooks.d.ts",
+      "types": "./lib/types/adapter-hooks.d.ts",
       "import": "./lib/esm/adapter-hooks.mjs",
       "require": "./lib/cjs/adapter-hooks.cjs"
     },
     "./adapter-utils": {
-      "types": "./lib/adapter-utils.d.ts",
+      "types": "./lib/types/adapter-utils.d.ts",
       "import": "./lib/esm/adapter-utils.mjs",
       "require": "./lib/cjs/adapter-utils.cjs"
     }
