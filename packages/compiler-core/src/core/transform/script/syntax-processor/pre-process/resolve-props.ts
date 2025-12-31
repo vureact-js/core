@@ -8,7 +8,7 @@ import { createPropsProcessor, PropDescribe } from '../../shared/processor-facto
 
 export function resolveProps(): TraverseOptions {
   const { lang } = compileContext.context;
-  const { defineProp } = __scriptBlockIR;
+  const { defineProps } = __scriptBlockIR;
   const isTS = lang.script.startsWith('ts');
 
   return {
@@ -20,8 +20,8 @@ export function resolveProps(): TraverseOptions {
               ? normalizeProps(describe, isTS)
               : normalizeEmits(describe, isTS);
 
-          defineProp.items.push(props);
-          defineProp.multiple = defineProp.items.length > 1;
+          defineProps.list.push(props);
+          defineProps.multiple = defineProps.list.length > 1;
         },
       });
     },

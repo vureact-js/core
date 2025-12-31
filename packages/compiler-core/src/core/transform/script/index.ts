@@ -20,9 +20,9 @@ export interface ScriptBlockIR {
   imports: t.ImportDeclaration[];
   exports: t.ExportDeclaration[];
   tsTypes: t.TypeScript[];
-  defineProp: {
+  defineProps: {
     multiple: boolean; // 代表使用了多个 defineProps/defineEmits 进行定义
-    items: DefinePropItem[];
+    list: DefinePropItem[];
   };
   body: t.Statement[];
 }
@@ -72,7 +72,7 @@ function createIR(): ScriptBlockIR {
     imports: [],
     exports: [],
     tsTypes: [],
-    defineProp: { multiple: false, items: [] },
+    defineProps: { multiple: false, list: [] },
     body: [],
   };
 }
