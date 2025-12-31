@@ -30,7 +30,7 @@ export function wrapSingleQuotes(content: string, condition?: boolean) {
   return condition || strCodeTypes.isStringLiteral(content) ? `'${content}'` : content;
 }
 
-export const isSlotElement = (node: VueElementNode): boolean => {
+export const isVSlotNode = (node: VueElementNode): boolean => {
   if (node.tagType === ElementTypes.TEMPLATE) {
     if (node.props[0] !== undefined) {
       return isVSlot(node.props[0]);
