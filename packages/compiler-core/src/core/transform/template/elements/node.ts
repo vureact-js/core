@@ -5,9 +5,7 @@ import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
 import { BabelExp, NodeTypes } from '../shared/types';
-import { isSlotElement } from '../shared/utils';
 import { handleBuiltinComponent, markBuiltinComponent } from './built-in-components';
-import { transformVSlotNode } from './template-vslot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
   type: NodeTypes;
@@ -74,14 +72,8 @@ export function transformElement(
   node: VueElementNode,
   parentIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
-): ElementNodeIR | null {
+): ElementNodeIR {
   const { tag, tagType, children, isSelfClosing } = node;
-
-  if (isSlotElement(node)) {
-    transformVSlotNode(node, parentIR);
-    return null;
-  }
-
   const isComponent = tagType === ElementTypes.COMPONENT;
 
   const nodeIR = createElementNode({
@@ -91,9 +83,7 @@ export function transformElement(
   });
 
   markBuiltinComponent(nodeIR);
-
   transformProps(node, nodeIR, nodesIR);
-
   handleBuiltinComponent(nodeIR, parentIR, node.loc);
 
   if (children.length) {
