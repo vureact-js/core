@@ -5,9 +5,10 @@ import {
   ParentNode as VueParentNode,
 } from '@vue/compiler-core';
 import { TemplateChildNodeIR } from '..';
-import { isSlotElement } from '../shared/utils';
+import { isVSlotNode } from '../shared/utils';
 import { ElementNodeIR, transformElement } from './node';
 import { createInterpolationNodeIR, createTextNodeIR } from './node-creators';
+import { transformVSlotNode } from './template-vslot';
 
 export function transformNodes(
   parent: VueParentNode,
@@ -18,11 +19,14 @@ export function transformNodes(
 
   for (const vueNode of parent.children) {
     if (vueNode.type === VueNodeTypes.ELEMENT) {
+      if (isVSlotNode(vueNode)) {
+        transformVSlotNode(vueNode, parentIR);
+        continue;
+      }
+
       nodeIR = transformElement(vueNode, parentIR, childrenIR as ElementNodeIR[]);
       // 忽略 <template #named> 和 <slot>
-      if (nodeIR && !isSlotElement(vueNode)) {
-        childrenIR.push(nodeIR);
-      }
+      childrenIR.push(nodeIR);
 
       continue;
     }
