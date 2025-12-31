@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncArgDeps } from '../../shared/analyze-dependency';
-import { createCallExpProcessor } from './processor-factory';
+import { createCallExpProcessor } from '../../shared/processor-factory';
 
 export function processWatchEffectApi(): TraverseOptions {
   const adaptApis = {

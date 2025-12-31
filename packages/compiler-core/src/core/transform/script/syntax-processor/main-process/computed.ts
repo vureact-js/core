@@ -2,7 +2,7 @@ import { TraverseOptions } from '@babel/traverse';
 import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncBodyDeps } from '../../shared/analyze-dependency';
-import { createCallExpProcessor } from './processor-factory';
+import { createCallExpProcessor } from '../../shared/processor-factory';
 
 export function processComputedApi(): TraverseOptions {
   return {

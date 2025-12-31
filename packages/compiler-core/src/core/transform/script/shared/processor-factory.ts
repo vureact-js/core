@@ -1,13 +1,13 @@
 import { types as t } from '@babel/core';
 import { NodePath } from '@babel/traverse';
-import { replaceCallName, setNodeExtensionMeta } from '../../shared/babel-utils';
-import { CallExpArgs, ReactiveTypes } from '../../shared/types';
+import { replaceCallName, setNodeExtensionMeta } from './babel-utils';
+import { CallExpArgs, ReactiveTypes } from './types';
 import {
   warnVueHookArguments,
   warnVueHookInAnyCallback,
   warnVueHookInBlock,
   warnVueHookWithoutDeclaration,
-} from '../../shared/unsupported-warn';
+} from './unsupported-warn';
 
 interface ProcessCallExpOptions {
   adaptApis: object;

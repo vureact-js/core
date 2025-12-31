@@ -1,7 +1,7 @@
 import { TraverseOptions } from '@babel/traverse';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
-import { createCallExpProcessor } from './processor-factory';
+import { createCallExpProcessor } from '../../shared/processor-factory';
 
 export function processReadonlyApi(): TraverseOptions {
   const adaptApis = {

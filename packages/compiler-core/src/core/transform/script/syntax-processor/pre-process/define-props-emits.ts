@@ -4,7 +4,7 @@ import { compileContext } from '@src/shared/compile-context';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { __scriptBlockIR, DefinePropItem } from '../..';
-import { createPropsProcessor, PropDescribe } from './processor-factory';
+import { createPropsProcessor, PropDescribe } from '../../shared/processor-factory';
 
 export function processDefinePropsEmitsApi(): TraverseOptions {
   const { lang } = compileContext.context;

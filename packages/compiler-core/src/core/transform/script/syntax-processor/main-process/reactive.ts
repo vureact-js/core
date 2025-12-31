@@ -6,8 +6,8 @@ import { logger } from '@src/shared/logger';
 import { recordImport } from '@src/shared/runtime-utils';
 import { capitalize } from '@src/utils/capitalize';
 import { setNodeExtensionMeta } from '../../shared/babel-utils';
+import { createCallExpProcessor } from '../../shared/processor-factory';
 import { CallExpArgs, ReactiveTypes } from '../../shared/types';
-import { createCallExpProcessor } from './processor-factory';
 
 export function processReactiveApi(): TraverseOptions {
   const adaptApis = {
