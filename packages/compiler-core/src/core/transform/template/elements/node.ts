@@ -7,15 +7,13 @@ import { SlotPropsIR } from '../props/vslot';
 import { BabelExp, NodeTypes } from '../shared/types';
 import { isSlotElement } from '../shared/utils';
 import { handleBuiltinComponent, markBuiltinComponent } from './built-in-components';
-import { transformVSlot } from './slot';
+import { transformVSlotNode } from './template-vslot';
 
 export interface ElementNodeIR extends BaseElementNodeIR {
   type: NodeTypes;
   props: (PropsIR | SlotPropsIR)[];
   children: TemplateChildNodeIR[];
   meta: Partial<ElementNodeIRMeta>;
-  /* 收集组件中定义的 slots emits props */
-  defineProps: Record<string, any>;
   isHandled: boolean;
   isBuiltIn?: boolean;
 }
@@ -80,7 +78,7 @@ export function transformElement(
   const { tag, tagType, children, isSelfClosing } = node;
 
   if (isSlotElement(node)) {
-    transformVSlot(node, parentIR);
+    transformVSlotNode(node, parentIR);
     return null;
   }
 
@@ -112,7 +110,6 @@ export function createElementNode(opts: BaseElementNodeIR): ElementNodeIR {
     props: [],
     children: [],
     meta: {},
-    defineProps: {},
     isHandled: false,
   };
 }
