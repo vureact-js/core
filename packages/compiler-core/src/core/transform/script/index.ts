@@ -4,7 +4,6 @@ import { optimizeConstant } from './optimizations/constant';
 import { optimizeFunction } from './optimizations/function';
 import { processVueSyntax } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
-import { processDefinePropsEmitsApi } from './syntax-processor/main-process/define-props-emits';
 import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
 import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
@@ -13,6 +12,7 @@ import { processWatchEffectApi } from './syntax-processor/main-process/watchEffe
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
 import { splitMainBody, splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
+import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
 
@@ -39,7 +39,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
   processVueSyntax(ast, {
-    preprocess: [stripReactiveValueSuffix, processDefinePropsEmitsApi, processTemplateNodeRef],
+    preprocess: [stripReactiveValueSuffix, resolveProps, processTemplateNodeRef],
 
     processMain: [
       processReactiveApi,

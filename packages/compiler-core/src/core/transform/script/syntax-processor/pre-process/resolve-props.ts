@@ -6,7 +6,7 @@ import { capitalize } from '@utils/capitalize';
 import { __scriptBlockIR, DefinePropItem } from '../..';
 import { createPropsProcessor, PropDescribe } from '../../shared/processor-factory';
 
-export function processDefinePropsEmitsApi(): TraverseOptions {
+export function resolveProps(): TraverseOptions {
   const { lang } = compileContext.context;
   const { defineProp } = __scriptBlockIR;
   const isTS = lang.script.startsWith('ts');
