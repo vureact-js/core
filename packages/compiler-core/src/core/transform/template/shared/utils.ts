@@ -3,9 +3,8 @@ import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { randomHash } from '@utils/random-hash';
 import {
+  isVSlot as __isVSlot,
   DirectiveNode,
-  ElementTypes,
-  isVSlot,
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
@@ -30,14 +29,8 @@ export function wrapSingleQuotes(content: string, condition?: boolean) {
   return condition || strCodeTypes.isStringLiteral(content) ? `'${content}'` : content;
 }
 
-export const isVSlotNode = (node: VueElementNode): boolean => {
-  if (node.tagType === ElementTypes.TEMPLATE) {
-    if (node.props[0] !== undefined) {
-      return isVSlot(node.props[0]);
-    }
-  }
-
-  return node.tagType === ElementTypes.SLOT;
+export const isVSlot = (node: VueElementNode): boolean => {
+  return !!(node.props[0] && __isVSlot(node.props[0]));
 };
 
 export function checkPropIsDynamicKey(prop: DirectiveNode) {
