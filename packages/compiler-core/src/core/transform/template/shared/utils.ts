@@ -9,7 +9,7 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { PropsIR, PropTypes } from '../props';
 import { createPropsIR } from '../props/utils';
 import { preParseProp } from './pre-parse-props';

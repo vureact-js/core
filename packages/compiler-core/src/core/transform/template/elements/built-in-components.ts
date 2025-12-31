@@ -4,7 +4,7 @@ import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
 import { SourceLocation } from '@vue/compiler-core';
 import { addKeyToNode } from '../shared/utils';
-import { ElementNodeIR } from './node';
+import { ElementNodeIR } from './element';
 
 export function markBuiltinComponent(nodeIR: ElementNodeIR) {
   if (nodeIR.isComponent && nodeIR.tag in VuR_Runtime) {

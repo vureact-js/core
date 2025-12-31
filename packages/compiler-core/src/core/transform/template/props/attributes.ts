@@ -6,7 +6,7 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { parseStyleString } from '../shared/parse-style-string';
 import { preParseProp } from '../shared/pre-parse-props';

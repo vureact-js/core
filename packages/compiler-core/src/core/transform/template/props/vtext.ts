@@ -1,5 +1,5 @@
 import { parseTemplateExp } from '@shared/babel-utils';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { createInterpolationNodeIR } from '../elements/node-creators';
 
 export function handleVText(content: string, nodeIR: ElementNodeIR) {

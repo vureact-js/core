@@ -6,7 +6,7 @@ import {
 } from '@vue/compiler-core';
 import { TemplateChildNodeIR } from '..';
 import { isVSlotNode } from '../shared/utils';
-import { ElementNodeIR, transformElement } from './node';
+import { ElementNodeIR, transformElement } from './element';
 import { createInterpolationNodeIR, createTextNodeIR } from './node-creators';
 import { transformVSlotNode } from './template-vslot';
 

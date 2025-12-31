@@ -1,6 +1,6 @@
 import { parseTemplateExp } from '@shared/babel-utils';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { preParseProp } from '../shared/pre-parse-props';
 import { findSameProp } from '../shared/utils';

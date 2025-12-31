@@ -1,5 +1,5 @@
-import { ElementNodeIR } from '@core/transform/template/elements/node';
 import { buildUseMemo } from '@src/core/codegen/script/builders/react-hook-builder';
+import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { convertToExpression } from '../shared';
 import { JSXChild } from '../types';
 import { buildElement } from './element-builder';

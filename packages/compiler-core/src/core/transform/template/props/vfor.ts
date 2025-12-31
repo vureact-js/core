@@ -1,5 +1,5 @@
 import { DirectiveNode, ForParseResult, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR, LoopMeta } from '../elements/node';
+import { ElementNodeIR, LoopMeta } from '../elements/element';
 
 export function handleVFor(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   nodeIR.meta.loop = {

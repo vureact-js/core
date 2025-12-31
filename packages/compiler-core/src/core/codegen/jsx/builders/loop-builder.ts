@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { ElementNodeIR } from '@core/transform/template/elements/node';
+import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { convertToExpression } from '../shared';
 import { JSXChild } from '../types';
 import { buildElement } from './element-builder';

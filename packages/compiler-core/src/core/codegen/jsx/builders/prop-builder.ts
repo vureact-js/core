@@ -1,8 +1,8 @@
 import * as t from '@babel/types';
-import { ElementNodeIR } from '@core/transform/template/elements/node';
 import { PropsIR, PropTypes } from '@core/transform/template/props';
 import { SlotPropsIR } from '@core/transform/template/props/vslot';
 import { parseTemplateExp } from '@shared/babel-utils';
+import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { buildChildren } from '..';
 import { JSXProp } from '../types';
 import { buildElement } from './element-builder';

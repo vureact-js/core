@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { TemplateChildNodeIR } from '@core/transform/template';
 import { BaseSimpleNodeIR } from '@core/transform/template/elements/node-creators';
-import { ElementNodeIR } from '@src/core/transform/template/elements/node';
+import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { NodeTypes } from '@src/core/transform/template/shared/types';
 import { buildChildren } from '..';
 import { JSXChild, JSXProp } from '../types';

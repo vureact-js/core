@@ -10,7 +10,7 @@ import {
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
 import { PropsIR } from '.';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 

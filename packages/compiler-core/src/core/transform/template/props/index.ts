@@ -1,6 +1,6 @@
 import { Expression, JSXIdentifier } from '@babel/types';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { BabelExp } from '../shared/types';
 import { handleAttribute } from './attributes';
 import { handleDirective } from './directives';

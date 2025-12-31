@@ -1,6 +1,6 @@
 import { RootNode as VueRootNode } from '@vue/compiler-core';
 import { transformNodes } from './elements';
-import { ElementNodeIR } from './elements/node';
+import { ElementNodeIR } from './elements/element';
 import { BaseSimpleNodeIR, FragmentNodeIR } from './elements/node-creators';
 
 export interface TemplateBlockIR {

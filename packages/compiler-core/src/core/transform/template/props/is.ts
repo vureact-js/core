@@ -2,7 +2,7 @@ import { IsComponent } from '@shared/runtime-utils';
 import { strCodeTypes } from '@shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 

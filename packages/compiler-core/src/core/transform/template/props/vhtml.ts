@@ -1,5 +1,5 @@
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { ElementNodeIR } from '../elements/node';
+import { ElementNodeIR } from '../elements/element';
 import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 
