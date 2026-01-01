@@ -1,4 +1,3 @@
-import { parseTemplateExp } from '@src/shared/babel-utils';
 import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import {
@@ -9,24 +8,23 @@ import {
   SourceLocation,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
+import { __props } from '../../const';
+import { resolveTemplateExp } from '../shared/resolve-str-exp';
 import { ElementNodeIR } from './element';
 import { createInterpolationNodeIR } from './node-creators';
 
 export function transformSlot(node: VueElementNode, parentIR: ElementNodeIR) {
-  const { defineSlots } = compileContext.context;
-  const slotDesc = resolveSlotProps(node.props);
-
-  defineSlots.push(slotDesc);
-  replaceSlotNode(parentIR, slotDesc);
+  const slotIR = resolveSlotProps(node.props);
+  replaceSlotNode(parentIR, slotIR);
 }
 
-type SlotDesc = {
+type SlotIR = {
   name: string;
   props: Record<string, any>;
 };
 
-function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotDesc {
-  const desc: SlotDesc = {
+function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotIR {
+  const ir: SlotIR = {
     name: '',
     props: {},
   };
@@ -37,11 +35,11 @@ function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotDesc {
       const value = p.value?.content.trim();
 
       if (key === 'name' && value) {
-        desc.name = value;
+        ir.name = value;
         return;
       }
 
-      desc.props[key] = `'${value}'`;
+      ir.props[key] = `'${value}'`;
       return;
     }
 
@@ -54,38 +52,38 @@ function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotDesc {
       }
 
       if (arg.content === 'name') {
-        desc.name = exp.content.trim();
+        ir.name = exp.content.trim();
         return;
       }
 
-      desc.props[arg.content] = exp.content.toString();
+      ir.props[arg.content] = exp.content.toString();
     }
   });
 
   // 默认插槽 'default' 相当于 react 的 props.children
-  if (!desc.name || desc.name === 'default') {
-    desc.name = 'children';
+  if (!ir.name || ir.name === 'default') {
+    ir.name = 'children';
   }
 
-  return desc;
+  return ir;
 }
 
-function replaceSlotNode(parentIR: ElementNodeIR, slotDesc: SlotDesc) {
-  let exp = `_props?.${slotDesc.name}`;
+function replaceSlotNode(parentIR: ElementNodeIR, slotIR: SlotIR) {
+  let interpContent = `${__props}?.${slotIR.name}`;
 
-  const isScoped = Object.keys(slotDesc.props).length !== 0;
+  const isScoped = Object.keys(slotIR.props).length !== 0;
 
   if (isScoped) {
-    const strKeyVal = Object.entries(slotDesc.props)
+    const strKeyVal = Object.entries(slotIR.props)
       .map(([k, v]) => `'${k}': ${v}`)
       .join(', ');
-
-    exp += `({ ${strKeyVal} })`;
+    // 转为调用表达式
+    interpContent += `?.({ ${strKeyVal} })`;
   }
 
-  const interp = createInterpolationNodeIR(exp);
+  const interp = createInterpolationNodeIR(interpContent);
 
-  interp.babelExp = parseTemplateExp(exp);
+  interp.babelExp = resolveTemplateExp(interpContent);
   parentIR.children.push(interp);
 }
 
