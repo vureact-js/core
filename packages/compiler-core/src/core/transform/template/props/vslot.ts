@@ -8,7 +8,9 @@ export interface SlotPropsIR {
   name: string;
   rawName: string;
   isStatic: boolean;
-  callback: {
+  isScoped: boolean;
+  content?: TemplateChildNodeIR[];
+  callback?: {
     arg: string;
     exp: TemplateChildNodeIR[];
   };
@@ -17,20 +19,27 @@ export interface SlotPropsIR {
 export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
-  const params = exp?.content ? `(${exp?.content})` : '()';
+
+  const isScoped = exp !== undefined;
+  const name = arg.content === 'default' ? 'children' : arg.content;
+
+  const content = !isScoped ? [] : undefined;
+  const callback = isScoped
+    ? {
+        arg: exp?.content ? `(${exp?.content})` : '()',
+        exp: [],
+      }
+    : undefined;
 
   checkPropIsDynamicKey(prop);
 
-  // slot prop 较特殊，在转换阶段不参与预解析
-
   return {
     type: PropTypes.SLOT,
-    name: arg.content,
+    name,
     rawName: prop.rawName ?? 'default',
     isStatic: arg.isStatic,
-    callback: {
-      arg: params,
-      exp: [],
-    },
+    isScoped,
+    content,
+    callback,
   };
 }
