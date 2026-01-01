@@ -1,13 +1,15 @@
 import { parseTemplateExp } from '@shared/babel-utils';
 import {
+  isSlotOutlet,
   SimpleExpressionNode,
   NodeTypes as VueNodeTypes,
   ParentNode as VueParentNode,
 } from '@vue/compiler-core';
 import { TemplateChildNodeIR } from '..';
-import { isVSlotNode } from '../shared/utils';
+import { isVSlot } from '../shared/utils';
 import { ElementNodeIR, transformElement } from './element';
 import { createInterpolationNodeIR, createTextNodeIR } from './node-creators';
+import { transformSlot } from './slot';
 import { transformVSlotNode } from './template-vslot';
 
 export function transformNodes(
@@ -19,13 +21,18 @@ export function transformNodes(
 
   for (const vueNode of parent.children) {
     if (vueNode.type === VueNodeTypes.ELEMENT) {
-      if (isVSlotNode(vueNode)) {
+      if (isSlotOutlet(vueNode)) {
+        transformSlot(vueNode, parentIR);
+        continue;
+      }
+
+      if (isVSlot(vueNode)) {
         transformVSlotNode(vueNode, parentIR);
         continue;
       }
 
       nodeIR = transformElement(vueNode, parentIR, childrenIR as ElementNodeIR[]);
-      // 忽略 <template #named> 和 <slot>
+
       childrenIR.push(nodeIR);
 
       continue;
