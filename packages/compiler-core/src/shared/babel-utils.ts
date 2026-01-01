@@ -1,10 +1,8 @@
-import { parseExpression, ParserOptions, ParserPlugin } from '@babel/parser';
-import * as t from '@babel/types';
-import { compileContext } from './compile-context';
+import { ParserOptions, ParserPlugin } from '@babel/parser';
 
 export type LangType = 'js' | 'jsx' | 'ts' | 'tsx';
 
-type ParseContext = 'script' | 'vueTemplate' | 'expression';
+export type ParseContext = 'script' | 'vueTemplate' | 'expression';
 
 export function getBabelParseOptions(
   lang: LangType = 'js',
@@ -48,36 +46,4 @@ export function getBabelParseOptions(
     ...baseOptions,
     plugins: [...new Set(plugins)],
   };
-}
-
-/**
- * 解析 Vue 模板的各种 js 片段表达式
- * @param value js 字符串表达式，由 Vue 解析后得到
- * @param isStringLiteral 是否纯文本
- * @param context babel 解析方式
- * @returns {Expression}
- */
-export function parseTemplateExp(
-  value: string,
-  isStringLiteral = false,
-  context: ParseContext = 'vueTemplate',
-): t.Expression {
-  if (isStringLiteral) {
-    return t.stringLiteral(value);
-  }
-
-  try {
-    const { lang, filename, templateVar } = compileContext.context;
-    const expression = parseExpression(value, getBabelParseOptions(lang.script, context, filename));
-
-    if (t.isIdentifier(expression)) {
-      // 记录模板使用的所有变量名
-      templateVar.ids.add(expression.name);
-    }
-
-    return expression;
-  } catch {
-    // 回退方案：原样输出
-    return t.identifier(value);
-  }
 }
