@@ -2,18 +2,27 @@ import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformNodes } from '.';
 import { handleVSlot, SlotPropsIR } from '../props/vslot';
 import { ElementNodeIR } from './element';
+import { TemplateChildNodeIR } from '..';
 
 export function transformVSlotNode(node: VueElementNode, nodeIR: ElementNodeIR) {
-  let slotPropIR = {} as SlotPropsIR;
+  let vslotIR = {} as SlotPropsIR;
 
   for (const prop of node.props) {
     if (prop.type === NodeTypes.DIRECTIVE) {
-      slotPropIR = handleVSlot(prop);
+      vslotIR = handleVSlot(prop);
     }
   }
 
-  // 转换 <template v-slot> 的子节点内容
-  transformNodes(node, nodeIR, slotPropIR.callback.exp);
+  const children: TemplateChildNodeIR[] = [];
 
-  nodeIR.props.push(slotPropIR);
+  // 转换 <template v-slot> 的子节点内容
+  transformNodes(node, nodeIR, children);
+
+  if (!vslotIR.isScoped) {
+    vslotIR.content = children;
+  } else {
+    vslotIR.callback!.exp = children;
+  }
+
+  nodeIR.props.push(vslotIR);
 }
