@@ -87,6 +87,20 @@
       </template>
     </MyChildComponent>
   </div>
+
+  <div>
+    <header>
+      <slot name="header" title="title" :count="1"></slot>
+    </header>
+    <main>
+      <div>
+        <slot></slot>
+      </div>
+    </main>
+    <footer>
+      <slot name="footer" :get-count="() => 1"></slot>
+    </footer>
+  </div>
 </template>
 
 <script></script>

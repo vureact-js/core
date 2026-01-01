@@ -1,5 +1,6 @@
 <template>
   <!-- 这是一条注释 -->
+
   <div class="template-showcase" v-memo="[value1, value2]">
     <h1 id="1" :id="dynamicId" class="title" :class="cls">
       {{ pageTitle }}
@@ -79,6 +80,20 @@
         <footer>footer插槽</footer>
       </template>
     </MyChildComponent>
+  </div>
+
+  <div>
+    <header>
+      <slot name="header" title="title" :count="1"></slot>
+    </header>
+    <main>
+      <div>
+        <slot :text="greetingMessage"></slot>
+      </div>
+    </main>
+    <footer>
+      <slot name="footer" :get-count="() => 1"></slot>
+    </footer>
   </div>
 </template>
 
