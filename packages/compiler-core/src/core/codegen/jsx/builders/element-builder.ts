@@ -11,7 +11,11 @@ import { buildMemo } from './memo-builder';
 import { buildProps } from './prop-builder';
 import { buildFragment, buildJSXExpression, buildText } from './simple-builder';
 
-export function buildElement(nodeIR: TemplateChildNodeIR): JSXChild | null {
+export function buildElement(nodeIR: TemplateChildNodeIR | t.Node): JSXChild | null {
+  if (t.isNode(nodeIR)) {
+    return nodeIR as JSXChild;
+  }
+
   const simpleNode = nodeIR as unknown as BaseSimpleNodeIR;
 
   if (nodeIR.type === NodeTypes.TEXT) {
@@ -47,7 +51,7 @@ export function buildElement(nodeIR: TemplateChildNodeIR): JSXChild | null {
       return buildLoop(elNode);
     }
 
-    const props = buildProps(elNode.props);
+    const props = buildProps(elNode);
     const children = buildChildren(elNode.children) as JSXChild[];
 
     return createElement(elNode.tag, props, children, elNode.isSelfClosing);
