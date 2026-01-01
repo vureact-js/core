@@ -1,5 +1,8 @@
 import { types as t } from '@babel/core';
 import { NodePath } from '@babel/traverse';
+import { compileContext } from '@src/shared/compile-context';
+import { logger } from '@src/shared/logger';
+import { __emits, __props } from '../../const';
 import { replaceCallName, setNodeExtensionMeta } from './babel-utils';
 import { CallExpArgs, ReactiveTypes } from './types';
 import {
@@ -103,18 +106,30 @@ export function createPropsProcessor(
     return;
   }
 
-  const id = parentPath.isVariableDeclarator()
-    ? (parentPath.node.id as t.Identifier)
-    : t.identifier('props');
+  if (parentPath.isVariableDeclarator()) {
+    const { source, filename } = compileContext.context;
+    const id = parentPath.node.id as t.Identifier;
 
-  const arg = node.arguments;
-  const tsType = node.typeParameters;
+    const warnOtherVarName = (name: string) => {
+      if (id.name !== name) {
+        logger.error(
+          `You must assign the result to the controlled variable "${name}". ` +
+            'Do not use any other variable name',
+          { source, file: filename, loc: id.loc! },
+        );
+      }
+    };
 
-  onProcessed(callee.name, {
-    id,
-    arg,
-    tsType,
-  });
+    warnOtherVarName(callee.name === 'defineProps' ? __props : __emits);
+  }
+
+  const describe = {
+    id: t.identifier(__props),
+    arg: node.arguments,
+    tsType: node.typeParameters,
+  };
+
+  onProcessed(callee.name, describe);
 
   if (parentPath.isVariableDeclaration() || parentPath.isVariableDeclarator()) {
     parentPath.remove();
