@@ -1,7 +1,7 @@
+import { parseExpression } from '@babel/parser';
 import * as t from '@babel/types';
 import { PropsIR, PropTypes } from '@core/transform/template/props';
 import { SlotPropsIR } from '@core/transform/template/props/vslot';
-import { parseTemplateExp } from '@shared/babel-utils';
 import { TemplateChildNodeIR } from '@src/core/transform/template';
 import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { buildChildren } from '..';
@@ -74,7 +74,7 @@ function resolveSlotProp(
   }
 
   if (!slotIR.isStatic) {
-    const spread = parseTemplateExp(`{[${keyId}]: ${valueExp}}`);
+    const spread = parseExpression(`{[${keyId}]: ${valueExp}}`);
     return t.jsxSpreadAttribute(spread);
   }
 
