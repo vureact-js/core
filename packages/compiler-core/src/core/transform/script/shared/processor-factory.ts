@@ -84,10 +84,11 @@ export function createCallExpProcessor(
 }
 
 interface ProcessPropsOptions {
-  onProcessed: (type: 'defineProps' | 'defineEmits', describe: PropDescribe) => void;
+  onProcessed: (prop: PropDescribe) => void;
 }
 
 export type PropDescribe = {
+  type: 'defineProps' | 'defineEmits';
   id: t.Identifier;
   arg: CallExpArgs;
   tsType: t.TSTypeParameterInstantiation | null | undefined;
@@ -100,6 +101,18 @@ export function createPropsProcessor(
   const { node, parentPath } = path;
   const { callee } = node;
   const { onProcessed } = options;
+  const { source, filename } = compileContext.context;
+
+  const warnUnexpectedVarName = (target: string, loc: any) => {
+    const expect = (callee as t.Identifier).name === 'defineProps' ? __props : __emits;
+    if (target !== expect) {
+      logger.error(
+        `You must assign the result to the controlled variable "${expect}". ` +
+          'Do not use any other variable name',
+        { source, file: filename, loc },
+      );
+    }
+  };
 
   if (!t.isIdentifier(callee) || (callee.name !== 'defineProps' && callee.name !== 'defineEmits')) {
     path.skip();
@@ -107,29 +120,20 @@ export function createPropsProcessor(
   }
 
   if (parentPath.isVariableDeclarator()) {
-    const { source, filename } = compileContext.context;
     const id = parentPath.node.id as t.Identifier;
-
-    const warnOtherVarName = (name: string) => {
-      if (id.name !== name) {
-        logger.error(
-          `You must assign the result to the controlled variable "${name}". ` +
-            'Do not use any other variable name',
-          { source, file: filename, loc: id.loc! },
-        );
-      }
-    };
-
-    warnOtherVarName(callee.name === 'defineProps' ? __props : __emits);
+    warnUnexpectedVarName(id.name, id.loc);
+  } else {
+    warnUnexpectedVarName('undefined', node.loc);
   }
 
-  const describe = {
+  const prop = {
+    type: callee.name as any,
     id: t.identifier(__props),
     arg: node.arguments,
     tsType: node.typeParameters,
   };
 
-  onProcessed(callee.name, describe);
+  onProcessed(prop);
 
   if (parentPath.isVariableDeclaration() || parentPath.isVariableDeclarator()) {
     parentPath.remove();
