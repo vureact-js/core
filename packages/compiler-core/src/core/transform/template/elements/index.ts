@@ -1,4 +1,3 @@
-import { parseTemplateExp } from '@shared/babel-utils';
 import {
   isSlotOutlet,
   SimpleExpressionNode,
@@ -6,6 +5,7 @@ import {
   ParentNode as VueParentNode,
 } from '@vue/compiler-core';
 import { TemplateChildNodeIR } from '..';
+import { resolveTemplateExp } from '../shared/resolve-str-exp';
 import { isVSlot } from '../shared/utils';
 import { ElementNodeIR, transformElement } from './element';
 import { createInterpolationNodeIR, createTextNodeIR } from './node-creators';
@@ -42,7 +42,7 @@ export function transformNodes(
       const content = (vueNode.content as SimpleExpressionNode).content;
 
       nodeIR = createInterpolationNodeIR(content);
-      nodeIR.babelExp = parseTemplateExp(nodeIR.content);
+      nodeIR.babelExp = resolveTemplateExp(nodeIR.content);
 
       childrenIR.push(nodeIR);
 
@@ -58,7 +58,7 @@ export function transformNodes(
       const { content } = vueNode;
 
       nodeIR = createTextNodeIR(content, true);
-      nodeIR.babelExp = parseTemplateExp(nodeIR.content);
+      nodeIR.babelExp = resolveTemplateExp(nodeIR.content);
 
       childrenIR.push(nodeIR);
     }

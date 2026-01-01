@@ -1,8 +1,8 @@
-import { parseTemplateExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
+import { resolveTemplateExp } from '../shared/resolve-str-exp';
 
 export function handleVIf(
   prop: DirectiveNode,
@@ -51,7 +51,7 @@ export function handleVIf(
     value,
     babelExp: {
       content: value,
-      ast: parseTemplateExp(value),
+      ast: resolveTemplateExp(value),
     },
   };
 }

@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
-import { parseTemplateExp } from '@shared/babel-utils';
 import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runtime-utils';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
 import { isSimpleStyle } from './parse-style-string';
+import { resolveTemplateExp } from './resolve-str-exp';
 import { wrapSingleQuotes } from './utils';
 
 export function preParseProp(propsIR: PropsIR) {
@@ -56,7 +56,7 @@ function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: bool
       const spread = `{[${name}]: ${propValue}}`;
 
       exp.content = spread;
-      exp.ast = parseTemplateExp(spread);
+      exp.ast = resolveTemplateExp(spread);
     }
 
     propsIR.babelExp = exp;
@@ -68,7 +68,7 @@ function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: bool
     const { babelExp, isStringLiteral } = propsIR.value;
 
     babelExp.content = propValue;
-    babelExp.ast = parseTemplateExp(propValue, isStringLiteral);
+    babelExp.ast = resolveTemplateExp(propValue, isStringLiteral);
 
     if (clearContent) propsIR.value.content = '';
   };

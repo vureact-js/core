@@ -1,8 +1,8 @@
-import { parseTemplateExp } from '@shared/babel-utils';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { preParseProp } from '../shared/pre-parse-props';
+import { resolveTemplateExp } from '../shared/resolve-str-exp';
 import { findSameProp } from '../shared/utils';
 import { createPropsIR } from './utils';
 
@@ -18,7 +18,7 @@ export function handleVShow(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     value: test,
     babelExp: {
       content: test,
-      ast: parseTemplateExp(test),
+      ast: resolveTemplateExp(test),
     },
   };
 

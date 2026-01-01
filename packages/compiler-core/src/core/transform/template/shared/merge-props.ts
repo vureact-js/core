@@ -1,7 +1,7 @@
-import { parseTemplateExp } from '@shared/babel-utils';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
 import { isSimpleStyle, parseStyleString } from './parse-style-string';
+import { resolveTemplateExp } from './resolve-str-exp';
 import { wrapSingleQuotes } from './utils';
 
 export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
@@ -38,7 +38,7 @@ function mergeClass(oldAttr: PropsIR, newAttr: PropsIR) {
     const merged = `${left} ${right}`.trim();
 
     oldAttr.value.content = merged;
-    oldAttr.value.babelExp.ast = parseTemplateExp(merged);
+    oldAttr.value.babelExp.ast = resolveTemplateExp(merged);
 
     return;
   }

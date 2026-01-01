@@ -1,9 +1,9 @@
 import { ArrayExpression } from '@babel/types';
-import { parseTemplateExp } from '@shared/babel-utils';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
+import { resolveTemplateExp } from '../shared/resolve-str-exp';
 
 export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const exp = prop.exp as SimpleExpressionNode;
@@ -35,7 +35,7 @@ export function handleVMemo(prop: DirectiveNode, nodeIR: ElementNodeIR) {
     value,
     babelExp: {
       content: value,
-      ast: parseTemplateExp(value) as ArrayExpression,
+      ast: resolveTemplateExp(value) as ArrayExpression,
     },
   };
 }
