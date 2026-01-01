@@ -12,7 +12,7 @@ export interface ElementNodeIR extends BaseElementNodeIR {
   props: (PropsIR | SlotPropsIR)[];
   children: TemplateChildNodeIR[];
   meta: Partial<ElementNodeIRMeta>;
-  isHandled: boolean;
+  conditionIsHandled: boolean;
   isBuiltIn?: boolean;
 }
 
@@ -100,6 +100,6 @@ export function createElementNode(opts: BaseElementNodeIR): ElementNodeIR {
     props: [],
     children: [],
     meta: {},
-    isHandled: false,
+    conditionIsHandled: false,
   };
 }

@@ -24,7 +24,7 @@ export function buildElement(nodeIR: TemplateChildNodeIR): JSXChild | null {
 
   const elNode = nodeIR as ElementNodeIR;
 
-  if (elNode.isHandled && !(elNode as any).__processing) {
+  if (elNode.conditionIsHandled && !(elNode as any).__processing) {
     return null;
   }
 

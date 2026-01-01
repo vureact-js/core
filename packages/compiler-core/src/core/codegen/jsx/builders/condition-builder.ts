@@ -16,7 +16,7 @@ export function buildCondition(nodeIR: ElementNodeIR): JSXChild {
     condition.isHandled = true;
 
     // 标记该节点已处理，防止后续 buildChildren 重复生成同一条件链的节点
-    nodeIR.isHandled = true;
+    nodeIR.conditionIsHandled = true;
 
     // 标记正在处理，允许自身在构建过程中被递归调用（避免被 element-builder 跳过）
     (nodeIR as any).__processing = true;
