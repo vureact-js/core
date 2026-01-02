@@ -13,6 +13,7 @@ export interface CompileContextType {
     refs: Set<string>; // node ref
     vModels: Array<{ getterName: string; setterName: string }>; // v-model
   };
+  templateSlots: Record<string, object>;
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
@@ -42,6 +43,7 @@ class CompileContext {
         ids: new Set(),
         refs: new Set(),
       },
+      templateSlots: {},
     };
   };
 
