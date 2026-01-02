@@ -1,5 +1,6 @@
 import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
+import { __props } from '../const';
 import { optimizeConstant } from './optimizations/constant';
 import { optimizeFunction } from './optimizations/function';
 import { processVueSyntax } from './syntax-processor';
@@ -21,16 +22,10 @@ export interface ScriptBlockIR {
   exports: t.ExportDeclaration[];
   tsTypes: t.TypeScript[];
   defineProps: {
-    multiple: boolean; // 代表使用了多个 defineProps/defineEmits 进行定义
-    list: DefinePropItem[];
+    readonly id: t.Identifier;
+    tsType?: t.TSTypeAliasDeclaration;
   };
   body: t.Statement[];
-}
-
-export interface DefinePropItem {
-  id: t.Identifier;
-  exp: t.SpreadElement | t.ObjectPattern;
-  tsType: t.TSTypeParameterInstantiation | null | undefined;
 }
 
 export const __scriptBlockIR = createIR();
@@ -72,7 +67,10 @@ function createIR(): ScriptBlockIR {
     imports: [],
     exports: [],
     tsTypes: [],
-    defineProps: { multiple: false, list: [] },
+    defineProps: {
+      id: t.identifier(__props),
+      tsType: undefined,
+    },
     body: [],
   };
 }
