@@ -10,36 +10,32 @@ type A = {};
 
 enum B {}
 
-const props1 = defineProps(['foo', 'bar']);
+const __props = defineProps(['foo', 'bar']);
 
-const props2 = defineProps<{
-  foo?: string;
-  bar: number;
-}>();
+// const __props = defineProps<Props>();
 
-const props3 = defineProps({
-  foo: String,
-  bar: {
-    type: Number,
-    required: true,
-  },
-});
+// const __props = defineProps<{
+//   foo?: string;
+//   bar: number;
+// }>();
 
-const emit1 = defineEmits(['change', 'update', 'update:name']);
+// const __props = defineProps({
+//   foo: String,
+//   bar: {
+//     type: Number,
+//     required: true,
+//   },
+// });
 
-const emit2 = defineEmits<{
-  change: []; // onChange: () => any
-  update: [value: number]; // onUpdate: (value: number) => any
-}>();
+const __emits = defineEmits(['change', 'update', 'update:name']);
 
-// onChange: () => void
-// onUpdate: (value: number) => number
-const emit3 = defineEmits<{ (e: 'change'): void; (e: 'update', value: number): number }>();
+// const __emits = defineEmits<{
+//   change: []; 
+//   update: [value: number]; 
+// }>();
 
-const emit4 = defineEmits<{
-  change: () => boolean;
-  update: (value: string) => string;
-}>();
+// const __emits = defineEmits<{ (e: 'change'): void; (e: 'update', value: number): number }>();
+
 
 const MAX_VALUE = 999;
 

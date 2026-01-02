@@ -101,6 +101,8 @@
       <slot name="footer" :get-count="() => 1"></slot>
     </footer>
   </div>
+
+  <button @click="__emit('click', e)">Emit click</button>
 </template>
 
 <script></script>
