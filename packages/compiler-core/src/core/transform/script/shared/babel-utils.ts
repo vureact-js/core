@@ -1,5 +1,8 @@
+import { parseExpression } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
+import { getBabelParseOptions } from '@src/shared/babel-utils';
+import { compileContext } from '@src/shared/compile-context';
 import { ReactiveTypes, VarDeclKind } from './types';
 
 export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
@@ -254,4 +257,111 @@ export function replaceCallName(callExp: t.CallExpression, identifierName: strin
   if (callee.loc) {
     callee.loc.identifierName = identifierName;
   }
+}
+
+/**
+ * 将对象解析为 ts 类型签名
+ *
+ * { title: "'name'", count: '1', text: 'greetingMessage', fn: '() => 1' }
+ *
+ * => { title: string; count: number; text: any; fn: () => number }
+ */
+export function resolveObjectToTSType(obj: object): t.TSTypeLiteral {
+  const properties = Object.entries(obj).map(([key, value]) => {
+    const propSignature = t.tsPropertySignature(
+      t.identifier(key),
+      stringValueToTSType(String(value)),
+    );
+    return propSignature;
+  });
+
+  return t.tsTypeLiteral(properties);
+}
+
+/**
+ * 把字符串 js 值转换成对应 ts 类型
+ * 
+ * Example
+ * 
+ * "'name'" -> string
+ * 
+ * '1' -> number
+ * 
+ * 'greetingMessage' -> any
+ * 
+ * '() => 1' -> () => number
+ * 
+ * @returns {t.TSTypeAnnotation}
+ */
+export function stringValueToTSType(input: string): t.TSTypeAnnotation {
+  const exp = parseExp(input);
+  const ts = expressionToTSType(exp);
+  return t.tsTypeAnnotation(ts);
+}
+
+/**
+ * 把 js 表达式转成对应 ts 类型
+ * 
+ * @param exp babel node
+ * @returns {t.TSType}
+ */
+export function expressionToTSType(exp: t.Expression): t.TSType {
+  if (t.isStringLiteral(exp)) return t.tsStringKeyword();
+  if (t.isNumericLiteral(exp)) return t.tsNumberKeyword();
+  if (t.isBooleanLiteral(exp)) return t.tsBooleanKeyword();
+  if (t.isArrayExpression(exp)) return t.tsArrayType(t.tsAnyKeyword());
+
+  if (t.isObjectExpression(exp)) {
+    const members: t.TSTypeElement[] = [];
+    for (const p of exp.properties) {
+      if (!t.isObjectProperty(p)) continue;
+      let key: string | undefined;
+      if (t.isIdentifier(p.key)) key = p.key.name;
+      else if (t.isStringLiteral(p.key)) key = p.key.value;
+      if (!key) continue;
+      if (t.isExpression(p.value)) {
+        members.push(
+          t.tsPropertySignature(t.identifier(key), t.tsTypeAnnotation(expressionToTSType(p.value))),
+        );
+      } else {
+        members.push(
+          t.tsPropertySignature(t.identifier(key), t.tsTypeAnnotation(t.tsAnyKeyword())),
+        );
+      }
+    }
+    return t.tsTypeLiteral(members);
+  }
+
+  if (t.isArrowFunctionExpression(exp) || t.isFunctionExpression(exp)) {
+    const params = exp.params.map((p, i) => {
+      const id = t.isIdentifier(p) ? t.identifier(p.name) : t.identifier(`arg${i}`);
+      (id as any).typeAnnotation = t.tsTypeAnnotation(t.tsAnyKeyword());
+      return id as any;
+    });
+
+    // try infer return type
+    let returnType: t.TSType = t.tsAnyKeyword();
+    if (t.isBlockStatement(exp.body)) {
+      for (const stmt of exp.body.body) {
+        if (t.isReturnStatement(stmt) && stmt.argument) {
+          if (t.isExpression(stmt.argument)) {
+            returnType = expressionToTSType(stmt.argument);
+            break;
+          }
+        }
+      }
+    } else if (t.isExpression(exp.body)) {
+      returnType = expressionToTSType(exp.body);
+    }
+
+    return t.tsFunctionType(null, params as any, t.tsTypeAnnotation(returnType));
+  }
+
+  // fallback for identifiers, calls, member expressions etc.
+  return t.tsAnyKeyword();
+}
+
+export function parseExp(input: string): t.Expression {
+  const { lang, filename } = compileContext.context;
+  return parseExpression(input, getBabelParseOptions(lang.script, 'expression', filename));
 }
