@@ -15,6 +15,10 @@ import { createInterpolationNodeIR } from './node-creators';
 
 export function transformSlot(node: VueElementNode, parentIR: ElementNodeIR) {
   const slotIR = resolveSlotProps(node.props);
+  const { templateSlots } = compileContext.context;
+
+  templateSlots[slotIR.name] = slotIR.props;
+
   replaceSlotNode(parentIR, slotIR);
 }
 
