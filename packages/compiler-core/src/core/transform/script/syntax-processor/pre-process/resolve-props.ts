@@ -309,7 +309,7 @@ function transformTSEmitsToReactProps(tsType: t.TSType): t.TSType {
 /**
  * 将新的 Props 类型合并到现有的 Props 别名中 (创建交叉类型)
  */
-function mergeTypeIntoAlias(
+export function mergeTypeIntoAlias(
   newType: t.TSType,
   existing?: t.TSTypeAliasDeclaration,
 ): t.TSTypeAliasDeclaration {
