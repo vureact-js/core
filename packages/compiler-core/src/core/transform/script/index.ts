@@ -12,6 +12,7 @@ import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
+import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
 import { splitMainBody, splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
 import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
@@ -33,6 +34,8 @@ export const __scriptBlockIR = createIR();
 export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
+  processTemplateSlots();
+  
   processVueSyntax(ast, {
     preprocess: [stripReactiveValueSuffix, resolveProps, processTemplateNodeRef],
 
