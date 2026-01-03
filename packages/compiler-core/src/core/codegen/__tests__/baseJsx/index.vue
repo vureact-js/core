@@ -102,7 +102,7 @@
     </footer>
   </div>
 
-  <button @click="__emit('click', e)">Emit click</button>
+  <button @click="__emits('click', e)">Emit click</button>
 </template>
 
 <script></script>
