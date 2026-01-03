@@ -4,7 +4,7 @@ import { getBabelParseOptions, ParseContext } from '@src/shared/babel-utils';
 import { compileContext } from '@src/shared/compile-context';
 import { camelCase } from '@src/utils/camelCase';
 import { capitalize } from '@src/utils/capitalize';
-import { __emits, __props } from '../../const';
+import { __props } from '../../const';
 
 /**
  * 解决 Vue 模板的各种 js 字符串表达式
@@ -25,10 +25,7 @@ export function resolveTemplateExp(
   const { lang, filename, templateVar } = compileContext.context;
   const parseOpts = getBabelParseOptions(lang.script, parseCtx, filename);
 
-  if (jsExp.startsWith(__emits)) {
-    // 将 __emits('click') 换成 __props?.onClick()
-    jsExp = transformEmitToPropsCall(jsExp);
-  }
+  jsExp = normalizePropValue(jsExp);
 
   try {
     const exp = parseExpression(jsExp, parseOpts);
@@ -44,6 +41,16 @@ export function resolveTemplateExp(
   }
 }
 
+/**
+ * 规范化一些特殊的 prop 值，使其符合 React/编译器规范
+ */
+export function normalizePropValue(v: string): string {
+  let newVal = v;
+  newVal = transformEmitToPropsCall(v);
+  return newVal;
+}
+
+// 将 __emits('event') 换成 __props?.onEvent()
 function transformEmitToPropsCall(code: string): string {
   const emitCallRE = /^__emits*\(\s*['"`]([^'"`]+)['"`]\s*(?:,\s*(.*))?\s*\)$/;
   const match = code.trim().match(emitCallRE);
