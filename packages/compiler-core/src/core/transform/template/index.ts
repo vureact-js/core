@@ -9,7 +9,7 @@ export interface TemplateBlockIR {
 
 export type TemplateChildNodeIR = ElementNodeIR | BaseSimpleNodeIR | FragmentNodeIR;
 
-export function transformRoot(root?: VueRootNode): TemplateBlockIR | null {
+export function transformTemplate(root?: VueRootNode): TemplateBlockIR | null {
   if (!root) return null;
 
   const children: TemplateChildNodeIR[] = [];
