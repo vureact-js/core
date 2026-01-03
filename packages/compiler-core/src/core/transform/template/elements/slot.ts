@@ -10,6 +10,7 @@ import {
 } from '@vue/compiler-core';
 import { __props } from '../../const';
 import { resolveTemplateExp } from '../shared/resolve-str-exp';
+import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { ElementNodeIR } from './element';
 import { createInterpolationNodeIR } from './node-creators';
 
@@ -50,6 +51,8 @@ function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotIR {
     if (p.type === NodeTypes.DIRECTIVE) {
       const arg = p.arg as SimpleExpressionNode;
       const exp = p.exp as SimpleExpressionNode;
+
+      warnVueDollarVar(p);
 
       if (!arg.isStatic) {
         warnDynamicSlotProp(arg.loc);

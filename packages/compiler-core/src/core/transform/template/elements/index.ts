@@ -11,6 +11,7 @@ import { ElementNodeIR, transformElement } from './element';
 import { createInterpolationNodeIR, createTextNodeIR } from './node-creators';
 import { transformSlot } from './slot';
 import { transformVSlotNode } from './template-vslot';
+import { warnVueDollarVar } from '../shared/unsupported-warn';
 
 export function transformElements(
   parent: VueParentNode,
@@ -40,6 +41,8 @@ export function transformElements(
 
     if (vueNode.type === VueNodeTypes.INTERPOLATION) {
       const content = (vueNode.content as SimpleExpressionNode).content;
+
+      warnVueDollarVar(vueNode)
 
       nodeIR = createInterpolationNodeIR(content);
       nodeIR.babelExp = resolveTemplateExp(nodeIR.content);

@@ -10,6 +10,7 @@ import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { parseStyleString } from '../shared/parse-style-string';
 import { preParseProp } from '../shared/pre-parse-props';
+import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { checkPropIsDynamicKey, findSameProp } from '../shared/utils';
 import { PropsIR, PropTypes } from './index';
 import { handleDynamicIs, handleStaticIs } from './is';
@@ -49,6 +50,8 @@ export function handleDynamicAttribute(
 
   const name = arg?.content ?? '';
   const content = exp?.content ?? 'true';
+
+  warnVueDollarVar(prop);
 
   // 特殊处理：is
   if (name === 'is') {

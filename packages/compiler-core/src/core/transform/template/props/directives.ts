@@ -1,7 +1,6 @@
-import { compileContext } from '@shared/compile-context';
-import { logger } from '@shared/logger';
 import { DirectiveNode, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
+import { warnUnsupportedDirective, warnVueDollarVar } from '../shared/unsupported-warn';
 import { handleDynamicAttribute } from './attributes';
 import { isVBind, isVConditional, isVModel, isVOn } from './utils';
 import { handleVFor } from './vfor';
@@ -41,9 +40,11 @@ export function handleDirective(
 
   // 未识别指令
   if (!supported.includes(name)) {
-    logUnsupportedDirective(prop.loc, rawName);
+    warnUnsupportedDirective(prop.loc, rawName);
     return;
   }
+
+  warnVueDollarVar(prop);
 
   // v-if/else/else-if
   if (isVConditional(rawName)) {
@@ -83,13 +84,4 @@ export function handleDirective(
   if (isVOn(rawName)) {
     return handleEvent(prop, nodeIR);
   }
-}
-
-function logUnsupportedDirective(loc: any, rawName?: string) {
-  const { source, filename } = compileContext.context;
-  logger.warn(`Unsupported or unknown directive: ${rawName}`, {
-    loc,
-    source,
-    file: filename,
-  });
 }
