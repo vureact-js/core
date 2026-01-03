@@ -16,7 +16,7 @@ type SkipTraversalFunc = (ast: ParseResult) => void;
 
 type TraversalFunc = (ast: ParseResult) => TraverseOptions;
 
-export function processVueSyntax(ast: ParseResult, options: ProcessOptions) {
+export function processVueScript(ast: ParseResult, options: ProcessOptions) {
   const { traversal, skipTraversal } = options;
 
   // 按预定顺序执行流水线

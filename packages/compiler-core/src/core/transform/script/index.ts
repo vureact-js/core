@@ -3,7 +3,7 @@ import * as t from '@babel/types';
 import { __props } from '../const';
 import { optimizeConstant } from './optimizations/constant';
 import { optimizeFunction } from './optimizations/function';
-import { processVueSyntax } from './syntax-processor';
+import { processVueScript } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
 import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
 import { processReactiveApi } from './syntax-processor/main-process/reactive';
@@ -34,7 +34,7 @@ export const __scriptBlockIR = createIR();
 export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
-  processVueSyntax(ast, {
+  processVueScript(ast, {
     traversal: {
       preprocess: [stripReactiveValueSuffix, resolveProps, processTemplateNodeRef],
 
