@@ -28,7 +28,8 @@ export function splitScriptBlocks(): TraverseOptions {
   };
 }
 
-// 不参与 babel traverse 的遍历
+// 收集剩下的主代码
 export function splitMainBody(ast: ParseResult) {
-  __scriptBlockIR.body = ast.program.body;
+  const { statement } = __scriptBlockIR;
+  statement.componentScope = ast.program.body;
 }
