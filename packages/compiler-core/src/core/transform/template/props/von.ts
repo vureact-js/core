@@ -6,6 +6,7 @@ import { PropTypes } from '.';
 import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { preParseProp } from '../shared/pre-parse-props';
+import { normalizePropValue } from '../shared/resolve-str-exp';
 import { findSameProp } from '../shared/utils';
 import { createPropsIR } from './utils';
 
@@ -17,7 +18,7 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const hasCapture = modifiers.findIndex((mod) => mod === 'capture');
 
   let eventName = `on${camelCase(capitalize(arg.content))}`;
-  let handler = exp.content.trim();
+  let handler = normalizePropValue(exp.content.trim());
 
   if (hasCapture > -1) {
     // capture 模式 react 已有，无需参与运行时处理
