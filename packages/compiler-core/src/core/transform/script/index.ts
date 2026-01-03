@@ -13,6 +13,7 @@ import { processWatchEffectApi } from './syntax-processor/main-process/watchEffe
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
 import { splitMainBody, splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
+import { resolveAsyncComponent } from './syntax-processor/pre-process/resolve-async-component';
 import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
@@ -26,7 +27,14 @@ export interface ScriptBlockIR {
     readonly id: t.Identifier;
     tsType?: t.TSTypeAliasDeclaration;
   };
-  body: t.Statement[];
+  /** 存放可执行 js 语句 */
+  statement: {
+    /**
+     * 组件之外、文件级、模块级作用域
+     */
+    moduleScope: t.Statement[];
+    componentScope: t.Statement[];
+  };
 }
 
 export const __scriptBlockIR = createIR();
@@ -36,7 +44,12 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
 
   processVueScript(ast, {
     traversal: {
-      preprocess: [stripReactiveValueSuffix, resolveProps, processTemplateNodeRef],
+      preprocess: [
+        resolveProps,
+        resolveAsyncComponent,
+        stripReactiveValueSuffix,
+        processTemplateNodeRef,
+      ],
 
       processMain: [
         processReactiveApi,
@@ -77,6 +90,9 @@ function createIR(): ScriptBlockIR {
       id: t.identifier(__props),
       tsType: undefined,
     },
-    body: [],
+    statement: {
+      moduleScope: [],
+      componentScope: [],
+    },
   };
 }
