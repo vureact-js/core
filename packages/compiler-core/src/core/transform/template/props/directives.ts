@@ -1,4 +1,3 @@
-import { SupportedDirectives } from '@consts/supportedDirectives';
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import {
@@ -18,6 +17,24 @@ import { handleEvent } from './von';
 import { handleVShow } from './vshow';
 import { handleVText } from './vtext';
 
+const supported: string[] = [
+  'text',
+  'html',
+  'show',
+  'if',
+  'else',
+  'else-if',
+  'for',
+  'on',
+  'once',
+  'bind',
+  'model',
+  'cloak',
+  'slot',
+  'memo',
+  'is',
+];
+
 export function handleDirective(
   node: VueElementNode,
   prop: DirectiveNode,
@@ -28,7 +45,7 @@ export function handleDirective(
   const propExp = exp as SimpleExpressionNode;
 
   // 未识别指令
-  if (!SupportedDirectives.includes(name)) {
+  if (!supported.includes(name)) {
     logUnsupportedDirective(prop.loc, rawName);
     return;
   }
