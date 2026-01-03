@@ -1,10 +1,6 @@
 import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
-import {
-  DirectiveNode,
-  SimpleExpressionNode,
-  ElementNode as VueElementNode,
-} from '@vue/compiler-core';
+import { DirectiveNode, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { handleDynamicAttribute } from './attributes';
 import { isVBind, isVConditional, isVModel, isVOn } from './utils';
@@ -41,8 +37,7 @@ export function handleDirective(
   nodeIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
 ): boolean | void {
-  const { name, exp, rawName } = prop;
-  const propExp = exp as SimpleExpressionNode;
+  const { name, rawName } = prop;
 
   // 未识别指令
   if (!supported.includes(name)) {
@@ -62,7 +57,7 @@ export function handleDirective(
       return true;
 
     case 'v-text':
-      handleVText(propExp.content, nodeIR);
+      handleVText(prop, nodeIR);
       return true;
 
     case 'v-once':
