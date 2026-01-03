@@ -12,7 +12,7 @@ import { createInterpolationNodeIR, createTextNodeIR } from './node-creators';
 import { transformSlot } from './slot';
 import { transformVSlotNode } from './template-vslot';
 
-export function transformNodes(
+export function transformElements(
   parent: VueParentNode,
   parentIR: ElementNodeIR,
   childrenIR: TemplateChildNodeIR[],

@@ -1,6 +1,6 @@
 import { ArrayExpression } from '@babel/types';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
-import { transformNodes } from '.';
+import { transformElements } from '.';
 import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
 import { SlotPropsIR } from '../props/vslot';
@@ -87,7 +87,7 @@ export function transformElement(
   handleBuiltinComponent(nodeIR, parentIR, node.loc);
 
   if (children.length) {
-    transformNodes(node, nodeIR, nodeIR.children);
+    transformElements(node, nodeIR, nodeIR.children);
   }
 
   return nodeIR;

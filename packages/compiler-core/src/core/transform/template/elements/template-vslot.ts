@@ -1,8 +1,8 @@
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
-import { transformNodes } from '.';
+import { transformElements } from '.';
+import { TemplateChildNodeIR } from '..';
 import { handleVSlot, SlotPropsIR } from '../props/vslot';
 import { ElementNodeIR } from './element';
-import { TemplateChildNodeIR } from '..';
 
 export function transformVSlotNode(node: VueElementNode, nodeIR: ElementNodeIR) {
   let vslotIR = {} as SlotPropsIR;
@@ -16,7 +16,7 @@ export function transformVSlotNode(node: VueElementNode, nodeIR: ElementNodeIR) 
   const children: TemplateChildNodeIR[] = [];
 
   // 转换 <template v-slot> 的子节点内容
-  transformNodes(node, nodeIR, children);
+  transformElements(node, nodeIR, children);
 
   if (!vslotIR.isScoped) {
     vslotIR.content = children;
