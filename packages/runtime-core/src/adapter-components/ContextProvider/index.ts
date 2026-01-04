@@ -1,2 +1,2 @@
 export * from './Proivder';
-export * from './useCxtValue';
+export * from './useCtx';
