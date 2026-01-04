@@ -31,14 +31,12 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
   moveClass?: string;
 }
 
-export default memo(TransitionGroup);
-
 /**
  * Equivalent to Vue `<TransitionGroup>` components, with the same props and usage.
  *
  * @see https://vureact.vercel.app/en/adapter-components/transition-group
  */
-function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
+export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupProps>) => {
   const { children, htmlProps, tag = null, ...transitionProps } = props;
 
   const transitionConfig = useTransitionConfig(transitionProps);
@@ -200,4 +198,4 @@ function TransitionGroup(props: PropsWithChildren<TransitionGroupProps>) {
       <ReactTransitionGroup {...transitionGroupProps}>{renderChildren}</ReactTransitionGroup>
     </div>
   );
-}
+});

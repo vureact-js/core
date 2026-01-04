@@ -20,14 +20,12 @@ export interface TransitionProps extends PropsWithChildren<BaseTransitionProps> 
   mode?: 'in-out' | 'out-in';
 }
 
-export default memo(Transition);
-
 /**
  * Equivalent to Vue `<Transition>` components, with the same props and usage.
  *
  * @see https://vureact.vercel.app/en/adapter-components/transition
  */
-function Transition(props: TransitionProps) {
+export const Transition = memo((props: TransitionProps) => {
   const { mode, children, ...rest } = props;
 
   if (Children.count(children) > 1) {
@@ -89,4 +87,4 @@ function Transition(props: TransitionProps) {
       {transition}
     </ReactTransitionGroup>
   );
-}
+});

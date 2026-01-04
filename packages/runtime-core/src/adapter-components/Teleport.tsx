@@ -19,14 +19,12 @@ export interface TeleportProps {
   defer?: boolean;
 }
 
-export default memo(Teleport);
-
 /**
  * Equivalent to Vue `<Teleport>` components, with the same usage.
- * 
+ *
  * @see https://vureact.vercel.app/en/adapter-components/teleport
  */
-function Teleport(props: PropsWithChildren<TeleportProps>) {
+export const Teleport = memo((props: PropsWithChildren<TeleportProps>) => {
   const { to, disabled, defer, children } = props;
 
   const [container, setContainer] = useState<Element | null>(null);
@@ -60,4 +58,4 @@ function Teleport(props: PropsWithChildren<TeleportProps>) {
   }
 
   return createPortal(children, container);
-}
+});

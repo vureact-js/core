@@ -1,5 +1,4 @@
 import {
-  JSX,
   memo,
   Suspense as ReactSuspense,
   useCallback,
@@ -41,14 +40,12 @@ export interface SuspenseProps {
   fallback: ReactNode;
 }
 
-export default memo(Suspense);
-
 /**
  * Equivalent to Vue `<Suspense>` components, with the same props and usage.
  *
  * @see https://vureact.vercel.app/en/adapter-components/suspense
  */
-function Suspense(props: SuspenseProps): JSX.Element {
+export const Suspense = memo((props: SuspenseProps) => {
   const {
     children,
     timeout,
@@ -116,7 +113,7 @@ function Suspense(props: SuspenseProps): JSX.Element {
       <SuspenseContent onResolve={handleResolve} children={children} />
     </ReactSuspense>
   );
-}
+});
 
 // 处理 fallback 逻辑的组件
 const SuspenseFallback: React.FC<{

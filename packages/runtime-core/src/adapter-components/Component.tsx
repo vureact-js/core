@@ -11,32 +11,32 @@ export interface ComponentProps extends Record<string, any> {
    */
 }
 
-export default memo(Component);
-
 /**
  * Equivalent to Vue dynamic component, with the same props and usage.
  *
  * @see https://vureact.vercel.app/en/adapter-components/dynamic-component
  */
-function Component({ is, children, ...anyProps }: PropsWithChildren<ComponentProps>) {
-  switch (getReactType(is)) {
-    case 'text':
-      return createElement(is as string, anyProps, children);
+export const Component = memo(
+  ({ is, children, ...otherProps }: PropsWithChildren<ComponentProps>): ReactNode => {
+    switch (getReactType(is)) {
+      case 'text':
+        return createElement(is as string, otherProps, children);
 
-    case 'element':
-      // 传入 JSX 元素 (<CompA />) 直接返回
-      return is;
+      case 'element':
+        // 传入 JSX 元素 (<CompA />) 直接返回
+        return is;
 
-    case 'component':
-      // 传入组件函数 (CompA)
-      const Comp = is as unknown as ComponentType<object>;
-      return <Comp {...anyProps}>{children}</Comp>;
+      case 'component':
+        // 传入组件函数 (CompA)
+        const Comp = is as unknown as ComponentType<object>;
+        return <Comp {...otherProps}>{children}</Comp>;
 
-    default:
-      // is 可能是 null, undefined 或其他类型
-      console.error(
-        `[Component error] Invalid 'is' prop value or missing component type. -->${is}`,
-      );
-      return null;
-  }
-}
+      default:
+        // is 可能是 null, undefined 或其他类型
+        console.error(
+          `[Component error] Invalid 'is' prop value or missing component type. -->${is}`,
+        );
+        return null;
+    }
+  },
+);
