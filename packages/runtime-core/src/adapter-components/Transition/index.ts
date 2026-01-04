@@ -1,4 +1,2 @@
-import Transition from './components/Transition';
-import TransitionGroup from './components/TransitionGroup';
-
-export { Transition, TransitionGroup };
+export * from './components/Transition';
+export * from './components/TransitionGroup';
