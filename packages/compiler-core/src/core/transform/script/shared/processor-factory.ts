@@ -3,7 +3,7 @@ import { NodePath } from '@babel/traverse';
 import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { __emits, __props } from '../../const';
-import { replaceCallName, setNodeExtensionMeta } from './babel-utils';
+import { isCalleeNamed, replaceCallName, setNodeExtensionMeta } from './babel-utils';
 import { CallExpArgs, ReactiveTypes } from './types';
 import {
   warnVueHookArguments,
@@ -114,7 +114,7 @@ export function createPropsProcessor(
     }
   };
 
-  if (!t.isIdentifier(callee) || (callee.name !== 'defineProps' && callee.name !== 'defineEmits')) {
+  if (!isCalleeNamed(node, 'defineProps') && !isCalleeNamed(node, 'defineEmits')) {
     path.skip();
     return;
   }
@@ -127,7 +127,7 @@ export function createPropsProcessor(
   }
 
   const prop = {
-    type: callee.name as any,
+    type: (callee as t.Identifier).name as any,
     id: t.identifier(__props),
     arg: node.arguments,
     tsType: node.typeParameters,

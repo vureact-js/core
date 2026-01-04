@@ -5,6 +5,7 @@ import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { recordImport } from '@src/shared/runtime-utils';
 import { __scriptBlockIR } from '../..';
+import { isCalleeNamed } from '../../shared/babel-utils';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
 export function resolveAsyncComponent(): TraverseOptions {
@@ -12,12 +13,7 @@ export function resolveAsyncComponent(): TraverseOptions {
     CallExpression(path) {
       const { node } = path;
 
-      if (!t.isIdentifier(node.callee)) {
-        path.skip();
-        return;
-      }
-
-      if (node.callee.name !== 'defineAsyncComponent') {
+      if (!isCalleeNamed(node, 'defineAsyncComponent')) {
         path.skip();
         return;
       }
