@@ -2,7 +2,7 @@ import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { compileContext } from '@shared/compile-context';
-import { React_Hooks, RuntimeModules } from '@src/consts/runtimeModules';
+import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import {
   isVariableDeclTopLevel,
@@ -32,7 +32,7 @@ function transformNodeRefToUseRef(path: NodePath<t.VariableDeclarator>) {
     return;
   }
 
-  replaceCallName(init, React_Hooks.useRef);
-  recordImport(RuntimeModules.REACT, React_Hooks.useRef, true);
+  replaceCallName(init, ReactApis.useRef);
+  recordImport(RuntimeModules.REACT, ReactApis.useRef, true);
   setNodeExtensionMeta(path.node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }

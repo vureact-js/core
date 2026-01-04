@@ -34,11 +34,11 @@ export const VuR_Runtime = {
   useWatchEffect: 'useWatchEffect',
   useWatchPostEffect: 'useWatchPostEffect',
   useWatchSyncEffect: 'useWatchSyncEffect',
-
 } as const;
 
-export const React_Hooks = {
+export const ReactApis = {
   useRef: 'useRef',
   useMemo: 'useMemo',
   useCallback: 'useCallback',
+  lazy: 'lazy',
 } as const;

@@ -1,5 +1,5 @@
 import { TraverseOptions } from '@babel/traverse';
-import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
+import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncBodyDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from '../../shared/processor-factory';
@@ -9,7 +9,7 @@ export function processComputedApi(): TraverseOptions {
     CallExpression(path) {
       createCallExpProcessor(path, {
         adaptApis: {
-          computed: React_Hooks.useMemo,
+          computed: ReactApis.useMemo,
         },
         warnArguments: true,
         warnWithoutDeclaration: true,
@@ -17,7 +17,7 @@ export function processComputedApi(): TraverseOptions {
         addDeps: (fnBody) => analyzeFuncBodyDeps(fnBody, path),
 
         onProcessed() {
-          recordImport(RuntimeModules.REACT, React_Hooks.useMemo, true);
+          recordImport(RuntimeModules.REACT, ReactApis.useMemo, true);
         },
       });
     },

@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { React_Hooks, RuntimeModules } from '@consts/runtimeModules';
+import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
 import { setNodeExtensionMeta } from '../shared/babel-utils';
@@ -21,10 +21,10 @@ function transformToUseCallback(path: NodePath<t.Function>) {
   if (t.isFunctionDeclaration(node) || isCallbackFunction(path) || !isTopLevel(path)) return;
 
   warnVueHookInBlock(path);
-  recordImport(RuntimeModules.REACT, React_Hooks.useCallback, true);
+  recordImport(RuntimeModules.REACT, ReactApis.useCallback, true);
 
   const deps = analyzeFuncBodyDeps(node.body, path);
-  const newNode = t.callExpression(t.identifier(React_Hooks.useCallback), [
+  const newNode = t.callExpression(t.identifier(ReactApis.useCallback), [
     node as t.Expression,
     deps,
   ]);
