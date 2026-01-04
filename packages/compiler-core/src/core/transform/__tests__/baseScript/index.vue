@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @ts-nocheck
-import { computed, reactive, ref } from 'vue';
+import { computed, defineAsyncComponent, reactive, ref } from 'vue';
 import Count from 'Count.vue';
 import type Type from 'type';
 
@@ -30,12 +30,17 @@ const __props = defineProps(['foo', 'bar']);
 const __emits = defineEmits(['change', 'update', 'update:name']);
 
 // const __emits = defineEmits<{
-//   change: []; 
-//   update: [value: number]; 
+//   change: [];
+//   update: [value: number];
 // }>();
 
 // const __emits = defineEmits<{ (e: 'change'): void; (e: 'update', value: number): number }>();
 
+const AdminPage = defineAsyncComponent(() => import('./components/AdminPageComponent.vue'));
+
+const AsyncComp = defineAsyncComponent({
+  loader: () => import('./Foo.vue'),
+});
 
 const MAX_VALUE = 999;
 
