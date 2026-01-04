@@ -5,6 +5,7 @@
     "build:compiler-core": "pnpm -F @vureact/compiler-core build",
     "build:runtime-core": "pnpm -F @vureact/runtime-core build",
     "test:contextProvider.test": "pnpm -F @vureact/runtime-core test -- ContextProvider.test.ts",
+    "test:useCtx.test": "pnpm -F @vureact/runtime-core test -- useCtx.test.ts",
     "test:useMounted": "pnpm -F @vureact/runtime-core test -- useMounted.test.ts",
     "test:useUnMounted": "pnpm -F @vureact/runtime-core test -- useUnMounted.test.ts",
     "test:useReadonly": "pnpm -F @vureact/runtime-core test -- useReadonly.test.ts",
