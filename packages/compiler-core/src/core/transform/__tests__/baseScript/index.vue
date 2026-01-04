@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @ts-nocheck
-import { computed, defineAsyncComponent, reactive, ref } from 'vue';
+import { computed, defineAsyncComponent, inject, provide, reactive, ref } from 'vue';
 import Count from 'Count.vue';
 import type Type from 'type';
 
@@ -41,6 +41,18 @@ const AdminPage = defineAsyncComponent(() => import('./components/AdminPageCompo
 const AsyncComp = defineAsyncComponent({
   loader: () => import('./Foo.vue'),
 });
+
+provide('message', 'hello');
+
+const myInjectionKey = Symbol();
+
+provide(myInjectionKey, {});
+
+const message = inject<string>('message');
+
+const myInjection = inject<object>(myInjectionKey);
+
+const factory = inject('count', () => Date.now(), true);
 
 const MAX_VALUE = 999;
 
