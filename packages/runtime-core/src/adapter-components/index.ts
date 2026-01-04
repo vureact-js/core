@@ -1,8 +1,6 @@
-import Component from './Component';
-import KeepAlive from './KeepAlive';
-import Suspense from './Suspense';
-
-export { Component, KeepAlive, Suspense };
-
+export * from './Component';
+export * from './ContextProvider';
 export * from './KeepAlive';
+export * from './Suspense';
+export * from './Teleport';
 export * from './Transition';
