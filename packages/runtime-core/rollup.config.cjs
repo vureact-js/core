@@ -13,7 +13,33 @@ const banner = `/**
  */
 `;
 
-const external = [
+const entries = {
+  'runtime-core': 'src/index.ts',
+  'adapter-components': 'src/adapter-components/index.ts',
+  'adapter-hooks': 'src/adapter-hooks/index.ts',
+  'adapter-router': 'src/adapter-router/index.ts',
+  'adapter-utils': 'src/adapter-utils/index.ts',
+};
+
+const manualChunks = (id) => {
+  // 根据源模块路径来正确命名 chunk，避免模块名导致的误会
+  if (id.includes('adapter-components')) return 'adapter-components-shared';
+  if (id.includes('adapter-hooks')) return 'adapter-hooks-shared';
+  if (id.includes('adapter-router')) return 'adapter-router-shared';
+  if (id.includes('adapter-utils')) return 'adapter-utils-shared';
+};
+
+const outputItem = (type = 'cjs', format = 'cjs') => ({
+  dir: `lib/${type}`,
+  format,
+  entryFileNames: `[name].${type}`, // 保持分包目录结构
+  chunkFileNames: `chunks/[name]-[hash].${type}`, // 公共代码提取到 chunks 目录
+  sourcemap: true,
+  banner,
+  manualChunks,
+});
+
+const externalPkgs = [
   'react',
   'react-dom',
   'react-transition-group',
@@ -25,38 +51,15 @@ const external = [
   'use-immer',
 ];
 
-const entries = {
-  'runtime-core': 'src/index.ts',
-  'adapter-components': 'src/adapter-components/index.ts',
-  'adapter-hooks': 'src/adapter-hooks/index.ts',
-  'adapter-router': 'src/adapter-router/index.ts',
-  'adapter-utils': 'src/adapter-utils/index.ts',
-};
+const external = (id) => externalPkgs.some((pkg) => id === pkg || id.startsWith(pkg + '/'));
 
 export default [
   {
     input: entries,
 
-    external,
+    output: [outputItem('cjs'), outputItem('mjs', 'es')],
 
-    output: [
-      {
-        dir: 'lib/cjs',
-        format: 'cjs',
-        entryFileNames: '[name].cjs', // 保持分包目录结构
-        chunkFileNames: 'chunks/[name]-[hash].cjs', // 公共代码提取到 chunks 目录
-        sourcemap: true,
-        banner,
-      },
-      {
-        dir: 'lib/esm',
-        format: 'es',
-        entryFileNames: '[name].mjs',
-        chunkFileNames: 'chunks/[name]-[hash].mjs',
-        sourcemap: true,
-        banner,
-      },
-    ],
+    external,
 
     treeshake: {
       preset: 'recommended',
@@ -108,7 +111,7 @@ export default [
           beautify: false,
           comments: (_, comment) => {
             const text = comment.value;
-            return /@vureact\/runtime-core v1.0.0/i.test(text);
+            return /@vureact\/runtime-core/i.test(text);
           },
         },
       }),
