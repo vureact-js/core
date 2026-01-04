@@ -18,6 +18,12 @@ export const VuR_Runtime = {
   Transition: 'Transition',
   Teleport: 'Teleport',
   Component: 'Component',
+  CtxProvider: 'CtxProvider',
+
+  // adapter-components/hooks
+  useActived: 'useActived',
+  useDeactived: 'useDeactived',
+  useCtx: 'useCtx',
 
   // adapter-hooks
   useBeforeMount: 'useBeforeMount',
