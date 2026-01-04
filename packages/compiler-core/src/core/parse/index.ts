@@ -1,5 +1,6 @@
 import { ParseResult as BabelParseResult } from '@babel/parser';
 import { logger } from '@shared/logger';
+import { compileContext } from '@src/shared/compile-context';
 import { CompilerError, RootNode } from '@vue/compiler-core';
 import {
   parse as parseVueSFC,
@@ -9,10 +10,6 @@ import {
 } from '@vue/compiler-sfc';
 import { parseScript } from './script';
 import { parseTemplate } from './template';
-
-export interface ParseOptions {
-  filename: string;
-}
 
 export interface VueASTDescriptor {
   template: ASTBlock<SFCTemplateBlock, RootNode>;
@@ -30,9 +27,11 @@ export type ASTBlock<S, T> = {
   ast: T;
 } | null;
 
-export function parse(vueCode: string, options?: Partial<ParseOptions>): VueASTDescriptor {
-  const { descriptor, errors } = parseVueSFC(vueCode, { filename: options?.filename });
-  
+export function parse(code: string): VueASTDescriptor {
+  const { descriptor, errors } = parseVueSFC(code, {
+    filename: compileContext.context.filename,
+  });
+
   const { template, script, scriptSetup, styles, filename, source, cssVars } = descriptor;
 
   if (errors.length) {
