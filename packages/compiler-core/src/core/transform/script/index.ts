@@ -18,6 +18,7 @@ import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
+import { resolveProvideInject } from './syntax-processor/main-process/provide-inject';
 
 export interface ScriptBlockIR {
   imports: t.ImportDeclaration[];
@@ -62,6 +63,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
         processWatchApi,
         processWatchEffectApi,
         processLifecycleApi,
+        resolveProvideInject
       ],
 
       postprocess: [
