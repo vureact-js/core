@@ -4,6 +4,7 @@ import { RuntimeModules } from '@src/consts/runtimeModules';
 import { vueDerivedLibraries, vueDerivedPrefixes } from '@src/consts/vueDerivedLibraries';
 import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
+import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
 export function insertRequiredImports(): TraverseOptions {
   let inserted = false;
@@ -31,7 +32,7 @@ export function insertRequiredImports(): TraverseOptions {
         return;
       }
 
-      replaceVueFile(node);
+      replaceVueSuffix(node.source);
       removeVueRelatedModules(path);
     },
   };
@@ -64,18 +65,6 @@ function createRequiredImports(): t.ImportDeclaration[] {
   });
 
   return result;
-}
-
-function replaceVueFile(node: t.ImportDeclaration) {
-  const { source } = node;
-
-  if (!source.value.endsWith('.vue')) return;
-
-  const { lang } = compileContext.context;
-  const jsxFile = source.value.replace(/.vue$/, `.${lang.script}x`);
-
-  source.value = jsxFile;
-  source.extra = { rawValue: jsxFile, raw: jsxFile };
 }
 
 // todo
