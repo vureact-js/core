@@ -280,17 +280,17 @@ export function resolveObjectToTSType(obj: object): t.TSTypeLiteral {
 
 /**
  * 把字符串 js 值转换成对应 ts 类型
- * 
+ *
  * Example
- * 
+ *
  * "'name'" -> string
- * 
+ *
  * '1' -> number
- * 
+ *
  * 'greetingMessage' -> any
- * 
+ *
  * '() => 1' -> () => number
- * 
+ *
  * @returns {t.TSTypeAnnotation}
  */
 export function stringValueToTSType(input: string): t.TSTypeAnnotation {
@@ -301,7 +301,7 @@ export function stringValueToTSType(input: string): t.TSTypeAnnotation {
 
 /**
  * 把 js 表达式转成对应 ts 类型
- * 
+ *
  * @param exp babel node
  * @returns {t.TSType}
  */
@@ -364,4 +364,12 @@ export function expressionToTSType(exp: t.Expression): t.TSType {
 export function parseExp(input: string): t.Expression {
   const { lang, filename } = compileContext.context;
   return parseExpression(input, getBabelParseOptions(lang.script, 'expression', filename));
+}
+
+export function isCalleeNamed(node: t.CallExpression, name: string): boolean {
+  if (!t.isIdentifier(node.callee)) {
+    return false;
+  }
+
+  return node.callee.name === name;
 }
