@@ -4,7 +4,8 @@ import { BaseSimpleNodeIR } from '@core/transform/template/elements/node-creator
 import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { NodeTypes } from '@src/core/transform/template/shared/types';
 import { buildChildren } from '..';
-import { JSXChild, JSXProp } from '../types';
+import { createElement } from '../shared';
+import { JSXChild } from '../types';
 import { buildCondition } from './condition-builder';
 import { buildLoop } from './loop-builder';
 import { buildMemo } from './memo-builder';
@@ -58,19 +59,4 @@ export function buildElement(nodeIR: TemplateChildNodeIR | t.Node): JSXChild | n
   }
 
   return null;
-}
-
-function createElement(
-  tag: string,
-  props: JSXProp[],
-  children: JSXChild[],
-  selfClosing?: boolean,
-): t.JSXElement {
-  const jsxTag = t.jsxIdentifier(tag);
-  const isSelfClosing = selfClosing ?? !children.length;
-  return t.jsxElement(
-    t.jsxOpeningElement(jsxTag, props, isSelfClosing),
-    t.jsxClosingElement(jsxTag),
-    children,
-  );
 }
