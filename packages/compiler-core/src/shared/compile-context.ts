@@ -8,11 +8,7 @@ export interface CompileContextType {
     script: LangType;
     style: string[];
   };
-  templateVar: {
-    ids: Set<string>; // 普通变量
-    refs: Set<string>; // node ref
-    vModels: Array<{ getterName: string; setterName: string }>; // v-model
-  };
+  templateRefs: Set<string>;
   templateSlots: Record<string, object>;
 }
 
@@ -38,11 +34,7 @@ class CompileContext {
         script: 'js',
         style: [],
       },
-      templateVar: {
-        vModels: [],
-        ids: new Set(),
-        refs: new Set(),
-      },
+      templateRefs: new Set(),
       templateSlots: {},
     };
   };
