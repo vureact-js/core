@@ -1,5 +1,5 @@
 import { generate } from '@babel/generator';
-import { generateJsx } from '@core/codegen/jsx';
+import { genJsx } from '@core/codegen/jsx';
 import { parse } from '@core/parse';
 import { transform } from '@core/transform';
 import { getDirname } from '@shared/path';
@@ -14,7 +14,7 @@ export function builtInComps() {
 
   const ast = parse(content);
   const ir = transform(ast);
-  const jsx = generateJsx(ir);
+  const jsx = genJsx(ir);
 
   console.timeEnd('generate built-in components duration');
 

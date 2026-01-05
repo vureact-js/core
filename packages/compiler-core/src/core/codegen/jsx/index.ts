@@ -6,7 +6,7 @@ import { buildElement } from './builders/element-builder';
 import { buildFragment } from './builders/simple-builder';
 import { JSXChild } from './types';
 
-export function generateJsx(ir: ReactIRDescriptor): JSXChild | null {
+export function genJsx(ir: ReactIRDescriptor): JSXChild | null {
   const templateBlock = ir.template;
 
   if (!templateBlock?.children.length) {
