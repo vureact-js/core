@@ -27,7 +27,7 @@ export function optimizeConstant(): TraverseOptions {
 
 function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
   const { node, parent, parentPath } = path;
-  const { templateVar } = compileContext.context;
+  const { templateRefs } = compileContext.context;
 
   if (!t.isVariableDeclaration(parent)) return;
 
@@ -37,7 +37,7 @@ function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
 
   if (isReactiveBinding(parent) || isReactiveBinding(node)) return;
 
-  if (t.isIdentifier(node.id) && templateVar.ids.has(node.id.name)) return;
+  if (t.isIdentifier(node.id) && templateRefs.has(node.id.name)) return;
 
   node.init = t.callExpression(t.identifier(ReactApis.useRef), [node.init!]);
 

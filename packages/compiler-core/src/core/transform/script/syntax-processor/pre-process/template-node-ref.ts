@@ -22,13 +22,13 @@ function transformNodeRefToUseRef(path: NodePath<t.VariableDeclarator>) {
   const {
     node: { id, init },
   } = path;
-  const { templateVar } = compileContext.context;
+  const { templateRefs } = compileContext.context;
 
   if (!isVariableDeclTopLevel(path) || !t.isIdentifier(id)) {
     return;
   }
 
-  if (!templateVar.refs.has(id.name) || !t.isCallExpression(init)) {
+  if (!templateRefs.has(id.name) || !t.isCallExpression(init)) {
     return;
   }
 

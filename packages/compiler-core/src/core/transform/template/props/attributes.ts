@@ -30,8 +30,8 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
 
   // 特殊处理：ref 收集
   if (name === 'ref') {
-    const { templateVar } = compileContext.context;
-    templateVar.refs.add(content);
+    const { templateRefs } = compileContext.context;
+    templateRefs.add(content);
   } else {
     attr.type = PropTypes.ATTRIBUTE;
     attr.value.isStringLiteral = true;
