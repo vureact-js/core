@@ -21,6 +21,27 @@ interface PipelineOptions<Source, IR> {
   plugins?: TransformPlugin<IR>[];
 }
 
+/**
+ * Transforms a Vue AST descriptor into a React IR (Intermediate Representation) descriptor.
+ *
+ * This function orchestrates the transformation pipeline by processing both template and script ASTs
+ * through their respective transformers and plugins. It ensures proper context setup and logs output
+ * regardless of success or failure.
+ *
+ * @param ast - The Vue AST descriptor containing template and script information to be transformed
+ * @returns A ReactIRDescriptor containing the transformed template and script intermediate representations
+ *
+ * @remarks
+ * - Initializes the transformation context before processing
+ * - Runs separate pipelines for template and script transformations
+ * - Template and script level plugins can be injected in the future
+ *
+ * @example
+ *
+ * const vueAST = parse(source);
+ * const reactIR = transform(vueAST);
+ * console.log(reactIR.template, reactIR.script);
+ */
 export function transform(ast: VueASTDescriptor): ReactIRDescriptor {
   setupContext(ast);
 
@@ -40,7 +61,7 @@ export function transform(ast: VueASTDescriptor): ReactIRDescriptor {
       script: scriptIR,
     };
   } finally {
-    // 确保日志在任何情况下都能输出（包括报错时）
+    // todo 阶段结束后需移除日志输出
     if (logger.getLogs().length) {
       logger.printAll();
     }
