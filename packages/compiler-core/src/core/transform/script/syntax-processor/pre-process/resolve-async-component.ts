@@ -136,6 +136,6 @@ function pushToModuleScope(path: NodePath<t.CallExpression>) {
     path.remove();
   }
 
-  const { moduleScope } = __scriptBlockIR.statement;
-  moduleScope.push(fullNode as t.Statement);
+  const { statement } = __scriptBlockIR;
+  statement.global.push(fullNode as t.Statement);
 }
