@@ -54,8 +54,6 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
 
   nodeIR.props.push(propIR);
   nodeIR.props.push(eventIR);
-
-  addToModelsCtx(varName, setterName);
 }
 
 function parseModelTarget(valueExp: string): { varName: string; setterName: string } {
@@ -153,16 +151,4 @@ function getInputType(node: VueElementNode, isComponent: boolean): InputType | u
 function isTextInputType(type?: string): boolean {
   if (!type) return true; // 默认 text
   return ['text', 'password', 'email', 'search', 'tel', 'url', 'number'].includes(type);
-}
-
-function addToModelsCtx(varName: string, setterName: string) {
-  const { templateVar } = compileContext.context;
-  const has = templateVar.vModels.some((m) => m.getterName === varName);
-
-  if (has) return;
-
-  templateVar.vModels.push({
-    getterName: varName,
-    setterName,
-  });
 }
