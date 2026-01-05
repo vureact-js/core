@@ -10,6 +10,12 @@ export interface CompileContextType {
   };
   templateRefs: Set<string>;
   templateSlots: Record<string, object>;
+  ctxProvider: {
+    exists: boolean;
+    name: string;
+    value: string;
+    ctxProvider: CompileContextType['ctxProvider'] | Partial<CompileContextType['ctxProvider']>;
+  };
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
@@ -36,6 +42,12 @@ class CompileContext {
       },
       templateRefs: new Set(),
       templateSlots: {},
+      ctxProvider: {
+        exists: false,
+        name: '',
+        value: '',
+        ctxProvider: {},
+      },
     };
   };
 
