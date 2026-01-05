@@ -27,7 +27,7 @@ export function resolveProps(): TraverseOptions {
  * 核心处理逻辑：根据 defineProps/defineEmits 的类型生成对应的 TS 类型节点
  */
 function processPropType(prop: PropDescribe) {
-  const { defineProps } = __scriptBlockIR;
+  const { tsTypes, defineProps } = __scriptBlockIR;
   const { lang } = compileContext.context;
 
   const isTs = lang.script.startsWith('ts');
@@ -60,7 +60,11 @@ function processPropType(prop: PropDescribe) {
 
   // 如果生成了新类型，将其合并到全局的 props 定义中
   if (newType) {
-    defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType);
+    const propsType = (defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType));
+
+    tsTypes.push(propsType);
+
+    defineProps.id.typeAnnotation = t.tsTypeAnnotation(t.tSTypeReference(propsType.id));
   }
 }
 
