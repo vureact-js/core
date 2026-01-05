@@ -22,18 +22,13 @@ export function resolveTemplateExp(
     return t.stringLiteral(jsExp);
   }
 
-  const { lang, filename, templateVar } = compileContext.context;
+  const { lang, filename } = compileContext.context;
   const parseOpts = getBabelParseOptions(lang.script, parseCtx, filename);
 
   jsExp = normalizePropValue(jsExp);
 
   try {
     const exp = parseExpression(jsExp, parseOpts);
-
-    if (t.isIdentifier(exp)) {
-      // 记录模板使用的所有变量名
-      templateVar.ids.add(exp.name);
-    }
 
     return exp;
   } catch {
