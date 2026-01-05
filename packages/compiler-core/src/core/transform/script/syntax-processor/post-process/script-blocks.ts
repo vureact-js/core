@@ -31,5 +31,5 @@ export function splitScriptBlocks(): TraverseOptions {
 // 收集剩下的主代码
 export function splitMainBody(ast: ParseResult) {
   const { statement } = __scriptBlockIR;
-  statement.componentScope = ast.program.body;
+  statement.local = ast.program.body;
 }
