@@ -6,6 +6,7 @@ import { optimizeFunction } from './optimizations/function';
 import { processVueScript } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
 import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
+import { resolveProvideInject } from './syntax-processor/main-process/provide-inject';
 import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
@@ -18,7 +19,6 @@ import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
-import { resolveProvideInject } from './syntax-processor/main-process/provide-inject';
 
 export interface ScriptBlockIR {
   imports: t.ImportDeclaration[];
@@ -31,10 +31,13 @@ export interface ScriptBlockIR {
   /** 存放可执行 js 语句 */
   statement: {
     /**
-     * 组件之外、文件级、模块级作用域
+     * 位于组件函数外的 script 语句
      */
-    moduleScope: t.Statement[];
-    componentScope: t.Statement[];
+    global: t.Statement[];
+    /**
+     * 位于组件函数内的 script 语句
+     */
+    local: t.Statement[];
   };
 }
 
@@ -63,7 +66,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
         processWatchApi,
         processWatchEffectApi,
         processLifecycleApi,
-        resolveProvideInject
+        resolveProvideInject,
       ],
 
       postprocess: [
@@ -93,8 +96,8 @@ function createIR(): ScriptBlockIR {
       tsType: undefined,
     },
     statement: {
-      moduleScope: [],
-      componentScope: [],
+      global: [],
+      local: [],
     },
   };
 }
