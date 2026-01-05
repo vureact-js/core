@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { JSXChild } from './types';
+import { JSXChild, JSXProp } from './types';
 
 /**
  * convert JSX child to expression.
@@ -26,4 +26,19 @@ export function convertToExpression(jsxChild: JSXChild): t.Expression {
   // 如果是其他 JSX 节点，需要转换为合适的表达式
   // 这里可以根据需要添加更多转换逻辑
   return jsxChild.expression;
+}
+
+export function createElement(
+  tag: string,
+  props: JSXProp[],
+  children: JSXChild[],
+  selfClosing?: boolean,
+): t.JSXElement {
+  const jsxTag = t.jsxIdentifier(tag);
+  const isSelfClosing = selfClosing ?? !children.length;
+  return t.jsxElement(
+    t.jsxOpeningElement(jsxTag, props, isSelfClosing),
+    t.jsxClosingElement(jsxTag),
+    children,
+  );
 }
