@@ -1,4 +1,5 @@
-import { buildUseMemo } from '@src/core/codegen/script/builders/react-hook-builder';
+import * as t from '@babel/types';
+import { ReactApis } from '@src/consts/runtimeModules';
 import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { convertToExpression } from '../shared';
 import { JSXChild } from '../types';
@@ -10,11 +11,13 @@ export function buildMemo(nodeIR: ElementNodeIR): JSXChild {
 
   memo.isHandled = true;
 
-  // 构建 useMemo 调用
   const deps = memo!.babelExp.ast;
   const body = convertToExpression(buildElement(nodeIR)!);
 
-  const useMemo = buildUseMemo(body, deps);
+  const useMemo = t.callExpression(t.identifier(ReactApis.useMemo), [
+    t.arrowFunctionExpression([], body),
+    deps,
+  ]);
 
   return buildJSXExpression(useMemo);
 }
