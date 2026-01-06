@@ -26,14 +26,16 @@ export function processTemplateSlots() {
 
     if (hasProps) {
       const param = t.identifier('data');
-      param.typeAnnotation = resolveObjectToTSType(props) as unknown as t.TSTypeAnnotation;
+      const tsParamType = resolveObjectToTSType(props) as unknown as t.TSType;
+
+      param.typeAnnotation = t.tsTypeAnnotation(tsParamType);
       typeNode = t.tsFunctionType(null, [param], t.tsTypeAnnotation(ReactNodeType));
     }
 
     const id = t.identifier(key);
-    id.optional = true;
-
     const propSignature = t.tsPropertySignature(id, t.tsTypeAnnotation(typeNode));
+
+    propSignature.optional = true;
 
     properties.push(propSignature);
   }
@@ -42,6 +44,6 @@ export function processTemplateSlots() {
 
   const newType = t.tsTypeLiteral(properties);
 
-  mergeTypeIntoAlias(newType, defineProps.tsType);
+  defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType);
   recordImport(RuntimeModules.REACT, 'ReactNode', true);
 }
