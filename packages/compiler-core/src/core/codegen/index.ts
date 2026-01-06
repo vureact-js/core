@@ -1,7 +1,24 @@
+import {
+  generate as babelGenerator,
+  GeneratorResult as BabelGeneratorResult,
+  GeneratorOptions,
+} from '@babel/generator';
+import * as t from '@babel/types';
 import { ReactIRDescriptor } from '@core/transform';
 import { genJsx } from './jsx';
+import { genReactComponent } from './script';
 
-// todo 配置选项集成：prettier 格式化代码、预设 babel generate 选项
-export function generate(ir: ReactIRDescriptor) {
-  genJsx(ir);
+export type GeneratorResult = BabelGeneratorResult & { ast: t.Program };
+
+export function generate(ir: ReactIRDescriptor, opts?: GeneratorOptions): GeneratorResult {
+  const jsx = genJsx(ir) || t.nullLiteral();
+  const ast = genReactComponent(ir.script, jsx as t.Expression);
+
+  const { code, map } = babelGenerator(ast, opts);
+
+  return {
+    ast,
+    code,
+    map,
+  };
 }
