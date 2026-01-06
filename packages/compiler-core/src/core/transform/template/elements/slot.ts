@@ -76,7 +76,7 @@ function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotIR {
 }
 
 function replaceSlotNode(parentIR: ElementNodeIR, slotIR: SlotIR) {
-  let interpContent = `${__props}?.${slotIR.name}`;
+  let interpContent = `${__props}.${slotIR.name}`;
 
   const isScoped = Object.keys(slotIR.props).length !== 0;
 
