@@ -2,9 +2,8 @@ import * as t from '@babel/types';
 import { RuntimeModules } from '@src/consts/runtimeModules';
 import { compileContext } from '@src/shared/compile-context';
 import { recordImport } from '@src/shared/runtime-utils';
-import { __scriptBlockIR } from '../..';
+import { __scriptBlockIR, PropTSInterface } from '../..';
 import { resolveObjectToTSType } from '../../shared/babel-utils';
-import { mergeTypeIntoAlias } from './resolve-props';
 
 /**
  * 处理 Vue 模板声明的 slot 描述，将其转换为 React 组件的 Props 类型定义。
@@ -13,9 +12,19 @@ import { mergeTypeIntoAlias } from './resolve-props';
  */
 export function processTemplateSlots() {
   const { defineProps } = __scriptBlockIR;
+  const tsTypeElement = createTSTypeElement();
+
+  if (!tsTypeElement.length) return;
+
+  recordImport(RuntimeModules.REACT, 'ReactNode', true);
+  resolvePropTSInterface(defineProps.typeAnnotation.slotType, tsTypeElement);
+}
+
+// 通过模板的 slot 描述对象创建 TSTypeElement
+function createTSTypeElement(): t.TSTypeElement[] {
   const { templateSlots } = compileContext.context;
 
-  const properties: t.TSTypeElement[] = [];
+  const tsTypeElement: t.TSTypeElement[] = [];
   const ReactNodeType = t.tsTypeReference(t.identifier('ReactNode'));
 
   for (const key in templateSlots) {
@@ -36,14 +45,36 @@ export function processTemplateSlots() {
     const propSignature = t.tsPropertySignature(id, t.tsTypeAnnotation(typeNode));
 
     propSignature.optional = true;
-
-    properties.push(propSignature);
+    tsTypeElement.push(propSignature);
   }
 
-  if (!properties.length) return;
+  return tsTypeElement;
+}
 
-  const newType = t.tsTypeLiteral(properties);
+export function resolvePropTSInterface(
+  p: PropTSInterface,
+  body: t.TSTypeElement[],
+  _extends?: Array<t.TSExpressionWithTypeArguments>,
+) {
+  const iface = t.tsInterfaceDeclaration(
+    p.id.typeName as t.Identifier,
+    null,
+    _extends,
+    t.tsInterfaceBody(body),
+  );
 
-  defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType);
-  recordImport(RuntimeModules.REACT, 'ReactNode', true);
+  const { tsTypes } = __scriptBlockIR;
+
+  // 如果已有同名接口则替换，否则追加
+  const exists = tsTypes.some((ts) => {
+    if (t.isTSInterfaceDeclaration(ts) && ts.id.name === iface.id.name) {
+      ts.body = iface.body;
+      return true;
+    }
+    return false;
+  });
+
+  if (!exists) tsTypes.push(iface);
+
+  p.tsType = iface;
 }
