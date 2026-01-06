@@ -17,6 +17,7 @@ export function resolveProps(): TraverseOptions {
       createPropsProcessor(path, {
         onProcessed(prop) {
           processPropType(prop);
+          setPropTypes();
         },
       });
     },
@@ -27,7 +28,7 @@ export function resolveProps(): TraverseOptions {
  * 核心处理逻辑：根据 defineProps/defineEmits 的类型生成对应的 TS 类型节点
  */
 function processPropType(prop: PropDescribe) {
-  const { tsTypes, defineProps } = __scriptBlockIR;
+  const { defineProps } = __scriptBlockIR;
   const { lang } = compileContext.context;
 
   const isTs = lang.script.startsWith('ts');
@@ -60,11 +61,7 @@ function processPropType(prop: PropDescribe) {
 
   // 如果生成了新类型，将其合并到全局的 props 定义中
   if (newType) {
-    const propsType = (defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType));
-
-    tsTypes.push(propsType);
-
-    defineProps.id.typeAnnotation = t.tsTypeAnnotation(t.tSTypeReference(propsType.id));
+    defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType);
   }
 }
 
@@ -392,4 +389,24 @@ function createFunctionTypeFromTuple(tuple: t.TSTupleType): t.TSFunctionType {
     return id;
   });
   return t.tsFunctionType(null, params, t.tsTypeAnnotation(t.tsAnyKeyword()));
+}
+
+function setPropTypes() {
+  const { tsTypes, defineProps } = __scriptBlockIR;
+  const propsType = defineProps.tsType;
+
+  if (propsType) {
+    const exists = tsTypes.some((ts) => {
+      if (t.isTSTypeAliasDeclaration(ts) && ts.id.name === ReactCompProps) {
+        ts.typeAnnotation = propsType.typeAnnotation;
+        return true;
+      }
+    });
+
+    if (!exists) {
+      tsTypes.push(propsType);
+    }
+
+    defineProps.id.typeAnnotation = t.tsTypeAnnotation(t.tSTypeReference(propsType.id));
+  }
 }
