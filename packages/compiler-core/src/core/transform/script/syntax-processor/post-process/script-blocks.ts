@@ -2,6 +2,7 @@ import { ParseResult } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { __scriptBlockIR } from '../..';
+import { getNodeExtensionMeta, isVariableDeclTopLevel } from '../../shared/babel-utils';
 
 export function splitScriptBlocks(): TraverseOptions {
   return {
@@ -24,6 +25,18 @@ export function splitScriptBlocks(): TraverseOptions {
         __scriptBlockIR.tsTypes.push(path.node as t.TypeScript);
         path.remove();
       }
+    },
+
+    // 处理顶级变量声明
+    VariableDeclaration(path) {
+      if (!isVariableDeclTopLevel(path)) return;
+
+      // 确保不属于“响应式”属性
+      const globalVar = path.node.declarations.every((node) => !getNodeExtensionMeta(node));
+      if (!globalVar) return;
+
+      __scriptBlockIR.statement.global.push(path.node);
+      path.remove();
     },
   };
 }
