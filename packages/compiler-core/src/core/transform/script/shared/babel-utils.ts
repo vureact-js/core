@@ -269,7 +269,7 @@ export function replaceCallName(callExp: t.CallExpression, identifierName: strin
 export function resolveObjectToTSType(obj: object): t.TSTypeLiteral {
   const properties = Object.entries(obj).map(([key, value]) => {
     const propSignature = t.tsPropertySignature(
-      t.identifier(key),
+      t.stringLiteral(key),
       stringValueToTSType(String(value)),
     );
     return propSignature;
