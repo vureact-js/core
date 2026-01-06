@@ -373,3 +373,20 @@ export function isCalleeNamed(node: t.CallExpression, name: string): boolean {
 
   return node.callee.name === name;
 }
+
+/**
+ * 以当前路径为起点，查找自身的上级父路径节点的变量声明节点
+ */
+export function getParentVariableDeclarator(path: NodePath): NodePath {
+  let current = path;
+
+  while (!current.isVariableDeclarator()) {
+    if (current.parentPath) {
+      current = current.parentPath;
+    } else {
+      break;
+    }
+  }
+
+  return current;
+}
