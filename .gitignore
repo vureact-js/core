@@ -6,3 +6,4 @@ coverage/
 .DS_Store
 bundles-size.html
 packages/compiler-core/**/__tests__/**/*preview.jsx
+packages/compiler-core/**/__tests__/**/*preview.tsx
