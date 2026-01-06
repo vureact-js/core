@@ -1,7 +1,6 @@
 import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { compileContext } from '@shared/compile-context';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { isReactiveBinding } from '../shared/analyze-dependency';
@@ -27,17 +26,16 @@ export function optimizeConstant(): TraverseOptions {
 
 function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
   const { node, parent, parentPath } = path;
-  const { templateRefs } = compileContext.context;
 
-  if (!t.isVariableDeclaration(parent)) return;
-
-  if (!isVariableDeclTopLevel(parentPath)) return;
-
-  if (parent.kind !== 'const') return;
-
-  if (isReactiveBinding(parent) || isReactiveBinding(node)) return;
-
-  if (t.isIdentifier(node.id) && templateRefs.has(node.id.name)) return;
+  if (
+    !t.isVariableDeclaration(parent) ||
+    !isVariableDeclTopLevel(parentPath) ||
+    parent.kind !== 'const' ||
+    isReactiveBinding(parent) ||
+    isReactiveBinding(node)
+  ) {
+    return;
+  }
 
   node.init = t.callExpression(t.identifier(ReactApis.useRef), [node.init!]);
 
