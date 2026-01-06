@@ -53,8 +53,6 @@
 
     <div v-html="rawHtmlContent"></div>
 
-    <div v-pre>{{ 这段内容将作为纯文本显示，不会被 Vue 编译 }}</div>
-
     <MyChildComponent
       :user-id="currentUserId"
       static-text="这是一个静态 Prop"
@@ -90,7 +88,7 @@
     </header>
     <main>
       <div>
-        <slot :text="greetingMessage"></slot>
+        <slot></slot>
       </div>
     </main>
     <footer>
@@ -104,6 +102,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { computed, defineAsyncComponent, inject, provide, reactive, ref } from 'vue';
+import Count from 'count.vue'
 
 interface Props {}
 
