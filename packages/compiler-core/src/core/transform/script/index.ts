@@ -1,6 +1,6 @@
 import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
-import { __props } from '../const';
+import { __props, ReactCompEvents, ReactCompProps, ReactCompSlots } from '../const';
 import { optimizeFunction } from './optimizations/function';
 import { processVueScript } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
@@ -10,6 +10,7 @@ import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
+import { createPropsIntersectionType } from './syntax-processor/post-process/create-props-interface';
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
 import { splitMainBody, splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
@@ -24,8 +25,12 @@ export interface ScriptBlockIR {
   exports: t.ExportDeclaration[];
   tsTypes: t.TypeScript[];
   defineProps: {
-    readonly id: t.Identifier;
-    tsType?: t.TSTypeAliasDeclaration;
+    readonly id: t.TSTypeReference;
+    typeAnnotation: {
+      propsType: PropTSInterface;
+      slotType: PropTSInterface;
+      eventType: PropTSInterface;
+    };
   };
   /** 存放可执行 js 语句 */
   statement: {
@@ -39,6 +44,11 @@ export interface ScriptBlockIR {
     local: t.Statement[];
   };
 }
+
+export type PropTSInterface = {
+  readonly id: t.TSTypeReference;
+  tsType?: t.TSInterfaceDeclaration | t.TSType | t.TSTypeAliasDeclaration;
+};
 
 export const __scriptBlockIR = createIR();
 
@@ -73,7 +83,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
 
     skipTraversal: {
       preprocess: [processTemplateSlots],
-      postprocess: [splitMainBody],
+      postprocess: [splitMainBody, createPropsIntersectionType],
     },
   });
 
@@ -86,8 +96,18 @@ function createIR(): ScriptBlockIR {
     exports: [],
     tsTypes: [],
     defineProps: {
-      id: t.identifier(__props),
-      tsType: undefined,
+      id: t.tsTypeReference(t.identifier(__props)),
+      typeAnnotation: {
+        propsType: {
+          id: t.tsTypeReference(t.identifier(ReactCompProps)),
+        },
+        slotType: {
+          id: t.tsTypeReference(t.identifier(ReactCompSlots)),
+        },
+        eventType: {
+          id: t.tsTypeReference(t.identifier(ReactCompEvents)),
+        },
+      },
     },
     statement: {
       global: [],
