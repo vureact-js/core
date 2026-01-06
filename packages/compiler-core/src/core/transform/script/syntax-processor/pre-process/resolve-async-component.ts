@@ -21,7 +21,7 @@ export function resolveAsyncComponent(): TraverseOptions {
       const [arg] = node.arguments;
 
       checkIsUnsupported(arg);
-      pushToModuleScope(path);
+      pushToGlobalScope(path);
       recordImport(RuntimeModules.REACT, ReactApis.lazy, true);
     },
   };
@@ -102,7 +102,7 @@ function warnMultipleOptionsUsed(node: t.Node) {
   );
 }
 
-function pushToModuleScope(path: NodePath<t.CallExpression>) {
+function pushToGlobalScope(path: NodePath<t.CallExpression>) {
   const { node } = path;
   const callee = node.callee as t.Identifier;
 
