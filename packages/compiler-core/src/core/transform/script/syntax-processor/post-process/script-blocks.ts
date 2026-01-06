@@ -41,8 +41,10 @@ export function splitScriptBlocks(): TraverseOptions {
   };
 }
 
-// 收集剩下的主代码
-export function splitMainBody(ast: ParseResult) {
+/**
+ * 提取 `splitScriptBlocks` 分割后的剩余语句，这些语句应放在组件内使用
+ */
+export function extractLocalStatements(ast: ParseResult) {
   const { statement } = __scriptBlockIR;
   statement.local = ast.program.body;
 }
