@@ -1,7 +1,6 @@
 import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { __props } from '../const';
-import { optimizeConstant } from './optimizations/constant';
 import { optimizeFunction } from './optimizations/function';
 import { processVueScript } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
@@ -69,12 +68,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
         resolveProvideInject,
       ],
 
-      postprocess: [
-        processReactiveValueUpdate,
-        optimizeConstant,
-        insertRequiredImports,
-        splitScriptBlocks,
-      ],
+      postprocess: [processReactiveValueUpdate, insertRequiredImports, splitScriptBlocks],
     },
 
     skipTraversal: {
