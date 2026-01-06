@@ -63,3 +63,17 @@ function transformEmitToPropsCall(code: string): string {
 
   return `${__props}?.${call}`;
 }
+
+/**
+ * 提取字符串链式访问的第一个标识符
+ */
+export function extractFirstIdentifier(expr: string): string | undefined {
+  if (!expr || typeof expr !== 'string') return;
+
+  const cleaned = expr.trim();
+
+  // 匹配标识符，后面可能跟着各种访问操作符
+  const pattern = /^([a-zA-Z_$][a-zA-Z0-9_$]*)(?:[\.\?\.\[\(].*)?$/;
+  const match = pattern.exec(cleaned);
+  return match?.[1];
+}
