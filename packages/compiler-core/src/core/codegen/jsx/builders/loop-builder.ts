@@ -55,7 +55,9 @@ function buildObjectLoop(nodeIR: ElementNodeIR): JSXChild {
   );
 
   // 构建回调函数参数
-  const params: t.Identifier[] = [t.identifier(key || 'key'), t.identifier(value)];
+  const params: (t.Identifier | t.ArrayPattern)[] = [
+    t.arrayPattern([t.identifier(key || 'key'), t.identifier(value)]),
+  ];
 
   if (index) {
     params.push(t.identifier(index));
