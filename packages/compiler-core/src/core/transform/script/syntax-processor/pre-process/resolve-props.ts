@@ -4,8 +4,9 @@ import { compileContext } from '@src/shared/compile-context';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { __scriptBlockIR } from '../..';
-import { ReactCompProps } from '../../../const';
+import { ReactCompEvents, ReactCompProps } from '../../../const';
 import { createPropsProcessor, PropDescribe } from '../../shared/processor-factory';
+import { resolvePropTSInterface } from './resolve-template-slots';
 
 /**
  * 处理 Vue 组件的 props 和 emits 定义，将其转换为 React 组件的 Props 类型定义。
@@ -16,8 +17,7 @@ export function resolveProps(): TraverseOptions {
     CallExpression(path) {
       createPropsProcessor(path, {
         onProcessed(prop) {
-          processPropType(prop);
-          setPropTypes();
+          processpropsType(prop);
         },
       });
     },
@@ -27,8 +27,7 @@ export function resolveProps(): TraverseOptions {
 /**
  * 核心处理逻辑：根据 defineProps/defineEmits 的类型生成对应的 TS 类型节点
  */
-function processPropType(prop: PropDescribe) {
-  const { defineProps } = __scriptBlockIR;
+function processpropsType(prop: PropDescribe) {
   const { lang } = compileContext.context;
 
   const isTs = lang.script.startsWith('ts');
@@ -43,25 +42,31 @@ function processPropType(prop: PropDescribe) {
     if (tsGenericParam) {
       newType = tsGenericParam;
     }
+
     // Case B: defineProps({ foo: String }) - 运行时对象转 TS 类型
     else if (isTs && (t.isObjectExpression(prop.arg?.[0]) || t.isArrayExpression(prop.arg?.[0]))) {
       newType = transformRuntimePropsToType(prop.arg[0]);
     }
-  }
-  // 2. 处理 defineEmits
-  else if (prop.type === 'defineEmits') {
-    if (tsGenericParam) {
-      // Case C: defineEmits<(e: 'change') => void>() - TS 签名转 React 回调 props
-      newType = transformTSEmitsToReactProps(tsGenericParam);
-    } else if (isTs && t.isArrayExpression(prop.arg?.[0])) {
-      // Case D: defineEmits(['change']) - 运行时数组转 TS 类型
-      newType = transformRuntimeEmitsToType(prop.arg[0]);
-    }
+
+    registrypropsType('props', newType);
+    return;
   }
 
-  // 如果生成了新类型，将其合并到全局的 props 定义中
-  if (newType) {
-    defineProps.tsType = mergeTypeIntoAlias(newType, defineProps.tsType);
+  // 2. 处理 defineEmits
+  if (prop.type === 'defineEmits') {
+    // Case C: defineEmits<(e: 'change') => void>() - TS 签名转 React 回调 props
+    if (tsGenericParam) {
+      newType = transformTSEmitsToReactProps(tsGenericParam);
+    }
+
+    // Case D: defineEmits(['change']) - 运行时数组转 TS 类型
+    else if (isTs && t.isArrayExpression(prop.arg?.[0])) {
+      newType = transformRuntimeEmitsToType(prop.arg[0]);
+    }
+
+    registrypropsType('emits', newType);
+
+    return;
   }
 }
 
@@ -92,7 +97,7 @@ function transformRuntimePropsToType(obj: t.ObjectExpression | t.ArrayExpression
       if (!keyName) continue;
 
       // 解析值的类型和是否必填
-      const { typeNode, required } = parsePropTypeAndRequired(prop.value);
+      const { typeNode, required } = parsepropsTypeAndRequired(prop.value);
 
       // 构建 TS 属性签名
       const propSignature = t.tsPropertySignature(
@@ -123,7 +128,7 @@ function transformRuntimePropsToType(obj: t.ObjectExpression | t.ArrayExpression
 /**
  * 解析单个 Prop 的值，返回对应的 TS 类型和 required 状态
  */
-function parsePropTypeAndRequired(value: t.Node): { typeNode: t.TSType; required: boolean } {
+function parsepropsTypeAndRequired(value: t.Node): { typeNode: t.TSType; required: boolean } {
   let required = false;
   let typeNodes: t.TSType[] = [];
 
@@ -219,16 +224,16 @@ function transformRuntimeEmitsToType(arr: t.ArrayExpression): t.TSTypeLiteral {
   for (const element of arr.elements) {
     if (t.isStringLiteral(element)) {
       const propName = convertEventNameToReactProp(element.value);
-      const id = t.identifier('...args');
-
-      id.typeAnnotation = t.tsTypeAnnotation(t.tsArrayType(t.tsAnyKeyword()));
-
-      members.push(
-        t.tsPropertySignature(
-          t.identifier(propName),
-          t.tsTypeAnnotation(t.tsFunctionType(null, [id], t.tsTypeAnnotation(t.tsAnyKeyword()))),
-        ),
+      const paramId = t.identifier('...args');
+      const tsType = t.tsPropertySignature(
+        t.identifier(propName),
+        t.tsTypeAnnotation(t.tsFunctionType(null, [paramId], t.tsTypeAnnotation(t.tsAnyKeyword()))),
       );
+
+      tsType.optional = true;
+      paramId.typeAnnotation = t.tsTypeAnnotation(t.tsArrayType(t.tsAnyKeyword()));
+
+      members.push(tsType);
     }
   }
 
@@ -308,24 +313,6 @@ function transformTSEmitsToReactProps(tsType: t.TSType): t.TSType {
 // ===================================================================================
 
 /**
- * 将新的 Props 类型合并到现有的 Props 别名中 (创建交叉类型)
- */
-export function mergeTypeIntoAlias(
-  newType: t.TSType,
-  existing?: t.TSTypeAliasDeclaration,
-): t.TSTypeAliasDeclaration {
-  // 如果没有现有类型，创建一个新的类型别名 ReactCompProps = NewType
-  if (!existing) {
-    return t.tsTypeAliasDeclaration(t.identifier(ReactCompProps), null, newType);
-  }
-
-  // 如果已有类型，创建交叉类型 ReactCompProps = OldType & NewType
-  const existingType = existing.typeAnnotation;
-  const intersection = t.tsIntersectionType([existingType, newType]);
-  return t.tsTypeAliasDeclaration(t.identifier(ReactCompProps), null, intersection);
-}
-
-/**
  * 将事件名转换为 React Prop 名 (e.g., 'update:modelValue' -> 'onUpdateModelValue')
  */
 function convertEventNameToReactProp(key: string): string {
@@ -391,22 +378,30 @@ function createFunctionTypeFromTuple(tuple: t.TSTupleType): t.TSFunctionType {
   return t.tsFunctionType(null, params, t.tsTypeAnnotation(t.tsAnyKeyword()));
 }
 
-function setPropTypes() {
-  const { tsTypes, defineProps } = __scriptBlockIR;
-  const propsType = defineProps.tsType;
+function registrypropsType(name: 'props' | 'emits', type?: t.TSType) {
+  if (!type) return;
 
-  if (propsType) {
-    const exists = tsTypes.some((ts) => {
-      if (t.isTSTypeAliasDeclaration(ts) && ts.id.name === ReactCompProps) {
-        ts.typeAnnotation = propsType.typeAnnotation;
-        return true;
-      }
-    });
+  const {
+    defineProps: { typeAnnotation },
+  } = __scriptBlockIR;
 
-    if (!exists) {
-      tsTypes.push(propsType);
-    }
+  const map = {
+    props: {
+      p: typeAnnotation.propsType,
+      ifaceName: ReactCompProps,
+    },
+    emits: {
+      p: typeAnnotation.eventType,
+      ifaceName: ReactCompEvents,
+    },
+  };
 
-    defineProps.id.typeAnnotation = t.tsTypeAnnotation(t.tSTypeReference(propsType.id));
+  const { p, ifaceName } = map[name];
+
+  if (t.isTSTypeLiteral(type)) {
+    resolvePropTSInterface(p, type.members as t.TSTypeElement[]);
+  } else {
+    // 无法转为 literal 类型，则生成 type Name = type
+    p.tsType = t.tsTypeAliasDeclaration(t.identifier(ifaceName), null, type);
   }
 }
