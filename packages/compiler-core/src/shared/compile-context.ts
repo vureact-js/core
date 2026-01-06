@@ -10,6 +10,7 @@ export interface CompileContextType {
   };
   templateRefs: Set<string>;
   templateSlots: Record<string, object>;
+  templateVModels: Array<VModelHandler>;
   ctxProvider: {
     exists: boolean;
     name: string;
@@ -19,6 +20,23 @@ export interface CompileContextType {
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
+
+export type VModelHandler = {
+  key: string;
+  handler: {
+    name: string;
+    exp: {
+      arg: string;
+      body: {
+        setterExp: {
+          name: string;
+          arg: string;
+          body: string;
+        };
+      };
+    };
+  };
+};
 
 class CompileContext {
   private ctx: CompileContextType;
@@ -42,6 +60,7 @@ class CompileContext {
       },
       templateRefs: new Set(),
       templateSlots: {},
+      templateVModels: [],
       ctxProvider: {
         exists: false,
         name: '',
