@@ -1,8 +1,7 @@
-import { compileContext } from '@shared/compile-context';
-import { logger } from '@shared/logger';
-import { strCodeTypes } from '@src/shared/string-code-types';
+import { compileContext, VModelHandler } from '@shared/compile-context';
 import { capitalize } from '@utils/capitalize';
 import {
+  AttributeNode,
   DirectiveNode,
   ElementTypes,
   NodeTypes,
@@ -12,6 +11,7 @@ import {
 import { PropsIR } from '.';
 import { ElementNodeIR } from '../elements/element';
 import { preParseProp } from '../shared/pre-parse-props';
+import { extractFirstIdentifier } from '../shared/resolve-str-exp';
 import { createPropsIR } from './utils';
 
 export type InputType = 'text' | 'checkbox' | 'radio' | 'select' | 'textarea';
@@ -20,95 +20,79 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
-  // 只允许使用变量标识符
-  if (!strCodeTypes.isIdentifier(exp.content)) {
-    const { source, filename } = compileContext.context;
-    logger.error('v-model value must be a valid JavaScript variable identifier.', {
-      loc: prop.loc,
-      file: filename,
-      source,
-    });
+  const getterName = exp.content;
 
-    return;
-  }
+  const isComp = node.tagType === ElementTypes.COMPONENT;
 
-  // 识别元素类型
-  const isComponent = node.tagType === ElementTypes.COMPONENT;
-  const inputType = getInputType(node, isComponent);
-  const name = arg?.content ?? getModelPropName(inputType, isComponent);
+  const inputType = getInputType(node, isComp);
 
-  // 解析目标（value 变量名 和 setter 函数名）
-  const { varName, setterName } = parseModelTarget(exp.content);
+  const propName = arg?.content ?? getPropName(inputType, isComp);
 
-  const propIR = createPropsIR('v-model', name, varName);
+  const propsIR = createPropsIR('v-model', propName, getterName);
 
-  const eventIR = createModelEventIR(
-    setterName,
+  const eventIR = handleEventIR(
+    getterName,
     inputType,
     prop.modifiers.map((m) => m.content),
-    isComponent,
+    isComp,
   );
 
-  preParseProp(propIR);
+  preParseProp(propsIR);
   preParseProp(eventIR);
 
-  nodeIR.props.push(propIR);
-  nodeIR.props.push(eventIR);
+  nodeIR.props.push(propsIR, eventIR);
 }
 
-function parseModelTarget(valueExp: string): { varName: string; setterName: string } {
-  // Vue: v-model="foo" → React: foo + setFoo
-  // 策略1：假设用户用 useState，自动推导 setter
-  const setterName = `set${capitalize(valueExp)}`;
-
-  return { varName: valueExp, setterName };
-}
-
-function getModelPropName(inputType?: InputType, isComponent = false): string {
+function getPropName(inputType?: InputType, isComp = false): string {
   if (inputType === 'checkbox' || inputType === 'radio') {
     return 'checked';
   }
-  return !isComponent ? 'value' : 'modelValue';
+  return !isComp ? 'value' : 'modelValue';
 }
 
-function createModelEventIR(
-  setterName: string,
+function handleEventIR(
+  getterName: string,
   inputType?: InputType,
   modifiers: string[] = [],
-  isComponent = false,
+  isComp = false,
 ): PropsIR {
-  const eventName = getModelEventName(inputType, modifiers, isComponent);
+  // 首先提取基础标识符（防止用户写了链式访问）
+  const _getterName = extractFirstIdentifier(getterName)!;
+  const rawName = `update:${_getterName}`;
+
+  const propName = getEventPropName(_getterName, inputType, modifiers, isComp);
+  const setterName = `set${capitalize(_getterName)}`;
 
   // 值提取器（e.target.value / e.target.checked 等）
-  const valueExtractor = getValueExtractor(inputType, isComponent);
-
+  const valueExtractor = getValueExtractor(inputType, isComp);
   // 修饰符处理器（trim / number / lazy）
   const processedValue = applyModifiers(valueExtractor, modifiers);
 
-  // 生成箭头函数体（字符串形式，但由结构化数据组装）
-  const handlerBody = `${setterName}(${processedValue})`;
+  createVModelHandler(_getterName, setterName, processedValue);
 
-  return createPropsIR(eventName, eventName, `e => ${handlerBody}`);
+  // v-model="bar" -> bar + onBarChange
+  return createPropsIR(rawName, propName, setterName);
 }
 
-function getModelEventName(
+function getEventPropName(
+  getterName: string,
   inputType?: InputType,
   modifiers: string[] = [],
-  isComponent = false,
+  isComp = false,
 ): string {
   // lazy 修饰符强制 onChange
   if (modifiers.includes('lazy')) return 'onChange';
 
   // 文本类用 onInput（实时更新）
-  if (inputType === 'textarea' || (!isComponent && isTextInputType(inputType))) {
+  if (inputType === 'textarea' || (!isComp && isTextInput(inputType))) {
     return 'onInput';
   }
 
-  // 其他非组件节点则用 onChange，否则使用 onUpdateModelValue
-  return !isComponent ? 'onChange' : 'onUpdateModelValue';
+  // 非组件用 onChange，否则使用 onUpdate[GetterName]
+  return !isComp ? 'onChange' : `onUpdate${capitalize(getterName)}`;
 }
 
-function getValueExtractor(inputType?: InputType, isComponent = false): string {
+function getValueExtractor(inputType?: InputType, isComp = false): string {
   const extractors: Record<InputType | 'default', string> = {
     checkbox: 'e.target.checked',
     radio: 'e.target.value',
@@ -118,7 +102,7 @@ function getValueExtractor(inputType?: InputType, isComponent = false): string {
     default: 'e.target.value',
   };
 
-  return !isComponent ? extractors[inputType || 'default'] : 'e';
+  return !isComp ? extractors[inputType || 'default'] : 'e';
 }
 
 function applyModifiers(valueExtractor: string, modifiers: string[]): string {
@@ -137,18 +121,56 @@ function applyModifiers(valueExtractor: string, modifiers: string[]): string {
   return expr;
 }
 
-function getInputType(node: VueElementNode, isComponent: boolean): InputType | undefined {
-  if (isComponent) return;
-  if (node.tag !== 'input') return node.tag as InputType; // textarea, select
+function getInputType(node: VueElementNode, isComp: boolean): InputType | undefined {
+  if (isComp) return;
 
-  const typeProp = node.props.find(
-    (p) => p.type === NodeTypes.ATTRIBUTE && p.name === 'type',
-  ) as any;
+  if (node.tag !== 'input') {
+    // textarea, select
+    return node.tag as InputType;
+  }
 
-  return typeProp?.value?.content?.toLowerCase() as InputType | undefined;
+  const typeProp = node.props.find((p) => p.type === NodeTypes.ATTRIBUTE && p.name === 'type') as
+    | AttributeNode
+    | undefined;
+
+  if (!typeProp) return;
+
+  return typeProp.value?.content.toLowerCase() as InputType;
 }
 
-function isTextInputType(type?: string): boolean {
+function isTextInput(type?: string): boolean {
   if (!type) return true; // 默认 text
   return ['text', 'password', 'email', 'search', 'tel', 'url', 'number'].includes(type);
+}
+
+function createVModelHandler(getterName: string, setterName: string, processedValue: string) {
+  const { templateVModels } = compileContext.context;
+
+  const handlerName = `on${capitalize(getterName)}Update`;
+
+  const handler: VModelHandler = {
+    key: getterName,
+    handler: {
+      name: handlerName,
+      exp: {
+        arg: 'e',
+        body: {
+          setterExp: {
+            name: setterName,
+            arg: getterName,
+            body: `${getterName}=${processedValue}`,
+          },
+        },
+      },
+    },
+  };
+
+  let exists = templateVModels.findLastIndex((t) => t.key === handler.key);
+  if (exists !== -1) {
+    handler.handler.name += ++exists;
+  }
+
+  // 收集到编译上下文中，后续在 script 转换中处理它，
+  // 生成例如：useCallback((e) => {setBar((state) => {xxx; return state;}))}, [])
+  templateVModels.push(handler);
 }
