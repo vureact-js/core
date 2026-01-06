@@ -4,7 +4,12 @@ import * as t from '@babel/types';
 import { RuntimeModules, VuR_Runtime } from '@src/consts/runtimeModules';
 import { compileContext, CompileContextType } from '@src/shared/compile-context';
 import { recordImport } from '@src/shared/runtime-utils';
-import { isCalleeNamed, replaceCallName } from '../../shared/babel-utils';
+import {
+  getParentVariableDeclarator,
+  isCalleeNamed,
+  replaceCallName,
+  setNodeExtensionMeta,
+} from '../../shared/babel-utils';
 import { CallExpArgs } from '../../shared/types';
 import { warnVueHookInAnyCallback, warnVueHookInBlock } from '../../shared/unsupported-warn';
 
@@ -95,6 +100,9 @@ function processInjectApi(path: NodePath<t.CallExpression>) {
 
   warnVueHookInBlock(path);
   warnVueHookInAnyCallback(path);
+
+  const parentVarDecl = getParentVariableDeclarator(path);
+  setNodeExtensionMeta(parentVarDecl.node, { isReactive: true, reactiveType: 'indirect' });
 
   replaceCallName(node, VuR_Runtime.useCtx);
   recordImport(RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.useCtx, true);
