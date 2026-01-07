@@ -12,8 +12,12 @@ import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
 import { createPropsIntersectionType } from './syntax-processor/post-process/create-props-interface';
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
+import { insertVModelEventHandlers } from './syntax-processor/post-process/insert-vmodel-handlers';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
-import { splitMainBody, splitScriptBlocks } from './syntax-processor/post-process/script-blocks';
+import {
+  extractLocalStatements,
+  splitScriptBlocks,
+} from './syntax-processor/post-process/script-blocks';
 import { resolveAsyncComponent } from './syntax-processor/pre-process/resolve-async-component';
 import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
@@ -83,7 +87,7 @@ export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
 
     skipTraversal: {
       preprocess: [processTemplateSlots],
-      postprocess: [splitMainBody, createPropsIntersectionType],
+      postprocess: [insertVModelEventHandlers, extractLocalStatements, createPropsIntersectionType],
     },
   });
 
