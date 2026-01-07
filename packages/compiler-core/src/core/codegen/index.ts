@@ -10,6 +10,13 @@ import { genReactComponent } from './script';
 
 export type GeneratorResult = BabelGeneratorResult & { ast: t.Program };
 
+/**
+ * Generates a React component from the provided intermediate representation (IR) descriptor.
+ *
+ * @param {ReactIRDescriptor} ir - The React IR descriptor that contains the necessary information to generate the component.
+ * @param {GeneratorOptions} opts - Optional generator options that can customize the output.
+ * @returns {GeneratorResult} An object containing the generated Abstract Syntax Tree (AST), the generated code as a string, and an optional source map for the generated code.
+ */
 export function generate(ir: ReactIRDescriptor, opts?: GeneratorOptions): GeneratorResult {
   const jsx = genJsx(ir) || t.nullLiteral();
   const ast = genReactComponent(ir.script, jsx as t.Expression);
