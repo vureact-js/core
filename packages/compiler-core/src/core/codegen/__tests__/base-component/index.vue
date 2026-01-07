@@ -20,7 +20,7 @@
       点击我触发事件
     </button>
 
-    <input type="text" v-model="searchText" placeholder="输入并双向绑定" />
+    <input type="text" v-model="user.name" placeholder="输入并双向绑定" />
     <input type="text" v-model.lazy="searchText" placeholder="lazy" />
     <input type="text" v-model.trim="searchText" placeholder="trim" />
     <input type="text" v-model.number="searchText" placeholder="number" />
