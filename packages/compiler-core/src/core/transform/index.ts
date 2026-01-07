@@ -1,6 +1,3 @@
-import { compileContext } from '@shared/compile-context';
-import { logger } from '@shared/logger';
-import { LangType } from '@src/shared/babel-utils';
 import { VueASTDescriptor } from '../parse';
 import { ScriptBlockIR, transformScript } from './script';
 import { TemplateBlockIR, transformTemplate } from './template';
@@ -31,11 +28,6 @@ interface PipelineOptions<Source, IR> {
  * @param ast - The Vue AST descriptor containing template and script information to be transformed
  * @returns A ReactIRDescriptor containing the transformed template and script intermediate representations
  *
- * @remarks
- * - Initializes the transformation context before processing
- * - Runs separate pipelines for template and script transformations
- * - Template and script level plugins can be injected in the future
- *
  * @example
  *
  * const vueAST = parse(source);
@@ -43,45 +35,20 @@ interface PipelineOptions<Source, IR> {
  * console.log(reactIR.template, reactIR.script);
  */
 export function transform(ast: VueASTDescriptor): ReactIRDescriptor {
-  setupContext(ast);
-
-  try {
-    const templateIR = runPipeline(ast.template?.ast, {
-      transformer: transformTemplate,
-      plugins: [], // 未来可在此注入 template 级别的后处理插件
-    });
-
-    const scriptIR = runPipeline(ast.script?.ast, {
-      transformer: transformScript,
-      plugins: [], // 未来可在此注入 script 级别的后处理插件
-    });
-
-    return {
-      template: templateIR,
-      script: scriptIR,
-    };
-  } finally {
-    // todo 阶段结束后需移除日志输出
-    if (logger.getLogs().length) {
-      logger.printAll();
-    }
-  }
-}
-
-/**
- * 初始化编译上下文
- */
-function setupContext(ast: VueASTDescriptor) {
-  const scriptLang = ast.script?.source?.lang ?? 'js';
-  const styleLangs = ast.styles.map((s) => s.lang ?? 'css');
-
-  compileContext.setContext({
-    ...ast.meta,
-    lang: {
-      script: scriptLang as LangType,
-      style: styleLangs,
-    },
+  const templateIR = runPipeline(ast.template?.ast, {
+    transformer: transformTemplate,
+    plugins: [], // 未来可在此注入 template 级别的后处理插件
   });
+
+  const scriptIR = runPipeline(ast.script?.ast, {
+    transformer: transformScript,
+    plugins: [], // 未来可在此注入 script 级别的后处理插件
+  });
+
+  return {
+    template: templateIR,
+    script: scriptIR,
+  };
 }
 
 /**
