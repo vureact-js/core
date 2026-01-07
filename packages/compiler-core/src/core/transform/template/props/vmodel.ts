@@ -68,7 +68,7 @@ function handleEventIR(
   // 修饰符处理器（trim / number / lazy）
   const processedValue = applyModifiers(valueExtractor, modifiers);
 
-  createVModelHandler(_getterName, setterName, processedValue);
+  createVModelHandler(getterName, setterName, processedValue);
 
   // v-model="bar" -> bar + onBarChange
   return createPropsIR(rawName, propName, setterName);
@@ -146,7 +146,8 @@ function isTextInput(type?: string): boolean {
 function createVModelHandler(getterName: string, setterName: string, processedValue: string) {
   const { templateVModels } = compileContext.context;
 
-  const handlerName = `on${capitalize(getterName)}Update`;
+  const _getterName = extractFirstIdentifier(getterName)!;
+  const handlerName = `on${capitalize(_getterName)}Change`;
 
   const handler: VModelHandler = {
     key: getterName,
@@ -157,7 +158,7 @@ function createVModelHandler(getterName: string, setterName: string, processedVa
         body: {
           setterExp: {
             name: setterName,
-            arg: getterName,
+            arg: _getterName,
             body: `${getterName}=${processedValue}`,
           },
         },
