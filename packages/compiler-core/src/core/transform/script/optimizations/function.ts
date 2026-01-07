@@ -5,6 +5,7 @@ import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
 import { setNodeExtensionMeta } from '../shared/babel-utils';
+import { createUseCallback } from '../shared/hook-creator';
 import { warnVueHookInBlock } from '../shared/unsupported-warn';
 
 export function optimizeFunction(): TraverseOptions {
@@ -23,18 +24,13 @@ function transformToUseCallback(path: NodePath<t.Function>) {
   warnVueHookInBlock(path);
   recordImport(RuntimeModules.REACT, ReactApis.useCallback, true);
 
-  const deps = analyzeFuncBodyDeps(node.body, path);
-  const newNode = t.callExpression(t.identifier(ReactApis.useCallback), [
-    node as t.Expression,
-    deps,
-  ]);
-
   // 不论有无依赖都标记为间接响应式，只因是 useCallback
   if (t.isVariableDeclarator(parent)) {
     setNodeExtensionMeta(parent, { isReactive: true, reactiveType: 'indirect' });
   }
 
-  path.replaceWith(newNode);
+  const deps = analyzeFuncBodyDeps(node.body, path);
+  path.replaceWith(createUseCallback(node as t.Expression, deps));
 }
 
 function isTopLevel(path: NodePath<t.Function>): boolean {
