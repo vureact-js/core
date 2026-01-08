@@ -63,8 +63,8 @@ export class Logger {
   }
 
   private formatHeader(log: LogEntry): string {
-    const levelLabel = log.level.toUpperCase();
-    const color = this.levelColor(log.level);
+    const label = log.level.toUpperCase();
+    const level = this.levelColor(log.level)(`[${label}]`);
 
     let location = '\n\n  File: ';
 
@@ -72,11 +72,13 @@ export class Logger {
       if (log?.line != null && log?.column != null) {
         location += `${log.file}${`:${log.line}:${log.column}`}`;
       } else {
-        location += log.file ?? 'from an unknown file:';
+        location += log.file ?? 'anonymous:';
       }
+
+      return `${level} ${log.message}${kleur.gray(location)}\n`;
     }
 
-    return `${color(`[${levelLabel}]`)} ${log.message}${kleur.gray(location)}\n`;
+    return `${level} ${log.message}\n`;
   }
 
   private formatContext(log: LogEntry): string {
@@ -126,18 +128,22 @@ export class Logger {
     return result.join('\n');
   }
 
-  printAll(): void {
-    if (this.logs.length === 0) {
+  printAll(opts?: { errors?: boolean; warnings?: boolean; info?: boolean }): void {
+    const { logs } = this;
+
+    if (logs.length === 0) {
       console.log('No logs to display.');
       return;
     }
 
+    const errorLogs = opts?.errors === false ? [] : logs.filter((l) => l.level === 'error');
+
+    const warnLogs = opts?.warnings === false ? [] : logs.filter((l) => l.level === 'warn');
+
+    const infoLogs = opts?.info === false ? [] : logs.filter((l) => l.level === 'info');
+
     // 按 error > warn > info 顺序输出
-    const orderedLogs = [
-      ...this.logs.filter((log) => log.level === 'error'),
-      ...this.logs.filter((log) => log.level === 'warn'),
-      ...this.logs.filter((log) => log.level === 'info'),
-    ];
+    const orderedLogs = [...errorLogs, ...warnLogs, ...infoLogs];
 
     for (const log of orderedLogs) {
       console.log(this.formatHeader(log));
@@ -150,9 +156,9 @@ export class Logger {
     }
 
     // 输出统计摘要
-    const errorCount = this.logs.filter((log) => log.level === 'error').length;
-    const warnCount = this.logs.filter((log) => log.level === 'warn').length;
-    const infoCount = this.logs.filter((log) => log.level === 'info').length;
+    const errorCount = logs.filter((log) => log.level === 'error').length;
+    const warnCount = logs.filter((log) => log.level === 'warn').length;
+    const infoCount = logs.filter((log) => log.level === 'info').length;
 
     if (errorCount > 0 || warnCount > 0) {
       console.log(
