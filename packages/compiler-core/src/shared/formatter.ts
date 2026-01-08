@@ -1,7 +1,8 @@
+import { Options as PrettierOptions } from 'prettier';
 import { compileContext } from './compile-context';
 import { logger } from './logger';
 
-export async function formatWithPrettier(code: string): Promise<string> {
+export async function formatWithPrettier(code: string, opts?: PrettierOptions): Promise<string> {
   try {
     const { lang } = compileContext.context;
 
@@ -10,7 +11,6 @@ export async function formatWithPrettier(code: string): Promise<string> {
     const parser = lang.script.startsWith('ts') ? 'babel-ts' : 'babel';
 
     return prettier.format(code, {
-      parser,
       printWidth: 80,
       tabWidth: 2,
       useTabs: false,
@@ -21,6 +21,8 @@ export async function formatWithPrettier(code: string): Promise<string> {
       bracketSpacing: true,
       bracketSameLine: false,
       arrowParens: 'avoid',
+      ...opts,
+      parser,
     });
   } catch {
     // 用户没安装 Prettier，用简单格式化或直接返回
