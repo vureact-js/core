@@ -45,6 +45,14 @@
     "dev:transform": "tsx watch src/core/transform/__tests__/index.ts",
     "dev:codegen": "tsx watch src/core/codegen/__tests__/index.ts"
   },
+  "peerDependencies": {
+    "prettier": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "prettier": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "@babel/core": "^7.28.5",
     "@babel/generator": "^7.28.3",
@@ -54,5 +62,8 @@
     "@vue/compiler-core": "^3.5.22",
     "@vue/compiler-sfc": "^3.5.22",
     "kleur": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
