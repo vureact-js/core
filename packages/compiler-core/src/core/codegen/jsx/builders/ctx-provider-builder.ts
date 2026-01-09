@@ -1,21 +1,23 @@
 import * as t from '@babel/types';
+import { ProvideData } from '@compiler/context/types';
 import { VuR_Runtime } from '@src/consts/runtimeModules';
-import { CompileContextType } from '@src/shared/compile-context';
 import { createElement } from '../shared';
 import { JSXChild } from '../types';
 import { buildJSXExpression } from './simple-builder';
 
-export function buildCtxProvider(
-  ctxProvider: CompileContextType['ctxProvider'],
-  children: JSXChild[],
-): t.JSXElement {
-  const { name, value, ctxProvider: nextCtxProvider } = ctxProvider;
+export function buildCtxProvider(provide: ProvideData, children: JSXChild[]): t.JSXElement {
+  const { name, value, provide: nextProvide } = provide;
 
-  let _children = children;
+  let childNodes = children;
 
-  if (nextCtxProvider?.exists) {
-    // 链式倒序的递归构建 provider 组件的嵌套
-    _children = [buildCtxProvider(nextCtxProvider as CompileContextType['ctxProvider'], children)];
+  // 自下而上递归构建 provider 组件，形成正确的层级嵌套
+  // provide(n1, ''); provide(n2, '');
+  // 构建：
+  // <CtxProvider name="n1">
+  //   <CtxProvider name="n2">...<CtxProvider>
+  // </CtxProvider>
+  if (nextProvide?.isOccupied) {
+    childNodes = [buildCtxProvider(nextProvide as ProvideData, children)];
   }
 
   const keyProp = t.jsxAttribute(t.jsxIdentifier('key'), buildJSXExpression(t.identifier(name)));
@@ -25,5 +27,5 @@ export function buildCtxProvider(
     buildJSXExpression(t.identifier(value)),
   );
 
-  return createElement(VuR_Runtime.CtxProvider, [keyProp, valueProp], _children);
+  return createElement(VuR_Runtime.CtxProvider, [keyProp, valueProp], childNodes);
 }
