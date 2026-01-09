@@ -31,6 +31,7 @@ export default defineConfig({
     '@vue/compiler-sfc',
     'kleur',
     'prettier',
+    'minimatch',
   ],
   sourcemap: true,
   // 确保生成文件的扩展名与 package.json 中的 .mjs / .cjs 一致
