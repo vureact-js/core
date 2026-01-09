@@ -1,11 +1,12 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 
-export function handleVHtml(prop: DirectiveNode, nodeIR: ElementNodeIR) {
+export function handleVHtml(ctx: ICompilationContext, prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const exp = prop.exp as SimpleExpressionNode;
   const propIR = createPropsIR('v-html', 'v-html', `{__html: ${exp.content}}`);
-  preParseProp(propIR);
+  preParseProp(ctx, propIR);
   nodeIR.props.push(propIR);
 }

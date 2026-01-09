@@ -1,4 +1,4 @@
-import { compileContext, VModelHandler } from '@shared/compile-context';
+import { ICompilationContext, IRModelEventHandler } from '@compiler/context/types';
 import { capitalize } from '@utils/capitalize';
 import {
   AttributeNode,
@@ -16,7 +16,12 @@ import { createPropsIR } from './utils';
 
 export type InputType = 'text' | 'checkbox' | 'radio' | 'select' | 'textarea';
 
-export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: ElementNodeIR) {
+export function handleVModel(
+  ctx: ICompilationContext,
+  prop: DirectiveNode,
+  node: VueElementNode,
+  nodeIR: ElementNodeIR,
+) {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
@@ -31,14 +36,15 @@ export function handleVModel(prop: DirectiveNode, node: VueElementNode, nodeIR: 
   const propsIR = createPropsIR('v-model', propName, getterName);
 
   const eventIR = handleEventIR(
+    ctx,
     getterName,
     inputType,
     prop.modifiers.map((m) => m.content),
     isComp,
   );
 
-  preParseProp(propsIR);
-  preParseProp(eventIR);
+  preParseProp(ctx, propsIR);
+  preParseProp(ctx, eventIR);
 
   nodeIR.props.push(propsIR, eventIR);
 }
@@ -51,6 +57,7 @@ function getPropName(inputType?: InputType, isComp = false): string {
 }
 
 function handleEventIR(
+  ctx: ICompilationContext,
   getterName: string,
   inputType?: InputType,
   modifiers: string[] = [],
@@ -68,7 +75,7 @@ function handleEventIR(
   // 修饰符处理器（trim / number / lazy）
   const processedValue = applyModifiers(valueExtractor, modifiers);
 
-  createVModelHandler(getterName, setterName, processedValue);
+  createVModelHandler(ctx, getterName, setterName, processedValue);
 
   // v-model="bar" -> bar + onBarChange
   return createPropsIR(rawName, propName, setterName);
@@ -143,13 +150,17 @@ function isTextInput(type?: string): boolean {
   return ['text', 'password', 'email', 'search', 'tel', 'url', 'number'].includes(type);
 }
 
-function createVModelHandler(getterName: string, setterName: string, processedValue: string) {
-  const { templateVModels } = compileContext.context;
-
+function createVModelHandler(
+  ctx: ICompilationContext,
+  getterName: string,
+  setterName: string,
+  processedValue: string,
+) {
+  const { models } = ctx.templateData;
   const _getterName = extractFirstIdentifier(getterName)!;
   const handlerName = `on${capitalize(_getterName)}Change`;
 
-  const handler: VModelHandler = {
+  const handler: IRModelEventHandler = {
     key: getterName,
     handler: {
       name: handlerName,
@@ -166,12 +177,12 @@ function createVModelHandler(getterName: string, setterName: string, processedVa
     },
   };
 
-  let exists = templateVModels.findLastIndex((t) => t.key === handler.key);
+  let exists = models.findLastIndex((t) => t.key === handler.key);
   if (exists !== -1) {
     handler.handler.name += ++exists;
   }
 
   // 收集到编译上下文中，后续在 script 转换中处理它，
   // 生成例如：useCallback((e) => {setBar((state) => {xxx; return state;}))}, [])
-  templateVModels.push(handler);
+  models.push(handler);
 }

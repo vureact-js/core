@@ -1,3 +1,4 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { IsComponent } from '@shared/runtime-utils';
 import { strCodeTypes } from '@shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
@@ -6,7 +7,7 @@ import { ElementNodeIR } from '../elements/element';
 import { preParseProp } from '../shared/pre-parse-props';
 import { createPropsIR } from './utils';
 
-export function handleStaticIs(content: string, nodeIR: ElementNodeIR) {
+export function handleStaticIs(ctx: ICompilationContext, content: string, nodeIR: ElementNodeIR) {
   if (!content) return;
 
   if (content.startsWith('vue:')) {
@@ -19,22 +20,26 @@ export function handleStaticIs(content: string, nodeIR: ElementNodeIR) {
 
   propIR.value.isStringLiteral = true;
 
-  preParseProp(propIR);
+  preParseProp(ctx, propIR);
   nodeIR.props.push(propIR);
 }
 
-export function handleDynamicIs(prop: DirectiveNode, nodeIR: ElementNodeIR) {
+export function handleDynamicIs(
+  ctx: ICompilationContext,
+  prop: DirectiveNode,
+  nodeIR: ElementNodeIR,
+) {
   const exp = prop.exp as SimpleExpressionNode;
   const is = exp.content;
 
   if (strCodeTypes.isStringLiteral(is)) {
-    handleStaticIs(is, nodeIR);
+    handleStaticIs(ctx, is, nodeIR);
     return;
   }
 
   const propIR = createPropsIR('is', 'is', is);
 
-  preParseProp(propIR);
+  preParseProp(ctx, propIR);
 
   nodeIR.tag = IsComponent();
   nodeIR.isComponent = true;

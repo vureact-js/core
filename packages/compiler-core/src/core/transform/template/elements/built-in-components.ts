@@ -1,5 +1,5 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
-import { compileContext } from '@shared/compile-context';
 import { logger } from '@shared/logger';
 import { recordImport } from '@shared/runtime-utils';
 import { SourceLocation } from '@vue/compiler-core';
@@ -14,6 +14,7 @@ export function markBuiltinComponent(nodeIR: ElementNodeIR) {
 }
 
 export function handleBuiltinComponent(
+  ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
   parentIR: ElementNodeIR,
   loc: SourceLocation,
@@ -25,7 +26,7 @@ export function handleBuiltinComponent(
 
   // handle transition component
   if (parentTag === 'Transition') {
-    const { source, filename } = compileContext.context;
+    const { source, filename } = ctx;
     const loggerOpts = {
       source,
       loc,
@@ -47,6 +48,6 @@ export function handleBuiltinComponent(
 
     // add random key to node if necessarily
     const hasKey = nodeIR.props.some((p) => p.name === 'key');
-    if (!hasKey) addKeyToNode(nodeIR);
+    if (!hasKey) addKeyToNode(ctx, nodeIR);
   }
 }

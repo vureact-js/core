@@ -1,5 +1,5 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { strCodeTypes } from '@shared/string-code-types';
-import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { randomHash } from '@utils/random-hash';
 import {
@@ -33,9 +33,9 @@ export const isVSlot = (node: VueElementNode): boolean => {
   return !!(node.props[0] && __isVSlot(node.props[0]));
 };
 
-export function checkPropIsDynamicKey(prop: DirectiveNode) {
+export function checkPropIsDynamicKey(ctx: ICompilationContext, prop: DirectiveNode) {
   const isKeyStatic = (prop.arg as SimpleExpressionNode)?.isStatic;
-  const { source, filename } = compileContext.context;
+  const { source, filename } = ctx;
 
   if (prop.rawName === 'v-bind' && !prop.name) {
     logger.warn('Keyless v-bind will overwrite all previously declared props at runtime.', {
@@ -58,9 +58,9 @@ export function checkPropIsDynamicKey(prop: DirectiveNode) {
   }
 }
 
-export function addKeyToNode(nodeIR: ElementNodeIR) {
+export function addKeyToNode(ctx: ICompilationContext, nodeIR: ElementNodeIR) {
   const keyProp = createPropsIR('key', 'key', randomHash());
   keyProp.value.isStringLiteral = true;
-  preParseProp(keyProp);
+  preParseProp(ctx, keyProp);
   nodeIR.props.push(keyProp);
 }

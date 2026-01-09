@@ -1,11 +1,6 @@
-import { compileContext } from '@shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { strCodeTypes } from '@shared/string-code-types';
-import {
-  AttributeNode,
-  DirectiveNode,
-  SimpleExpressionNode,
-  ElementNode as VueElementNode,
-} from '@vue/compiler-core';
+import { AttributeNode, DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { parseStyleString } from '../shared/parse-style-string';
@@ -16,13 +11,17 @@ import { PropsIR, PropTypes } from './index';
 import { handleDynamicIs, handleStaticIs } from './is';
 import { createPropsIR } from './utils';
 
-export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
+export function handleAttribute(
+  ctx: ICompilationContext,
+  prop: AttributeNode,
+  nodeIR: ElementNodeIR,
+) {
   const name = prop.name;
   const content = prop.value?.content ?? 'true';
 
   // 特殊处理：is
   if (name === 'is') {
-    handleStaticIs(content, nodeIR);
+    handleStaticIs(ctx, content, nodeIR);
     return;
   }
 
@@ -30,19 +29,18 @@ export function handleAttribute(prop: AttributeNode, nodeIR: ElementNodeIR) {
 
   // 特殊处理：ref 收集
   if (name === 'ref') {
-    const { templateRefs } = compileContext.context;
-    templateRefs.add(content);
+    ctx.templateData.refs.add(content);
   } else {
     attr.type = PropTypes.ATTRIBUTE;
     attr.value.isStringLiteral = true;
   }
 
-  processPropsIR(attr, nodeIR);
+  processPropsIR(ctx, attr, nodeIR);
 }
 
 export function handleDynamicAttribute(
+  ctx: ICompilationContext,
   prop: DirectiveNode,
-  node: VueElementNode,
   nodeIR: ElementNodeIR,
 ) {
   const arg = prop.arg as SimpleExpressionNode;
@@ -51,22 +49,27 @@ export function handleDynamicAttribute(
   const name = arg?.content ?? '';
   const content = exp?.content ?? 'true';
 
-  warnVueDollarVar(prop);
+  warnVueDollarVar(ctx, prop);
 
   // 特殊处理：is
   if (name === 'is') {
-    handleDynamicIs(prop, nodeIR);
+    handleDynamicIs(ctx, prop, nodeIR);
     return;
   }
 
   const dynamicAttr = createPropsIR(prop.rawName!, name, content);
   dynamicAttr.isStatic = arg?.isStatic ?? true;
 
-  checkPropIsDynamicKey(prop);
-  processPropsIR(dynamicAttr, nodeIR, true);
+  checkPropIsDynamicKey(ctx, prop);
+  processPropsIR(ctx, dynamicAttr, nodeIR, true);
 }
 
-function processPropsIR(propIR: PropsIR, nodeIR: ElementNodeIR, isDynamic?: boolean) {
+function processPropsIR(
+  ctx: ICompilationContext,
+  propIR: PropsIR,
+  nodeIR: ElementNodeIR,
+  isDynamic?: boolean,
+) {
   let content = propIR.value.content;
 
   // 处理无参数 v-bind
@@ -88,10 +91,10 @@ function processPropsIR(propIR: PropsIR, nodeIR: ElementNodeIR, isDynamic?: bool
   const found = findSameProp(nodeIR.props, propIR);
 
   if (found) {
-    mergePropsIR(found, propIR);
+    mergePropsIR(ctx, found, propIR);
   } else {
     nodeIR.props.push(propIR);
   }
 
-  preParseProp(found ?? propIR);
+  preParseProp(ctx, found ?? propIR);
 }

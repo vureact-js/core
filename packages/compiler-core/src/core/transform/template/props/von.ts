@@ -1,3 +1,4 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { strCodeTypes } from '@src/shared/string-code-types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
@@ -10,7 +11,7 @@ import { normalizePropValue } from '../shared/resolve-str-exp';
 import { findSameProp } from '../shared/utils';
 import { createPropsIR } from './utils';
 
-export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
+export function handleEvent(ctx: ICompilationContext, prop: DirectiveNode, nodeIR: ElementNodeIR) {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
@@ -48,14 +49,14 @@ export function handleEvent(prop: DirectiveNode, nodeIR: ElementNodeIR) {
   // 设置临时属性
   (eventIR as any).__vOnEvName = vOnEvName;
 
-  preParseProp(eventIR);
+  preParseProp(ctx, eventIR);
 
   delete (eventIR as any).__vOnEvName;
 
   // 合并可能存在的重复事件
   const found = findSameProp(nodeIR.props, eventIR);
   if (found) {
-    mergePropsIR(found, eventIR);
+    mergePropsIR(ctx, found, eventIR);
     return;
   }
 

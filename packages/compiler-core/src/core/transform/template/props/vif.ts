@@ -1,10 +1,11 @@
-import { compileContext } from '@shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { logger } from '@shared/logger';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { resolveTemplateExp } from '../shared/resolve-str-exp';
 
 export function handleVIf(
+  ctx: ICompilationContext,
   prop: DirectiveNode,
   nodeIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
@@ -36,7 +37,7 @@ export function handleVIf(
   }
 
   if (error) {
-    const { source, filename } = compileContext.context;
+    const { source, filename } = ctx;
     logger.error('v-else/v-else-if has no adjacent v-if or v-else-if.', {
       source,
       file: filename,
@@ -51,7 +52,7 @@ export function handleVIf(
     value,
     babelExp: {
       content: value,
-      ast: resolveTemplateExp(value),
+      ast: resolveTemplateExp(ctx, value),
     },
   };
 }

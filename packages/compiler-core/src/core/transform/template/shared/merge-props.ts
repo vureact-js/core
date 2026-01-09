@@ -1,13 +1,14 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
 import { isSimpleStyle, parseStyleString } from './parse-style-string';
 import { resolveTemplateExp } from './resolve-str-exp';
 import { wrapSingleQuotes } from './utils';
 
-export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
+export function mergePropsIR(ctx: ICompilationContext, oldAttr: PropsIR, newAttr: PropsIR) {
   // 只有 class 和 style 需要合并
   if (isClassAttr(newAttr.rawName)) {
-    mergeClass(oldAttr, newAttr);
+    mergeClass(ctx, oldAttr, newAttr);
   } else if (isStyleAttr(newAttr.rawName)) {
     mergeStyles(oldAttr, newAttr);
   } else {
@@ -19,7 +20,7 @@ export function mergePropsIR(oldAttr: PropsIR, newAttr: PropsIR) {
   }
 }
 
-function mergeClass(oldAttr: PropsIR, newAttr: PropsIR) {
+function mergeClass(ctx: ICompilationContext, oldAttr: PropsIR, newAttr: PropsIR) {
   const oldContent = oldAttr.value.content;
   const newContent = newAttr.value.content;
 
@@ -38,7 +39,7 @@ function mergeClass(oldAttr: PropsIR, newAttr: PropsIR) {
     const merged = `${left} ${right}`.trim();
 
     oldAttr.value.content = merged;
-    oldAttr.value.babelExp.ast = resolveTemplateExp(merged);
+    oldAttr.value.babelExp.ast = resolveTemplateExp(ctx, merged);
 
     return;
   }

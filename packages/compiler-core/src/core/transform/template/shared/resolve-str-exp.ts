@@ -1,7 +1,7 @@
 import { parseExpression } from '@babel/parser';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions, ParseContext } from '@src/shared/babel-utils';
-import { compileContext } from '@src/shared/compile-context';
 import { camelCase } from '@src/utils/camelCase';
 import { capitalize } from '@src/utils/capitalize';
 import { __props } from '../../const';
@@ -14,6 +14,7 @@ import { __props } from '../../const';
  * @returns {t.Expression}
  */
 export function resolveTemplateExp(
+  ctx: ICompilationContext,
   jsExp: string,
   isStringLiteral: boolean = false,
   parseCtx: ParseContext = 'vueTemplate',
@@ -22,8 +23,8 @@ export function resolveTemplateExp(
     return t.stringLiteral(jsExp);
   }
 
-  const { lang, filename } = compileContext.context;
-  const parseOpts = getBabelParseOptions(lang.script, parseCtx, filename);
+  const { scriptData, filename } = ctx;
+  const parseOpts = getBabelParseOptions(scriptData.lang, parseCtx, filename);
 
   jsExp = normalizePropValue(jsExp);
 

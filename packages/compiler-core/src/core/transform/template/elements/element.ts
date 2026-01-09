@@ -1,4 +1,5 @@
 import { ArrayExpression } from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformElements } from '.';
 import { TemplateChildNodeIR } from '..';
@@ -69,6 +70,7 @@ export type ShowMeta = {
 };
 
 export function transformElement(
+  ctx: ICompilationContext,
   node: VueElementNode,
   parentIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
@@ -83,11 +85,11 @@ export function transformElement(
   });
 
   markBuiltinComponent(nodeIR);
-  transformProps(node, nodeIR, nodesIR);
-  handleBuiltinComponent(nodeIR, parentIR, node.loc);
+  transformProps(ctx, node, nodeIR, nodesIR);
+  handleBuiltinComponent(ctx, nodeIR, parentIR, node.loc);
 
   if (children.length) {
-    transformElements(node, nodeIR, nodeIR.children);
+    transformElements(ctx, node, nodeIR, nodeIR.children);
   }
 
   return nodeIR;

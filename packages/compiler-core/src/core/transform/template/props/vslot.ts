@@ -1,3 +1,4 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
 import { TemplateChildNodeIR } from '..';
@@ -16,7 +17,7 @@ export interface SlotPropsIR {
   };
 }
 
-export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
+export function handleVSlot(ctx: ICompilationContext, prop: DirectiveNode): SlotPropsIR {
   const arg = prop.arg as SimpleExpressionNode;
   const exp = prop.exp as SimpleExpressionNode;
 
@@ -31,7 +32,7 @@ export function handleVSlot(prop: DirectiveNode): SlotPropsIR {
       }
     : undefined;
 
-  checkPropIsDynamicKey(prop);
+  checkPropIsDynamicKey(ctx, prop);
 
   return {
     type: PropTypes.SLOT,

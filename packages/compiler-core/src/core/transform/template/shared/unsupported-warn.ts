@@ -1,9 +1,9 @@
-import { compileContext } from '@src/shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { logger } from '@src/shared/logger';
 import { DirectiveNode, InterpolationNode, NodeTypes } from '@vue/compiler-core';
 
-export function warnUnsupportedDirective(loc: any, rawName?: string) {
-  const { source, filename } = compileContext.context;
+export function warnUnsupportedDirective(ctx: ICompilationContext, loc: any, rawName?: string) {
+  const { source, filename } = ctx;
   logger.warn(`Unsupported or unknown directive: ${rawName}`, {
     loc,
     source,
@@ -11,8 +11,11 @@ export function warnUnsupportedDirective(loc: any, rawName?: string) {
   });
 }
 
-export function warnVueDollarVar(node: DirectiveNode | InterpolationNode) {
-  const { source, filename } = compileContext.context;
+export function warnVueDollarVar(
+  ctx: ICompilationContext,
+  node: DirectiveNode | InterpolationNode,
+) {
+  const { source, filename } = ctx;
 
   let value = '';
   let loc;

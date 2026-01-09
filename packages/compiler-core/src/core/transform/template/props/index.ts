@@ -1,4 +1,5 @@
 import { Expression, JSXIdentifier } from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { BabelExp } from '../shared/types';
@@ -31,18 +32,19 @@ export type PropIRValue = {
 };
 
 export function transformProps(
+  ctx: ICompilationContext,
   node: VueElementNode,
   nodeIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
 ) {
   for (const prop of node.props) {
     if (prop.type === NodeTypes.ATTRIBUTE) {
-      handleAttribute(prop, nodeIR);
+      handleAttribute(ctx, prop, nodeIR);
       continue;
     }
 
     if (prop.type === NodeTypes.DIRECTIVE) {
-      const stop = handleDirective(node, prop, nodeIR, nodesIR);
+      const stop = handleDirective(ctx, node, prop, nodeIR, nodesIR);
       if (stop) break;
     }
   }

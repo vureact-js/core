@@ -1,3 +1,4 @@
+import { ICompilationContext } from '@compiler/context/types';
 import { DirectiveNode, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { warnUnsupportedDirective, warnVueDollarVar } from '../shared/unsupported-warn';
@@ -31,6 +32,7 @@ const supported: string[] = [
 ];
 
 export function handleDirective(
+  ctx: ICompilationContext,
   node: VueElementNode,
   prop: DirectiveNode,
   nodeIR: ElementNodeIR,
@@ -40,33 +42,33 @@ export function handleDirective(
 
   // 未识别指令
   if (!supported.includes(name)) {
-    warnUnsupportedDirective(prop.loc, rawName);
+    warnUnsupportedDirective(ctx, prop.loc, rawName);
     return;
   }
 
-  warnVueDollarVar(prop);
+  warnVueDollarVar(ctx, prop);
 
   // v-if/else/else-if
   if (isVConditional(rawName)) {
-    return handleVIf(prop, nodeIR, nodesIR);
+    return handleVIf(ctx, prop, nodeIR, nodesIR);
   }
 
   // 处理精确匹配的指令
   switch (rawName) {
     case 'v-html':
-      handleVHtml(prop, nodeIR);
+      handleVHtml(ctx, prop, nodeIR);
       return true;
 
     case 'v-text':
-      handleVText(prop, nodeIR);
+      handleVText(ctx, prop, nodeIR);
       return true;
 
     case 'v-once':
     case 'v-memo':
-      return handleVMemo(prop, nodeIR);
+      return handleVMemo(ctx, prop, nodeIR);
 
     case 'v-show':
-      return handleVShow(prop, nodeIR);
+      return handleVShow(ctx, prop, nodeIR);
 
     case 'v-for':
       return handleVFor(prop, nodeIR);
@@ -74,14 +76,14 @@ export function handleDirective(
 
   // 处理需要模式匹配的指令
   if (isVModel(rawName)) {
-    return handleVModel(prop, node, nodeIR);
+    return handleVModel(ctx, prop, node, nodeIR);
   }
 
   if (isVBind(rawName)) {
-    return handleDynamicAttribute(prop, node, nodeIR);
+    return handleDynamicAttribute(ctx, prop, nodeIR);
   }
 
   if (isVOn(rawName)) {
-    return handleEvent(prop, nodeIR);
+    return handleEvent(ctx, prop, nodeIR);
   }
 }

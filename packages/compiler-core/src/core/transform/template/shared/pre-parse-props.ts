@@ -1,4 +1,5 @@
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runtime-utils';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
@@ -6,13 +7,13 @@ import { isSimpleStyle } from './parse-style-string';
 import { resolveTemplateExp } from './resolve-str-exp';
 import { wrapSingleQuotes } from './utils';
 
-export function preParseProp(propsIR: PropsIR) {
+export function preParseProp(ctx: ICompilationContext, propsIR: PropsIR) {
   const handler = getNeedRuntimeHandler(propsIR);
   if (handler) {
     const babelCode = handler(propsIR);
-    updatePropsIR(propsIR, babelCode, true);
+    updatePropsIR(ctx, propsIR, babelCode, true);
   } else {
-    updatePropsIR(propsIR);
+    updatePropsIR(ctx, propsIR);
   }
 }
 
@@ -40,7 +41,12 @@ function getNeedRuntimeHandler(propsIR: PropsIR): ((propsIR: PropsIR) => string)
   return null;
 }
 
-function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: boolean) {
+function updatePropsIR(
+  ctx: ICompilationContext,
+  propsIR: PropsIR,
+  babelCode?: string,
+  clearContent?: boolean,
+) {
   // 不包含模板 slot 的解析，需要在生成阶段处理
 
   const propValue = babelCode || propsIR.value.content;
@@ -56,7 +62,7 @@ function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: bool
       const spread = `{[${name}]: ${propValue}}`;
 
       exp.content = spread;
-      exp.ast = resolveTemplateExp(spread);
+      exp.ast = resolveTemplateExp(ctx, spread);
     }
 
     propsIR.babelExp = exp;
@@ -68,7 +74,7 @@ function updatePropsIR(propsIR: PropsIR, babelCode?: string, clearContent?: bool
     const { babelExp, isStringLiteral } = propsIR.value;
 
     babelExp.content = propValue;
-    babelExp.ast = resolveTemplateExp(propValue, isStringLiteral);
+    babelExp.ast = resolveTemplateExp(ctx, propValue, isStringLiteral);
 
     if (clearContent) propsIR.value.content = '';
   };

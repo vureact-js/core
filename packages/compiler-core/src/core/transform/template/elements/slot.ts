@@ -1,4 +1,4 @@
-import { compileContext } from '@src/shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { logger } from '@src/shared/logger';
 import {
   AttributeNode,
@@ -14,13 +14,17 @@ import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { ElementNodeIR } from './element';
 import { createInterpolationNodeIR } from './node-creators';
 
-export function transformSlot(node: VueElementNode, parentIR: ElementNodeIR) {
-  const slotIR = resolveSlotProps(node.props);
-  const { templateSlots } = compileContext.context;
+export function transformSlot(
+  ctx: ICompilationContext,
+  node: VueElementNode,
+  parentIR: ElementNodeIR,
+) {
+  const slotIR = resolveSlotProps(ctx, node.props);
+  const { slots } = ctx.templateData;
 
-  templateSlots[slotIR.name] = slotIR.props;
+  slots[slotIR.name] = slotIR.props;
 
-  replaceSlotNode(parentIR, slotIR);
+  replaceSlotNode(ctx, parentIR, slotIR);
 }
 
 type SlotIR = {
@@ -28,7 +32,10 @@ type SlotIR = {
   props: Record<string, any>;
 };
 
-function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotIR {
+function resolveSlotProps(
+  ctx: ICompilationContext,
+  props: (AttributeNode | DirectiveNode)[],
+): SlotIR {
   const ir: SlotIR = {
     name: '',
     props: {},
@@ -52,10 +59,10 @@ function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotIR {
       const arg = p.arg as SimpleExpressionNode;
       const exp = p.exp as SimpleExpressionNode;
 
-      warnVueDollarVar(p);
+      warnVueDollarVar(ctx, p);
 
       if (!arg.isStatic) {
-        warnDynamicSlotProp(arg.loc);
+        warnDynamicSlotProp(ctx, arg.loc);
       }
 
       if (arg.content === 'name') {
@@ -75,7 +82,7 @@ function resolveSlotProps(props: (AttributeNode | DirectiveNode)[]): SlotIR {
   return ir;
 }
 
-function replaceSlotNode(parentIR: ElementNodeIR, slotIR: SlotIR) {
+function replaceSlotNode(ctx: ICompilationContext, parentIR: ElementNodeIR, slotIR: SlotIR) {
   let interpContent = `${__props}.${slotIR.name}`;
 
   const isScoped = Object.keys(slotIR.props).length !== 0;
@@ -90,12 +97,12 @@ function replaceSlotNode(parentIR: ElementNodeIR, slotIR: SlotIR) {
 
   const interp = createInterpolationNodeIR(interpContent);
 
-  interp.babelExp = resolveTemplateExp(interpContent);
+  interp.babelExp = resolveTemplateExp(ctx, interpContent);
   parentIR.children.push(interp);
 }
 
-function warnDynamicSlotProp(loc: SourceLocation) {
-  const { source, filename } = compileContext.context;
+function warnDynamicSlotProp(ctx: ICompilationContext, loc: SourceLocation) {
+  const { source, filename } = ctx;
   logger.warn('Dynamic slot prop detected. This usage may not be fully supported.', {
     source,
     file: filename,
