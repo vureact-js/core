@@ -31,7 +31,7 @@ type Block<S, T> = {
  * their respective AST representations.
  *
  * @param source - The source code string of the Vue SFC file to parse
- * @param {ParserOptions} options - Parser Options
+ * @param {ICompilationContext} ctx - Compilation context
  *
  * @returns {VueASTDescriptor} An object containing:
  *   - template: Parsed template AST block with SFCTemplateBlock and RootNode
