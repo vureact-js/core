@@ -1,6 +1,7 @@
 import { ParseResult as BabelParseResult } from '@babel/parser';
+import { ICompilationContext } from '@compiler/context/types';
+import { LangType } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
-import { compileContext } from '@src/shared/compile-context';
 import { CompilerError, RootNode } from '@vue/compiler-core';
 import {
   parse as parseVueSFC,
@@ -12,17 +13,12 @@ import { parseScript } from './script';
 import { parseTemplate } from './template';
 
 export interface VueASTDescriptor {
-  template: ASTBlock<SFCTemplateBlock, RootNode>;
-  script: ASTBlock<SFCScriptBlock, BabelParseResult>;
+  template: Block<SFCTemplateBlock, RootNode>;
+  script: Block<SFCScriptBlock, BabelParseResult>;
   styles: SFCStyleBlock[];
-  meta: {
-    filename: string;
-    source: string;
-    cssVars: string[];
-  };
 }
 
-export type ASTBlock<S, T> = {
+type Block<S, T> = {
   source?: S;
   ast: T;
 } | null;
@@ -35,11 +31,12 @@ export type ASTBlock<S, T> = {
  * their respective AST representations.
  *
  * @param source - The source code string of the Vue SFC file to parse
+ * @param {ParserOptions} options - Parser Options
+ *
  * @returns {VueASTDescriptor} An object containing:
  *   - template: Parsed template AST block with SFCTemplateBlock and RootNode
  *   - script: Parsed script AST block with SFCScriptBlock and BabelParseResult
  *   - styles: Array of style blocks from the component
- *   - meta: Metadata including filename, source code, and CSS variables
  *
  * @throws Logs errors via logger if parsing fails, but does not throw an exception
  *
@@ -57,11 +54,23 @@ export type ASTBlock<S, T> = {
  * const descriptor = parse(code);
  * ```
  */
-export function parse(source: string, filename: string = 'anonymous'): VueASTDescriptor {
+export function parse(source: string, ctx: ICompilationContext): VueASTDescriptor {
   const { descriptor, errors } = parseVueSFC(source, {
-    filename,
+    filename: ctx.filename,
   });
 
+  const result: VueASTDescriptor = {
+    template: parseTemplate(descriptor.template),
+    script: parseScript(descriptor.scriptSetup || descriptor.script, ctx.filename),
+    styles: descriptor.styles,
+  };
+
+  // 初始化编译上下文
+
+  ctx.cssVars = descriptor.cssVars;
+  ctx.scriptData.lang = (result.script?.source?.lang as LangType) || 'js';
+
+  // 收集错误日志
   if (errors.length) {
     errors.forEach((err) => {
       logger.error(err.message, {
@@ -72,16 +81,5 @@ export function parse(source: string, filename: string = 'anonymous'): VueASTDes
     });
   }
 
-  compileContext.context.filename = filename;
-
-  return {
-    template: parseTemplate(descriptor.template),
-    script: parseScript(descriptor.scriptSetup || descriptor.script),
-    styles: descriptor.styles,
-    meta: {
-      filename,
-      source: descriptor.source,
-      cssVars: descriptor.cssVars,
-    },
-  };
+  return result;
 }
