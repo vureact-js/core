@@ -1,18 +1,18 @@
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules } from '@src/consts/runtimeModules';
 import { vueDerivedLibraries, vueDerivedPrefixes } from '@src/consts/vueDerivedLibraries';
-import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
-export function insertRequiredImports(): TraverseOptions {
+export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions {
   let inserted = false;
 
   return {
     ImportDeclaration(path) {
       const { node } = path;
-      const required = createRequiredImports();
+      const required = createRequiredImports(ctx);
       const module = node.source.value.toLowerCase();
       const isVue = module === 'vue';
 
@@ -32,17 +32,17 @@ export function insertRequiredImports(): TraverseOptions {
         return;
       }
 
-      replaceVueSuffix(node.source);
-      removeVueRelatedModules(path);
+      replaceVueSuffix(ctx, node.source);
+      removeVueRelatedModules(ctx, path);
     },
   };
 }
 
 type Specifiers = (t.ImportDefaultSpecifier | t.ImportNamespaceSpecifier | t.ImportSpecifier)[];
 
-function createRequiredImports(): t.ImportDeclaration[] {
+function createRequiredImports(ctx: ICompilationContext): t.ImportDeclaration[] {
   const result: t.ImportDeclaration[] = [];
-  const { imports } = compileContext.context;
+  const { imports } = ctx;
   const moduleMap = new Map<string, Specifiers>();
 
   imports.forEach((items, module) => {
@@ -68,9 +68,9 @@ function createRequiredImports(): t.ImportDeclaration[] {
 }
 
 // todo
-function removeVueRelatedModules(path: NodePath<t.ImportDeclaration>) {
+function removeVueRelatedModules(ctx: ICompilationContext, path: NodePath<t.ImportDeclaration>) {
   const { source } = path.node;
-  const { source: sourceCode, filename } = compileContext.context;
+  const { source: sourceCode, filename } = ctx;
 
   if (!isBlacklistedVueImport(source.value)) return;
 

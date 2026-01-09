@@ -1,14 +1,14 @@
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
-import { compileContext } from '@src/shared/compile-context';
 import { logger } from '@src/shared/logger';
 import { recordImport } from '@src/shared/runtime-utils';
 import { __scriptBlockIR } from '../..';
 import { isCalleeNamed } from '../../shared/babel-utils';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
-export function resolveAsyncComponent(): TraverseOptions {
+export function resolveAsyncComponent(ctx: ICompilationContext): TraverseOptions {
   return {
     CallExpression(path) {
       const { node } = path;
@@ -20,31 +20,34 @@ export function resolveAsyncComponent(): TraverseOptions {
 
       const [arg] = node.arguments;
 
-      checkIsUnsupported(arg);
+      checkIsUnsupported(ctx, arg);
       pushToGlobalScope(path);
       recordImport(RuntimeModules.REACT, ReactApis.lazy, true);
     },
   };
 }
 
-function checkIsUnsupported(arg?: t.ArgumentPlaceholder | t.SpreadElement | t.Expression) {
+function checkIsUnsupported(
+  ctx: ICompilationContext,
+  arg?: t.ArgumentPlaceholder | t.SpreadElement | t.Expression,
+) {
   if (t.isFunction(arg)) {
-    checkIsDynamicImport(arg);
+    checkIsDynamicImport(ctx, arg);
   } else if (t.isObjectExpression(arg)) {
     const { value } = arg.properties.find(
       (p) => t.isObjectProperty(p) && t.isIdentifier(p.key) && p.key.name === 'loader',
     ) as t.ObjectProperty;
 
-    checkIsDynamicImport(value);
+    checkIsDynamicImport(ctx, value);
 
     if (arg.properties.length > 1) {
-      warnMultipleOptionsUsed(arg);
+      warnMultipleOptionsUsed(ctx, arg);
     }
   }
 }
 
-function checkIsDynamicImport(node: t.Node) {
-  const { source, filename } = compileContext.context;
+function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
+  const { source, filename } = ctx;
 
   const warnIsNotImport = (node?: t.Node | null) => {
     if (!node || !t.isImport(node)) {
@@ -60,7 +63,7 @@ function checkIsDynamicImport(node: t.Node) {
   };
 
   if (t.isFunction(node)) {
-    checkIsDynamicImport(node.body);
+    checkIsDynamicImport(ctx, node.body);
     return;
   }
 
@@ -79,7 +82,7 @@ function checkIsDynamicImport(node: t.Node) {
 
     // 替换 import('xx.vue') -> import('xx.jsx')
     if (t.isStringLiteral(node.arguments[0])) {
-      replaceVueSuffix(node.arguments[0]);
+      replaceVueSuffix(ctx, node.arguments[0]);
     }
 
     return;
@@ -89,8 +92,8 @@ function checkIsDynamicImport(node: t.Node) {
   warnIsNotImport(node);
 }
 
-function warnMultipleOptionsUsed(node: t.Node) {
-  const { source, filename } = compileContext.context;
+function warnMultipleOptionsUsed(ctx: ICompilationContext, node: t.Node) {
+  const { source, filename } = ctx;
   logger.warn(
     'Only the loader option is supported. ' +
       'Other options may be implemented manually based on your needs.',

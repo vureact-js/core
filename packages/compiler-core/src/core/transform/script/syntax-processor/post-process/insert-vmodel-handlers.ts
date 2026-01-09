@@ -1,6 +1,6 @@
 import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
-import { compileContext, VModelHandler } from '@shared/compile-context';
+import { ICompilationContext, IRModelEventHandler } from '@compiler/context/types';
 import { resolveTemplateExp } from '@src/core/transform/template/shared/resolve-str-exp';
 import { createUseCallback } from '../../shared/hook-creator';
 
@@ -10,19 +10,20 @@ import { createUseCallback } from '../../shared/hook-creator';
  *
  * v-model="foo" => 对应 React 事件 onFooChange
  */
-export function insertVModelEventHandlers(ast: ParseResult) {
-  const { templateVModels } = compileContext.context;
+export function insertVModelEventHandlers(ctx: ICompilationContext, ast: ParseResult) {
+  const { templateData } = ctx;
 
-  const stmts: t.Statement[] = templateVModels.map(({ handler }) =>
-    createHandlerExp(handler.name, handler.exp),
+  const stmts: t.Statement[] = templateData.models.map(({ handler }) =>
+    createHandlerExp(ctx, handler.name, handler.exp),
   );
 
   ast.program.body.push(...stmts);
 }
 
 function createHandlerExp(
+  ctx: ICompilationContext,
   name: string,
-  exp: VModelHandler['handler']['exp'],
+  exp: IRModelEventHandler['handler']['exp'],
 ): t.VariableDeclaration {
   const {
     arg,
@@ -33,7 +34,7 @@ function createHandlerExp(
     t.arrowFunctionExpression(
       [t.identifier(setterExp.arg)],
       t.blockStatement([
-        t.expressionStatement(resolveTemplateExp(setterExp.body, false, 'expression')),
+        t.expressionStatement(resolveTemplateExp(ctx, setterExp.body, false, 'expression')),
         t.returnStatement(t.identifier(setterExp.arg)),
       ]),
     ),

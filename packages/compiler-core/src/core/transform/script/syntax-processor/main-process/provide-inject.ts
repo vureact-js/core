@@ -1,8 +1,8 @@
 import { generate } from '@babel/generator';
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext, ProvideData } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@src/consts/runtimeModules';
-import { compileContext, CompileContextType } from '@src/shared/compile-context';
 import { recordImport } from '@src/shared/runtime-utils';
 import {
   getParentVariableDeclarator,
@@ -13,59 +13,59 @@ import {
 import { CallExpArgs } from '../../shared/types';
 import { warnVueHookInAnyCallback, warnVueHookInBlock } from '../../shared/unsupported-warn';
 
-export function resolveProvideInject(): TraverseOptions {
+export function resolveProvideInject(ctx: ICompilationContext): TraverseOptions {
   return {
     CallExpression(path) {
-      processProvideApi(path);
-      processInjectApi(path);
+      processProvideApi(ctx, path);
+      processInjectApi(ctx, path);
     },
   };
 }
 
-function processProvideApi(path: NodePath<t.CallExpression>) {
+function processProvideApi(ctx: ICompilationContext, path: NodePath<t.CallExpression>) {
   const { node } = path;
 
   if (!isCalleeNamed(node, 'provide')) {
     return;
   }
 
-  warnVueHookInBlock(path);
-  warnVueHookInAnyCallback(path);
+  warnVueHookInBlock(ctx, path);
+  warnVueHookInAnyCallback(ctx, path);
 
-  const { ctxProvider } = compileContext.context;
+  const { provide } = ctx.scriptData;
 
   const key = node.arguments[0];
   const value = node.arguments[1];
 
-  const target = findOrCreateCtxProvider(ctxProvider);
+  const target = findOrCreateCtxProvider(provide);
   assignProviderValue(target, key, value);
 
   path.parentPath.remove();
 }
 
-function findOrCreateCtxProvider(root: CompileContextType['ctxProvider']) {
-  if (!root.exists) {
+function findOrCreateCtxProvider(root: ProvideData) {
+  if (!root.isOccupied) {
     return root;
   }
 
-  let cur = root.ctxProvider;
-  while (cur?.exists) {
-    cur = cur.ctxProvider ?? {};
+  let cur = root.provide;
+  while (cur?.isOccupied) {
+    cur = cur.provide ?? {};
   }
 
-  return cur || (root.ctxProvider = {});
+  return cur || (root.provide = {});
 }
 
 function assignProviderValue(
-  target: Partial<CompileContextType['ctxProvider']>,
+  target: ProvideData['provide'],
   key?: CallExpArgs[0],
   value?: CallExpArgs[0],
 ) {
   const getRawExp = (exp?: CallExpArgs[0]): string => {
-    if (!exp) return '""'; // 空字符串
+    if (!exp) return "''"; // 空字符串
 
     if (t.isStringLiteral(exp)) {
-      return `"${exp.value}"`;
+      return `'${exp.value}'`;
     }
 
     if (t.isNumericLiteral(exp)) {
@@ -84,13 +84,13 @@ function assignProviderValue(
     }
   };
 
-  target.exists = true;
+  target.isOccupied = true;
   target.name = getRawExp(key);
   target.value = getRawExp(value);
-  target.ctxProvider = {};
+  target.provide = {};
 }
 
-function processInjectApi(path: NodePath<t.CallExpression>) {
+function processInjectApi(ctx: ICompilationContext, path: NodePath<t.CallExpression>) {
   const { node } = path;
 
   if (!isCalleeNamed(node, 'inject')) {
@@ -98,8 +98,8 @@ function processInjectApi(path: NodePath<t.CallExpression>) {
     return;
   }
 
-  warnVueHookInBlock(path);
-  warnVueHookInAnyCallback(path);
+  warnVueHookInBlock(ctx, path);
+  warnVueHookInAnyCallback(ctx, path);
 
   const parentVarDecl = getParentVariableDeclarator(path);
   setNodeExtensionMeta(parentVarDecl.node, { isReactive: true, reactiveType: 'indirect' });

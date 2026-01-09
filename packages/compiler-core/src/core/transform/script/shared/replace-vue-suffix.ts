@@ -1,16 +1,16 @@
 import { StringLiteral } from '@babel/types';
-import { compileContext } from '@src/shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 
 /**
  * 替换 .vue 文件名后缀为 .jsx/.tsx
  *
  * @param node babel 字符串节点
  */
-export function replaceVueSuffix(node: StringLiteral) {
+export function replaceVueSuffix(ctx: ICompilationContext, node: StringLiteral) {
   if (!node.value.endsWith('.vue')) return;
 
-  const { lang } = compileContext.context;
-  const jsxFile = `"${node.value.replace(/.vue$/, `.${lang.script}x`)}"`;
+  const { scriptData } = ctx;
+  const jsxFile = `"${node.value.replace(/.vue$/, `.${scriptData.lang}x`)}"`;
 
   node.value = jsxFile;
   node.extra = { rawValue: jsxFile, raw: jsxFile };

@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules } from '@src/consts/runtimeModules';
-import { compileContext } from '@src/shared/compile-context';
 import { recordImport } from '@src/shared/runtime-utils';
 import { __scriptBlockIR, PropTSInterface } from '../..';
 import { resolveObjectToTSType } from '../../shared/babel-utils';
@@ -10,9 +10,9 @@ import { resolveObjectToTSType } from '../../shared/babel-utils';
  *
  * 合并到 __scriptBlockIR.defineProps
  */
-export function processTemplateSlots() {
+export function processTemplateSlots(ctx: ICompilationContext) {
   const { defineProps } = __scriptBlockIR;
-  const tsTypeElement = createTSTypeElement();
+  const tsTypeElement = createTSTypeElement(ctx);
 
   if (!tsTypeElement.length) return;
 
@@ -21,21 +21,21 @@ export function processTemplateSlots() {
 }
 
 // 通过模板的 slot 描述对象创建 TSTypeElement
-function createTSTypeElement(): t.TSTypeElement[] {
-  const { templateSlots } = compileContext.context;
+function createTSTypeElement(ctx: ICompilationContext): t.TSTypeElement[] {
+  const { templateData } = ctx;
 
   const tsTypeElement: t.TSTypeElement[] = [];
   const ReactNodeType = t.tsTypeReference(t.identifier('ReactNode'));
 
-  for (const key in templateSlots) {
-    const props = templateSlots[key]!;
+  for (const key in templateData.slots) {
+    const props = templateData.slots[key]!;
     const hasProps = Object.keys(props).length;
 
     let typeNode: t.TSTypeReference | t.TSFunctionType = ReactNodeType;
 
     if (hasProps) {
       const param = t.identifier('data');
-      const tsParamType = resolveObjectToTSType(props) as unknown as t.TSType;
+      const tsParamType = resolveObjectToTSType(ctx, props) as unknown as t.TSType;
 
       param.typeAnnotation = t.tsTypeAnnotation(tsParamType);
       typeNode = t.tsFunctionType(null, [param], t.tsTypeAnnotation(ReactNodeType));

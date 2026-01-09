@@ -2,8 +2,8 @@ import { parseExpression } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { getBabelParseOptions } from '@src/shared/babel-utils';
-import { compileContext } from '@src/shared/compile-context';
 import { ReactiveTypes, VarDeclKind } from './types';
+import { ICompilationContext } from '@compiler/context/types';
 
 export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   const {
@@ -266,11 +266,11 @@ export function replaceCallName(callExp: t.CallExpression, identifierName: strin
  *
  * => { title: string; count: number; text: any; fn: () => number }
  */
-export function resolveObjectToTSType(obj: object): t.TSTypeLiteral {
+export function resolveObjectToTSType(ctx: ICompilationContext,obj: object): t.TSTypeLiteral {
   const properties = Object.entries(obj).map(([key, value]) => {
     const propSignature = t.tsPropertySignature(
       t.stringLiteral(key),
-      stringValueToTSType(String(value)),
+      stringValueToTSType(ctx,String(value)),
     );
     return propSignature;
   });
@@ -293,8 +293,8 @@ export function resolveObjectToTSType(obj: object): t.TSTypeLiteral {
  *
  * @returns {t.TSTypeAnnotation}
  */
-export function stringValueToTSType(input: string): t.TSTypeAnnotation {
-  const exp = parseExp(input);
+export function stringValueToTSType(ctx: ICompilationContext,input: string): t.TSTypeAnnotation {
+  const exp = parseExp(ctx,input);
   const ts = expressionToTSType(exp);
   return t.tsTypeAnnotation(ts);
 }
@@ -361,9 +361,9 @@ export function expressionToTSType(exp: t.Expression): t.TSType {
   return t.tsAnyKeyword();
 }
 
-export function parseExp(input: string): t.Expression {
-  const { lang, filename } = compileContext.context;
-  return parseExpression(input, getBabelParseOptions(lang.script, 'expression', filename));
+export function parseExp(ctx: ICompilationContext, input: string): t.Expression {
+  const { scriptData, filename } = ctx;
+  return parseExpression(input, getBabelParseOptions(scriptData.lang, 'expression', filename));
 }
 
 export function isCalleeNamed(node: t.CallExpression, name: string): boolean {

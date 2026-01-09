@@ -1,12 +1,13 @@
 import { traverse } from '@babel/core';
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncArgDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from '../../shared/processor-factory';
 
-export function processWatchEffectApi(): TraverseOptions {
+export function processWatchEffectApi(ctx: ICompilationContext): TraverseOptions {
   const adaptApis = {
     watchEffect: VuR_Runtime.useWatchEffect,
     watchPostEffect: VuR_Runtime.useWatchPostEffect,
@@ -15,7 +16,7 @@ export function processWatchEffectApi(): TraverseOptions {
 
   return {
     CallExpression(path) {
-      createCallExpProcessor(path, {
+      createCallExpProcessor(ctx, path, {
         adaptApis,
         warnInInAnyCallback: true,
 

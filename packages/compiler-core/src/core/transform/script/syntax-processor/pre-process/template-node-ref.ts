@@ -1,7 +1,7 @@
 import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { compileContext } from '@shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import {
@@ -10,25 +10,25 @@ import {
   setNodeExtensionMeta,
 } from '../../shared/babel-utils';
 
-export function processTemplateNodeRef(): TraverseOptions {
+export function processTemplateNodeRef(ctx: ICompilationContext): TraverseOptions {
   return {
     VariableDeclarator(path) {
-      transformNodeRefToUseRef(path);
+      transformNodeRefToUseRef(ctx, path);
     },
   };
 }
 
-function transformNodeRefToUseRef(path: NodePath<t.VariableDeclarator>) {
+function transformNodeRefToUseRef(ctx: ICompilationContext, path: NodePath<t.VariableDeclarator>) {
   const {
     node: { id, init },
   } = path;
-  const { templateRefs } = compileContext.context;
+  const { templateData } = ctx;
 
   if (!isVariableDeclTopLevel(path) || !t.isIdentifier(id)) {
     return;
   }
 
-  if (!templateRefs.has(id.name) || !t.isCallExpression(init)) {
+  if (!templateData.refs.has(id.name) || !t.isCallExpression(init)) {
     return;
   }
 

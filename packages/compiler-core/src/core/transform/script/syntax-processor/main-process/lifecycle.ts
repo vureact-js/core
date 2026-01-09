@@ -1,11 +1,12 @@
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '@src/shared/runtime-utils';
 import { analyzeFuncArgDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from '../../shared/processor-factory';
 
-export function processLifecycleApi(): TraverseOptions {
+export function processLifecycleApi(ctx: ICompilationContext): TraverseOptions {
   const adaptApis = {
     onBeforeMount: VuR_Runtime.useBeforeMount,
     onMounted: VuR_Runtime.useMounted,
@@ -24,7 +25,7 @@ export function processLifecycleApi(): TraverseOptions {
         return;
       }
 
-      createCallExpProcessor(path, {
+      createCallExpProcessor(ctx, path, {
         adaptApis,
         warnArguments: true,
         warnInInAnyCallback: true,

@@ -1,6 +1,7 @@
 import { ParseResult } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { __scriptBlockIR } from '../..';
 import { getNodeExtensionMeta, isVariableDeclTopLevel } from '../../shared/babel-utils';
 
@@ -44,7 +45,7 @@ export function splitScriptBlocks(): TraverseOptions {
 /**
  * 提取 `splitScriptBlocks` 分割后的剩余语句，这些语句应放在组件内使用
  */
-export function extractLocalStatements(ast: ParseResult) {
+export function extractLocalStatements(_: ICompilationContext, ast: ParseResult) {
   const { statement } = __scriptBlockIR;
   statement.local = ast.program.body;
 }

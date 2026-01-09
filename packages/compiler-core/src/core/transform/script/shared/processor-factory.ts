@@ -1,6 +1,6 @@
 import { types as t } from '@babel/core';
 import { NodePath } from '@babel/traverse';
-import { compileContext } from '@src/shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { logger } from '@src/shared/logger';
 import { __emits, __props } from '../../const';
 import { isCalleeNamed, replaceCallName, setNodeExtensionMeta } from './babel-utils';
@@ -23,6 +23,7 @@ interface ProcessCallExpOptions {
 }
 
 export function createCallExpProcessor(
+  ctx: ICompilationContext,
   path: NodePath<t.CallExpression>,
   options: ProcessCallExpOptions,
 ) {
@@ -49,13 +50,13 @@ export function createCallExpProcessor(
     return;
   }
 
-  warnVueHookInBlock(path);
+  warnVueHookInBlock(ctx, path);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  warnArguments && warnVueHookArguments(args);
+  warnArguments && warnVueHookArguments(ctx, args);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-  warnInInAnyCallback && warnVueHookInAnyCallback(path);
+  warnInInAnyCallback && warnVueHookInAnyCallback(ctx, path);
 
   if (parentPath.isVariableDeclarator()) {
     if (!handleVariableDeclarator) {
@@ -66,9 +67,8 @@ export function createCallExpProcessor(
     } else {
       handleVariableDeclarator(parentPath.node);
     }
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    warnWithoutDeclaration && warnVueHookWithoutDeclaration(node.loc);
+  } else if (warnWithoutDeclaration) {
+    warnVueHookWithoutDeclaration(ctx, node.loc);
   }
 
   const fnBody = args[0] as t.Expression;
@@ -95,13 +95,14 @@ export type PropDescribe = {
 };
 
 export function createPropsProcessor(
+  ctx: ICompilationContext,
   path: NodePath<t.CallExpression>,
   options: ProcessPropsOptions,
 ) {
   const { node, parentPath } = path;
   const { callee } = node;
   const { onProcessed } = options;
-  const { source, filename } = compileContext.context;
+  const { source, filename } = ctx;
 
   const warnUnexpectedVarName = (target: string, loc: any) => {
     const expect = (callee as t.Identifier).name === 'defineProps' ? __props : __emits;

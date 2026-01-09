@@ -1,6 +1,6 @@
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { compileContext } from '@src/shared/compile-context';
+import { ICompilationContext } from '@compiler/context/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { __scriptBlockIR } from '../..';
@@ -12,12 +12,12 @@ import { resolvePropTSInterface } from './resolve-template-slots';
  * 处理 Vue 组件的 props 和 emits 定义，将其转换为 React 组件的 Props 类型定义。
  * 支持 defineProps 和 defineEmits 的运行时声明及 TS 泛型声明。
  */
-export function resolveProps(): TraverseOptions {
+export function resolveProps(ctx: ICompilationContext): TraverseOptions {
   return {
     CallExpression(path) {
-      createPropsProcessor(path, {
+      createPropsProcessor(ctx, path, {
         onProcessed(prop) {
-          processpropsType(prop);
+          processpropsType(ctx, prop);
         },
       });
     },
@@ -27,10 +27,10 @@ export function resolveProps(): TraverseOptions {
 /**
  * 核心处理逻辑：根据 defineProps/defineEmits 的类型生成对应的 TS 类型节点
  */
-function processpropsType(prop: PropDescribe) {
-  const { lang } = compileContext.context;
+function processpropsType(ctx: ICompilationContext, prop: PropDescribe) {
+  const { scriptData } = ctx;
 
-  const isTs = lang.script.startsWith('ts');
+  const isTs = scriptData.lang.startsWith('ts');
   // 提取泛型参数 (例如 defineProps<Props>())
   const tsGenericParam = prop.tsType?.params?.[0] as t.TSType | undefined;
 

@@ -8,14 +8,16 @@ export interface ReactIRDescriptor {
   script: ScriptBlockIR | null;
 }
 
-interface PipelineOptions<A, IR> {
+interface PipelineOptions<A, IR = ReactIR> {
   transformer: Transformer<A, IR>;
   plugins?: TransformPlugin<IR>[];
 }
 
-export type Transformer<A, IR> = (ast: A, ctx: ICompilationContext) => IR | null;
+export type Transformer<A, IR = ReactIR> = (ctx: ICompilationContext, ast: A) => IR | null;
 
-export type TransformPlugin<IR> = (ir: IR) => IR;
+export type TransformPlugin<IR = ReactIR> = (ctx: ICompilationContext, ast: IR) => IR;
+
+type ReactIR = TemplateBlockIR | ScriptBlockIR;
 
 /**
  * Transforms a Vue AST descriptor into a React IR (Intermediate Representation) descriptor.
@@ -35,12 +37,12 @@ export type TransformPlugin<IR> = (ir: IR) => IR;
  * console.log(reactIR.template, reactIR.script);
  */
 export function transform(ast: VueASTDescriptor, ctx: ICompilationContext): ReactIRDescriptor {
-  const templateIR = runPipeline(ast.template?.ast, ctx, {
+  const templateIR = runPipeline(ctx, ast.template?.ast, {
     transformer: transformTemplate,
     plugins: [], // 未来可在此注入 template 级别的后处理插件
   });
 
-  const scriptIR = runPipeline(ast.script?.ast, ctx, {
+  const scriptIR = runPipeline(ctx, ast.script?.ast, {
     transformer: transformScript,
     plugins: [], // 未来可在此注入 script 级别的后处理插件
   });
@@ -55,9 +57,9 @@ export function transform(ast: VueASTDescriptor, ctx: ICompilationContext): Reac
  * 通用管道执行器
  * 负责执行：Source -> Transform -> IR -> Plugins -> Final IR
  */
-function runPipeline<A, IR>(
-  ast: A | undefined,
+function runPipeline<A, IR = ReactIR>(
   ctx: ICompilationContext,
+  ast: A | undefined,
   options: PipelineOptions<A, IR>,
 ): IR | null {
   if (!ast) return null;
@@ -65,11 +67,11 @@ function runPipeline<A, IR>(
   const { transformer, plugins = [] } = options;
 
   // 1. 执行主转换
-  let result = transformer(ast, ctx);
+  let result = transformer(ctx, ast);
 
   // 2. 如果转换成功，依次执行插件
   if (result && plugins.length) {
-    result = plugins.reduce((acc, plugin) => plugin(acc) as any, result);
+    result = plugins.reduce((ir, plugin) => plugin(ctx, ir) as any, result);
   }
 
   return result;

@@ -1,6 +1,7 @@
 import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@shared/runtime-utils';
 import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
@@ -8,20 +9,20 @@ import { setNodeExtensionMeta } from '../shared/babel-utils';
 import { createUseCallback } from '../shared/hook-creator';
 import { warnVueHookInBlock } from '../shared/unsupported-warn';
 
-export function optimizeFunction(): TraverseOptions {
+export function optimizeFunction(ctx: ICompilationContext): TraverseOptions {
   return {
     Function(path) {
-      transformToUseCallback(path);
+      transformToUseCallback(ctx, path);
     },
   };
 }
 
-function transformToUseCallback(path: NodePath<t.Function>) {
+function transformToUseCallback(ctx: ICompilationContext, path: NodePath<t.Function>) {
   const { node, parent } = path;
 
   if (t.isFunctionDeclaration(node) || isCallbackFunction(path) || !isTopLevel(path)) return;
 
-  warnVueHookInBlock(path);
+  warnVueHookInBlock(ctx, path);
   recordImport(RuntimeModules.REACT, ReactApis.useCallback, true);
 
   // 不论有无依赖都标记为间接响应式，只因是 useCallback

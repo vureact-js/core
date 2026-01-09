@@ -1,5 +1,6 @@
 import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { __props, ReactCompEvents, ReactCompProps, ReactCompSlots } from '../const';
 import { optimizeFunction } from './optimizations/function';
 import { processVueScript } from './syntax-processor';
@@ -56,10 +57,10 @@ export type PropTSInterface = {
 
 export const __scriptBlockIR = createIR();
 
-export function transformScript(ast?: ParseResult): ScriptBlockIR | null {
+export function transformScript(ctx: ICompilationContext, ast?: ParseResult): ScriptBlockIR | null {
   if (!ast) return null;
 
-  processVueScript(ast, {
+  processVueScript(ctx, ast, {
     traversal: {
       preprocess: [
         resolveProps,

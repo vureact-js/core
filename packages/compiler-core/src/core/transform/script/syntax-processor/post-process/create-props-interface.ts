@@ -1,14 +1,19 @@
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { PropsIntersectionType } from '@src/core/transform/const';
-import { compileContext } from '@src/shared/compile-context';
 import { __scriptBlockIR } from '../..';
 
-export function createPropsIntersectionType() {
-  const { lang } = compileContext.context;
+export function createPropsIntersectionType(ctx: ICompilationContext) {
+  const { scriptData } = ctx;
   const { tsTypes, defineProps } = __scriptBlockIR;
   const { propsType, eventType, slotType } = defineProps.typeAnnotation;
 
-  if (!lang.script.startsWith('ts') || !propsType.tsType || !eventType.tsType || !slotType.tsType) {
+  if (
+    !scriptData.lang.startsWith('ts') ||
+    !propsType.tsType ||
+    !eventType.tsType ||
+    !slotType.tsType
+  ) {
     return;
   }
 

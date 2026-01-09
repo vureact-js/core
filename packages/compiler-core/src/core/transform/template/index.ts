@@ -15,7 +15,7 @@ export type TemplateChildNodeIR = ElementNodeIR | BaseSimpleNodeIR | FragmentNod
  * @param root - Vue 编译器的 RootNode AST
  * @returns TemplateBlockIR
  */
-export function transformTemplate(root: VueRootNode, ctx: ICompilationContext): TemplateBlockIR {
+export function transformTemplate(ctx: ICompilationContext, root: VueRootNode): TemplateBlockIR {
   const children: TemplateChildNodeIR[] = [];
 
   // 注意：根节点转换时没有父级 ElementNode (Parent)，因此第二个参数传入 null/undefined。
