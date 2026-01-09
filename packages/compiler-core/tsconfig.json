@@ -8,6 +8,7 @@
     "declarationMap": true,
     "paths": {
       "@src/*": ["src/*"],
+      "@compiler/*": ["src/compiler/*"],
       "@core/*": ["src/core/*"],
       "@utils/*": ["src/utils/*"],
       "@shared/*": ["src/shared/*"],
