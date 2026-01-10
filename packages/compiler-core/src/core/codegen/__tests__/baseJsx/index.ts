@@ -1,5 +1,5 @@
-import { generate } from '@babel/generator';
-import { genJsx } from '@core/codegen/jsx';
+import { createCompilationCtx } from '@compiler/context';
+import { generate } from '@core/codegen';
 import { parse } from '@core/parse';
 import { transform } from '@core/transform';
 import { getDirname } from '@shared/path';
@@ -10,25 +10,25 @@ export function baseJsx() {
   const __dirname = getDirname(import.meta.url);
   const content = readFileSync(path.resolve(__dirname, './index.vue'), 'utf-8');
 
-  console.time('generate jsx duration');
+  const ctx = createCompilationCtx();
+  ctx.init({ filename: './index.vue', source: content });
 
-  const ast = parse(content);
-  const ir = transform(ast);
-  const jsx = genJsx(ir);
+  console.time('\nBase jsx generate duration');
 
-  console.timeEnd('generate jsx duration');
+  const ast = parse(content, ctx.data);
+  const ir = transform(ast, ctx.data);
+  const { code } = generate(ir, ctx.data, {
+    jsescOption: {
+      // 配置 jsesc 避免 Unicode 转义
+      minimal: true, // 只转义必要的字符
+      quotes: 'double',
+    },
+  });
 
-  if (jsx) {
-    writeFileSync(
-      path.resolve(__dirname, './preview.jsx'),
-      generate(jsx, {
-        jsescOption: {
-          // 配置 jsesc 避免 Unicode 转义
-          minimal: true, // 只转义必要的字符
-          quotes: 'double',
-        },
-      }).code,
-      'utf-8',
-    );
-  }
+  console.timeEnd('\nBase jsx generate duration');
+
+  // console.log('\n=============== Compilation context data: ===============\n');
+  // console.log(ctx.data.templateData);
+
+  writeFileSync(path.resolve(__dirname, `./preview.${ctx.data.scriptData.lang}x`), code, 'utf-8');
 }

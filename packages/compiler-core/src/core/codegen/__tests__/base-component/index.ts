@@ -1,3 +1,4 @@
+import { createCompilationCtx } from '@compiler/context';
 import { generate } from '@core/codegen';
 import { parse } from '@core/parse';
 import { transform } from '@core/transform';
@@ -9,11 +10,14 @@ export function baseComponent() {
   const __dirname = getDirname(import.meta.url);
   const content = readFileSync(path.resolve(__dirname, './index.vue'), 'utf-8');
 
-  console.time('generate component duration');
+  const ctx = createCompilationCtx();
+  ctx.init({ filename: './index.vue', source: content });
 
-  const ast = parse(content);
-  const ir = transform(ast);
-  const { code } = generate(ir, {
+  console.time('\nBase component generate duration');
+
+  const ast = parse(content, ctx.data);
+  const ir = transform(ast, ctx.data);
+  const { code } = generate(ir, ctx.data, {
     jsescOption: {
       // 配置 jsesc 避免 Unicode 转义
       minimal: true, // 只转义必要的字符
@@ -21,7 +25,12 @@ export function baseComponent() {
     },
   });
 
-  console.timeEnd('generate component duration');
+  console.timeEnd('\nBase component generate duration');
 
-  writeFileSync(path.resolve(__dirname, './preview.tsx'), code, 'utf-8');
+  console.log('\n=============== Compilation context data: ===============\n');
+
+  ctx.data.source = 'I cleared it.';
+  console.log(ctx.data);
+
+  writeFileSync(path.resolve(__dirname, `./preview.${ctx.data.scriptData.lang}x`), code, 'utf-8');
 }
