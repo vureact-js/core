@@ -20,6 +20,7 @@ import {
   splitScriptBlocks,
 } from './syntax-processor/post-process/script-blocks';
 import { resolveAsyncComponent } from './syntax-processor/pre-process/resolve-async-component';
+import { resolvesDefineOptions } from './syntax-processor/pre-process/resolve-define-options';
 import { resolveProps } from './syntax-processor/pre-process/resolve-props';
 import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
@@ -63,6 +64,7 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
   processVueScript(ctx, ast, {
     traversal: {
       preprocess: [
+        resolvesDefineOptions,
         resolveProps,
         resolveAsyncComponent,
         stripReactiveValueSuffix,
