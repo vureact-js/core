@@ -2,6 +2,7 @@ import { ParseResult as BabelParseResult } from '@babel/parser';
 import { ICompilationContext } from '@compiler/context/types';
 import { LangType } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
+import { randomHash } from '@utils/random-hash';
 import { CompilerError, RootNode } from '@vue/compiler-core';
 import {
   parse as parseVueSFC,
@@ -11,7 +12,6 @@ import {
 } from '@vue/compiler-sfc';
 import { parseScript } from './script';
 import { parseTemplate } from './template';
-import { randomHash } from '@utils/random-hash';
 
 export interface VueASTDescriptor {
   template: Block<SFCTemplateBlock, RootNode>;
@@ -62,14 +62,17 @@ export function parse(source: string, ctx: ICompilationContext): VueASTDescripto
 
   const result: VueASTDescriptor = {
     template: parseTemplate(descriptor.template),
-    script: parseScript(descriptor.scriptSetup || descriptor.script, ctx.filename),
+    script: parseScript(descriptor.script, descriptor.scriptSetup, ctx),
     styles: descriptor.styles,
   };
 
   // 初始化编译上下文
-  ctx.funcName = `Anonymous${randomHash(6)}`
   ctx.cssVars = descriptor.cssVars;
   ctx.scriptData.lang = (result.script?.source?.lang as LangType) || 'js';
+
+  if (!ctx.funcName) {
+    ctx.funcName = `Anonymous${randomHash(6)}`;
+  }
 
   // 收集错误日志
   if (errors.length) {
