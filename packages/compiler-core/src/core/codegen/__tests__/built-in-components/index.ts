@@ -2,6 +2,7 @@ import { createCompilationCtx } from '@compiler/context';
 import { generate } from '@core/codegen';
 import { parse } from '@core/parse';
 import { transform } from '@core/transform';
+import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
@@ -29,6 +30,8 @@ export function builtInComps() {
 
   console.log('\n=============== Compilation context data: ===============\n');
   console.log(ctx.data.imports);
+
+  logger.printAll();
 
   writeFileSync(path.resolve(__dirname, `./preview.${ctx.data.scriptData.lang}x`), code, 'utf-8');
 }

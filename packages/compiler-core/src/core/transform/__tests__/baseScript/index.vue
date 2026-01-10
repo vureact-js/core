@@ -10,6 +10,8 @@ type A = {};
 
 enum B {}
 
+defineOptions({ name: 'BaseScript' });
+
 const __props = defineProps(['foo', 'bar']);
 
 // const __props = defineProps<Props>();

@@ -1,6 +1,7 @@
 import { createCompilationCtx } from '@compiler/context';
 import { parse } from '@core/parse';
 import { transform } from '@core/transform';
+import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -21,5 +22,8 @@ export function transformBaseScript() {
 
   console.log('\n=============== Compilation context data: ===============\n');
   console.log(ctx.data.scriptData);
+
   // console.log(result.script);
+
+  logger.printAll();
 }

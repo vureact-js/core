@@ -1,6 +1,7 @@
 import { createCompilationCtx } from '@compiler/context';
 import { parse } from '@core/parse';
 import { transform } from '@core/transform';
+import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -23,4 +24,6 @@ export function transformBaseSFC() {
   console.log(ctx.data.templateData);
 
   // console.log(JSON.stringify(result.template?.children, null, 2));
+
+  logger.printAll();
 }
