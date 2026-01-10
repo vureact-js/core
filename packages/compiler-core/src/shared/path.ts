@@ -1,10 +1,9 @@
 import { minimatch } from 'minimatch';
-import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import path from 'path';
 
 export function getDirname(metaUrl: string) {
-  return dirname(fileURLToPath(metaUrl));
+  return path.dirname(fileURLToPath(metaUrl));
 }
 
 export function getFilename(metaUrl: string) {
