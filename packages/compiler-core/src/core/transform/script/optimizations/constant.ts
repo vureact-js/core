@@ -1,8 +1,9 @@
 import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
-import { recordImport } from '@src/shared/runtime-utils';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { isReactiveBinding } from '../shared/analyze-dependency';
 import {
   getNodeExtensionMeta,
@@ -11,10 +12,10 @@ import {
   setNodeExtensionMeta,
 } from '../shared/babel-utils';
 
-export function optimizeConstant(): TraverseOptions {
+export function optimizeConstant(ctx: ICompilationContext): TraverseOptions {
   return {
     VariableDeclarator(path) {
-      transformToUseRef(path);
+      transformToUseRef(ctx, path);
     },
 
     // Merry christmas! 2025-12-25 19:43
@@ -24,7 +25,7 @@ export function optimizeConstant(): TraverseOptions {
   };
 }
 
-function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
+function transformToUseRef(ctx: ICompilationContext, path: NodePath<t.VariableDeclarator>) {
   const { node, parent, parentPath } = path;
 
   if (
@@ -39,7 +40,7 @@ function transformToUseRef(path: NodePath<t.VariableDeclarator>) {
 
   node.init = t.callExpression(t.identifier(ReactApis.useRef), [node.init!]);
 
-  recordImport(RuntimeModules.REACT, ReactApis.useRef, true);
+  recordImport(ctx, RuntimeModules.REACT, ReactApis.useRef, true);
   setNodeExtensionMeta(node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }
 

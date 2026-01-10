@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules } from '@src/consts/runtimeModules';
-import { recordImport } from '@src/shared/runtime-utils';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { __scriptBlockIR, PropTSInterface } from '../..';
 import { resolveObjectToTSType } from '../../shared/babel-utils';
 
@@ -16,7 +16,7 @@ export function processTemplateSlots(ctx: ICompilationContext) {
 
   if (!tsTypeElement.length) return;
 
-  recordImport(RuntimeModules.REACT, 'ReactNode', true);
+  recordImport(ctx, RuntimeModules.REACT, 'ReactNode', true);
   resolvePropTSInterface(defineProps.typeAnnotation.slotType, tsTypeElement);
 }
 

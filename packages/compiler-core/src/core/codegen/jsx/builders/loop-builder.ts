@@ -1,11 +1,12 @@
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { convertToExpression } from '../shared';
 import { JSXChild } from '../types';
 import { buildElement } from './element-builder';
 import { buildJSXExpression } from './simple-builder';
 
-export function buildLoop(nodeIR: ElementNodeIR): JSXChild {
+export function buildLoop(ctx: ICompilationContext, nodeIR: ElementNodeIR): JSXChild {
   const loop = nodeIR.meta.loop!;
 
   loop.isHandled = true;
@@ -15,14 +16,14 @@ export function buildLoop(nodeIR: ElementNodeIR): JSXChild {
 
   const result = isObjectTraversal
     ? // 对象遍历 - 使用 Object.entries 或 Object.keys
-      buildObjectLoop(nodeIR)
+      buildObjectLoop(ctx, nodeIR)
     : // 数组遍历
-      buildArrayLoop(nodeIR);
+      buildArrayLoop(ctx, nodeIR);
 
   return result;
 }
 
-function buildArrayLoop(nodeIR: ElementNodeIR): JSXChild {
+function buildArrayLoop(ctx: ICompilationContext, nodeIR: ElementNodeIR): JSXChild {
   const loop = nodeIR.meta.loop!;
   const { source, value, index, key } = loop.value;
 
@@ -37,13 +38,13 @@ function buildArrayLoop(nodeIR: ElementNodeIR): JSXChild {
 
   // 构建 map 调用
   const mapCall = t.callExpression(t.memberExpression(sourceIdentifier, t.identifier('map')), [
-    t.arrowFunctionExpression(params, convertToExpression(buildElement(nodeIR)!)),
+    t.arrowFunctionExpression(params, convertToExpression(buildElement(ctx, nodeIR)!)),
   ]);
 
   return buildJSXExpression(mapCall);
 }
 
-function buildObjectLoop(nodeIR: ElementNodeIR): JSXChild {
+function buildObjectLoop(ctx: ICompilationContext, nodeIR: ElementNodeIR): JSXChild {
   const loop = nodeIR.meta.loop!;
   const { source, value, key, index } = loop.value;
 
@@ -65,7 +66,7 @@ function buildObjectLoop(nodeIR: ElementNodeIR): JSXChild {
 
   // 构建 map 调用
   const mapCall = t.callExpression(t.memberExpression(objectEntries, t.identifier('map')), [
-    t.arrowFunctionExpression(params, convertToExpression(buildElement(nodeIR)!)),
+    t.arrowFunctionExpression(params, convertToExpression(buildElement(ctx, nodeIR)!)),
   ]);
 
   return buildJSXExpression(mapCall);

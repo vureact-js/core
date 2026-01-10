@@ -1,7 +1,7 @@
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
-import { recordImport } from '@src/shared/runtime-utils';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { analyzeFuncBodyDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from '../../shared/processor-factory';
 
@@ -18,7 +18,7 @@ export function processComputedApi(ctx: ICompilationContext): TraverseOptions {
         addDeps: (fnBody) => analyzeFuncBodyDeps(fnBody, path),
 
         onProcessed() {
-          recordImport(RuntimeModules.REACT, ReactApis.useMemo, true);
+          recordImport(ctx, RuntimeModules.REACT, ReactApis.useMemo, true);
         },
       });
     },

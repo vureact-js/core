@@ -1,5 +1,6 @@
 import { parseExpression } from '@babel/parser';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { PropsIR, PropTypes } from '@core/transform/template/props';
 import { SlotPropsIR } from '@core/transform/template/props/vslot';
 import { TemplateChildNodeIR } from '@src/core/transform/template';
@@ -9,7 +10,7 @@ import { JSXChild, JSXProp } from '../types';
 import { buildElement } from './element-builder';
 import { buildJSXExpression } from './simple-builder';
 
-export function buildProps(nodeIR: ElementNodeIR): JSXProp[] {
+export function buildProps(ctx: ICompilationContext, nodeIR: ElementNodeIR): JSXProp[] {
   const props: JSXProp[] = [];
 
   for (const prop of nodeIR.props) {
@@ -17,7 +18,7 @@ export function buildProps(nodeIR: ElementNodeIR): JSXProp[] {
     if (prop.type === PropTypes.SLOT) {
       // 注意，这里的 prop 对象属于 SlotPropsIR
 
-      const result = resolveSlotProp(prop as SlotPropsIR);
+      const result = resolveSlotProp(ctx, prop as SlotPropsIR);
 
       if (result) {
         if (prop.name === 'children') {
@@ -40,6 +41,7 @@ export function buildProps(nodeIR: ElementNodeIR): JSXProp[] {
 }
 
 function resolveSlotProp(
+  ctx: ICompilationContext,
   slotIR: SlotPropsIR,
 ):
   | t.JSXAttribute
@@ -58,7 +60,8 @@ function resolveSlotProp(
 
   if (!children?.length) return null;
 
-  const jsx = children.length > 1 ? buildChildren(children, true) : buildElement(children[0]!);
+  const jsx =
+    children.length > 1 ? buildChildren(ctx, children, true) : buildElement(ctx, children[0]!);
 
   if (slotIR.isScoped) {
     const params = t.identifier(slotIR.callback!.arg);

@@ -1,7 +1,7 @@
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
-import { recordImport } from '@src/shared/runtime-utils';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { createCallExpProcessor } from '../../shared/processor-factory';
 
 export function processWatchApi(ctx: ICompilationContext): TraverseOptions {
@@ -14,7 +14,7 @@ export function processWatchApi(ctx: ICompilationContext): TraverseOptions {
         warnInInAnyCallback: true,
 
         onProcessed(adaptName) {
-          recordImport(RuntimeModules.VUREACT_RUNTIME, adaptName, true);
+          recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, adaptName, true);
         },
       });
     },

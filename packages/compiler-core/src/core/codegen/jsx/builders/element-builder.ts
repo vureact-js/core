@@ -1,4 +1,5 @@
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { TemplateChildNodeIR } from '@core/transform/template';
 import { BaseSimpleNodeIR } from '@core/transform/template/elements/node-creators';
 import { ElementNodeIR } from '@src/core/transform/template/elements/element';
@@ -12,7 +13,10 @@ import { buildMemo } from './memo-builder';
 import { buildProps } from './prop-builder';
 import { buildFragment, buildJSXExpression, buildText } from './simple-builder';
 
-export function buildElement(nodeIR: TemplateChildNodeIR | t.Node): JSXChild | null {
+export function buildElement(
+  ctx: ICompilationContext,
+  nodeIR: TemplateChildNodeIR | t.Node,
+): JSXChild | null {
   if (t.isNode(nodeIR)) {
     return nodeIR as JSXChild;
   }
@@ -34,26 +38,26 @@ export function buildElement(nodeIR: TemplateChildNodeIR | t.Node): JSXChild | n
   }
 
   if (nodeIR.type === NodeTypes.FRAGMENT) {
-    return buildFragment(buildChildren(elNode.children, false) as JSXChild[]);
+    return buildFragment(buildChildren(ctx, elNode.children, false) as JSXChild[]);
   }
 
   if (nodeIR.type === NodeTypes.ELEMENT) {
     const meta = elNode.meta;
 
     if (meta?.condition && !meta.condition.isHandled) {
-      return buildCondition(elNode);
+      return buildCondition(ctx, elNode);
     }
 
     if (meta?.memo?.isMemo && !meta.memo.isHandled) {
-      return buildMemo(elNode);
+      return buildMemo(ctx, elNode);
     }
 
     if (meta?.loop?.isLoop && !meta.loop.isHandled) {
-      return buildLoop(elNode);
+      return buildLoop(ctx, elNode);
     }
 
-    const props = buildProps(elNode);
-    const children = buildChildren(elNode.children) as JSXChild[];
+    const props = buildProps(ctx, elNode);
+    const children = buildChildren(ctx, elNode.children) as JSXChild[];
 
     return createElement(elNode.tag, props, children, elNode.isSelfClosing);
   }

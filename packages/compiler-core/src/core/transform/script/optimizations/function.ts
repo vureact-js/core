@@ -3,7 +3,7 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
-import { recordImport } from '@shared/runtime-utils';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { analyzeFuncBodyDeps } from '../shared/analyze-dependency';
 import { setNodeExtensionMeta } from '../shared/babel-utils';
 import { createUseCallback } from '../shared/hook-creator';
@@ -23,7 +23,7 @@ function transformToUseCallback(ctx: ICompilationContext, path: NodePath<t.Funct
   if (t.isFunctionDeclaration(node) || isCallbackFunction(path) || !isTopLevel(path)) return;
 
   warnVueHookInBlock(ctx, path);
-  recordImport(RuntimeModules.REACT, ReactApis.useCallback, true);
+  recordImport(ctx, RuntimeModules.REACT, ReactApis.useCallback, true);
 
   // 不论有无依赖都标记为间接响应式，只因是 useCallback
   if (t.isVariableDeclarator(parent)) {

@@ -1,15 +1,16 @@
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { ElementNodeIR } from '@src/core/transform/template/elements/element';
 import { convertToExpression } from '../shared';
 import { JSXChild } from '../types';
 import { buildElement } from './element-builder';
 import { buildJSXExpression } from './simple-builder';
 
-export function buildCondition(nodeIR: ElementNodeIR): JSXChild {
+export function buildCondition(ctx: ICompilationContext, nodeIR: ElementNodeIR): JSXChild {
   const condition = nodeIR.meta.condition!;
   const nextNode = condition.next;
 
-  const buildEl = () => buildElement(nodeIR)!;
+  const buildEl = () => buildElement(ctx, nodeIR)!;
 
   const setFlag = () => {
     // 标记条件已处理，防止无限递归
@@ -45,7 +46,9 @@ export function buildCondition(nodeIR: ElementNodeIR): JSXChild {
 
   const test = condition.babelExp.ast;
   const trueBranch = convertToExpression(buildEl());
-  const falseBranch = nextNode ? convertToExpression(buildElement(nextNode)!) : t.nullLiteral();
+  const falseBranch = nextNode
+    ? convertToExpression(buildElement(ctx, nextNode)!)
+    : t.nullLiteral();
 
   // 构建三元表达式
   const conditionalExp = t.conditionalExpression(test, trueBranch, falseBranch);

@@ -2,8 +2,8 @@ import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { logger } from '@src/shared/logger';
-import { recordImport } from '@src/shared/runtime-utils';
 import { __scriptBlockIR } from '../..';
 import { isCalleeNamed } from '../../shared/babel-utils';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
@@ -22,7 +22,7 @@ export function resolveAsyncComponent(ctx: ICompilationContext): TraverseOptions
 
       checkIsUnsupported(ctx, arg);
       pushToGlobalScope(path);
-      recordImport(RuntimeModules.REACT, ReactApis.lazy, true);
+      recordImport(ctx, RuntimeModules.REACT, ReactApis.lazy, true);
     },
   };
 }

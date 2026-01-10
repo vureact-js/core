@@ -3,7 +3,7 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
-import { recordImport } from '@src/shared/runtime-utils';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import {
   isVariableDeclTopLevel,
   replaceCallName,
@@ -33,6 +33,6 @@ function transformNodeRefToUseRef(ctx: ICompilationContext, path: NodePath<t.Var
   }
 
   replaceCallName(init, ReactApis.useRef);
-  recordImport(RuntimeModules.REACT, ReactApis.useRef, true);
+  recordImport(ctx, RuntimeModules.REACT, ReactApis.useRef, true);
   setNodeExtensionMeta(path.node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }

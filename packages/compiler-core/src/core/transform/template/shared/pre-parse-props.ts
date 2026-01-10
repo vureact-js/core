@@ -1,6 +1,11 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { clsRuntime, styleRuntime, vBindRuntime, vOnRuntime } from '@shared/runtime-utils';
+import {
+  clsRuntime,
+  styleRuntime,
+  vBindRuntime,
+  vOnRuntime,
+} from '@src/core/transform/shared/setup-runtime-utils';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
 import { isSimpleStyle } from './parse-style-string';
@@ -8,16 +13,15 @@ import { resolveTemplateExp } from './resolve-str-exp';
 import { wrapSingleQuotes } from './utils';
 
 export function preParseProp(ctx: ICompilationContext, propsIR: PropsIR) {
-  const handler = getNeedRuntimeHandler(propsIR);
-  if (handler) {
-    const babelCode = handler(propsIR);
-    updatePropsIR(ctx, propsIR, babelCode, true);
+  const runtimeExp = getNeedRuntimeHelper(ctx, propsIR);
+  if (runtimeExp) {
+    updatePropsIR(ctx, propsIR, runtimeExp, true);
   } else {
     updatePropsIR(ctx, propsIR);
   }
 }
 
-function getNeedRuntimeHandler(propsIR: PropsIR): ((propsIR: PropsIR) => string) | null {
+function getNeedRuntimeHelper(ctx: ICompilationContext, propsIR: PropsIR): string | null {
   const {
     type,
     name,
@@ -26,17 +30,23 @@ function getNeedRuntimeHandler(propsIR: PropsIR): ((propsIR: PropsIR) => string)
     value: { content, merge, isStringLiteral },
   } = propsIR;
 
-  if (isKeyLessVBind) return handleKeylessBind;
+  if (isKeyLessVBind) {
+    return handleKeylessBind(ctx, propsIR);
+  }
 
-  if (isClassAttr(name) && !isStringLiteral) return handleClass;
+  if (isClassAttr(name) && !isStringLiteral) {
+    return handleClass(ctx, propsIR);
+  }
 
   if (isStyleAttr(name)) {
     if (!isSimpleStyle(content) || merge?.some((m) => !isSimpleStyle(m))) {
-      return handleStyle;
+      return handleStyle(ctx, propsIR);
     }
   }
 
-  if (type === PropTypes.EVENT && modifiers?.length) return handleEvent;
+  if (type === PropTypes.EVENT && modifiers?.length) {
+    return handleEvent(ctx, propsIR);
+  }
 
   return null;
 }
@@ -44,12 +54,12 @@ function getNeedRuntimeHandler(propsIR: PropsIR): ((propsIR: PropsIR) => string)
 function updatePropsIR(
   ctx: ICompilationContext,
   propsIR: PropsIR,
-  babelCode?: string,
+  babelExp?: string,
   clearContent?: boolean,
 ) {
   // 不包含模板 slot 的解析，需要在生成阶段处理
 
-  const propValue = babelCode || propsIR.value.content;
+  const propValue = babelExp || propsIR.value.content;
 
   const handleName = () => {
     const { name, isStatic } = propsIR;
@@ -83,36 +93,36 @@ function updatePropsIR(
   handleValue();
 }
 
-function handleClass(propsIR: PropsIR): string {
+function handleClass(ctx: ICompilationContext, propsIR: PropsIR): string {
   const {
     value: { content, merge },
   } = propsIR;
   const arg = wrapSingleQuotes(content);
   const mergeArgs = merge?.join(',');
-  return clsRuntime(mergeArgs ?? arg);
+  return clsRuntime(ctx, mergeArgs ?? arg);
 }
 
-function handleStyle(propsIR: PropsIR): string {
+function handleStyle(ctx: ICompilationContext, propsIR: PropsIR): string {
   const {
     value: { content, merge },
   } = propsIR;
   const mergeArgs = merge?.join(',');
-  return styleRuntime(mergeArgs ?? content);
+  return styleRuntime(ctx, mergeArgs ?? content);
 }
 
-function handleEvent(propsIR: PropsIR): string {
+function handleEvent(ctx: ICompilationContext, propsIR: PropsIR): string {
   const {
     name,
     isStatic,
     value: { content },
   } = propsIR;
   const evName = (propsIR as any).__vOnEvName || name;
-  return vOnRuntime(wrapSingleQuotes(evName, isStatic), content);
+  return vOnRuntime(ctx, wrapSingleQuotes(evName, isStatic), content);
 }
 
-function handleKeylessBind(propsIR: PropsIR): string {
+function handleKeylessBind(ctx: ICompilationContext, propsIR: PropsIR): string {
   const {
     value: { content },
   } = propsIR;
-  return vBindRuntime(content);
+  return vBindRuntime(ctx, content);
 }

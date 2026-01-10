@@ -2,8 +2,8 @@ import { types as t } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
+import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { logger } from '@src/shared/logger';
-import { recordImport } from '@src/shared/runtime-utils';
 import { capitalize } from '@src/utils/capitalize';
 import { setNodeExtensionMeta } from '../../shared/babel-utils';
 import { createCallExpProcessor } from '../../shared/processor-factory';
@@ -51,7 +51,7 @@ export function processReactiveApi(ctx: ICompilationContext): TraverseOptions {
             normalizeToRefArgs(ctx, path.node.arguments);
           }
 
-          recordImport(RuntimeModules.VUREACT_RUNTIME, adaptName, true);
+          recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, adaptName, true);
         },
       });
     },

@@ -1,5 +1,7 @@
 import { ArrayExpression } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { camelCase } from '@utils/camelCase';
+import { capitalize } from '@utils/capitalize';
 import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { transformElements } from '.';
 import { TemplateChildNodeIR } from '..';
@@ -75,16 +77,16 @@ export function transformElement(
   parentIR: ElementNodeIR,
   nodesIR: ElementNodeIR[],
 ): ElementNodeIR {
-  const { tag, tagType, children, isSelfClosing } = node;
-  const isComponent = tagType === ElementTypes.COMPONENT;
-
+  const { tag, children, isSelfClosing } = node;
+  const isComponent = getIsCompType(node);
+  const newTag = isComponent ? capitalize(camelCase(tag)) : tag;
   const nodeIR = createElementNode({
-    tag,
+    tag: newTag,
     isComponent,
     isSelfClosing,
   });
 
-  markBuiltinComponent(nodeIR);
+  markBuiltinComponent(ctx, nodeIR);
   transformProps(ctx, node, nodeIR, nodesIR);
   handleBuiltinComponent(ctx, nodeIR, parentIR, node.loc);
 
@@ -104,4 +106,12 @@ export function createElementNode(opts: BaseElementNodeIR): ElementNodeIR {
     meta: {},
     conditionIsHandled: false,
   };
+}
+
+function getIsCompType(node: VueElementNode): boolean {
+  const { tag, tagType } = node;
+  if (tagType !== ElementTypes.COMPONENT) {
+    return camelCase(tag) !== tag;
+  }
+  return tagType === ElementTypes.COMPONENT;
 }

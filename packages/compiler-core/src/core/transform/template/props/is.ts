@@ -1,6 +1,6 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { IsComponent } from '@shared/runtime-utils';
 import { strCodeTypes } from '@shared/string-code-types';
+import { IsComponent } from '@src/core/transform/shared/setup-runtime-utils';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
@@ -41,7 +41,7 @@ export function handleDynamicIs(
 
   preParseProp(ctx, propIR);
 
-  nodeIR.tag = IsComponent();
+  nodeIR.tag = IsComponent(ctx);
   nodeIR.isComponent = true;
   nodeIR.props.push(propIR);
 }
