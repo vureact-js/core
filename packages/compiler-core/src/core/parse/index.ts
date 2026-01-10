@@ -11,6 +11,7 @@ import {
 } from '@vue/compiler-sfc';
 import { parseScript } from './script';
 import { parseTemplate } from './template';
+import { randomHash } from '@utils/random-hash';
 
 export interface VueASTDescriptor {
   template: Block<SFCTemplateBlock, RootNode>;
@@ -66,7 +67,7 @@ export function parse(source: string, ctx: ICompilationContext): VueASTDescripto
   };
 
   // 初始化编译上下文
-
+  ctx.funcName = `Anonymous${randomHash(6)}`
   ctx.cssVars = descriptor.cssVars;
   ctx.scriptData.lang = (result.script?.source?.lang as LangType) || 'js';
 
