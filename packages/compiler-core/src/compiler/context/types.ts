@@ -2,6 +2,8 @@ import { LangType } from '@shared/babel-utils';
 
 export interface ICompilationContext {
   source: string;
+  /** 函数组件名 */
+  funcName: string;
   filename: string;
   imports: Map<string, ImportItem[]>;
   cssVars: string[];

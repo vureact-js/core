@@ -5,6 +5,8 @@ export function createCompilationCtx(): CompilationContext {
 }
 
 /**
+ * 创建单独的局部上下文
+ *
  * 用于在 parse、transform、generate 中依次共享上下文信息
  */
 export class CompilationContext {
@@ -15,7 +17,7 @@ export class CompilationContext {
   }
 
   clear() {
-    this.context = {} as ICompilationContext;
+    this.context = this.create();
   }
 
   init(opts: Partial<ICompilationContext>) {
@@ -26,6 +28,7 @@ export class CompilationContext {
     return {
       source: '',
       filename: '',
+      funcName: '',
       imports: new Map(),
       cssVars: [],
 
