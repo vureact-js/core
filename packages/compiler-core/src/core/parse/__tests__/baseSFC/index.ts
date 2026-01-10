@@ -1,4 +1,5 @@
 import { createCompilationCtx } from '@compiler/context';
+import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
 import { readFileSync } from 'fs';
 import path from 'path';
@@ -22,4 +23,6 @@ export function parseBaseSFC() {
 
   console.log('\n======================== SFC AST ========================: \n');
   console.log(ast);
+
+  logger.printAll();
 }
