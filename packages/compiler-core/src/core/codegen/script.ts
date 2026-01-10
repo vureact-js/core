@@ -4,7 +4,6 @@ import { ScriptBlockIR } from '@core/transform/script';
 import { logger } from '@src/shared/logger';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
-import { randomHash } from '@utils/random-hash';
 import { PropsIntersectionType } from '../transform/const';
 import { JSXChild } from './jsx/types';
 
@@ -39,7 +38,7 @@ function buildMainFunction(
   script: ScriptBlockIR | null,
   jsx: JSXChild | null,
 ): t.FunctionExpression {
-  const fnId = t.identifier(getCompName(ctx));
+  const fnId = t.identifier(getFnName(ctx));
   const jsxRoot = t.returnStatement((jsx || t.nullLiteral()) as t.Expression);
 
   if (!script) {
@@ -64,17 +63,16 @@ function buildMainFunction(
   return fnExp;
 }
 
-function getCompName(ctx: ICompilationContext): string {
-  const { compName } = ctx;
+function getFnName(ctx: ICompilationContext): string {
+  const { funcName } = ctx;
   let name = '';
 
-  if (!compName) {
-    name = `RC${randomHash(8)}`;
+  if (!funcName) {
     logger.warn(
-      `An unnamed component was detected. A temporary name '${compName}' has been generated.`,
+      `An unnamed component was detected. A temporary name '${funcName}' has been generated.`,
     );
   } else {
-    camelCase(capitalize(compName));
+    name = capitalize(camelCase(funcName));
   }
 
   return name;
