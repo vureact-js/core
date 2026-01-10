@@ -1,14 +1,16 @@
 import { Options as PrettierOptions } from 'prettier';
-import { compileContext } from './compile-context';
 import { logger } from './logger';
 
-export async function formatWithPrettier(code: string, opts?: PrettierOptions): Promise<string> {
+export async function formatWithPrettier(
+  code: string,
+  /** 'js' | 'ts' | 'jsx' | 'tsx' */
+  lang: string,
+  opts?: PrettierOptions,
+): Promise<string> {
   try {
-    const { lang } = compileContext.context;
-
     // 尝试导入，如果用户环境有就使用
     const prettier = await import('prettier');
-    const parser = lang.script.startsWith('ts') ? 'babel-ts' : 'babel';
+    const parser = lang.startsWith('ts') ? 'babel-ts' : 'babel';
 
     return prettier.format(code, {
       printWidth: 80,
