@@ -36,6 +36,7 @@ export function resolvesDefineOptions(ctx: ICompilationContext): TraverseOptions
             !prop.computed &&
             prop.key.name === 'name'
           ) {
+            // 只允许 name 的值是字符串，避免过度解析
             if (t.isStringLiteral(prop.value)) {
               name = prop.value.value;
               break;
