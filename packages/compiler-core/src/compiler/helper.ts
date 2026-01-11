@@ -20,22 +20,38 @@ export class CompilerHelper {
     this.pathFilter = new PathFilter(excludePatterns);
   }
 
-  print(...message: any[]) {
+  protected print(...message: any[]) {
     // eslint-disable-next-line no-console
-    console.info(`${kleur.gray('[vureact]')} `, ...message);
+    console.info(`${kleur.dim('[vureact]')}`, ...message);
+  }
+
+  /**
+   * 获取用户的项目根目录
+   */
+  protected getProjectRoot(): string {
+    const { root } = this.opts;
+    return root || process.cwd();
+  }
+
+  /**
+   * 获取输入文件的路径
+   */
+  protected getInputPath(): string {
+    const { input } = this.opts;
+    return path.resolve(this.getProjectRoot(), input || 'src');
   }
 
   /**
    * 获取缓存文件路径
    */
-  getCacheFilePath(): string {
-    return path.join(process.cwd(), this.getOutputWorkspace(), 'cache.json');
+  protected getCacheFilePath(): string {
+    return path.resolve(this.getProjectRoot(), this.getWorkspaceDir(), 'cache.json');
   }
 
   /**
    * 获取工作区的输出路径
    */
-  getOutputWorkspace(): string {
+  protected getWorkspaceDir(): string {
     const { output } = this.opts;
     return output?.workspace || this.defaultWorkspace;
   }
@@ -45,8 +61,9 @@ export class CompilerHelper {
    *
    * 120 => '120ms'
    */
-  formattDuration(n: number): string {
-    let duration = `${n.toFixed(1)}ms`;
+  protected formattDuration(n: number): string {
+    const num = n < 1000 ? Math.floor(n) : n.toFixed(1);
+    let duration = `${num} ms`;
 
     if (n >= 1000) {
       duration = `${(n / 1000).toFixed(1)}s`;
@@ -57,8 +74,8 @@ export class CompilerHelper {
   /**
    * 返回文件相对工作区的路径
    */
-  relativePath(filePath: string): string {
-    return path.relative(process.cwd(), filePath);
+  protected relativePath(filePath: string): string {
+    return path.relative(this.getProjectRoot(), filePath);
   }
 
   /**
@@ -66,7 +83,7 @@ export class CompilerHelper {
    * @param filePath 文件完整路径
    * @returns 返回文件的相对路径，不包含当前工作区路径
    */
-  replaceVueFileExt(filePath: string, lang: string): string {
+  protected replaceVueFileExt(filePath: string, lang: string): string {
     const ext = lang.startsWith('ts') ? '.tsx' : '.jsx';
 
     const relativePath = this.relativePath(filePath);
@@ -83,7 +100,7 @@ export class CompilerHelper {
     return newRelativePath;
   }
 
-  genHash(str: string): string {
+  protected genHash(str: string): string {
     // 使用32位哈希，种子可自定义（0xABCD）
     return XXH.h32(str, 0xabcd).toString(16); // 返回16进制字符串
   }
@@ -91,7 +108,7 @@ export class CompilerHelper {
   /**
    * 判断是否应该跳过不需要进行文件搜索的路径
    */
-  shouldSkipPath(filePath: string): boolean {
+  protected shouldSkipPath(filePath: string): boolean {
     const baseName = path.basename(filePath);
 
     // 检查基础名称排除
@@ -102,8 +119,8 @@ export class CompilerHelper {
     }
 
     // 检查是否为输出目录
-    const workspace = this.getOutputWorkspace();
-    const absoluteWorkspace = path.resolve(process.cwd(), workspace);
+    const workspace = this.getWorkspaceDir();
+    const absoluteWorkspace = path.resolve(this.getProjectRoot(), workspace);
 
     if (filePath.startsWith(absoluteWorkspace)) {
       return true;
@@ -116,14 +133,18 @@ export class CompilerHelper {
   /**
    * 处理编译后的文件输出路径
    */
-  resolveOutputPath(filePath: string, lang: string): string {
+  protected resolveOutputPath(filePath: string, lang: string): string {
     const { output } = this.opts;
-
-    const workspace = this.getOutputWorkspace();
     const outDir = output?.outDir || 'dist';
 
     const newRelativePath = this.replaceVueFileExt(filePath, lang);
-    const outputPath = path.join(process.cwd(), workspace, outDir, newRelativePath);
+
+    const outputPath = path.resolve(
+      this.getProjectRoot(),
+      this.getWorkspaceDir(),
+      outDir,
+      newRelativePath,
+    );
 
     return outputPath;
   }
@@ -131,7 +152,7 @@ export class CompilerHelper {
   /**
    * 初始化 babel generate 选项
    */
-  prepareGenerateOptions(filename?: string): GeneratorOptions {
+  protected prepareGenerateOptions(filename?: string): GeneratorOptions {
     const userOptions = this.opts.generate || {};
 
     const mergedOptions: GeneratorOptions = {
@@ -154,13 +175,9 @@ export class CompilerHelper {
   /**
    * 格式化代码
    */
-  async formatCode(result: CompileResult): Promise<string> {
+  protected async formatCode(result: CompileResult): Promise<string> {
     const { format } = this.opts;
     let formattedCode = result.code;
-
-    if (format?.enabled === false) {
-      return formattedCode;
-    }
 
     if (format?.formatter === 'builtin') {
       formattedCode = simpleFormat(result.code);
