@@ -146,6 +146,7 @@ export class Logger {
     const orderedLogs = [...errorLogs, ...warnLogs, ...infoLogs];
 
     for (const log of orderedLogs) {
+      console.log();
       console.log(this.formatHeader(log));
       const context = this.formatContext(log);
       if (context) {
@@ -162,10 +163,10 @@ export class Logger {
 
     if (errorCount > 0 || warnCount > 0) {
       console.log(
-        `${kleur.red(`❌ ${errorCount} error(s)`)}, ⚠️ ${kleur.yellow(`${warnCount} warning(s)`)}, ℹ️ ${kleur.cyan(`${infoCount} info message(s)`)}`,
+        `${kleur.red(`❌ ${errorCount} error(s)`)}, ⚠️  ${kleur.yellow(`${warnCount} warning(s)`)}, ℹ️  ${kleur.blue(`${infoCount} info message(s)`)}`,
       );
     } else {
-      console.log(kleur.cyan(`ℹ️ ${infoCount} info message(s)`));
+      console.log(kleur.cyan(`ℹ️  ${infoCount} info message(s)`));
     }
 
     console.log();
