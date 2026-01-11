@@ -7,3 +7,4 @@ coverage/
 bundles-size.html
 packages/compiler-core/**/__tests__/**/*preview.jsx
 packages/compiler-core/**/__tests__/**/*preview.tsx
+packages/compiler-core/example
