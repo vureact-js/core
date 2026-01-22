@@ -9,7 +9,8 @@ import { CompileResult, CompilerOptions } from './types';
 export class CompilerHelper {
   private opts: CompilerOptions;
   private pathFilter: PathFilter;
-  protected defaultWorkspace = '.vureact';
+
+  protected workspaceDir = '.vureact';
 
   constructor(opts: CompilerOptions) {
     this.opts = opts;
@@ -45,15 +46,7 @@ export class CompilerHelper {
    * 获取缓存文件路径
    */
   protected getCacheFilePath(): string {
-    return path.resolve(this.getProjectRoot(), this.getWorkspaceDir(), 'cache.json');
-  }
-
-  /**
-   * 获取工作区的输出路径
-   */
-  protected getWorkspaceDir(): string {
-    const { output } = this.opts;
-    return output?.workspace || this.defaultWorkspace;
+    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache.json');
   }
 
   /**
@@ -119,8 +112,7 @@ export class CompilerHelper {
     }
 
     // 检查是否为输出目录
-    const workspace = this.getWorkspaceDir();
-    const absoluteWorkspace = path.resolve(this.getProjectRoot(), workspace);
+    const absoluteWorkspace = path.resolve(this.getProjectRoot(), this.workspaceDir);
 
     if (filePath.startsWith(absoluteWorkspace)) {
       return true;
@@ -141,7 +133,7 @@ export class CompilerHelper {
 
     const outputPath = path.resolve(
       this.getProjectRoot(),
-      this.getWorkspaceDir(),
+      this.workspaceDir,
       outDir,
       newRelativePath,
     );
@@ -161,6 +153,7 @@ export class CompilerHelper {
         minimal: true, // 只转义必要的字符
         quotes: 'single', // 使用单引号
       },
+      minified: true,
       ...userOptions,
     };
 
