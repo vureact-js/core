@@ -2,7 +2,7 @@ import { generate } from '@babel/generator';
 import { parse as babelParse, ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { getBabelParseOptions } from '@shared/babel-utils';
+import { getBabelParseOptions, LangType } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
 import { SFCScriptBlock } from '@vue/compiler-sfc';
 import { VueASTDescriptor } from '.';
@@ -49,6 +49,8 @@ export function parseScript(
       logger.warn(msg, { file: ctx.filename });
     });
   }
+
+  ctx.scriptData.lang = (scriptBlock.lang as LangType) || 'js';
 
   return result;
 }
