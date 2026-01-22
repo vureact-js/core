@@ -1,9 +1,10 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ScriptBlockIR } from '@core/transform/script';
-import { logger } from '@src/shared/logger';
+import { logger } from '@shared/logger';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
+import { genHashByXXH } from '@utils/hash';
 import { PropsIntersectionType } from '../transform/const';
 import { JSXChild } from './jsx/types';
 
@@ -65,9 +66,11 @@ function buildMainFunction(
 
 function getFnName(ctx: ICompilationContext): string {
   const { funcName } = ctx;
+
   let name = '';
 
   if (!funcName) {
+    name = `FC${genHashByXXH(ctx.filename)}`;
     logger.warn(
       `An unnamed component was detected. A temporary name '${funcName}' has been generated.`,
     );
