@@ -1,7 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { strCodeTypes } from '@shared/string-code-types';
 import { logger } from '@src/shared/logger';
-import { randomHash } from '@utils/random-hash';
+import { randomHash } from '@src/utils/hash';
 import {
   isVSlot as __isVSlot,
   DirectiveNode,
