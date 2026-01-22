@@ -3,7 +3,6 @@ import { formatWithPrettier, simpleFormat } from '@shared/formatter';
 import { PathFilter } from '@shared/path';
 import kleur from 'kleur';
 import path from 'path';
-import XXH from 'xxhashjs';
 import { CompileResult, CompilerOptions } from './types';
 
 export class CompilerHelper {
@@ -91,11 +90,6 @@ export class CompilerHelper {
     }
 
     return newRelativePath;
-  }
-
-  protected genHash(str: string): string {
-    // 使用32位哈希，种子可自定义（0xABCD）
-    return XXH.h32(str, 0xabcd).toString(16); // 返回16进制字符串
   }
 
   /**
