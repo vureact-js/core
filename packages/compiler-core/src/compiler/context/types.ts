@@ -23,6 +23,14 @@ export interface ICompilationContext {
     /** 用于收集 Vue 的 `provide(name, value)` */
     provide: ProvideData;
   };
+
+  styleData: {
+    filePath: string;
+    /** style module 的名称  */
+    moduleName?: string;
+    /** style scoped 对应 id */
+    scopeId?: string;
+  };
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
