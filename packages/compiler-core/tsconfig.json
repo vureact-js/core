@@ -12,7 +12,8 @@
       "@core/*": ["src/core/*"],
       "@utils/*": ["src/utils/*"],
       "@shared/*": ["src/shared/*"],
-      "@consts/*": ["src/consts/*"]
+      "@consts/*": ["src/consts/*"],
+      "@plugins/*": ["src/plugins/*"]
     }
   },
   "include": ["src", "**/__tests__", "**/__tests__/**/*"]
