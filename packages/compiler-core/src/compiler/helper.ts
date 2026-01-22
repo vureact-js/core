@@ -1,5 +1,5 @@
 import { GeneratorOptions } from '@babel/generator';
-import { formatWithPrettier, simpleFormat } from '@shared/formatter';
+import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { PathFilter } from '@shared/path';
 import kleur from 'kleur';
 import path from 'path';
