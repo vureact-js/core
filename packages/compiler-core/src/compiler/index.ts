@@ -1,4 +1,5 @@
 import { normalizePath } from '@src/shared/path';
+import { genHashByXXH } from '@src/utils/hash';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
@@ -193,7 +194,7 @@ export class VuReactCompiler extends CompilerHelper {
 
         // 2. 内容哈希对比
         // 只有元数据不同或文件不存在于缓存时，才需要计算哈希
-        const currentHash = this.genHash(currentUnit.source);
+        const currentHash = genHashByXXH(currentUnit.source);
 
         if (cachedUnit?.hash === currentHash) {
           // 哈希一致，内容实际相同，使用缓存
