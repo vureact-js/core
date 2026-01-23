@@ -2,7 +2,12 @@ import { ArrayExpression } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
-import { ElementTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
+import {
+  AttributeNode,
+  ElementTypes,
+  ElementNode as VueElementNode,
+  NodeTypes as VueNodeTypes,
+} from '@vue/compiler-core';
 import { transformElements } from '.';
 import { TemplateChildNodeIR } from '..';
 import { PropsIR, transformProps } from '../props';
@@ -78,16 +83,22 @@ export function transformElement(
   nodesIR: ElementNodeIR[],
 ): ElementNodeIR {
   const { tag, children, isSelfClosing } = node;
+
   const isComponent = getIsCompType(node);
   const newTag = isComponent ? capitalize(camelCase(tag)) : tag;
+
   const nodeIR = createElementNode({
     tag: newTag,
     isComponent,
     isSelfClosing,
   });
 
+  injectStyleScopeId(ctx, node);
+
   markBuiltinComponent(ctx, nodeIR);
+
   transformProps(ctx, node, nodeIR, nodesIR);
+
   handleBuiltinComponent(ctx, nodeIR, parentIR, node.loc);
 
   if (children.length) {
@@ -114,4 +125,20 @@ function getIsCompType(node: VueElementNode): boolean {
     return camelCase(tag) !== tag;
   }
   return tagType === ElementTypes.COMPONENT;
+}
+
+function injectStyleScopeId(ctx: ICompilationContext, node: VueElementNode) {
+  const { styleData } = ctx;
+
+  if (!styleData.scopeId) return;
+
+  const attr: AttributeNode = {
+    type: VueNodeTypes.ATTRIBUTE,
+    name: styleData.scopeId, // [data-css-xxxxxxx]
+    value: undefined,
+    loc: node.loc,
+    nameLoc: { ...node.loc, source: styleData.scopeId },
+  };
+
+  node.props.push(attr);
 }
