@@ -76,7 +76,7 @@ export function parse(source: string, ctx: ICompilationContext): VueASTDescripto
     });
   });
 
-  if (descriptor.cssVars) {
+  if (descriptor.cssVars.length) {
     logger.error('Unable to process CSS variables in the style block', {
       file: descriptor.filename,
     });
