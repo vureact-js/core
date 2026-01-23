@@ -93,7 +93,9 @@ export function transformElement(
     isSelfClosing,
   });
 
-  injectStyleScopeId(ctx, node);
+  if (!isComponent) {
+    injectStyleScopeId(ctx, node);
+  }
 
   markBuiltinComponent(ctx, nodeIR);
 
