@@ -15,9 +15,14 @@ export function parseStyle(
 
   if (more.length) {
     logger.warn(
-      'Multiple style blocks detected. ' +
-        'Currently, only the first style block is supported for transformation. ' +
-        'Please manually merge the remaining styles.',
+      'Multiple style blocks detected. Only the first one is supported. Please merge the remaining styles manually.',
+      { file: ctx.filename },
+    );
+  }
+
+  if (style.content.includes('@import')) {
+    logger.warn(
+      'Detected @import in scoped style. Imported styles remain global. Consider inlining them to preserve scoping.',
       { file: ctx.filename },
     );
   }
