@@ -25,7 +25,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style module scoped>
 .hello-container {
   padding: 20px;
   border: 1px solid #42b883;

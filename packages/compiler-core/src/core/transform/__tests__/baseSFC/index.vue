@@ -101,4 +101,21 @@
 
 <script></script>
 
-<style lang="less"></style>
+<style lang="less" scoped>
+.template-showcase {
+  padding: 20px;
+  border: 1px solid #42b883;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  margin: 20px auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  .title,
+  .footer {
+    padding: 12px;
+    color: #35495e;
+    margin-bottom: 10px;
+  }
+}
+</style>
