@@ -47,6 +47,10 @@ export class CompilationContext {
           provide: {},
         },
       },
+
+      styleData: {
+        filePath: '',
+      },
     };
   }
 }
