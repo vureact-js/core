@@ -7,7 +7,7 @@ import { addKeyToNode } from '../shared/utils';
 import { ElementNodeIR } from './element';
 
 export function markBuiltinComponent(ctx: ICompilationContext, nodeIR: ElementNodeIR) {
-  if (nodeIR.isComponent && nodeIR.tag in VuR_Runtime) {
+  if (nodeIR.tag in VuR_Runtime) {
     nodeIR.isBuiltIn = true;
     recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag, true);
   }
