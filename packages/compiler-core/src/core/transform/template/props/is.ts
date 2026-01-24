@@ -1,10 +1,11 @@
 import { ICompilationContext } from '@compiler/context/types';
+import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
+import { recordImport } from '@core/transform/shared/setup-runtime-utils';
 import { strCodeTypes } from '@shared/string-code-types';
-import { IsComponent } from '@src/core/transform/shared/setup-runtime-utils';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
-import { preParseProp } from '../shared/pre-parse-props';
+import { resolvePropAsBabelExp } from '../shared/resolve-prop-exp';
 import { createPropsIR } from './utils';
 
 export function handleStaticIs(ctx: ICompilationContext, content: string, nodeIR: ElementNodeIR) {
@@ -20,7 +21,7 @@ export function handleStaticIs(ctx: ICompilationContext, content: string, nodeIR
 
   propIR.value.isStringLiteral = true;
 
-  preParseProp(ctx, propIR);
+  resolvePropAsBabelExp(ctx, propIR);
   nodeIR.props.push(propIR);
 }
 
@@ -39,9 +40,11 @@ export function handleDynamicIs(
 
   const propIR = createPropsIR('is', 'is', is);
 
-  preParseProp(ctx, propIR);
+  resolvePropAsBabelExp(ctx, propIR);
 
-  nodeIR.tag = IsComponent(ctx);
+  nodeIR.tag = VuR_Runtime.Component;
   nodeIR.isComponent = true;
   nodeIR.props.push(propIR);
+
+  recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag, true);
 }

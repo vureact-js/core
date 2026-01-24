@@ -11,7 +11,7 @@ import {
 import { ElementNodeIR } from '../elements/element';
 import { PropsIR, PropTypes } from '../props';
 import { createPropsIR } from '../props/utils';
-import { preParseProp } from './pre-parse-props';
+import { resolvePropAsBabelExp } from './resolve-prop-exp';
 
 export function findSameProp(source: ElementNodeIR['props'], target: PropsIR): PropsIR | undefined {
   const found = source.find(
@@ -61,6 +61,6 @@ export function checkPropIsDynamicKey(ctx: ICompilationContext, prop: DirectiveN
 export function addKeyToNode(ctx: ICompilationContext, nodeIR: ElementNodeIR) {
   const keyProp = createPropsIR('key', 'key', randomHash());
   keyProp.value.isStringLiteral = true;
-  preParseProp(ctx, keyProp);
+  resolvePropAsBabelExp(ctx, keyProp);
   nodeIR.props.push(keyProp);
 }

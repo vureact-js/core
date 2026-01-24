@@ -4,7 +4,7 @@ import { AttributeNode, DirectiveNode, SimpleExpressionNode } from '@vue/compile
 import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
 import { parseStyleString } from '../shared/parse-style-string';
-import { preParseProp } from '../shared/pre-parse-props';
+import { resolvePropAsBabelExp } from '../shared/resolve-prop-exp';
 import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { checkPropIsDynamicKey, findSameProp } from '../shared/utils';
 import { PropsIR, PropTypes } from './index';
@@ -96,5 +96,5 @@ function processPropsIR(
     nodeIR.props.push(propIR);
   }
 
-  preParseProp(ctx, found ?? propIR);
+  resolvePropAsBabelExp(ctx, found ?? propIR);
 }

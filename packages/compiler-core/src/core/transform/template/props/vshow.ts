@@ -2,7 +2,7 @@ import { ICompilationContext } from '@compiler/context/types';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
-import { preParseProp } from '../shared/pre-parse-props';
+import { resolvePropAsBabelExp } from '../shared/resolve-prop-exp';
 import { resolveTemplateExp } from '../shared/resolve-str-exp';
 import { findSameProp } from '../shared/utils';
 import { createPropsIR } from './utils';
@@ -12,7 +12,7 @@ export function handleVShow(ctx: ICompilationContext, prop: DirectiveNode, nodeI
   const test = exp.content;
   const showIR = createPropsIR('v-show', 'style', `{display: ${test} ? '' : 'none'}`);
 
-  preParseProp(ctx, showIR);
+  resolvePropAsBabelExp(ctx, showIR);
 
   nodeIR.meta.show = {
     isShow: true,

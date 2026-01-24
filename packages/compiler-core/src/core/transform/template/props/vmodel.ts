@@ -10,7 +10,7 @@ import {
 } from '@vue/compiler-core';
 import { PropsIR } from '.';
 import { ElementNodeIR } from '../elements/element';
-import { preParseProp } from '../shared/pre-parse-props';
+import { resolvePropAsBabelExp } from '../shared/resolve-prop-exp';
 import { extractFirstIdentifier } from '../shared/resolve-str-exp';
 import { createPropsIR } from './utils';
 
@@ -43,8 +43,8 @@ export function handleVModel(
     isComp,
   );
 
-  preParseProp(ctx, propsIR);
-  preParseProp(ctx, eventIR);
+  resolvePropAsBabelExp(ctx, propsIR);
+  resolvePropAsBabelExp(ctx, eventIR);
 
   nodeIR.props.push(propsIR, eventIR);
 }

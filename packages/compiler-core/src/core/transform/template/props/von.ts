@@ -6,7 +6,7 @@ import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { PropTypes } from '.';
 import { ElementNodeIR } from '../elements/element';
 import { mergePropsIR } from '../shared/merge-props';
-import { preParseProp } from '../shared/pre-parse-props';
+import { resolvePropAsBabelExp } from '../shared/resolve-prop-exp';
 import { normalizePropValue } from '../shared/resolve-str-exp';
 import { findSameProp } from '../shared/utils';
 import { createPropsIR } from './utils';
@@ -49,7 +49,7 @@ export function handleEvent(ctx: ICompilationContext, prop: DirectiveNode, nodeI
   // 设置临时属性
   (eventIR as any).__vOnEvName = vOnEvName;
 
-  preParseProp(ctx, eventIR);
+  resolvePropAsBabelExp(ctx, eventIR);
 
   delete (eventIR as any).__vOnEvName;
 
