@@ -4,6 +4,7 @@ import { logger } from '@shared/logger';
 import { genHashByXXH } from '@src/utils/hash';
 import { SFCStyleBlock } from '@vue/compiler-sfc';
 import { VueASTDescriptor } from '.';
+import { styleModule } from '@consts/other';
 
 export function parseStyle(
   styles: SFCStyleBlock[],
@@ -31,7 +32,7 @@ export function parseStyle(
 
   if (style.module) {
     fileExt = '.module' + fileExt;
-    ctx.styleData.moduleName = typeof style.module === 'boolean' ? 'styleModule' : style.module;
+    ctx.styleData.moduleName = typeof style.module === 'boolean' ? styleModule : style.module;
   }
 
   const filePath = ctx.filename.replace(/\.vue$/i, fileExt);
