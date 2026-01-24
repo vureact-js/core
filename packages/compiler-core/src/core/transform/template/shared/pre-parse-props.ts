@@ -1,5 +1,6 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { styleModule } from '@consts/other';
 import {
   clsRuntime,
   styleRuntime,
@@ -35,6 +36,11 @@ function getNeedRuntimeHelper(ctx: ICompilationContext, propsIR: PropsIR): strin
   }
 
   if (isClassAttr(name) && !isStringLiteral) {
+    // 不处理匿名 css module
+    if (content.startsWith(styleModule)) {
+      return null;
+    }
+
     return handleClass(ctx, propsIR);
   }
 
