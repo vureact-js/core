@@ -88,7 +88,7 @@
     </MyChildComponent>
   </div>
 
-  <div>
+  <div :class="$style['template-showcase']">
     <header>
       <slot name="header" title="title" :count="1"></slot>
     </header>
@@ -107,7 +107,7 @@
 
 <script></script>
 
-<style lang="less" scoped>
+<style lang="less" scoped module>
 .template-showcase {
   padding: 20px;
   border: 1px solid #42b883;
