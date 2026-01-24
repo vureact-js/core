@@ -21,9 +21,9 @@
     "test:exclusiveGuards": "pnpm -F @vureact/runtime-core test -- router/exclusiveGuards.test.tsx",
     "test:componentGuards": "pnpm -F @vureact/runtime-core test -- router/componentGuards.test.tsx",
     "test:routerView": "pnpm -F @vureact/runtime-core test -- router/RouterView.test.tsx",
-    "test:vBind": "pnpm -F @vureact/runtime-core test -- vBind.test.ts",
-    "test:vBindCls": "pnpm -F @vureact/runtime-core test -- vBindCls.test.ts",
-    "test:vBindStyle": "pnpm -F @vureact/runtime-core test -- vBindStyle.test.ts",
+    "test:vKeyless": "pnpm -F @vureact/runtime-core test -- vKeyless.test.ts",
+    "test:vCls": "pnpm -F @vureact/runtime-core test -- vCls.test.ts",
+    "test:vStyle": "pnpm -F @vureact/runtime-core test -- vStyle.test.ts",
     "test:vOn": "pnpm -F @vureact/runtime-core test -- vOn.test.ts"
   },
   "devDependencies": {
