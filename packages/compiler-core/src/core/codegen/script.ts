@@ -72,7 +72,8 @@ function getFnName(ctx: ICompilationContext): string {
   if (!funcName) {
     name = `FC${genHashByXXH(ctx.filename)}`;
     logger.warn(
-      `An unnamed component was detected. A temporary name '${funcName}' has been generated.`,
+      `An unnamed component was detected. A temporary name '${name}' has been generated.`,
+      { file: ctx.filename },
     );
   } else {
     name = capitalize(camelCase(funcName));
