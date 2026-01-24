@@ -5,10 +5,7 @@ export const enum RuntimeModules {
 
 export const VuR_Runtime = {
   // adapter-utils
-  vOn: 'vOn',
-  vBind: 'vBind',
-  vBindCls: 'vBindCls',
-  vBindStyle: 'vBindStyle',
+  dir: 'dir',
   nextTick: 'nextTick',
 
   // adapter-components
