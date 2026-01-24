@@ -132,7 +132,13 @@ function getIsCompType(node: VueElementNode): boolean {
 function injectStyleScopeId(ctx: ICompilationContext, node: VueElementNode) {
   const { styleData } = ctx;
 
-  if (!styleData.scopeId) return;
+  const isIgnore = node.props.some((p) => {
+    if (p.type === VueNodeTypes.DIRECTIVE && p.arg?.type === VueNodeTypes.SIMPLE_EXPRESSION) {
+      return p.arg.content === 'is';
+    }
+  });
+
+  if (isIgnore || !styleData.scopeId) return;
 
   const attr: AttributeNode = {
     type: VueNodeTypes.ATTRIBUTE,
