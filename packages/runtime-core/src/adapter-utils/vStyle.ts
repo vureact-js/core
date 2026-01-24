@@ -1,9 +1,9 @@
 import { camelCase } from './shared';
 
-export type StyleType = string | Record<string, any> | StyleType[] | null | undefined;
+export type VStyleItem = string | Record<string, any> | VStyleItem[] | null | undefined;
 
 /**
- * vBindStyle - Runtime helper for the Vue `v-bind:style` directive in React JSX.
+ * vStyle - Runtime helper for the Vue `v-bind:style` directive in React JSX.
  *
  * @description
  *
@@ -11,18 +11,18 @@ export type StyleType = string | Record<string, any> | StyleType[] | null | unde
  * 2. Parses string-based styles into objects
  * 3. Deep-merges all styles (later ones override earlier ones)
  *
- * @param target - The primary style source
- * @param merges - Additional style sources to merge
+ * @param {VStyleItem} target - The primary style source
+ * @param {Array<VStyleItem>} mergeItems - Additional style sources to merge
  * @returns A React-compatible style object
- * 
- * @see https://vureact.vercel.app/en/adapter-utils/vBindStyle
+ *
+ * @see https://vureact.vercel.app/en/adapter-utils/vStyle
  */
 
-export function vBindStyle(target: StyleType, ...merges: StyleType[]): object {
+export function vStyle(target: VStyleItem, ...mergeItems: VStyleItem[]): object {
   const styles: Record<string, any> = {};
-  const inputs = [target, ...merges];
+  const inputs = [target, ...mergeItems];
 
-  const processItem = (item: StyleType) => {
+  const processItem = (item: VStyleItem) => {
     if (!item) return;
 
     if (Array.isArray(item)) {
