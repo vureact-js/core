@@ -1,32 +1,32 @@
 import { camelCase } from './shared';
-import { vBindCls } from './vBindCls';
-import { vBindStyle } from './vBindStyle';
+import { vCls } from './vCls';
 import { vOn } from './vOn';
+import { vStyle } from './vStyle';
 
-type ObjectType = Record<string, any>;
+type Object = Record<string, any>;
 
 /**
- * vBind - Runtime helper for Vue `v-bind={...}` directive in React JSX
+ * vKeyless - Runtime helper for Vue `v-bind={...}` directive in React JSX
  *
  * @param obj - object to bind
  * @returns Object that can be spread as JSX props
  *
  * @example
- * <div {...vBind({ id: 'foo', class: { active: true }, onClick: handler })} />
- * 
- * @see https://vureact.vercel.app/en/adapter-utils/vBind
+ * <div {...vKeyless({ id: 'foo', class: { active: true }, onClick: handler })} />
+ *
+ * @see https://vureact.vercel.app/en/adapter-utils/vKeyless
  */
-export function vBind(obj: ObjectType): ObjectType {
-  const props: ObjectType = {};
+export function vKeyless(obj: Object): Object {
+  const props: Object = {};
 
   for (const key in obj) {
     const value = obj[key];
 
     // 1. 处理 Class (合并 class 和 className，并转为 string)
     if (key === 'class' || key === 'className') {
-      // vBindCls 的第二个参数 additional 用于合并，这里我们将新值与现有的 props.className 合并
+      // vCls 的第二个参数 additional 用于合并，这里我们将新值与现有的 props.className 合并
       // 如果 props.className 尚未存在，vBindCls 会正确处理 undefined
-      props.className = vBindCls(props.className, value as any); // 修正类型断言
+      props.className = vCls(props.className, value as any); // 修正类型断言
       continue;
     }
 
@@ -47,7 +47,7 @@ export function vBind(obj: ObjectType): ObjectType {
 
     // 3. 处理 Style (Vue 支持数组语法和 cssText，React 不支持，需转换)
     if (key === 'style') {
-      props.style = vBindStyle(value);
+      props.style = vStyle(value);
       continue;
     }
 

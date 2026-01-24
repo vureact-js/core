@@ -1,11 +1,11 @@
-import { vBind } from '../vBind';
+import { vKeyless } from '../vKeyless';
 
-describe('vBind Integration Tests (No Mocks)', () => {
+describe('vKeyless Integration Tests (No Mocks)', () => {
   // 1. 基础属性与重命名测试 (依赖 shared.ts)
   describe('Attribute Mapping & Passthrough', () => {
     test('should pass through standard attributes', () => {
       const input = { id: 'app', placeholder: 'Enter text' };
-      const result = vBind(input);
+      const result = vKeyless(input);
       expect(result).toEqual({ id: 'app', placeholder: 'Enter text' });
     });
 
@@ -17,7 +17,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
         'custom-attr': 'val', // -> customAttr (camelCase)
       };
 
-      const result = vBind(input);
+      const result = vKeyless(input);
 
       expect(result).toEqual({
         htmlFor: 'input-id',
@@ -31,7 +31,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
   // 2. Class 处理集成测试 (依赖 vBindCls.ts)
   describe('Class Integration', () => {
     test('should normalize string class', () => {
-      const result = vBind({ class: '  btn   btn-primary  ' });
+      const result = vKeyless({ class: '  btn   btn-primary  ' });
       expect(result).toEqual({ className: 'btn btn-primary' });
     });
 
@@ -41,13 +41,13 @@ describe('vBind Integration Tests (No Mocks)', () => {
         className: { extra: true },
       };
 
-      const result = vBind(input);
+      const result = vKeyless(input);
       // 'base-class' 与 'extra' 合并
       expect(result).toEqual({ className: 'base-class extra' });
     });
 
     test('should handle array syntax', () => {
-      const result = vBind({ class: ['a', { b: true }] });
+      const result = vKeyless({ class: ['a', { b: true }] });
       expect(result).toEqual({ className: 'a b' });
     });
 
@@ -58,7 +58,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
         className: { extra: true }, // vBindCls 应该能处理对象并返回 'extra'
       };
 
-      const result = vBind(input);
+      const result = vKeyless(input);
       // vBindCls 会将 'base-class' 与 'extra' 合并 (依赖 vBindCls.ts 的 mergeClassStrings)
       expect(result).toEqual({ className: 'base-class extra' });
     });
@@ -74,7 +74,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
         ],
       };
 
-      const result = vBind(input);
+      const result = vKeyless(input);
       expect(result).toEqual({
         style: {
           color: 'red',
@@ -86,7 +86,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
 
     test('should pass through normal style objects', () => {
       const style = { margin: '10px' };
-      const result = vBind({ style });
+      const result = vKeyless({ style });
       expect(result).toEqual({ style: { margin: '10px' } });
     });
   });
@@ -95,8 +95,8 @@ describe('vBind Integration Tests (No Mocks)', () => {
   describe('Event Integration', () => {
     test('should normalize event names (e.g., "click" to "onClick")', () => {
       const handler = jest.fn();
-      // 'click' 现在会被新的 vBind 逻辑捕获并交给 vOn 处理，生成 'onClick' 属性
-      const result = vBind({ click: handler });
+      // 'click' 现在会被新的 vKeyless 逻辑捕获并交给 vOn 处理，生成 'onClick' 属性
+      const result = vKeyless({ click: handler });
 
       expect(result.onClick).toBeDefined();
       expect(typeof result.onClick).toBe('function');
@@ -109,7 +109,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
     test('should handle modifiers correctly (runtime integration)', () => {
       const handler = jest.fn();
       // 使用 .stop 修饰符
-      const result = vBind({ 'click.stop': handler });
+      const result = vKeyless({ 'click.stop': handler });
 
       expect(result.onClick).toBeDefined();
 
@@ -131,7 +131,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
     test('should handle key modifiers', () => {
       const handler = jest.fn();
       // 只有按下 enter 键才触发
-      const result = vBind({ 'keyup.enter': handler });
+      const result = vKeyless({ 'keyup.enter': handler });
 
       // 模拟错误的按键 (Space)
       result.onKeyup({ key: ' ' });
@@ -155,7 +155,7 @@ describe('vBind Integration Tests (No Mocks)', () => {
         'data-role': 'admin',
       };
 
-      const result = vBind(input);
+      const result = vKeyless(input);
 
       // 验证结构
       expect(result.id).toBe('main');
