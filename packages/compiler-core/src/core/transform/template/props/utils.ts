@@ -1,12 +1,12 @@
-import { strCodeTypes } from '@src/shared/string-code-types';
-import { vueAttrToReactProp } from '@utils/vueAttrToReactProp';
+import { strCodeTypes } from '@shared/string-code-types';
+import { camelCase } from '@utils/camelCase';
 import { PropsIR, PropTypes } from '.';
 import { BabelExp } from '../shared/types';
 
 export function createPropsIR(rawName: string, name: string, content: string): PropsIR {
   return {
     type: PropTypes.DYNAMIC_ATTRIBUTE,
-    name: rawName !== 'v-for' ? vueAttrToReactProp(name) : name,
+    name: normalizePropName(rawName, name),
     rawName,
     isStatic: true,
     value: {
@@ -16,6 +16,24 @@ export function createPropsIR(rawName: string, name: string, content: string): P
     },
     babelExp: {} as BabelExp,
   };
+}
+
+function normalizePropName(rawName: string, name: string): string {
+  if (rawName === 'v-for') return name;
+
+  const whitelist = /^data-|datatype|^aria-/;
+
+  switch (name) {
+    case 'v-html':
+      return 'dangerouslySetInnerHTML';
+    case 'class':
+      return 'className';
+    case 'for':
+      return 'htmlFor';
+
+    default:
+      return whitelist.test(name) ? name : camelCase(name);
+  }
 }
 
 export function normalizeValue(value: string, isStatic: boolean): string {
