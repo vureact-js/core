@@ -6,6 +6,10 @@ export const enum RuntimeModules {
 export const VuR_Runtime = {
   // adapter-utils
   dir: 'dir',
+  dirCls: 'dir.cls',
+  dirKeyless: 'dir.keyless',
+  dirOn: 'dir.on',
+  dirStyle: 'dir.style',
   nextTick: 'nextTick',
 
   // adapter-components
