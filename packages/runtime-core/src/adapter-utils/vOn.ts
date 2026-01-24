@@ -22,6 +22,10 @@ type EventObject<E> = Record<string, EventCallback<E>>;
 
 type EventCallback<E> = (...args: any[]) => E;
 
+export function vOn<E = any>(event: string, handler: any): EventCallback<E>;
+
+export function vOn<E = any>(event: string, handler: any, fullEventObj?: boolean): EventObject<E>;
+
 /**
  * vOn - Runtime helper for Vue v-on directive in React JSX
  *
@@ -36,7 +40,7 @@ type EventCallback<E> = (...args: any[]) => E;
  * <div onClick={vOn('click.once', count++)} />
  * <div onMouseDown={vOn('mousedown.right', e => {})} />
  * <div onKeyDown={vOn('keydown.enter', e => {})} />
- * 
+ *
  * @see https://vureact.vercel.app/en/adapter-utils/vOn
  */
 export function vOn<E = any>(
