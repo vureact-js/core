@@ -1,18 +1,16 @@
-import { GeneratorOptions } from '@babel/generator';
 import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { PathFilter } from '@shared/path';
 import kleur from 'kleur';
 import path from 'path';
 import { CompileResult, CompilerOptions } from './types';
 
-export class CompilerHelper {
-  private opts: CompilerOptions;
+export class Helper {
+  private compilerOpts: CompilerOptions;
   private pathFilter: PathFilter;
-
-  protected workspaceDir = '.vureact';
+  private workspaceDir = '.vureact';
 
   constructor(opts: CompilerOptions) {
-    this.opts = opts;
+    this.compilerOpts = opts;
 
     // 创建路径过滤器
     const excludePatterns = PathFilter.withDefaults(opts.exclude || []);
@@ -29,7 +27,7 @@ export class CompilerHelper {
    * 获取用户的项目根目录
    */
   protected getProjectRoot(): string {
-    const { root } = this.opts;
+    const { root } = this.compilerOpts;
     return root || process.cwd();
   }
 
@@ -37,7 +35,7 @@ export class CompilerHelper {
    * 获取输入文件的路径
    */
   protected getInputPath(): string {
-    const { input } = this.opts;
+    const { input } = this.compilerOpts;
     return path.resolve(this.getProjectRoot(), input || 'src');
   }
 
@@ -120,7 +118,7 @@ export class CompilerHelper {
    * 处理编译后的文件输出路径
    */
   protected resolveOutputPath(filePath: string, lang: string): string {
-    const { output } = this.opts;
+    const { output } = this.compilerOpts;
     const outDir = output?.outDir || 'dist';
 
     const newRelativePath = this.replaceVueFileExt(filePath, lang);
@@ -136,34 +134,10 @@ export class CompilerHelper {
   }
 
   /**
-   * 初始化 babel generate 选项
-   */
-  protected prepareGenerateOptions(filename?: string): GeneratorOptions {
-    const userOptions = this.opts.generate || {};
-
-    const mergedOptions: GeneratorOptions = {
-      // 配置 jsesc 避免 Unicode 转义
-      jsescOption: {
-        minimal: true, // 只转义必要的字符
-        quotes: 'single', // 使用单引号
-      },
-      minified: true,
-      ...userOptions,
-    };
-
-    // 如果启用了源码映射，设置文件名
-    if (mergedOptions.sourceMaps && filename) {
-      mergedOptions.sourceFileName = mergedOptions.sourceFileName || filename;
-    }
-
-    return mergedOptions;
-  }
-
-  /**
    * 格式化代码
    */
   protected async formatCode(result: CompileResult): Promise<string> {
-    const { format } = this.opts;
+    const { format } = this.compilerOpts;
     let formattedCode = result.code;
 
     if (format?.formatter === 'builtin') {
