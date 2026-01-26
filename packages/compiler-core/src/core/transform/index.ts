@@ -9,6 +9,7 @@ export interface ReactIRDescriptor {
 }
 
 interface PipelineOptions<A, IR = ReactIR> {
+  type: 'template' | 'script';
   transformer: Transformer<A, IR>;
   plugins?: TransformPlugin<IR>[];
 }
@@ -38,11 +39,13 @@ type ReactIR = TemplateBlockIR | ScriptBlockIR;
  */
 export function transform(ast: VueASTDescriptor, ctx: ICompilationContext): ReactIRDescriptor {
   const templateIR = runPipeline(ctx, ast.template?.ast, {
+    type: 'template',
     transformer: transformTemplate,
     plugins: [], // 未来可在此注入 template 级别的后处理插件
   });
 
   const scriptIR = runPipeline(ctx, ast.script?.ast, {
+    type: 'script',
     transformer: transformScript,
     plugins: [], // 未来可在此注入 script 级别的后处理插件
   });
@@ -62,12 +65,15 @@ function runPipeline<A, IR = ReactIR>(
   ast: A | undefined,
   options: PipelineOptions<A, IR>,
 ): IR | null {
-  if (!ast) return null;
+  const { type, transformer, plugins = [] } = options;
 
-  const { transformer, plugins = [] } = options;
+  // 允许 script 转换器接收 undefined
+  if (!ast && type !== 'script') {
+    return null;
+  }
 
   // 1. 执行主转换
-  let result = transformer(ctx, ast);
+  let result = transformer(ctx, ast as A);
 
   // 2. 如果转换成功，依次执行插件
   if (result && plugins.length) {
