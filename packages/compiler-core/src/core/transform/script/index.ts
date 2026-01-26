@@ -12,6 +12,7 @@ import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
 import { createPropsIntersectionType } from './syntax-processor/post-process/create-props-interface';
+import { insertCSSImport } from './syntax-processor/post-process/insert-css-import';
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { insertVModelEventHandlers } from './syntax-processor/post-process/insert-vmodel-handlers';
 import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
@@ -90,7 +91,12 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
 
     skipTraversal: {
       preprocess: [processTemplateSlots],
-      postprocess: [insertVModelEventHandlers, extractLocalStatements, createPropsIntersectionType],
+      postprocess: [
+        insertCSSImport,
+        insertVModelEventHandlers,
+        extractLocalStatements,
+        createPropsIntersectionType,
+      ],
     },
   });
 
