@@ -1,10 +1,10 @@
 import { ICompilationContext } from '@compiler/context/types';
+import { styleModule } from '@consts/other';
 import { processScopedWithPostCss } from '@plugins/postcss';
 import { logger } from '@shared/logger';
 import { genHashByXXH } from '@src/utils/hash';
 import { SFCStyleBlock } from '@vue/compiler-sfc';
 import { VueASTDescriptor } from '.';
-import { styleModule } from '@consts/other';
 
 export function parseStyle(
   styles: SFCStyleBlock[],
@@ -30,21 +30,23 @@ export function parseStyle(
 
   let fileExt = `.${style.lang || 'css'}`;
 
+  // 生成样式文件id
+  const hashId = genHashByXXH(`${ctx.filename}${fileExt}`);
+
   if (style.module) {
-    fileExt = '.module' + fileExt;
+    fileExt = `_${hashId}.module${fileExt}`;
     ctx.styleData.moduleName = typeof style.module === 'boolean' ? styleModule : style.module;
+  } else {
+    fileExt = `_${hashId}${fileExt}`;
   }
 
-  const filePath = ctx.filename.replace(/\.vue$/i, fileExt);
-
   if (style.scoped) {
-    const hashId = genHashByXXH(filePath);
     const result = processScopedWithPostCss(style.content, hashId);
-
     style.content = result.css;
     ctx.styleData.scopeId = result.scopeId;
   }
 
+  const filePath = ctx.filename.replace(/\.vue$/i, fileExt);
   ctx.styleData.filePath = filePath;
 
   return {
