@@ -102,3 +102,7 @@ export function normalizePath(filePath: string): string {
 
   return fp;
 }
+
+export function relativePath(to: string, from = process.cwd()): string {
+  return path.relative(from, to);
+}
