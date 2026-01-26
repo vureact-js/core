@@ -103,7 +103,18 @@ export interface CompileFileResult {
   result: CompileResult;
 }
 
-export type CompileResult = { file: string; lang: string } & GeneratorResult;
+export interface CompileResult extends GeneratorResult {
+  fileInfo: {
+    jsx: {
+      path: string;
+      lang: string;
+    };
+    css: {
+      path?: string;
+      code?: string;
+    };
+  };
+}
 
 export type CachedResult = { data: Omit<CompilationUnit, 'source'>[] };
 

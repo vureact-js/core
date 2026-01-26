@@ -46,11 +46,22 @@ export class BaseCompiler extends Helper {
       const ir = transform(ast, ctx.data);
       const result = generate(ir, ctx.data, this.prepareGenerateOptions(filename));
 
-      const { lang } = ctx.data.scriptData;
+      const { scriptData, styleData } = ctx.data;
+      const outputPath = this.resolveOutputPath(filename, scriptData.lang);
 
-      const outputPath = this.resolveOutputPath(filename, lang);
-
-      return { file: outputPath, lang, ...result };
+      return {
+        fileInfo: {
+          jsx: {
+            path: outputPath,
+            lang: scriptData.lang,
+          },
+          css: {
+            path: styleData.filePath,
+            code: ir.style,
+          },
+        },
+        ...result,
+      };
     } finally {
       // 打印三个核心模块处理过程中收集的日志消息
       if (logging?.enabled !== false && logger.getLogs().length) {
