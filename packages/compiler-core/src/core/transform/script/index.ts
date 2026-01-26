@@ -1,4 +1,4 @@
-import { ParseResult } from '@babel/parser';
+import { parse as babelParse, ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { __props, ReactCompEvents, ReactCompProps, ReactCompSlots } from '../const';
@@ -59,8 +59,16 @@ export type PropTSInterface = {
 
 export const __scriptBlockIR = createIR();
 
-export function transformScript(ctx: ICompilationContext, ast?: ParseResult): ScriptBlockIR | null {
-  if (!ast) return null;
+export function transformScript(ctx: ICompilationContext, ast?: ParseResult): ScriptBlockIR {
+  // 没有 script 的情况下，自动添加占位注释以确保转换流程正常运行
+  if (!ast) {
+    const comments =
+      '// A placeholder comment is automatically inserted \n' +
+      '// when no script block is present to ensure the processing pipeline works correctly. \n' +
+      '// You can choose whether to remove it.';
+
+    ast = babelParse(comments);
+  }
 
   processVueScript(ctx, ast, {
     traversal: {
