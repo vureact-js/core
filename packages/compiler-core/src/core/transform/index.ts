@@ -6,6 +6,7 @@ import { TemplateBlockIR, transformTemplate } from './template';
 export interface ReactIRDescriptor {
   template: TemplateBlockIR | null;
   script: ScriptBlockIR | null;
+  style?: string;
 }
 
 interface PipelineOptions<A, IR = ReactIR> {
@@ -53,6 +54,7 @@ export function transform(ast: VueASTDescriptor, ctx: ICompilationContext): Reac
   return {
     template: templateIR,
     script: scriptIR,
+    style: ast.style?.source?.content,
   };
 }
 
