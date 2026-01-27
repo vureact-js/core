@@ -4,7 +4,7 @@ import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
 import { BaseCompiler } from './base-compiler';
-import { CachedResult, CompilationUnit, CompilerOptions } from './types';
+import { AssetCache, CompilationUnit, CompileCache, CompilerOptions } from './types';
 
 /**
  * Batch-compile `.vue` files to `.jsx` or `.tsx` files,
@@ -13,35 +13,49 @@ import { CachedResult, CompilationUnit, CompilerOptions } from './types';
 export class FileCompiler extends BaseCompiler {
   private compilationUnits: CompilationUnit[] = [];
 
-  // 本次 run() 发现的所有源文件列表，用于清理已删除的缓存/输出文件
-  private discoveredFiles: string[] = [];
+  // 本次 run() 发现的所有 .vue 文件列表，用于清理已删除的缓存/输出文件
+  private discoveredVueFiles: string[] = [];
+
+  // 主文件以外的附属资源文件
+  private assetFiles: AssetCache['assetFiles'] = [];
 
   constructor(options: CompilerOptions = {}) {
     super(options);
   }
 
   /**
-   * @todo
-   */
-  async watch() {}
-
-  /**
    * Run the batch compilation process.
    */
   async run() {
     // eslint-disable-next-line no-console
-    console.info(kleur.bold(kleur.gray(`\n\n   VuReact v${this.version}\n\n`)));
+    console.info(kleur.bold(kleur.magenta(`\n   VuReact v${this.version}\n\n`)));
     this.print('Compiling...');
 
     const start = performance.now();
 
+    await this.corePipeline();
+    await this.assetPipeline();
+
+    this.skippedFilesCount();
+    this.clear();
+
+    // 计算总耗时
+    const duration = this.formattDuration(performance.now() - start);
+
+    this.print(`${kleur.gray('Total time in')} ${duration}.`);
+  }
+
+  /**
+   * 核心管线，主处理 Vue 文件
+   */
+  private async corePipeline() {
     const { cacheDirectory = true } = this.options;
 
     // 1. 读取所有 .vue 文件
     await this.readVueFiles(this.getInputPath());
 
     // 2.记录本次发现的所有源文件
-    this.discoveredFiles = this.compilationUnits.map((u) => u.file);
+    this.discoveredVueFiles = this.compilationUnits.map((u) => u.file);
 
     if (!this.compilationUnits.length) {
       this.print(kleur.yellow('No .vue files found'));
@@ -58,20 +72,12 @@ export class FileCompiler extends BaseCompiler {
     await this.writeReactFiles();
 
     // 6.清理已不存在的输出文件
-    await this.removeDeletedOutputs();
+    await this.patchDeletedOutputs();
 
     // 7.编译结果写入文件缓存
     if (cacheDirectory) {
-      await this.writeFileCache();
+      await this.writeCompileCache();
     }
-
-    this.skippedFilesCount();
-    this.clear();
-
-    // 计算总耗时
-    const duration = this.formattDuration(performance.now() - start);
-    // eslint-disable-next-line no-console
-    console.info(kleur.bold(kleur.green(`\nCompiled successfully in ${duration}.`)));
   }
 
   private async readVueFiles(inputPath: string) {
@@ -92,7 +98,6 @@ export class FileCompiler extends BaseCompiler {
     if (stats.isFile()) {
       if (inputPath.endsWith('.vue')) {
         const source = await fs.promises.readFile(inputPath, 'utf-8');
-
         this.compilationUnits.push({
           file: inputPath,
           source,
@@ -100,8 +105,6 @@ export class FileCompiler extends BaseCompiler {
           fileSize: stats.size,
           mtime: stats.mtimeMs,
         });
-      } else {
-        this.print(kleur.red(`The input file ${input} is not a .vue file`));
       }
     } else if (stats.isDirectory()) {
       // 目录 - 递归查找所有 .vue 文件
@@ -146,7 +149,7 @@ export class FileCompiler extends BaseCompiler {
   private async filterByCache() {
     try {
       // 读取缓存文件
-      const cacheFilePath = this.getCacheFilePath();
+      const cacheFilePath = this.getCompileCachePath();
 
       if (!fs.existsSync(cacheFilePath)) {
         // 无旧缓存，所有文件都需编译
@@ -154,10 +157,10 @@ export class FileCompiler extends BaseCompiler {
       }
 
       const content = await fs.promises.readFile(cacheFilePath, 'utf-8');
-      const cache = JSON.parse(content) as CachedResult;
+      const cache = JSON.parse(content) as CompileCache;
 
       // 将缓存转换为Map以便快速查找（以文件路径为键）
-      const cacheMap = new Map(cache.data.map((unit) => [unit.file, unit]));
+      const cacheMap = new Map(cache.compileRes.map((unit) => [unit.file, unit]));
 
       const unitsToCompile: CompilationUnit[] = [];
 
@@ -212,24 +215,16 @@ export class FileCompiler extends BaseCompiler {
     const { format } = this.options;
 
     // 使用 Promise.all 并行编译
-    const processedUnits = this.compilationUnits.map(async (unit) => {
+    const processedUnits: Promise<CompilationUnit>[] = this.compilationUnits.map(async (unit) => {
       try {
         const start = performance.now();
 
         // 编译
         const result = this.compile(unit.source, unit.file);
+        const { jsx, css } = result.fileInfo;
 
         // 默认不启用代码格式化，这会增加编译耗时
         const formattedCode = !format?.enabled ? result.code : await this.formatCode(result);
-
-        const data: CompilationUnit = {
-          ...unit,
-          output: {
-            file: result.file,
-            code: formattedCode,
-            map: result.map,
-          },
-        };
 
         // 计算单个编译的核心耗时
         const duration = this.formattDuration(performance.now() - start);
@@ -237,11 +232,26 @@ export class FileCompiler extends BaseCompiler {
         // 输出编译信息
         this.print(
           kleur.magenta('Compiled'),
-          kleur.cyan(normalizePath(this.relativePath(unit.file))),
-          kleur.dim(`(${duration})`),
+          kleur.green(normalizePath(this.relativePath(unit.file))),
+          kleur.dim(kleur.cyan(`(${duration})`)),
         );
 
-        return data;
+        // 记录编译产生的 css 附属文件
+        if (css.path && css.code) {
+          this.assetFiles.push({
+            path: css.path,
+            content: css.code,
+          });
+        }
+
+        return {
+          ...unit,
+          output: {
+            file: jsx.path,
+            code: formattedCode,
+            map: result.map,
+          },
+        };
       } catch (e) {
         // 编译失败，保留原始单元
         this.print(kleur.red(`Failed to compile ${this.relativePath(unit.file)}`));
@@ -250,10 +260,8 @@ export class FileCompiler extends BaseCompiler {
       }
     });
 
-    const units = await Promise.all(processedUnits);
-
     // 更新 compilationUnits
-    this.compilationUnits = units;
+    this.compilationUnits = await Promise.all(processedUnits);
   }
 
   private async writeReactFiles() {
@@ -281,26 +289,26 @@ export class FileCompiler extends BaseCompiler {
   }
 
   /**
-   * 删除输出目录中对应于已被删除的源文件的生成文件
+   * 删除输出目录中对应于已被删除的源文件的生成文件（与上次编译相比）
    */
-  private async removeDeletedOutputs() {
-    const cacheFilePath = this.getCacheFilePath();
+  private async patchDeletedOutputs() {
+    const cacheFilePath = this.getCompileCachePath();
 
     if (!fs.existsSync(cacheFilePath)) {
       return;
     }
 
-    let existingCache: CachedResult | null = null;
+    let existingCache: CompileCache | null = null;
     try {
       const content = await fs.promises.readFile(cacheFilePath, 'utf-8');
-      existingCache = JSON.parse(content) as CachedResult;
+      existingCache = JSON.parse(content) as CompileCache;
     } catch {
       return;
     }
 
-    const discoveredSet = new Set(this.discoveredFiles || []);
+    const discoveredSet = new Set(this.discoveredVueFiles || []);
 
-    for (const unit of existingCache.data || []) {
+    for (const unit of existingCache.compileRes || []) {
       if (!unit || !unit.file) continue;
 
       // 如果源文件不在本次发现列表，则其输出应被删除
@@ -318,16 +326,16 @@ export class FileCompiler extends BaseCompiler {
   /**
    * 编译结果写入文件缓存
    */
-  private async writeFileCache() {
-    const file = this.getCacheFilePath();
+  private async writeCompileCache() {
+    const file = this.getCompileCachePath();
 
     // 读取已有缓存（如果存在），以便与本次编译结果合并，避免覆盖未变更的条目
-    let existingCache: CachedResult | null = null;
+    let existingCache: CompileCache | null = null;
 
     if (fs.existsSync(file)) {
       try {
         const content = await fs.promises.readFile(file, 'utf-8');
-        existingCache = JSON.parse(content) as CachedResult;
+        existingCache = JSON.parse(content) as CompileCache;
       } catch (e) {
         existingCache = null;
         console.error(e);
@@ -336,8 +344,8 @@ export class FileCompiler extends BaseCompiler {
 
     const cacheMap = new Map<string, any>();
 
-    if (existingCache?.data && Array.isArray(existingCache.data)) {
-      for (const u of existingCache.data) {
+    if (existingCache?.compileRes && Array.isArray(existingCache.compileRes)) {
+      for (const u of existingCache.compileRes) {
         cacheMap.set(u.file, u);
       }
     }
@@ -357,19 +365,165 @@ export class FileCompiler extends BaseCompiler {
     const merged = Array.from(cacheMap.values());
 
     // 根据本次发现的源文件列表，剔除已不存在的缓存项
-    const discoveredSet = new Set(this.discoveredFiles || []);
+    const discoveredSet = new Set(this.discoveredVueFiles || []);
     const filtered = merged.filter((u: any) => discoveredSet.has(u.file));
+    const data = JSON.stringify({ compileRes: filtered } as CompileCache);
 
-    const data = JSON.stringify({ data: filtered } as CachedResult);
+    // 确保缓存目录存在
+    const cacheDir = path.dirname(file);
 
+    await fs.promises.mkdir(cacheDir, { recursive: true });
     await fs.promises.writeFile(file, data, 'utf-8');
+  }
+
+  /**
+   * 副管线，拷贝/生成 Vue 项目所包含的其他附属文件资源
+   */
+  private async assetPipeline() {
+    if (!this.discoveredVueFiles.length) {
+      return;
+    }
+
+    // 1. 收集除 .vue 外的所有附属文件
+    await this.collectAssetFiles(this.getInputPath());
+
+    if (!this.assetFiles.length) {
+      return;
+    }
+
+    // 2. 并行拷贝/生成所有附属文件
+    await this.copyOrGenerateAssets();
+
+    // 3. 写入附属文件缓存
+    await this.writeAssetCache();
+
+    // 4. 清理已删除的附属文件
+    await this.patchDeletedAssets();
+  }
+
+  /**
+   * 从目录中收集除 .vue 外的所有附属文件
+   */
+  private async collectAssetFiles(dirPath: string) {
+    const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
+    const { recursive = true } = this.options;
+
+    const collectPromises = entries.map(async (entry) => {
+      const fullPath = path.join(dirPath, entry.name);
+
+      // 跳过不需要的路径和 .vue 文件
+      if (this.shouldSkipPath(fullPath) || entry.name.endsWith('.vue')) {
+        return;
+      }
+
+      if (recursive && entry.isDirectory()) {
+        // 递归处理子目录
+        await this.collectAssetFiles(fullPath);
+      } else if (entry.isFile()) {
+        // 计算输出路径
+        const outputPath = this.resolveOutputPath(fullPath);
+
+        this.assetFiles.push({
+          path: outputPath,
+        });
+      }
+    });
+
+    await Promise.all(collectPromises);
+  }
+
+  /**
+   * 并行拷贝或生成附属文件
+   */
+  private async copyOrGenerateAssets() {
+    const copyPromises = this.assetFiles.map(async (asset) => {
+      try {
+        // 确保输出目录存在
+        const outputDir = path.dirname(asset.path);
+        await fs.promises.mkdir(outputDir, { recursive: true });
+
+        if (asset.content) {
+          // 生成文件（含内容的资源文件，如 CSS）
+          const outputPath = this.resolveOutputPath(asset.path);
+          await fs.promises.writeFile(outputPath, asset.content, 'utf-8');
+        } else {
+          // 拷贝文件 - 从源文件获取路径
+          const sourceFile = this.getSourcePath(asset.path);
+
+          if (fs.existsSync(sourceFile)) {
+            await fs.promises.copyFile(sourceFile, asset.path);
+          }
+        }
+      } catch (e) {
+        this.print(kleur.red(`Failed to copy/generate asset ${asset.path}`));
+        console.error('\n', e, '\n');
+      }
+    });
+
+    await Promise.all(copyPromises);
+  }
+
+  /**
+   * 写入附属文件缓存
+   */
+  private async writeAssetCache() {
+    const file = this.getAssetCachePath();
+
+    // 准备缓存数据 - 不保存 content 字段
+    const cacheData = this.assetFiles.map((asset) => {
+      const { content: _, ...rest } = asset;
+      return rest;
+    });
+
+    const cache = JSON.stringify({ assetFiles: cacheData } as AssetCache);
+
+    // 确保缓存目录存在
+    const cacheDir = path.dirname(file);
+
+    await fs.promises.mkdir(cacheDir, { recursive: true });
+    await fs.promises.writeFile(file, cache, 'utf-8');
+  }
+
+  /**
+   * 清理已删除的附属文件
+   */
+  private async patchDeletedAssets() {
+    const cacheFilePath = this.getAssetCachePath();
+
+    if (!fs.existsSync(cacheFilePath)) {
+      return;
+    }
+
+    let existingCache: AssetCache | null = null;
+    try {
+      const content = await fs.promises.readFile(cacheFilePath, 'utf-8');
+      existingCache = JSON.parse(content) as AssetCache;
+    } catch {
+      return;
+    }
+
+    // 创建当前资源文件的 Set 以快速查找
+    const currentAssetSet = new Set(this.assetFiles.map((a) => a.path));
+
+    // 删除缓存中但不在当前列表中的文件
+    if (existingCache.assetFiles && Array.isArray(existingCache.assetFiles)) {
+      const deletePromises = existingCache.assetFiles.map(async (asset) => {
+        if (!currentAssetSet.has(asset.path) && fs.existsSync(asset.path)) {
+          try {
+            await fs.promises.unlink(asset.path);
+          } catch {}
+        }
+      });
+
+      await Promise.all(deletePromises);
+    }
   }
 
   /**
    * 输出已跳过编译的文件统计信息
    */
   private skippedFilesCount() {
-    const skippedCount = this.discoveredFiles.length - this.compilationUnits.length;
+    const skippedCount = this.discoveredVueFiles.length - this.compilationUnits.length;
 
     if (skippedCount > 0) {
       this.print(
@@ -381,5 +535,7 @@ export class FileCompiler extends BaseCompiler {
 
   clear() {
     this.compilationUnits = [];
+    this.discoveredVueFiles = [];
+    this.assetFiles = [];
   }
 }
