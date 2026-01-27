@@ -57,6 +57,7 @@ export class BaseCompiler extends Helper {
           },
           css: {
             path: styleData.filePath,
+            hash: styleData.scopeId,
             code: ir.style,
           },
         },
