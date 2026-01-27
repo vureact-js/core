@@ -20,7 +20,7 @@ export class Helper {
 
   protected print(...message: any[]) {
     // eslint-disable-next-line no-console
-    console.info(`${kleur.dim('[vureact]')}`, ...message);
+    console.info(`${kleur.gray('[vureact]')}`, ...message);
   }
 
   /**
@@ -40,10 +40,41 @@ export class Helper {
   }
 
   /**
+   * 获取输出文件的路径
+   */
+  protected getOuputPath(): string {
+    const { output } = this.compilerOpts;
+    const outDir = output?.outDir || 'dist';
+    return path.resolve(this.getProjectRoot(), this.workspaceDir, outDir);
+  }
+
+  /**
+   * 根据相对输出路径反推源文件路径
+   */
+  protected getSourcePath(outputPath: string): string {
+    const relativePath = path.relative(this.getOuputPath(), outputPath);
+    return path.resolve(this.getProjectRoot(), relativePath);
+  }
+
+  /**
+   * 获取编译缓存文件路径
+   */
+  protected getCompileCachePath(): string {
+    return this.getCacheFilePath('compile-cache');
+  }
+
+  /**
+   * 获取附属文件缓存路径
+   */
+  protected getAssetCachePath(): string {
+    return this.getCacheFilePath('asset-cache');
+  }
+
+  /**
    * 获取缓存文件路径
    */
-  protected getCacheFilePath(): string {
-    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache.json');
+  protected getCacheFilePath(filename: string): string {
+    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
   }
 
   /**
@@ -117,18 +148,12 @@ export class Helper {
   /**
    * 处理编译后的文件输出路径
    */
-  protected resolveOutputPath(filePath: string, lang: string): string {
-    const { output } = this.compilerOpts;
-    const outDir = output?.outDir || 'dist';
+  protected resolveOutputPath(filePath: string, lang?: string): string {
+    const newRelativePath = lang
+      ? this.replaceVueFileExt(filePath, lang)
+      : this.relativePath(filePath);
 
-    const newRelativePath = this.replaceVueFileExt(filePath, lang);
-
-    const outputPath = path.resolve(
-      this.getProjectRoot(),
-      this.workspaceDir,
-      outDir,
-      newRelativePath,
-    );
+    const outputPath = path.resolve(this.getOuputPath(), newRelativePath);
 
     return outputPath;
   }
@@ -143,7 +168,11 @@ export class Helper {
     if (format?.formatter === 'builtin') {
       formattedCode = simpleFormat(result.code);
     } else {
-      formattedCode = await formatWithPrettier(result.code, result.lang, format?.prettierOptions);
+      formattedCode = await formatWithPrettier(
+        result.code,
+        result.fileInfo.jsx.lang,
+        format?.prettierOptions,
+      );
     }
 
     return formattedCode;
