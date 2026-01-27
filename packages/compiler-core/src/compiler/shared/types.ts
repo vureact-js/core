@@ -111,12 +111,19 @@ export interface CompileResult extends GeneratorResult {
     };
     css: {
       path?: string;
+      hash?: string;
       code?: string;
     };
   };
 }
 
-export type CachedResult = { data: Omit<CompilationUnit, 'source'>[] };
+export interface CompileCache {
+  compileRes: Omit<CompilationUnit, 'source'>[];
+}
+
+export interface AssetCache {
+  assetFiles: { path: string; content?: string }[];
+}
 
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径
