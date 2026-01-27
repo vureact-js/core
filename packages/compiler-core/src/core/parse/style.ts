@@ -4,6 +4,7 @@ import { processScopedWithPostCss } from '@plugins/postcss';
 import { logger } from '@shared/logger';
 import { genHashByXXH } from '@src/utils/hash';
 import { SFCStyleBlock } from '@vue/compiler-sfc';
+import { basename } from 'path';
 import { VueASTDescriptor } from '.';
 
 export function parseStyle(
@@ -34,20 +35,22 @@ export function parseStyle(
   const hashId = genHashByXXH(`${ctx.filename}${fileExt}`);
 
   if (style.module) {
-    fileExt = `_${hashId}.module${fileExt}`;
+    fileExt = `-${hashId}.module${fileExt}`;
     ctx.styleData.moduleName = typeof style.module === 'boolean' ? styleModule : style.module;
   } else {
-    fileExt = `_${hashId}${fileExt}`;
+    fileExt = `-${hashId}${fileExt}`;
   }
 
   if (style.scoped) {
     const result = processScopedWithPostCss(style.content, hashId);
-    style.content = result.css;
+    style.content = result.css.trim();
     ctx.styleData.scopeId = result.scopeId;
   }
 
   const filePath = ctx.filename.replace(/\.vue$/i, fileExt);
-  ctx.styleData.filePath = filePath;
+  const filename = basename(filePath);
+
+  ctx.styleData.filePath = filePath.replace(filename, filename.toLowerCase());
 
   return {
     source: style,
