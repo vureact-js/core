@@ -40,10 +40,7 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "tsx watch",
-    "dev:parse": "tsx watch src/core/parse/__tests__/index.ts",
-    "dev:transform": "tsx watch src/core/transform/__tests__/index.ts",
-    "dev:codegen": "tsx watch src/core/codegen/__tests__/index.ts"
+    "test": "tsx watch"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"
