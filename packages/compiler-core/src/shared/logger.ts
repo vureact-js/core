@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import kleur from 'kleur';
-import { relative } from 'path';
+import { normalizePath, relativePath } from './path';
 
 interface LogOptions {
   file?: string;
@@ -51,7 +51,7 @@ export class Logger {
     this.logs.push({
       level,
       message,
-      file: file ? relative(process.cwd(), file) : undefined,
+      file: file ? normalizePath(relativePath(file)) : undefined,
       line: logLine,
       column: logColumn,
       source,
@@ -66,7 +66,7 @@ export class Logger {
     const label = log.level.toUpperCase();
     const level = this.levelColor(log.level)(`[${label}]`);
 
-    let location = '\n\n  File: ';
+    let location = '\n\n  at ';
 
     if (log.level !== 'info') {
       if (log?.line != null && log?.column != null) {
