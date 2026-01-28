@@ -6,6 +6,8 @@ import { __scriptBlockIR } from '../..';
 export function insertCSSImport(ctx: ICompilationContext) {
   const { filePath, moduleName } = ctx.styleData;
 
+  if (!filePath) return;
+
   const filename = normalizePath(filePath).split('/').pop();
   const path = `./${filename}`;
 
