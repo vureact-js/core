@@ -13,24 +13,25 @@ import { createUseCallback } from '../../shared/hook-creator';
  * v-model="foo" => 对应 React 事件 onFooChange
  */
 export function insertVModelEventHandlers(ctx: ICompilationContext, ast: ParseResult) {
-  const { templateData } = ctx;
+  const {
+    templateData: { models },
+  } = ctx;
 
-  const stmts: t.Statement[] = templateData.models.map(({ handler }) =>
-    createHandlerExp(ctx, handler.name, handler.exp),
+  const defineHandlerStmts: t.Statement[] = models.map(({ handler }) =>
+    resolveEventHandler(ctx, handler),
   );
 
-  ast.program.body.push(...stmts);
+  ast.program.body.push(...defineHandlerStmts);
 }
 
-function createHandlerExp(
+function resolveEventHandler(
   ctx: ICompilationContext,
-  name: string,
-  exp: IRModelEventHandler['handler']['exp'],
+  handler: IRModelEventHandler['handler'],
 ): t.VariableDeclaration {
   const {
     arg,
     body: { setterExp },
-  } = exp;
+  } = handler.exp;
 
   const stateSetter = t.callExpression(t.identifier(setterExp.name), [
     t.arrowFunctionExpression(
@@ -50,7 +51,7 @@ function createHandlerExp(
     [],
   );
 
-  const declaration = t.variableDeclarator(t.identifier(name), useCallback);
+  const declaration = t.variableDeclarator(t.identifier(handler.name), useCallback);
 
   recordImport(ctx, RuntimeModules.REACT, ReactApis.useCallback, true);
 
