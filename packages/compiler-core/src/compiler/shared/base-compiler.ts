@@ -9,6 +9,8 @@ import { CompileResult, CompilerOptions } from './types';
 /**
  * Basic core compilation: compile Vue code to React code only,
  * no file system handling included.
+ *
+ * @extends Helper
  */
 export class BaseCompiler extends Helper {
   protected options: CompilerOptions;
@@ -47,16 +49,16 @@ export class BaseCompiler extends Helper {
       const result = generate(ir, ctx.data, this.prepareGenerateOptions(filename));
 
       const { scriptData, styleData } = ctx.data;
-      const outputPath = this.resolveOutputPath(filename, scriptData.lang);
+      const outputPath = this.resolveOutputPath(filename, `${scriptData.lang}x`);
 
       return {
         fileInfo: {
           jsx: {
-            path: outputPath,
+            file: outputPath,
             lang: scriptData.lang,
           },
           css: {
-            path: styleData.filePath,
+            file: styleData.filePath,
             hash: styleData.scopeId,
             code: ir.style,
           },
