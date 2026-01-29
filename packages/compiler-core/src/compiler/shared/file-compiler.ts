@@ -172,9 +172,9 @@ export class FileCompiler extends BaseCompiler {
 
       // 输出编译信息
       this.print(
-        kleur.magenta('Compiled'),
+        kleur.green('Compiled'),
         kleur.cyan(normalizePath(this.relativePath(unit.file))),
-        kleur.dim(kleur.green(`(${duration})`)),
+        kleur.magenta(`(${duration})`),
       );
     } catch (err) {
       this.print(kleur.red(`✖ Failed to compile ${this.relativePath(unit.file)}`));
