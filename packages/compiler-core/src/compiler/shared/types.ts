@@ -51,12 +51,6 @@ export interface CompilerOptions {
    */
   generate?: GeneratorOptions;
 
-  /**
-   * Cache the compilation results to skip some files that do not require updates.
-   * @default true
-   */
-  cacheDirectory?: boolean;
-
   format?: {
     /**
      * @default true
@@ -106,32 +100,37 @@ export interface CompileFileResult {
 export interface CompileResult extends GeneratorResult {
   fileInfo: {
     jsx: {
-      path: string;
+      file: string;
       lang: string;
     };
     css: {
-      path?: string;
+      file?: string;
       hash?: string;
       code?: string;
     };
   };
 }
 
-export interface CompileCache {
-  compileRes: Omit<CompilationUnit, 'source'>[];
-}
+export type CompileCache = CacheData<Omit<CompilationUnit, 'source' | 'output'>[]>;
 
-export interface AssetCache {
-  assetFiles: { path: string; content?: string }[];
+export type AssetCache = CacheData<(FileMeta & { path: string })[]>;
+
+interface CacheData<T> {
+  cached: T;
 }
 
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径
   source: string; // Vue源代码
   output: {
-    file: string; // 输出路径
-    code: string; // React组件代码
-    map?: any; // Source map
+    jsx: {
+      file: string;
+      code: string; // React组件代码
+    };
+    css: {
+      file?: string;
+      code?: string;
+    };
   } | null;
 }
 
@@ -139,4 +138,16 @@ export interface FileMeta {
   fileSize: number; // 文件大小
   mtime: number; // 修改时间
   hash?: string; // 内容哈希
+}
+
+export interface CacheCheckResult {
+  shouldCompile: boolean;
+  hash?: string; // 如果计算了新哈希，返回给调用者以便更新缓存
+}
+
+export enum CacheFilename {
+  /** 编译缓存 */
+  COMPILE = 'compile-cache',
+  /** 附属资源文件缓存 */
+  ASSET = 'asset-cache',
 }
