@@ -21,6 +21,12 @@ export interface CompilerOptions {
 
   output?: {
     /**
+     * Output the name of the root directory corresponding to the file's location.
+     * @default '.vureact'
+     */
+    workspace?: string;
+
+    /**
      * Output directory name, relative to `output.workspace`
      * @default 'dist'
      */

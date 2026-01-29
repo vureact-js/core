@@ -22,6 +22,10 @@ export class Helper {
   constructor(opts: CompilerOptions) {
     this.compilerOpts = opts;
 
+    if (opts.output?.workspace) {
+      this.workspaceDir = opts.output.workspace;
+    }
+
     // 创建路径过滤器
     const excludePatterns = PathFilter.withDefaults(opts.exclude || []);
 
