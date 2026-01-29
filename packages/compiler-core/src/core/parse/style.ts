@@ -2,7 +2,6 @@ import { ICompilationContext } from '@compiler/context/types';
 import { styleModule } from '@consts/other';
 import { processScopedWithPostCss } from '@plugins/postcss';
 import { logger } from '@shared/logger';
-import { genHashByXXH } from '@src/utils/hash';
 import { SFCStyleBlock } from '@vue/compiler-sfc';
 import { basename } from 'path';
 import { VueASTDescriptor } from '.';
@@ -29,28 +28,27 @@ export function parseStyle(
     );
   }
 
+  const { fileId, filename, styleData } = ctx;
+
   let fileExt = `.${style.lang || 'css'}`;
 
-  // 生成样式文件id
-  const hashId = genHashByXXH(`${ctx.filename}${fileExt}`);
-
   if (style.module) {
-    fileExt = `-${hashId}.module${fileExt}`;
-    ctx.styleData.moduleName = typeof style.module === 'boolean' ? styleModule : style.module;
+    fileExt = `-${fileId}.module${fileExt}`;
+    styleData.moduleName = typeof style.module === 'boolean' ? styleModule : style.module;
   } else {
-    fileExt = `-${hashId}${fileExt}`;
+    fileExt = `-${fileId}${fileExt}`;
   }
 
   if (style.scoped) {
-    const result = processScopedWithPostCss(style.content, hashId);
+    const result = processScopedWithPostCss(style.content, fileId);
     style.content = result.css.trim();
-    ctx.styleData.scopeId = result.scopeId;
+    styleData.scopeId = result.scopeId;
   }
 
-  const filePath = ctx.filename.replace(/\.vue$/i, fileExt);
-  const filename = basename(filePath);
+  const filePath = filename.replace(/\.vue$/i, fileExt);
+  const bNs = basename(filePath);
 
-  ctx.styleData.filePath = filePath.replace(filename, filename.toLowerCase());
+  styleData.filePath = filePath.replace(bNs, bNs.toLowerCase());
 
   return {
     source: style,
