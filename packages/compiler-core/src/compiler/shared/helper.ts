@@ -1,8 +1,18 @@
 import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { PathFilter } from '@shared/path';
+import { genHashByXXH } from '@utils/hash';
+import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
-import { CompileResult, CompilerOptions } from './types';
+import {
+  AssetCache,
+  CacheCheckResult,
+  CacheFilename,
+  CompileCache,
+  CompileResult,
+  CompilerOptions,
+  FileMeta,
+} from './types';
 
 export class Helper {
   private compilerOpts: CompilerOptions;
@@ -57,27 +67,6 @@ export class Helper {
   }
 
   /**
-   * 获取编译缓存文件路径
-   */
-  protected getCompileCachePath(): string {
-    return this.getCacheFilePath('compile-cache');
-  }
-
-  /**
-   * 获取附属文件缓存路径
-   */
-  protected getAssetCachePath(): string {
-    return this.getCacheFilePath('asset-cache');
-  }
-
-  /**
-   * 获取缓存文件路径
-   */
-  protected getCacheFilePath(filename: string): string {
-    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
-  }
-
-  /**
    * 1200 => '1.2s'
    *
    * 120 => '120ms'
@@ -102,11 +91,10 @@ export class Helper {
   /**
    * 替换 .vue 文件名后缀为 .jsx/.tsx
    * @param filePath 文件完整路径
+   * @param ext 文件拓展名
    * @returns 返回文件的相对路径，不包含当前工作区路径
    */
-  protected replaceVueFileExt(filePath: string, lang: string): string {
-    const ext = lang.startsWith('ts') ? '.tsx' : '.jsx';
-
+  protected replaceVueFileExt(filePath: string, ext: string): string {
     const relativePath = this.relativePath(filePath);
 
     // 替换扩展名，同时处理多个可能的扩展名情况
@@ -146,11 +134,11 @@ export class Helper {
   }
 
   /**
-   * 处理编译后的文件输出路径
+   * 自动根据项目结构推导 dist 目录下的对应位置
    */
-  protected resolveOutputPath(filePath: string, lang?: string): string {
-    const newRelativePath = lang
-      ? this.replaceVueFileExt(filePath, lang)
+  protected resolveOutputPath(filePath: string, extname?: string): string {
+    const newRelativePath = extname
+      ? this.replaceVueFileExt(filePath, `.${extname}`)
       : this.relativePath(filePath);
 
     const outputPath = path.resolve(this.getOuputPath(), newRelativePath);
@@ -161,20 +149,141 @@ export class Helper {
   /**
    * 格式化代码
    */
-  protected async formatCode(result: CompileResult): Promise<string> {
+  protected async formatCode({ code, fileInfo }: CompileResult): Promise<string> {
     const { format } = this.compilerOpts;
-    let formattedCode = result.code;
+
+    if (!format?.enabled) return code;
 
     if (format?.formatter === 'builtin') {
-      formattedCode = simpleFormat(result.code);
-    } else {
-      formattedCode = await formatWithPrettier(
-        result.code,
-        result.fileInfo.jsx.lang,
-        format?.prettierOptions,
-      );
+      return simpleFormat(code);
     }
 
-    return formattedCode;
+    return await formatWithPrettier(code, fileInfo.jsx.lang, format?.prettierOptions);
+  }
+
+  /**
+   * 通用的缓存校验工具函数
+   * @param current 当前文件元数据
+   * @param cached  缓存中的旧数据
+   * @param getSource 获取文件内容的函数（仅在元数据不一致时才调用，避免多余 I/O）
+   */
+  protected async checkCacheStatus(
+    current: FileMeta,
+    cached: CompileCache['cached'][0] | undefined,
+    getSource: () => Promise<string>,
+  ): Promise<CacheCheckResult> {
+    // 1. 无缓存记录，必编
+    if (!cached) return { shouldCompile: true };
+
+    // 2. 基础元数据没变，直接跳过
+    if (this.compareFileMeta(cached, current)) {
+      return { shouldCompile: false };
+    }
+
+    // 3. 元数据变了（可能是用户加了个空格又删了），检查内容哈希
+    const source = await getSource();
+    const currentHash = this.genHash(source);
+
+    if (cached.hash === currentHash) {
+      return { shouldCompile: false };
+    }
+
+    return { shouldCompile: true, hash: currentHash };
+  }
+
+  /**
+   * 对比相同两个文件的基础元数据
+   */
+  protected compareFileMeta(a: FileMeta, b: FileMeta): boolean {
+    return a.fileSize === b.fileSize && a.mtime === b.mtime;
+  }
+
+  /**
+   * 统一的写文件方法，包含自动创建目录
+   */
+  protected async writeFileWithDir(filePath: string, content: string) {
+    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.promises.writeFile(filePath, content, 'utf-8');
+  }
+
+  /**
+   * 加载指定文件的缓存内容
+   * @param name 文件名
+   */
+  protected async loadCache(name: CacheFilename.COMPILE): Promise<CompileCache>;
+  protected async loadCache(name: CacheFilename.ASSET): Promise<AssetCache>;
+  protected async loadCache(
+    name: CacheFilename.COMPILE | CacheFilename.ASSET,
+  ): Promise<CompileCache | AssetCache | null> {
+    const cachePath = this.getCacheFilePath(name);
+
+    if (!fs.existsSync(cachePath)) return null;
+
+    try {
+      const content = await fs.promises.readFile(cachePath, 'utf-8');
+      return JSON.parse(content) as CompileCache;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * 获取缓存文件路径
+   */
+  protected getCacheFilePath(filename: string): string {
+    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
+  }
+
+  protected genHash(content: string) {
+    return genHashByXXH(content);
+  }
+
+  /**
+   * 扫描指定目录下的所有文件
+   * @param dir 目标目录
+   * @param filter 筛选指定的文件后缀名
+   */
+  protected scanFiles(dir: string, filter: (file: string) => boolean): string[] {
+    const results: string[] = [];
+
+    if (!fs.existsSync(dir)) {
+      return results;
+    }
+
+    const stats = fs.statSync(dir);
+
+    if (stats.isFile()) {
+      return filter(dir) ? [dir] : [];
+    }
+
+    const list = fs.readdirSync(dir);
+
+    for (const file of list) {
+      const fullPath = path.resolve(dir, file);
+
+      if (this.shouldSkipPath(fullPath)) continue;
+
+      const stat = fs.statSync(fullPath);
+
+      if (stat.isDirectory() && this.compilerOpts.recursive !== false) {
+        results.push(...this.scanFiles(fullPath, filter));
+      } else if (filter(fullPath)) {
+        results.push(fullPath);
+      }
+    }
+
+    return results;
+  }
+
+  protected getAbsPath(filePath: string): string {
+    return path.isAbsolute(filePath) ? filePath : path.resolve(this.getProjectRoot(), filePath);
+  }
+
+  protected async getFileMeta(filePath: string): Promise<FileMeta> {
+    const stats = await fs.promises.stat(filePath);
+    return {
+      fileSize: stats.size,
+      mtime: stats.mtimeMs,
+    };
   }
 }
