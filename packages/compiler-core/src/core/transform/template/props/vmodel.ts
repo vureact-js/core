@@ -64,11 +64,11 @@ function handleEventIR(
   isComp = false,
 ): PropsIR {
   // 首先提取基础标识符（防止用户写了链式访问）
-  const _getterName = extractFirstIdentifier(getterName)!;
-  const rawName = `update:${_getterName}`;
+  const getterNs = extractFirstIdentifier(getterName)!;
+  const rawName = `update:${getterNs}`;
 
-  const propName = getEventPropName(_getterName, inputType, modifiers, isComp);
-  const setterName = `set${capitalize(_getterName)}`;
+  const propName = getEventPropName(getterNs, inputType, modifiers, isComp);
+  const setterName = `set${capitalize(getterNs)}`;
 
   // 值提取器（e.target.value / e.target.checked 等）
   const valueExtractor = getValueExtractor(inputType, isComp);
@@ -78,7 +78,7 @@ function handleEventIR(
   createVModelHandler(ctx, getterName, setterName, processedValue);
 
   // v-model="bar" -> bar + onBarChange
-  return createPropsIR(rawName, propName, setterName);
+  return createPropsIR(rawName, propName, getHandlerName(getterNs));
 }
 
 function getEventPropName(
@@ -157,19 +157,21 @@ function createVModelHandler(
   processedValue: string,
 ) {
   const { models } = ctx.templateData;
-  const _getterName = extractFirstIdentifier(getterName)!;
-  const handlerName = `on${capitalize(_getterName)}Change`;
 
-  const handler: IRModelEventHandler = {
+  if (models.find((m) => m.key === getterName)) return;
+
+  const getterNs = extractFirstIdentifier(getterName)!;
+
+  const ir: IRModelEventHandler = {
     key: getterName,
     handler: {
-      name: handlerName,
+      name: getHandlerName(getterNs),
       exp: {
         arg: 'e',
         body: {
           setterExp: {
             name: setterName,
-            arg: _getterName,
+            arg: getterNs,
             body: `${getterName}=${processedValue}`,
           },
         },
@@ -177,12 +179,11 @@ function createVModelHandler(
     },
   };
 
-  let exists = models.findLastIndex((t) => t.key === handler.key);
-  if (exists !== -1) {
-    handler.handler.name += ++exists;
-  }
-
   // 收集到编译上下文中，后续在 script 转换中处理它，
   // 生成例如：useCallback((e) => {setBar((state) => {xxx; return state;}))}, [])
-  models.push(handler);
+  models.push(ir);
+}
+
+function getHandlerName(getterName: string): string {
+  return `on${capitalize(getterName)}Change`;
 }
