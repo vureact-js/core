@@ -62,34 +62,41 @@ export class FileCompiler extends BaseCompiler {
     const cachePath = this.getCacheFilePath(CacheFilename.COMPILE);
 
     // 检查缓存中是否存在已被删除的源文件，若存在则清理对应输出并从缓存中移除
-    if (removed.length) {
-      for (const entry of removed) {
-        try {
-          // 可能的 JSX/TSX 输出（尝试 tsx 与 jsx）
-          const jsxFile = this.resolveOutputPath(entry.file, 'tsx');
-          const tsxFile = this.resolveOutputPath(entry.file, 'jsx');
+    for (const entry of removed) {
+      const { file, fileId } = entry;
 
-          await this.removeDeletedOutput(jsxFile);
+      try {
+        // 可能的 JSX/TSX/CSS 输出
+        const jsxFiles = ['jsx', 'tsx'];
+        const cssFiles = ['css', 'less', 'sass', 'scss'];
+        const cssModuleFiles = cssFiles.map((e) => `module.${e}`);
 
-          if (tsxFile !== jsxFile) {
-            await this.removeDeletedOutput(tsxFile);
-          }
+        const p1: Promise<void>[] = jsxFiles.map(async (ext) => {
+          await this.removeDeletedOutput(this.resolveOutputPath(file, ext));
+        });
 
-          // 可能的 CSS 输出（将 .vue -> .css）
-          const cssOut = this.resolveOutputPath(entry.file, 'css');
-          await this.removeDeletedOutput(cssOut);
-        } catch (e) {
-          this.print(kleur.yellow('Failed to remove output'));
-          console.warn(e);
-        }
+        const p2: Promise<void>[] = [...cssFiles, ...cssModuleFiles].map(async (ext) => {
+          const sourceBNs = path.basename(file);
+          const sourceNs = sourceBNs.split('.')[0]!.toLowerCase();
+
+          const targetBNs = `${sourceNs}-${fileId}.${ext}`;
+          const out = file.replace(sourceBNs, targetBNs);
+
+          await this.removeDeletedOutput(this.resolveOutputPath(out));
+        });
+
+        await Promise.all([...p1, ...p2]);
+      } catch (e) {
+        this.print(kleur.yellow('Failed to remove output'));
+        console.warn(e);
       }
-
-      // 从缓存中移除已删除的条目并写回缓存文件
-      const remaining = cache.cached.filter((c) => absFiles.includes(c.file));
-      const newCache = { cached: remaining } as typeof cache;
-
-      await this.writeFileWithDir(cachePath, JSON.stringify(newCache));
     }
+
+    // 从缓存中移除已删除的条目并写回缓存文件
+    const remaining = cache.cached.filter((c) => absFiles.includes(c.file));
+    const newCache = { cached: remaining } as typeof cache;
+
+    await this.writeFileWithDir(cachePath, JSON.stringify(newCache));
   }
 
   /**
@@ -122,6 +129,7 @@ export class FileCompiler extends BaseCompiler {
     const unit: CompilationUnit = {
       ...currentMeta,
       file: absPath,
+      fileId: '',
       source,
       hash: hash || this.genHash(source),
       output: null,
@@ -156,6 +164,9 @@ export class FileCompiler extends BaseCompiler {
       if (css.file) {
         css.file = this.resolveOutputPath(css.file);
       }
+
+      // 存储文件id
+      unit.fileId = compileResult.fileId;
 
       // 存储输出结果
       unit.output = {
@@ -263,16 +274,16 @@ export class FileCompiler extends BaseCompiler {
     const absAssets = files.map((f) => this.getAbsPath(f));
     const removedAssets = cache.cached?.filter((c) => !absAssets.includes(c.path)) || [];
 
-    if (removedAssets.length) {
-      for (const asset of removedAssets) {
-        try {
-          const out = this.resolveOutputPath(asset.path);
-          this.removeDeletedOutput(out);
-        } catch (e) {
-          this.print(kleur.yellow('Failed to remove asset output'));
-          console.warn(e);
-        }
-      }
+    const promises = removedAssets.map(async (asset) => {
+      const out = this.resolveOutputPath(asset.path);
+      await this.removeDeletedOutput(out);
+    });
+
+    try {
+      await Promise.all(promises);
+    } catch (e) {
+      this.print(kleur.yellow('Failed to remove asset output'));
+      console.warn(e);
     }
   }
 
