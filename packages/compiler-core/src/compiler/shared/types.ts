@@ -98,6 +98,7 @@ export interface CompileFileResult {
 }
 
 export interface CompileResult extends GeneratorResult {
+  fileId: string;
   fileInfo: {
     jsx: {
       file: string;
@@ -121,6 +122,7 @@ interface CacheData<T> {
 
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径
+  fileId: string; // 文件id
   source: string; // Vue源代码
   output: {
     jsx: {

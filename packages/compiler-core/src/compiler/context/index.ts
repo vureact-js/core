@@ -26,6 +26,7 @@ export class CompilationContext {
 
   create(): ICompilationContext {
     return {
+      fileId: '',
       source: '',
       filename: '',
       funcName: '',
