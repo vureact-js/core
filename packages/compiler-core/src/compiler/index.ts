@@ -33,7 +33,7 @@ import { FileCompiler } from './shared/file-compiler';
  *   input: './src'
  * });
  *
- * await compiler.run();
+ * await compiler.execute();
  * ```
  *
  * @extends FileCompiler

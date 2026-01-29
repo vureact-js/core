@@ -6,4 +6,4 @@ const compiler = new VuReact({
   input: 'src',
 });
 
-compiler.run();
+compiler.execute();
