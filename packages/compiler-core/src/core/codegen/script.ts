@@ -1,10 +1,10 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ScriptBlockIR } from '@core/transform/script';
-import { logger } from '@shared/logger';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { genHashByXXH } from '@utils/hash';
+import { basename } from 'path';
 import { PropsIntersectionType } from '../transform/const';
 import { JSXChild } from './jsx/types';
 
@@ -15,7 +15,7 @@ export function genReactComponent(
   expose: boolean = true,
 ): t.Program {
   const statements = createPreamble(script);
-  const compFn = buildMainFunction(ctx, script, jsx);
+  const compFn = buildCompFunc(ctx, script, jsx);
 
   if (expose) {
     statements.push(t.exportDefaultDeclaration(compFn));
@@ -34,12 +34,12 @@ function createPreamble(script: ScriptBlockIR | null): t.Statement[] {
   return statement as unknown as t.Statement[];
 }
 
-function buildMainFunction(
+function buildCompFunc(
   ctx: ICompilationContext,
   script: ScriptBlockIR | null,
   jsx: JSXChild | null,
 ): t.FunctionExpression {
-  const fnId = t.identifier(getFnName(ctx));
+  const fnId = t.identifier(resolveCompName(ctx));
   const jsxRoot = t.returnStatement((jsx || t.nullLiteral()) as t.Expression);
 
   if (!script) {
@@ -64,20 +64,13 @@ function buildMainFunction(
   return fnExp;
 }
 
-function getFnName(ctx: ICompilationContext): string {
-  const { funcName } = ctx;
+function resolveCompName(ctx: ICompilationContext): string {
+  const { funcName, filename } = ctx;
 
-  let name = '';
+  // 如果没有用 defineOptions 定义组件名，则默认使用文件名，兜底用文件哈希
+  const name = !funcName
+    ? basename(filename).split('.')[0] || `C${genHashByXXH(filename)}`
+    : funcName;
 
-  if (!funcName) {
-    name = `FC${genHashByXXH(ctx.filename)}`;
-    logger.warn(
-      `An unnamed component was detected. A temporary name '${name}' has been generated.`,
-      { file: ctx.filename },
-    );
-  } else {
-    name = capitalize(camelCase(funcName));
-  }
-
-  return name;
+  return capitalize(camelCase(name));
 }
