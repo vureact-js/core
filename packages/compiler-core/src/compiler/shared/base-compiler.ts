@@ -41,7 +41,10 @@ export class BaseCompiler extends Helper {
     // 创建编译上下文
     const ctx = createCompilationCtx();
 
-    ctx.init({ source, filename });
+    // 生成文件id
+    const fileId = this.genHash(filename);
+
+    ctx.init({ source, filename, fileId });
 
     try {
       const ast = parse(source, ctx.data);
@@ -52,6 +55,7 @@ export class BaseCompiler extends Helper {
       const outputPath = this.resolveOutputPath(filename, `${scriptData.lang}x`);
 
       return {
+        fileId,
         fileInfo: {
           jsx: {
             file: outputPath,
