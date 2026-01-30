@@ -1,8 +1,9 @@
+import fs from 'fs';
 import { defineConfig } from 'tsup';
 
-const banner = `/**
+const licenseBanner = `/**
  * @vureact/compiler-core v1.0.0
- * (c) 2025-present Ryan John
+ * (c) 2025-present Ruihong Zhong (Ryan John)
  * @license MIT
  */
 `;
@@ -11,16 +12,15 @@ export default defineConfig({
   tsconfig: './tsconfig-build.json',
   entry: {
     'compiler-core': 'src/index.ts',
-  },
-  banner: {
-    js: banner,
+    cli: 'src/cli/index.ts',
   },
   outDir: 'lib',
   format: ['cjs', 'esm'],
   dts: true,
   clean: true,
-  splitting: false,
+  splitting: true,
   minify: false,
+  sourcemap: false,
   external: [
     '@babel/generator',
     '@babel/parser',
@@ -38,8 +38,27 @@ export default defineConfig({
     'ora',
     'chokidar',
   ],
-  sourcemap: true,
-  // 确保生成文件的扩展名与 package.json 中的 .mjs / .cjs 一致
+
+  banner: {
+    js: licenseBanner,
+  },
+
+  onSuccess: async () => {
+    const cliFiles = ['lib/cli.mjs', 'lib/cli.cjs'];
+
+    cliFiles.forEach((file) => {
+      if (fs.existsSync(file)) {
+        const content = fs.readFileSync(file, 'utf8');
+
+        // 检查是否已经有了 Shebang，如果没有则添加
+        if (!content.startsWith('#!')) {
+          const newContent = `#!/usr/bin/env node\n${content}`;
+          fs.writeFileSync(file, newContent);
+        }
+      }
+    });
+  },
+
   outExtension({ format }) {
     return {
       js: format === 'esm' ? '.mjs' : '.cjs',
