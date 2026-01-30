@@ -118,13 +118,19 @@ export interface CompileResult extends GeneratorResult {
   };
 }
 
-export type CompileCache = CacheData<Omit<CompilationUnit, 'source' | 'output'>[]>;
+export type CompileCache = CacheData<CompileCacheNode[]>;
 
-export type AssetCache = CacheData<(FileMeta & { path: string })[]>;
+export type AssetCache = CacheData<AssetCacheNode[]>;
 
 interface CacheData<T> {
   cached: T;
 }
+
+export type CacheNode = CompileCacheNode | AssetCacheNode;
+
+export type CompileCacheNode = Omit<CompilationUnit, 'source'>;
+
+export type AssetCacheNode = FileMeta & { file: string };
 
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径
