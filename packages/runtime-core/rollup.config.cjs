@@ -8,7 +8,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 
 const banner = `/**
  * @vureact/runtime-core v1.0.0
- * (c) 2025-present Ryan John
+ * (c) 2025-present Ruihong Zhong (Ryan John)
  * @license MIT
  */
 `;
