@@ -16,6 +16,7 @@
     }
   },
   "files": [
+    "bin",
     "lib"
   ],
   "keywords": [
@@ -37,6 +38,9 @@
   },
   "bugs": {
     "url": "https://github.com/smirk9581/vureact/issues"
+  },
+  "bin": {
+    "vureact": "./bin/vureact.js"
   },
   "scripts": {
     "build": "tsup",
