@@ -4,7 +4,7 @@
   "scripts": {
     "build:compiler-core": "pnpm -F @vureact/compiler-core build",
     "build:runtime-core": "pnpm -F @vureact/runtime-core build",
-    "dev:compile": "pnpm -F @vureact/compiler-core test -- example/index.ts",
+    "dev:compile": "pnpm -F @vureact/compiler-core test -- example/dev.ts",
     "dev:parse": "pnpm -F @vureact/compiler-core test -- src/core/parse/__tests__/index.ts",
     "dev:transform": "pnpm -F @vureact/compiler-core test -- src/core/transform/__tests__/index.ts",
     "dev:codegen": "pnpm -F @vureact/compiler-core test -- src/core/codegen/__tests__/index.ts",
