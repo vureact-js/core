@@ -1,5 +1,5 @@
 import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
-import { PathFilter } from '@shared/path';
+import { normalizePath, PathFilter } from '@shared/path';
 import { genHashByXXH } from '@utils/hash';
 import fs from 'fs';
 import kleur from 'kleur';
@@ -238,6 +238,10 @@ export class Helper {
     return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
   }
 
+  protected async saveCache(filename: string, data: CompileCache | AssetCache) {
+    await this.writeFileWithDir(this.getCacheFilePath(filename), JSON.stringify(data));
+  }
+
   protected genHash(content: string) {
     return genHashByXXH(content);
   }
@@ -289,5 +293,14 @@ export class Helper {
       fileSize: stats.size,
       mtime: stats.mtimeMs,
     };
+  }
+
+  protected async removeOutputFile(filePath: string, resolveOutputPath?: boolean) {
+    const path = resolveOutputPath ? this.resolveOutputPath(filePath) : filePath;
+
+    if (!fs.existsSync(path)) return;
+    await fs.promises.unlink(path);
+
+    this.print(kleur.yellow('Removed'), kleur.cyan(normalizePath(this.relativePath(path))));
   }
 }
