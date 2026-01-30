@@ -4,8 +4,9 @@
     "module": "ESNext",
 
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
+    "noEmit": true,
 
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -16,7 +17,8 @@
     "moduleDetection": "force",
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "allowImportingTsExtensions": true
   },
   "types": ["jest", "node"],
   "exclude": ["lib", "node_modules"]
