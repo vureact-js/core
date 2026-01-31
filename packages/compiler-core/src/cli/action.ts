@@ -6,33 +6,16 @@ import ora, { Ora } from 'ora';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { CacheFilename, CompilerOptions, VuReact } from '../compiler';
+import { CliOptions } from './types';
 
-export async function cliAction(root: any, options: any) {
+export async function cliAction(root: string, options: CliOptions) {
   const projectRoot = root ? path.resolve(process.cwd(), root) : process.cwd();
 
   // 加载用户本地配置 (vureact.config.js)
   const userConfig = await loadUserConfig(projectRoot);
+  const finalConfig = mergeCliConfig(projectRoot, options, userConfig);
 
-  const mergeConfig: CompilerOptions = {
-    root: projectRoot,
-    input: options.input || userConfig.input,
-    exclude: options.exclude
-      ? Array.isArray(options.exclude)
-        ? options.exclude
-        : [options.exclude]
-      : userConfig.exclude,
-    recursive: options.recursive ?? userConfig.recursive,
-    output: {
-      workspace: options.workspace || userConfig.output?.workspace,
-      outDir: options.outDir || userConfig.output?.outDir,
-    },
-    format: {
-      enabled: options.format ?? userConfig.format?.enabled,
-      formatter: options.formatter || userConfig.format?.formatter,
-    },
-  };
-
-  const compiler = new VuReact(mergeConfig);
+  const compiler = new VuReact(finalConfig);
   const spinner = ora();
 
   // 1. 首次全量运行
@@ -41,12 +24,12 @@ export async function cliAction(root: any, options: any) {
   spinner.succeed('✨ Compilation finished.');
 
   // 2. 进入监听模式
-  if (options.watch) {
-    setupWatcher(compiler, mergeConfig, spinner);
+  if (finalConfig.watch) {
+    setupWatcher(compiler, finalConfig, spinner);
   }
 }
 
-async function loadUserConfig(root: string) {
+async function loadUserConfig(root: string): Promise<CompilerOptions> {
   const configPath = path.resolve(root, 'vureact.config.js');
 
   if (!existsSync(configPath)) return {};
@@ -64,6 +47,35 @@ async function loadUserConfig(root: string) {
     );
     return {};
   }
+}
+
+function mergeCliConfig(
+  projectRoot: string,
+  options: CliOptions,
+  userConfig: CompilerOptions,
+): CompilerOptions {
+  return {
+    root: projectRoot,
+    input: options.input || userConfig.input,
+    watch: options.watch ?? userConfig.watch,
+    recursive: options.recursive ?? userConfig.recursive,
+
+    exclude: options.exclude
+      ? Array.isArray(options.exclude)
+        ? options.exclude
+        : [options.exclude]
+      : userConfig.exclude,
+
+    output: {
+      workspace: options.workspace || userConfig.output?.workspace,
+      outDir: options.outDir || userConfig.output?.outDir,
+    },
+
+    format: {
+      enabled: options.format ?? userConfig.format?.enabled,
+      formatter: options.formatter || userConfig.format?.formatter,
+    },
+  };
 }
 
 function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) {
