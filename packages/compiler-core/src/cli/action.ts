@@ -5,7 +5,7 @@ import kleur from 'kleur';
 import ora, { Ora } from 'ora';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { CacheFilename, CompilerOptions, VuReact } from '../compiler';
+import { CacheFilename, CompilationUnit, CompilerOptions, VuReact } from '../compiler';
 import { CliOptions } from './types';
 
 export async function cliAction(root: string, options: CliOptions) {
@@ -92,40 +92,68 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
   });
 
   watcher.on('all', async (event, filePath) => {
-    const isVue = filePath.endsWith('.vue');
-
-    const removeOutputPath = (type: CacheFilename) => compiler.removeOutputPath(filePath, type);
-
     switch (event) {
       case 'add':
       case 'change':
-        if (isVue) {
-          await compiler.processSingleFile(filePath);
-        } else {
-          await compiler.processSingleAsset(filePath);
-        }
-
+        await onRecompile(event, filePath);
         spinner.succeed();
         break;
 
       case 'unlink':
-        // 单个文件删除
-        if (isVue) {
-          await removeOutputPath(CacheFilename.COMPILE);
-        } else {
-          await removeOutputPath(CacheFilename.ASSET);
-        }
-
-        spinner.succeed();
-        break;
-
       case 'unlinkDir':
-        // 文件夹删除：尝试同时清理 Vue 产物和 资产产物
-        // 这里不需要判断 isVue，因为文件夹本身不带后缀
-        await removeOutputPath(CacheFilename.COMPILE);
-        await removeOutputPath(CacheFilename.ASSET);
+        onRemoveFile(event, filePath);
         spinner.succeed();
         break;
     }
   });
+
+  const onRecompile = async (event: 'add' | 'change', filePath: string) => {
+    const result: { compilationUnit?: CompilationUnit; assetFile?: string } = {
+      compilationUnit: undefined,
+      assetFile: undefined,
+    };
+
+    if (filePath.endsWith('.vue')) {
+      const unit = await compiler.processSingleFile(filePath);
+
+      if (unit) {
+        unit.source = '';
+
+        if (unit.output) {
+          unit.output.css.code = '';
+          unit.output.jsx.code = '';
+        }
+
+        result.compilationUnit = unit;
+      }
+    } else {
+      const { file } = await compiler.processSingleAsset(filePath);
+      result.assetFile = file;
+    }
+
+    // 执行 onChange
+    await config.onChange?.(event, result);
+  };
+
+  const onRemoveFile = async (type: 'unlink' | 'unlinkDir', filePath: string) => {
+    const removeOutputPath = (type: CacheFilename) => {
+      return compiler.removeOutputPath(filePath, type);
+    };
+
+    // 单个文件删除
+    if (type === 'unlink') {
+      if (filePath.endsWith('.vue')) {
+        // 删除 Vue 文件对应的编译产物
+        await removeOutputPath(CacheFilename.COMPILE);
+      } else {
+        // 删除对应附属资产
+        await removeOutputPath(CacheFilename.ASSET);
+      }
+    } else if (type === 'unlinkDir') {
+      // 文件夹删除：尝试同时清理 Vue 产物和 资产产物
+      // 这里不需要判断 isVue，因为文件夹本身不带后缀
+      await removeOutputPath(CacheFilename.COMPILE);
+      await removeOutputPath(CacheFilename.ASSET);
+    }
+  };
 }
