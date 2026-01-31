@@ -5,7 +5,7 @@ import { cliAction } from './action';
 const cli = cac('vureact');
 
 cli
-  .command('[root]', 'Compile Vue files to React')
+  .command('[root]', 'Compile Vue3 to React')
   // 基础路径配置
   .option('-i, --input <dir>', 'Input directory (relative to root)', { default: 'src' })
   .option('-o, --outDir <dir>', 'Output directory name', { default: 'dist' })
@@ -18,7 +18,7 @@ cli
   .option('--no-recursive', 'Disable recursive search in subdirectories')
 
   // 格式化配置
-  .option('--no-format', 'Disable code formatting')
+  .option('--format', 'Enable code formatting', { default: false })
   .option('--formatter <type>', 'Choose formatter: "prettier" or "builtin"', {
     default: 'prettier',
   })
