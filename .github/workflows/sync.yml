@@ -1,0 +1,23 @@
+name: Sync to Gitee
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+
+jobs:
+  repo-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror action
+        uses: Yikun/hub-mirror-action@master
+        with:
+          src: github/vureact-js
+          dst: gitee/vureact-js
+          dst_token: ${{ secrets.GITEE_TOKEN }}
+          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
+          clone_style: 'ssh'
+          static_list: '${{ github.event.repository.name }}'
+          force_update: true
