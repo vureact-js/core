@@ -5,6 +5,7 @@ import path from 'path';
 import { BaseCompiler } from './base-compiler';
 import {
   AssetCache,
+  AssetCacheNode,
   CacheFilename,
   CacheNode,
   CompilationUnit,
@@ -73,7 +74,10 @@ export class FileCompiler extends BaseCompiler {
    * @param filePath Absolute path
    * @param existingCache Optional preloaded cache object
    */
-  async processSingleFile(filePath: string, existingCache?: CompileCache) {
+  async processSingleFile(
+    filePath: string,
+    existingCache?: CompileCache,
+  ): Promise<CompilationUnit | undefined> {
     const start = performance.now();
     const absPath = this.getAbsPath(filePath);
 
@@ -124,6 +128,8 @@ export class FileCompiler extends BaseCompiler {
       kleur.cyan(normalizePath(this.relativePath(unit.file))),
       kleur.magenta(`(${duration})`),
     );
+
+    return processed;
   }
 
   /**
@@ -240,7 +246,7 @@ export class FileCompiler extends BaseCompiler {
   /**
    * Process single asset file, compare with cache and decide whether to copy.
    */
-  async processSingleAsset(filePath: string, existingCache?: AssetCache) {
+  async processSingleAsset(filePath: string, existingCache?: AssetCache): Promise<AssetCacheNode> {
     const absPath = this.getAbsPath(filePath);
     const currentMeta: AssetCache['cached'][0] = {
       file: absPath,
