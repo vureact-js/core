@@ -104,6 +104,28 @@ export interface CompilerOptions {
    * Execute only after the first successful full compilation.
    */
   onSuccess?: () => Promise<void | undefined>;
+
+  /**
+   * Execute after file are added or recompiled in `watch` mode.
+   *
+   * @param type Add or modify file
+   * @param result Options
+   */
+  onChange?: (
+    type: 'add' | 'change',
+    result: {
+      /**
+       * The compilation result of the current file.
+       *
+       * Note that the contents of the `source` and `code` fields have been cleared.
+       */
+      compilationUnit?: CompilationUnit;
+      /**
+       * The path of the asset file.
+       */
+      assetFile?: string;
+    },
+  ) => Promise<void | undefined>;
 }
 
 export interface CompileFileResult {
