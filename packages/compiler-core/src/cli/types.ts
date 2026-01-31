@@ -2,7 +2,7 @@ import { CompilerOptions } from '@src/compiler';
 
 export interface CliOptions extends Omit<
   CompilerOptions,
-  'output' | 'format' | 'generate' | 'logging' | 'onSuccess'
+  'output' | 'format' | 'generate' | 'logging' | 'onSuccess' | 'onChange'
 > {
   /**
    * @default '.vureact'
