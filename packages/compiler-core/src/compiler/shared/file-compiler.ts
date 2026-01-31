@@ -40,6 +40,9 @@ export class FileCompiler extends BaseCompiler {
     // 2. 资源处理管线 (所有非 vue 文件)
     await this.assetPipeline();
 
+    // 3. 执行成功回调
+    await this.options.onSuccess?.();
+
     const end = performance.now();
 
     if (this.skippedCount) {
