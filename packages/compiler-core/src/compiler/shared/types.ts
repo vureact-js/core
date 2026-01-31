@@ -57,9 +57,15 @@ export interface CompilerOptions {
    */
   generate?: GeneratorOptions;
 
+  /**
+   * Watch files in real time and auto-recompile on changes.
+   * @default false
+   */
+  watch?: boolean;
+
   format?: {
     /**
-     * @default true
+     * @default false
      */
     enabled?: boolean;
 
@@ -93,6 +99,11 @@ export interface CompilerOptions {
     /** Whether to output error messages. */
     errors?: boolean;
   };
+
+  /**
+   * Execute only after the first successful full compilation.
+   */
+  onSuccess?: () => Promise<void | undefined>;
 }
 
 export interface CompileFileResult {
