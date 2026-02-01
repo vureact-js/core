@@ -11,17 +11,15 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Private Repo
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup SSH for Gitee
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          cat << EOF > ~/.ssh/id_ed25519
-          ${{ secrets.GITEE_PRIVATE_KEY }}
-          EOF
+          echo "${{ secrets.GITEE_PRIVATE_KEY }}" | base64 -d > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan gitee.com >> ~/.ssh/known_hosts
 
