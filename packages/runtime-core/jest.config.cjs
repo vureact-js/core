@@ -11,8 +11,6 @@ module.exports = {
 
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
 
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
-
   transformIgnorePatterns: ['/node_modules/'],
 
   testMatch: ['<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx)'],
