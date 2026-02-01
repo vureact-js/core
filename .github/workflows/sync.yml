@@ -11,11 +11,21 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Private Repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Setup SSH for Gitee
+        run: |
+          mkdir -p ~/.ssh
+          cat << EOF > ~/.ssh/id_ed25519
+          ${{ secrets.GITEE_PRIVATE_KEY }}
+          EOF
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
       - name: Push to Gitee
         run: |
-          git push "https://${{ secrets.GITEE_TOKEN }}@gitee.com/vureact-js/core.git" ${{ github.ref_name }} -f --tags
+          git remote add gitee git@gitee.com:vureact-js/core.git
+          git push gitee ${{ github.ref_name }} -f --tags
