@@ -30,14 +30,14 @@
     "compiler",
     "transformer"
   ],
-  "homepage": "https://vureact.vercel.app/en/compiler-core",
+  "homepage": "https://vureact.vercel.app/en",
   "repository": {
     "type": "git",
-    "url": "https://github.com/smirk9581/vureact.git",
+    "url": "https://github.com/vureact-js/core.git",
     "directory": "packages/compiler-core"
   },
   "bugs": {
-    "url": "https://github.com/smirk9581/vureact/issues"
+    "url": "https://github.com/vureact-js/core/issues"
   },
   "bin": {
     "vureact": "./bin/vureact.js"
