@@ -1,5 +1,5 @@
 /**
- * @see https://vureact.vercel.app/en/adapter-utils/nextTick
+ * @see https://vureact-runtime.vercel.app/en/utils/nextTick
  */
 export function nextTick<T, R>(this: T, fn?: (this: T) => R | Promise<R>): Promise<R> {
   return new Promise((resolve) => {

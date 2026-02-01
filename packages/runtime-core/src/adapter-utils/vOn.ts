@@ -41,7 +41,7 @@ export function vOn<E = any>(event: string, handler: any, fullEventObj?: boolean
  * <div onMouseDown={vOn('mousedown.right', e => {})} />
  * <div onKeyDown={vOn('keydown.enter', e => {})} />
  *
- * @see https://vureact.vercel.app/en/adapter-utils/vOn
+ * @see https://vureact-runtime.vercel.app/en/utils/vOn
  */
 export function vOn<E = any>(
   event: string,

@@ -27,7 +27,7 @@ const factoryCache = new Map<ContextKey, FactoryCache>();
  * const withDefault = useCtx('count', 0);
  * const withFactory = useCtx('count', () => Date.now(), true);
  *
- * @see https://vureact.vercel.app/en/adapter-components/context-provider
+ * @see https://vureact-runtime.vercel.app/en/components/context-provider
  */
 export function useCtx<T>(name: ContextKey): T | undefined;
 export function useCtx<T>(name: ContextKey, defaultValue: T, treatDefaultAsFactory?: false): T;

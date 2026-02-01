@@ -46,7 +46,7 @@ const globalOffscreenContainer: HTMLElement | null =
 /**
  * Equivalent to Vue `<KeepAlive>` component, with the same props and usage.
  *
- * @see https://vureact.vercel.app/en/adapter-components/keep-alive
+ * @see https://vureact-runtime.vercel.app/en/components/keep-alive
  */
 export const KeepAlive = memo((props: PropsWithChildren<KeepAliveProps>) => {
   const { include, exclude, max = 10, children } = props;

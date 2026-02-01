@@ -34,7 +34,7 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
 /**
  * Equivalent to Vue `<TransitionGroup>` components, with the same props and usage.
  *
- * @see https://vureact.vercel.app/en/adapter-components/transition-group
+ * @see https://vureact-runtime.vercel.app/en/components/transition-group
  */
 export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupProps>) => {
   const { children, htmlProps, tag = null, ...transitionProps } = props;

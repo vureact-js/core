@@ -37,7 +37,7 @@ export interface CtxProviderProps<T, K = ContextKey> extends PropsWithChildren {
  *   <ChildComponent />
  * </CtxProvider>
  *
- * @see https://vureact.vercel.app/en/adapter-components/context-provider
+ * @see https://vureact-runtime.vercel.app/en/components/context-provider
  */
 export function CtxProvider<T, K = ContextKey>(props: CtxProviderProps<T, K>) {
   const { name, value, children } = props;

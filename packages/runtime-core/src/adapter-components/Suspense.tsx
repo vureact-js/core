@@ -43,7 +43,7 @@ export interface SuspenseProps {
 /**
  * Equivalent to Vue `<Suspense>` components, with the same props and usage.
  *
- * @see https://vureact.vercel.app/en/adapter-components/suspense
+ * @see https://vureact-runtime.vercel.app/en/components/suspense
  */
 export const Suspense = memo((props: SuspenseProps) => {
   const {

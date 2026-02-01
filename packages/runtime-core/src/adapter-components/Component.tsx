@@ -14,7 +14,7 @@ export interface ComponentProps extends Record<string, any> {
 /**
  * Equivalent to Vue dynamic component, with the same props and usage.
  *
- * @see https://vureact.vercel.app/en/adapter-components/dynamic-component
+ * @see https://vureact-runtime.vercel.app/en/components/dynamic-component
  */
 export const Component = memo(
   ({ is, children, ...otherProps }: PropsWithChildren<ComponentProps>): ReactNode => {

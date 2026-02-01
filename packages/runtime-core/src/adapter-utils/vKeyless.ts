@@ -14,7 +14,7 @@ type Object = Record<string, any>;
  * @example
  * <div {...vKeyless({ id: 'foo', class: { active: true }, onClick: handler })} />
  *
- * @see https://vureact.vercel.app/en/adapter-utils/vKeyless
+ * @see https://vureact-runtime.vercel.app/en/utils/vKeyless
  */
 export function vKeyless(obj: Object): Object {
   const props: Object = {};

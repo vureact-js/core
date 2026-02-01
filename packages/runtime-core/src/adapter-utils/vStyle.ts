@@ -15,7 +15,7 @@ export type VStyleItem = string | Record<string, any> | VStyleItem[] | null | un
  * @param {Array<VStyleItem>} mergeItems - Additional style sources to merge
  * @returns A React-compatible style object
  *
- * @see https://vureact.vercel.app/en/adapter-utils/vStyle
+ * @see https://vureact-runtime.vercel.app/en/utils/vStyle
  */
 
 export function vStyle(target: VStyleItem, ...mergeItems: VStyleItem[]): object {

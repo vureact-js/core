@@ -22,7 +22,7 @@ export interface TeleportProps {
 /**
  * Equivalent to Vue `<Teleport>` components, with the same usage.
  *
- * @see https://vureact.vercel.app/en/adapter-components/teleport
+ * @see https://vureact-runtime.vercel.app/en/components/teleport
  */
 export const Teleport = memo((props: PropsWithChildren<TeleportProps>) => {
   const { to, disabled, defer, children } = props;

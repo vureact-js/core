@@ -15,7 +15,7 @@ export type ClsInputValue = string | Record<string, any> | ClsInputValue[];
  * vCls({ foo: true }, 'bar')                               // "foo bar"
  * vCls(['a', 'b'], ['c', { d: true }])                     // "a b c d"
  *
- * @see https://vureact.vercel.app/en/adapter-utils/vCls
+ * @see https://vureact-runtime.vercel.app/en/utils/vCls
  */
 export function vCls(value: ClsInputValue, mergeItem?: ClsInputValue): string {
   const baseResult = processInput(value);
