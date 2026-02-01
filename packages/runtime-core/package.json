@@ -2,9 +2,9 @@
   "name": "@vureact/runtime-core",
   "version": "1.0.0",
   "type": "module",
-  "main": "./lib/cjs/runtime-core.cjs",
-  "module": "./lib/esm/runtime-core.mjs",
-  "types": "./lib/types/runtime-core.d.ts",
+  "main": "./dist/cjs/runtime-core.cjs",
+  "module": "./dist/esm/runtime-core.mjs",
+  "types": "./dist/types/runtime-core.d.ts",
   "author": "Ryan John",
   "license": "MIT",
   "description": "React adapter for Vue 3's built-in components, reactive APIs, partial template v-directive value processing utilities, as well as basic and commonly used Vue Router adaptations.",
@@ -18,28 +18,28 @@
   ],
   "exports": {
     ".": {
-      "types": "./lib/types/runtime-core.d.ts",
-      "import": "./lib/esm/runtime-core.mjs",
-      "require": "./lib/cjs/runtime-core.cjs"
+      "types": "./dist/types/runtime-core.d.ts",
+      "import": "./dist/esm/runtime-core.mjs",
+      "require": "./dist/cjs/runtime-core.cjs"
     },
     "./adapter-components": {
-      "types": "./lib/types/adapter-components.d.ts",
-      "import": "./lib/esm/adapter-components.mjs",
-      "require": "./lib/cjs/adapter-components.cjs"
+      "types": "./dist/types/adapter-components.d.ts",
+      "import": "./dist/esm/adapter-components.mjs",
+      "require": "./dist/cjs/adapter-components.cjs"
     },
     "./adapter-hooks": {
-      "types": "./lib/types/adapter-hooks.d.ts",
-      "import": "./lib/esm/adapter-hooks.mjs",
-      "require": "./lib/cjs/adapter-hooks.cjs"
+      "types": "./dist/types/adapter-hooks.d.ts",
+      "import": "./dist/esm/adapter-hooks.mjs",
+      "require": "./dist/cjs/adapter-hooks.cjs"
     },
     "./adapter-utils": {
-      "types": "./lib/types/adapter-utils.d.ts",
-      "import": "./lib/esm/adapter-utils.mjs",
-      "require": "./lib/cjs/adapter-utils.cjs"
+      "types": "./dist/types/adapter-utils.d.ts",
+      "import": "./dist/esm/adapter-utils.mjs",
+      "require": "./dist/cjs/adapter-utils.cjs"
     }
   },
   "files": [
-    "lib"
+    "dist"
   ],
   "homepage": "https://vureact.vercel.app/en/runtime-core",
   "repository": {
@@ -51,7 +51,7 @@
     "url": "https://github.com/smirk9581/vureact/issues"
   },
   "scripts": {
-    "clean": "rimraf lib",
+    "clean": "rimraf dist",
     "build": "pnpm clean && rollup -c --bundleConfigAsCjs",
     "test": "jest",
     "test:watch": "jest --watch",

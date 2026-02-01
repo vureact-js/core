@@ -29,7 +29,7 @@ const manualChunks = (id) => {
 };
 
 const outputItem = (type = 'cjs', format = 'cjs') => ({
-  dir: `lib/${type}`,
+  dir: `dist/${type}`,
   format,
   entryFileNames: `[name].${type}`, // 保持分包目录结构
   chunkFileNames: `chunks/[name]-[hash].${type}`, // 公共代码提取到 chunks 目录
@@ -124,7 +124,7 @@ export default [
   ...Object.keys(entries).map((name) => ({
     input: entries[name],
     output: {
-      file: `lib/types/${name}.d.ts`,
+      file: `dist/types/${name}.d.ts`,
       format: 'es',
     },
     plugins: [dts()],
