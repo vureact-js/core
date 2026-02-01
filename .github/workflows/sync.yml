@@ -18,6 +18,6 @@ jobs:
           dst: gitee/vureact-js
           dst_token: ${{ secrets.GITEE_TOKEN }}
           dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-          clone_style: 'ssh'
+          clone_style: 'https'
           static_list: '${{ github.event.repository.name }}'
           force_update: true
