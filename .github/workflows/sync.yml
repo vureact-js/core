@@ -8,22 +8,26 @@ on:
       - '*'
 
 jobs:
-  repo-sync:
+  sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout target repo
+      # 1. 使用官方 Action 拉取 GitHub 代码（自动处理私有库权限）
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Mirror action
-        uses: Yikun/hub-mirror-action@master
-        with:
-          src: github/vureact-js
-          dst: gitee/vureact-js
-          dst_token: ${{ secrets.GITEE_TOKEN }}
-          dst_key: ${{ secrets.GITEE_PRIVATE_KEY }}
-          clone_style: 'https'
-          mappings: 'core=>https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/vureact-js/core.git'
-          static_list: '${{ github.event.repository.name }}'
-          force_update: true
+      # 2. 配置 SSH 密钥，以便能推送到 Gitee
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITEE_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
+
+      # 3. 手动推送到 Gitee
+      - name: Push to Gitee
+        run: |
+          git remote add gitee git@gitee.com:vureact-js/core.git
+          REF_NAME=${{ github.ref_name }}
+          git push gitee $REF_NAME -f --tags
