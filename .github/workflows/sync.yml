@@ -11,23 +11,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # 1. 使用官方 Action 拉取 GitHub 代码（自动处理私有库权限）
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # 2. 配置 SSH 密钥，以便能推送到 Gitee
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GITEE_PRIVATE_KEY }}" | base64 -d > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan gitee.com >> ~/.ssh/known_hosts
-
-      # 3. 手动推送到 Gitee
       - name: Push to Gitee
         run: |
-          git remote add gitee git@gitee.com:vureact-js/core.git
-          REF_NAME=${{ github.ref_name }}
-          git push gitee $REF_NAME -f --tags
+          git push "https://Ryan-Zhong:${{ secrets.GITEE_TOKEN }}@gitee.com/vureact-js/core.git" ${{ github.ref_name }} -f --tags
