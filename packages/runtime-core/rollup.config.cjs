@@ -17,7 +17,6 @@ const entries = {
   'runtime-core': 'src/index.ts',
   'adapter-components': 'src/adapter-components/index.ts',
   'adapter-hooks': 'src/adapter-hooks/index.ts',
-  'adapter-router': 'src/adapter-router/index.ts',
   'adapter-utils': 'src/adapter-utils/index.ts',
 };
 
@@ -43,7 +42,6 @@ const externalPkgs = [
   'react',
   'react-dom',
   'react-transition-group',
-  'react-router-dom',
   'freeze-mutate',
   'immer',
   'klona',

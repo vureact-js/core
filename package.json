@@ -48,7 +48,6 @@
     "@types/node": "^20.19.25",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@types/react-router-dom": "^5.3.3",
     "@types/react-transition-group": "^4.4.12",
     "@types/xxhashjs": "^0.2.4",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
