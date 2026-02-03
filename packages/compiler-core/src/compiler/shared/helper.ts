@@ -33,8 +33,12 @@ export class Helper {
   }
 
   protected print(...message: any[]) {
+    const date = new Date();
+    const m = date.getMinutes();
+    const time = `${date.getHours()}:${m < 10 ? '0' + m : m}:${date.getSeconds()}`;
+
     // eslint-disable-next-line no-console
-    console.info(`${kleur.gray('[vureact]')}`, ...message);
+    console.info(kleur.dim(time), kleur.magenta(kleur.bold('[vureact]')), ...message);
   }
 
   /**
@@ -68,21 +72,6 @@ export class Helper {
   protected getSourcePath(outputPath: string): string {
     const relativePath = path.relative(this.getOuputPath(), outputPath);
     return path.resolve(this.getProjectRoot(), relativePath);
-  }
-
-  /**
-   * 1200 => '1.2s'
-   *
-   * 120 => '120ms'
-   */
-  protected formattDuration(n: number): string {
-    const num = n < 1000 ? Math.floor(n) : n.toFixed(1);
-    let duration = `${num} ms`;
-
-    if (n >= 1000) {
-      duration = `${(n / 1000).toFixed(1)}s`;
-    }
-    return duration;
   }
 
   /**
