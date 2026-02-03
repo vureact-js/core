@@ -1,14 +1,16 @@
-import { PathFilter } from '@src/shared/path';
+import { CacheFilename, CompilationUnit, CompilerOptions, VuReact } from '@compiler/index';
+import { PathFilter } from '@shared/path';
+import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import chokidar from 'chokidar';
 import { existsSync } from 'fs';
 import kleur from 'kleur';
 import ora, { Ora } from 'ora';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { CacheFilename, CompilationUnit, CompilerOptions, VuReact } from '../compiler';
 import { CliOptions } from './types';
 
-export async function cliAction(root: string, options: CliOptions) {
+export async function resolveAction(root: string, options: CliOptions) {
+  const start = performance.now();
   const projectRoot = root ? path.resolve(process.cwd(), root) : process.cwd();
 
   // 加载用户本地配置 (vureact.config.js)
@@ -19,12 +21,17 @@ export async function cliAction(root: string, options: CliOptions) {
   const spinner = ora();
 
   // 1. 首次全量运行
-  spinner.start('🚀 Compiling...');
+  spinner.start(kleur.gray('Compiling...'));
+
   await compiler.execute();
-  spinner.succeed('✨ Compilation finished.');
+  const duration = calcElapsedTime(start);
+
+  console.info();
+  spinner.succeed(kleur.bold(kleur.green(` Compilation finished in ${duration}.`)));
 
   // 2. 进入监听模式
   if (finalConfig.watch) {
+    console.info(kleur.gray(`\nWatching...`));
     setupWatcher(compiler, finalConfig, spinner);
   }
 }
@@ -81,9 +88,6 @@ function mergeCliConfig(
 function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) {
   const inputPath = path.resolve(config.root!, config.input!);
   const ignored = !config.exclude?.length ? PathFilter.withDefaults() : config.exclude;
-
-  // eslint-disable-next-line no-console
-  console.info(`\n👀 Watching for changes in: ${config.input}\n`);
 
   const watcher = chokidar.watch(inputPath, {
     ignored,
