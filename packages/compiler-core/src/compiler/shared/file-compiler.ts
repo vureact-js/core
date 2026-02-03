@@ -1,4 +1,5 @@
 import { normalizePath } from '@src/shared/path';
+import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
@@ -31,9 +32,7 @@ export class FileCompiler extends BaseCompiler {
    */
   async execute() {
     // eslint-disable-next-line no-console
-    console.info('\n\n', kleur.bold(kleur.magenta(`    VuReact v${this.version}`)), '\n\n');
-
-    const start = performance.now();
+    console.info('\n\n', kleur.cyan(`${kleur.bold('vureact')} v${this.version}`), '\n');
 
     // 1. Vue文件处理管线
     await this.corePipeline();
@@ -44,14 +43,10 @@ export class FileCompiler extends BaseCompiler {
     // 3. 执行成功回调
     await this.options.onSuccess?.();
 
-    const end = performance.now();
-
     if (this.skippedCount) {
       this.print(kleur.green('✓'), kleur.gray(`Skipped ${this.skippedCount} unchanged file(s)`));
       this.skippedCount = 0;
     }
-
-    this.print(kleur.green(`Done in ${this.formattDuration(end - start)}.`));
   }
 
   /**
@@ -119,14 +114,13 @@ export class FileCompiler extends BaseCompiler {
     }
 
     // 计算编译耗时
-    const end = performance.now();
-    const duration = this.formattDuration(end - start);
+    const duration = calcElapsedTime(start);
 
     // 输出编译信息
     this.print(
       kleur.green('Compiled'),
-      kleur.cyan(normalizePath(this.relativePath(unit.file))),
-      kleur.magenta(`(${duration})`),
+      kleur.dim(normalizePath(this.relativePath(unit.file))),
+      kleur.dim(`(${duration})`),
     );
 
     return processed;
@@ -270,7 +264,7 @@ export class FileCompiler extends BaseCompiler {
     await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.promises.copyFile(absPath, outputPath);
 
-    this.print(kleur.blue('Copied Asset'), kleur.cyan(normalizePath(this.relativePath(absPath))));
+    this.print(kleur.blue('Copied Asset'), kleur.dim(normalizePath(this.relativePath(absPath))));
 
     return currentMeta;
   }
