@@ -4,7 +4,7 @@ import { generate, parse, transform } from '@src/core';
 import { version as pkgVersion } from '../../../package.json';
 import { createCompilationCtx } from '../context';
 import { Helper } from './helper';
-import { CompileResult, CompilerOptions } from './types';
+import { CompiledResult, CompilerOptions } from './types';
 
 /**
  * Basic core compilation: compile Vue code to React code only,
@@ -27,7 +27,7 @@ export class BaseCompiler extends Helper {
    *
    * @param source - The Vue source code string to compile
    * @param filename - Filename with path or only filename
-   * @returns {CompileResult} The compilation result containing generated react component code and metadata
+   * @returns {CompiledResult} The compilation result containing generated react component code and metadata
    * @throws Will not throw, errors are caught and log
    *
    * @example
@@ -35,7 +35,7 @@ export class BaseCompiler extends Helper {
    * const result = compiler.compile('<template><div>Hello</div></template>', 'App.vue');
    * ```
    */
-  compile(source: string, filename = 'anonymous.vue'): CompileResult {
+  compile(source: string, filename = 'anonymous.vue'): CompiledResult {
     const { logging } = this.options;
 
     // 创建编译上下文
