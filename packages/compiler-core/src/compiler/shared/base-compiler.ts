@@ -73,6 +73,7 @@ export class BaseCompiler extends Helper {
       // 打印三个核心模块处理过程中收集的日志消息
       if (logging?.enabled !== false && logger.getLogs().length) {
         logger.printAll(logging);
+        logger.clear();
       }
 
       // 编译结束后清理上下文
