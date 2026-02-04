@@ -5,13 +5,16 @@ import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
 import {
-  AssetCache,
   CacheCheckResult,
-  CacheFilename,
-  CompileCache,
-  CompileResult,
+  CacheKey,
+  CacheList,
+  CacheMeta,
+  CompiledResult,
   CompilerOptions,
+  CopiedAssetCacheMeta,
   FileMeta,
+  LoadedCache,
+  Vue2ReactCacheMeta,
 } from './types';
 
 export class Helper {
@@ -38,7 +41,7 @@ export class Helper {
     const time = `${date.getHours()}:${m < 10 ? '0' + m : m}:${date.getSeconds()}`;
 
     // eslint-disable-next-line no-console
-    console.info(kleur.dim(time), kleur.magenta(kleur.bold('[vureact]')), ...message);
+    console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
   }
 
   /**
@@ -142,7 +145,7 @@ export class Helper {
   /**
    * 格式化代码
    */
-  protected async formatCode({ code, fileInfo }: CompileResult): Promise<string> {
+  protected async formatCode({ code, fileInfo }: CompiledResult): Promise<string> {
     const { format } = this.compilerOpts;
 
     if (!format?.enabled) return code;
@@ -162,7 +165,7 @@ export class Helper {
    */
   protected async checkCacheStatus(
     current: FileMeta,
-    cached: CompileCache['cached'][0] | undefined,
+    cached: CacheMeta | undefined,
     getSource: () => Promise<string>,
   ): Promise<CacheCheckResult> {
     // 1. 无缓存记录，必编
@@ -201,34 +204,55 @@ export class Helper {
 
   /**
    * 加载指定文件的缓存内容
-   * @param name 文件名
+   * @param key 缓存键
    */
-  protected async loadCache(name: CacheFilename.COMPILE): Promise<CompileCache>;
-  protected async loadCache(name: CacheFilename.ASSET): Promise<AssetCache>;
-  protected async loadCache(
-    name: CacheFilename.COMPILE | CacheFilename.ASSET,
-  ): Promise<CompileCache | AssetCache | null> {
-    const cachePath = this.getCacheFilePath(name);
+  protected async loadCache(key: CacheKey.MAIN): Promise<LoadedCache<Vue2ReactCacheMeta>>;
+  protected async loadCache(key: CacheKey.ASSET): Promise<LoadedCache<CopiedAssetCacheMeta>>;
+  protected async loadCache(key: CacheKey): Promise<LoadedCache> {
+    const cacheFile = this.getCachePath();
+    const defaultData = this.createCacheData(key);
 
-    if (!fs.existsSync(cachePath)) return null;
+    if (!fs.existsSync(cacheFile)) {
+      return defaultData;
+    }
 
     try {
-      const content = await fs.promises.readFile(cachePath, 'utf-8');
-      return JSON.parse(content) as CompileCache;
+      const content = await fs.promises.readFile(cacheFile, 'utf-8');
+      const data = JSON.parse(content) as CacheList;
+
+      return {
+        key,
+        target: data[key] || [],
+        source: data,
+      };
     } catch {
-      return null;
+      return defaultData;
     }
+  }
+
+  protected createCacheData(key: CacheKey): LoadedCache {
+    return {
+      key,
+      target: [],
+      source: {
+        [CacheKey.MAIN]: [],
+        [CacheKey.ASSET]: [],
+      },
+    };
   }
 
   /**
    * 获取缓存文件路径
    */
-  protected getCacheFilePath(filename: string): string {
+  protected getCachePath(): string {
+    const filename = '_metadata';
     return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
   }
 
-  protected async saveCache(filename: string, data: CompileCache | AssetCache) {
-    await this.writeFileWithDir(this.getCacheFilePath(filename), JSON.stringify(data));
+  protected async saveCache(data: LoadedCache) {
+    const { key, source, target } = data;
+    source[key] = target as any[];
+    await this.writeFileWithDir(this.getCachePath(), JSON.stringify(source));
   }
 
   protected genHash(content: string) {
