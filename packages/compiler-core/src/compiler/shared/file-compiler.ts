@@ -43,7 +43,7 @@ export class FileCompiler extends BaseCompiler {
     await this.options.onSuccess?.();
 
     if (this.skippedCount) {
-      this.print(kleur.green('✓'), kleur.gray(`Skipped ${this.skippedCount} unchanged file(s)`));
+      console.info(kleur.green('✔'), kleur.gray(`Skipped ${this.skippedCount} unchanged file(s)`));
       this.skippedCount = 0;
     }
   }
@@ -118,7 +118,7 @@ export class FileCompiler extends BaseCompiler {
     this.print(
       kleur.green('Compiled'),
       kleur.dim(normalizePath(this.relativePath(unit.file))),
-      kleur.gray(`(${duration})`),
+      kleur.grey(`(${duration})`),
     );
 
     return processed;
@@ -183,24 +183,14 @@ export class FileCompiler extends BaseCompiler {
    */
   private async updateCompiledCache(unit: CompilationUnit) {
     const cache = await this.loadCache(CacheKey.MAIN);
-
-    // 移除旧条目，添加新条目
-    const cleanUnit = { ...unit };
+    const meta = { ...unit };
 
     // 缓存不存源码和输出内容
-    delete (cleanUnit as any).source;
-    delete (cleanUnit as any).output.jsx.code;
-    delete (cleanUnit as any).output.css.code;
+    delete (meta as any).source;
+    delete (meta as any).output.jsx.code;
+    delete (meta as any).output.css.code;
 
-    const index = cache.target.findIndex((c) => c.file === unit.file);
-
-    // 更新缓存单元
-    if (index > -1) {
-      cache.target[index] = cleanUnit;
-    } else {
-      cache.target.push(cleanUnit);
-    }
-
+    this.updateCache(unit.file, meta, cache);
     await this.saveCache(cache);
   }
 
@@ -223,12 +213,9 @@ export class FileCompiler extends BaseCompiler {
   }
 
   private async updateAssetCaches(files: string[], cache: LoadedCache<CopiedAssetCacheMeta>) {
-    for (const filePath of files) {
-      const assetMeta = await this.processSingleAsset(filePath, cache);
-
-      if (assetMeta) {
-        cache.target.push(assetMeta);
-      }
+    for (const file of files) {
+      const meta = await this.processSingleAsset(file, cache);
+      this.updateCache(file, meta, cache);
     }
 
     await this.saveCache(cache);
