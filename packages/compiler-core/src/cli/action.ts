@@ -1,6 +1,7 @@
 import { CacheKey, CompilationUnit, CompilerOptions, VuReact } from '@compiler/index';
 import { PathFilter } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
+import { formatHHMMSS } from '@utils/date';
 import chokidar from 'chokidar';
 import { existsSync } from 'fs';
 import kleur from 'kleur';
@@ -21,18 +22,22 @@ export async function resolveAction(root: string, options: CliOptions) {
   const spinner = ora();
 
   // 1. 首次全量运行
-  spinner.start(kleur.gray('Compiling...'));
+  spinner.start('Compiling...');
 
   await compiler.execute();
   const duration = calcElapsedTime(start);
 
   console.info();
-  spinner.succeed(kleur.bold(kleur.green(` Compilation finished in ${duration}.`)));
+  spinner.succeed(kleur.bold(kleur.green(`Compilation successfully in ${duration}.`)));
 
   // 2. 进入监听模式
   if (finalConfig.watch) {
-    console.info(kleur.gray(`\nWatching...`));
     setupWatcher(compiler, finalConfig, spinner);
+    console.info(
+      kleur.dim(`\n${formatHHMMSS()}`),
+      kleur.bold(kleur.magenta('[hrm]')),
+      kleur.gray(`Watching...\n`),
+    );
   }
 }
 
@@ -99,14 +104,14 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
     switch (event) {
       case 'add':
       case 'change':
+        spinner.start('Recompiling...');
         await onRecompile(event, filePath);
-        spinner.succeed();
+        spinner.stop();
         break;
 
       case 'unlink':
       case 'unlinkDir':
-        onRemoveFile(event, filePath);
-        spinner.succeed();
+        await onRemoveFile(event, filePath);
         break;
     }
   });
