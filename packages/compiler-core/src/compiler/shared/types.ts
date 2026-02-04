@@ -128,43 +128,6 @@ export interface CompilerOptions {
   ) => Promise<void | undefined>;
 }
 
-export interface CompileFileResult {
-  /** React file path. */
-  filePath: string;
-
-  /** The result of compiling Vue code into React code. */
-  result: CompileResult;
-}
-
-export interface CompileResult extends GeneratorResult {
-  fileId: string;
-  fileInfo: {
-    jsx: {
-      file: string;
-      lang: string;
-    };
-    css: {
-      file?: string;
-      hash?: string;
-      code?: string;
-    };
-  };
-}
-
-export type CompileCache = CacheData<CompileCacheNode[]>;
-
-export type AssetCache = CacheData<AssetCacheNode[]>;
-
-interface CacheData<T> {
-  cached: T;
-}
-
-export type CacheNode = CompileCacheNode | AssetCacheNode;
-
-export type CompileCacheNode = Omit<CompilationUnit, 'source'>;
-
-export type AssetCacheNode = FileMeta & { file: string };
-
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径
   fileId: string; // 文件id
@@ -187,14 +150,52 @@ export interface FileMeta {
   hash?: string; // 内容哈希
 }
 
-export interface CacheCheckResult {
-  shouldCompile: boolean;
-  hash?: string; // 如果计算了新哈希，返回给调用者以便更新缓存
+export interface CompiledFile {
+  /** React file path. */
+  filePath: string;
+
+  /** The result of compiling Vue code into React code. */
+  result: CompiledResult;
 }
 
-export enum CacheFilename {
-  /** 编译缓存 */
-  COMPILE = 'compile-cache',
-  /** 附属资源文件缓存 */
-  ASSET = 'asset-cache',
+export interface CompiledResult extends GeneratorResult {
+  fileId: string;
+  fileInfo: {
+    jsx: {
+      file: string;
+      lang: string;
+    };
+    css: {
+      file?: string;
+      hash?: string;
+      code?: string;
+    };
+  };
+}
+
+export type LoadedCache<T = CacheMeta> = {
+  key: CacheKey;
+  target: T[];
+  source: CacheList;
+};
+
+export type CacheMeta = Vue2ReactCacheMeta | CopiedAssetCacheMeta;
+
+export enum CacheKey {
+  MAIN = 'vue > react',
+  ASSET = 'copied',
+}
+
+export interface CacheList {
+  [CacheKey.MAIN]: Vue2ReactCacheMeta[];
+  [CacheKey.ASSET]: CopiedAssetCacheMeta[];
+}
+
+export type Vue2ReactCacheMeta = Omit<CompilationUnit, 'source'>;
+
+export type CopiedAssetCacheMeta = FileMeta & { file: string };
+
+export interface CacheCheckResult {
+  shouldCompile: boolean;
+  hash?: string;
 }
