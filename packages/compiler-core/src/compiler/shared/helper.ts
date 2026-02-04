@@ -1,5 +1,6 @@
 import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { normalizePath, PathFilter } from '@shared/path';
+import { formatHHMMSS } from '@utils/date';
 import { genHashByXXH } from '@utils/hash';
 import fs from 'fs';
 import kleur from 'kleur';
@@ -36,10 +37,7 @@ export class Helper {
   }
 
   protected print(...message: any[]) {
-    const date = new Date();
-    const m = date.getMinutes();
-    const time = `${date.getHours()}:${m < 10 ? '0' + m : m}:${date.getSeconds()}`;
-
+    const time = formatHHMMSS();
     // eslint-disable-next-line no-console
     console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
   }
@@ -315,5 +313,16 @@ export class Helper {
     await fs.promises.unlink(path);
 
     this.print(kleur.yellow('Removed'), kleur.cyan(normalizePath(this.relativePath(path))));
+  }
+
+  protected updateCache(targetFile: string, newData: any, cache: LoadedCache) {
+    const index = cache.target.findIndex((c) => c.file === targetFile);
+
+    // 更新缓存单元
+    if (index > -1) {
+      cache.target[index] = newData;
+    } else {
+      cache.target.push(newData);
+    }
   }
 }
