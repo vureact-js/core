@@ -1,4 +1,4 @@
-import { CacheFilename, CompilationUnit, CompilerOptions, VuReact } from '@compiler/index';
+import { CacheKey, CompilationUnit, CompilerOptions, VuReact } from '@compiler/index';
 import { PathFilter } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import chokidar from 'chokidar';
@@ -140,7 +140,7 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
   };
 
   const onRemoveFile = async (type: 'unlink' | 'unlinkDir', filePath: string) => {
-    const removeOutputPath = (type: CacheFilename) => {
+    const removeOutputPath = (type: CacheKey) => {
       return compiler.removeOutputPath(filePath, type);
     };
 
@@ -148,16 +148,16 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
     if (type === 'unlink') {
       if (filePath.endsWith('.vue')) {
         // 删除 Vue 文件对应的编译产物
-        await removeOutputPath(CacheFilename.COMPILE);
+        await removeOutputPath(CacheKey.MAIN);
       } else {
         // 删除对应附属资产
-        await removeOutputPath(CacheFilename.ASSET);
+        await removeOutputPath(CacheKey.ASSET);
       }
     } else if (type === 'unlinkDir') {
       // 文件夹删除：尝试同时清理 Vue 产物和 资产产物
       // 这里不需要判断 isVue，因为文件夹本身不带后缀
-      await removeOutputPath(CacheFilename.COMPILE);
-      await removeOutputPath(CacheFilename.ASSET);
+      await removeOutputPath(CacheKey.MAIN);
+      await removeOutputPath(CacheKey.ASSET);
     }
   };
 }
