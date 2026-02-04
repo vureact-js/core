@@ -6,7 +6,7 @@ export function resolveOptions(command: Command): Command {
       // 基础路径配置
       .option('-i, --input <dir>', 'Input directory (relative to root)', { default: 'src' })
       .option('-o, --outDir <dir>', 'Output directory name', { default: 'dist' })
-      .option('-ws, --workspace <dir>', 'The workspace directory for cache and output', {
+      .option('--workspace <dir>', 'The workspace directory for cache and output', {
         default: '.vureact',
       })
 
