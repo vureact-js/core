@@ -16,7 +16,7 @@ interface LogOptions {
 }
 
 interface LogEntry {
-  level: 'warn' | 'error' | 'info';
+  level: 'warning' | 'error' | 'info';
   message: string;
   file?: string;
   line?: number;
@@ -30,7 +30,7 @@ export class Logger {
   private tabWidth: number = 2; // 制表符转换宽度
 
   warn(message: any, opts: LogOptions = {}): void {
-    this.addLog('warn', kleur.yellow(message), opts);
+    this.addLog('warning', kleur.yellow(message), opts);
   }
 
   error(message: any, opts: LogOptions = {}): void {
@@ -41,7 +41,7 @@ export class Logger {
     this.addLog('info', kleur.cyan(message), opts);
   }
 
-  private addLog(level: 'warn' | 'error' | 'info', message: any, opts: LogOptions): void {
+  private addLog(level: 'warning' | 'error' | 'info', message: any, opts: LogOptions): void {
     const { file, source, loc } = opts;
 
     // 提取位置信息
@@ -64,7 +64,7 @@ export class Logger {
 
   private formatHeader(log: LogEntry): string {
     const label = log.level.toUpperCase();
-    const level = this.levelColor(log.level)(`[${label}]`);
+    const level = this.levelColor(log.level)(`${kleur.bold('[vureact]')} ${label}:`);
 
     let location = '\n\n  at ';
 
@@ -138,7 +138,7 @@ export class Logger {
 
     const errorLogs = opts?.errors === false ? [] : logs.filter((l) => l.level === 'error');
 
-    const warnLogs = opts?.warnings === false ? [] : logs.filter((l) => l.level === 'warn');
+    const warnLogs = opts?.warnings === false ? [] : logs.filter((l) => l.level === 'warning');
 
     const infoLogs = opts?.info === false ? [] : logs.filter((l) => l.level === 'info');
 
@@ -158,7 +158,7 @@ export class Logger {
 
     // 输出统计摘要
     const errorCount = logs.filter((log) => log.level === 'error').length;
-    const warnCount = logs.filter((log) => log.level === 'warn').length;
+    const warnCount = logs.filter((log) => log.level === 'warning').length;
     const infoCount = logs.filter((log) => log.level === 'info').length;
 
     if (errorCount > 0 || warnCount > 0) {
@@ -185,7 +185,7 @@ export class Logger {
   }
 
   hasWarnings(): boolean {
-    return this.logs.some((log) => log.level === 'warn');
+    return this.logs.some((log) => log.level === 'warning');
   }
 }
 
