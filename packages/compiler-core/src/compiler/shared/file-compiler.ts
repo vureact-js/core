@@ -5,14 +5,13 @@ import kleur from 'kleur';
 import path from 'path';
 import { BaseCompiler } from './base-compiler';
 import {
-  AssetCache,
-  AssetCacheNode,
-  CacheFilename,
-  CacheNode,
+  CacheKey,
+  CacheMeta,
   CompilationUnit,
-  CompileCache,
-  CompileCacheNode,
   CompilerOptions,
+  CopiedAssetCacheMeta,
+  LoadedCache,
+  Vue2ReactCacheMeta,
 } from './types';
 
 /**
@@ -32,7 +31,7 @@ export class FileCompiler extends BaseCompiler {
    */
   async execute() {
     // eslint-disable-next-line no-console
-    console.info('\n\n', kleur.cyan(`${kleur.bold('vureact')} v${this.version}`), '\n');
+    console.info('\n\n', `${kleur.bold('vureact')} v${this.version}`, '\n');
 
     // 1. Vue文件处理管线
     await this.corePipeline();
@@ -58,9 +57,9 @@ export class FileCompiler extends BaseCompiler {
     const absFiles = new Set(files.map((f) => this.getAbsPath(f)));
 
     // 加载一次缓存供批量对比
-    const cache = (await this.loadCache(CacheFilename.COMPILE)) || { cached: [] };
+    const cache = await this.loadCache(CacheKey.MAIN);
 
-    await this.cleanupDeletedOutput(CacheFilename.COMPILE, (c) => !absFiles.has(c.file));
+    await this.cleanupOldOutput(CacheKey.MAIN, (c) => !absFiles.has(c.file));
     await Promise.all(files.map(async (f) => this.processSingleFile(f, cache)));
   }
 
@@ -71,20 +70,19 @@ export class FileCompiler extends BaseCompiler {
    */
   async processSingleFile(
     filePath: string,
-    existingCache?: CompileCache,
+    existingCache?: LoadedCache<Vue2ReactCacheMeta>,
   ): Promise<CompilationUnit | undefined> {
     const start = performance.now();
     const absPath = this.getAbsPath(filePath);
 
     // 1. 获取最新元数据
-    const currentMeta = await this.getFileMeta(absPath);
+    const fileMeta = await this.getFileMeta(absPath);
 
     // 2. 校验缓存
-    const cache: CompileCache = existingCache || (await this.loadCache(CacheFilename.COMPILE));
+    const cache = existingCache || (await this.loadCache(CacheKey.MAIN));
+    const record = cache.target.find((c) => c.file === absPath);
 
-    const cachedEntry = cache?.cached.find((c) => c.file === absPath);
-
-    const { shouldCompile, hash } = await this.checkCacheStatus(currentMeta, cachedEntry, () =>
+    const { shouldCompile, hash } = await this.checkCacheStatus(fileMeta, record, () =>
       fs.promises.readFile(absPath, 'utf-8'),
     );
 
@@ -96,7 +94,7 @@ export class FileCompiler extends BaseCompiler {
     // 3. 编译
     const source = await fs.promises.readFile(absPath, 'utf-8');
     const unit: CompilationUnit = {
-      ...currentMeta,
+      ...fileMeta,
       file: absPath,
       fileId: '',
       source,
@@ -110,7 +108,7 @@ export class FileCompiler extends BaseCompiler {
     // 5. 产物落地与缓存同步
     if (processed?.output) {
       await this.writeCompilationUnit(processed);
-      await this.updateCacheEntry(processed);
+      await this.updateCompiledCache(processed);
     }
 
     // 计算编译耗时
@@ -120,7 +118,7 @@ export class FileCompiler extends BaseCompiler {
     this.print(
       kleur.green('Compiled'),
       kleur.dim(normalizePath(this.relativePath(unit.file))),
-      kleur.dim(`(${duration})`),
+      kleur.gray(`(${duration})`),
     );
 
     return processed;
@@ -183,8 +181,8 @@ export class FileCompiler extends BaseCompiler {
   /**
    * 增量更新缓存记录
    */
-  private async updateCacheEntry(unit: CompilationUnit) {
-    const cache: CompileCache = (await this.loadCache(CacheFilename.COMPILE)) || { cached: [] };
+  private async updateCompiledCache(unit: CompilationUnit) {
+    const cache = await this.loadCache(CacheKey.MAIN);
 
     // 移除旧条目，添加新条目
     const cleanUnit = { ...unit };
@@ -194,16 +192,16 @@ export class FileCompiler extends BaseCompiler {
     delete (cleanUnit as any).output.jsx.code;
     delete (cleanUnit as any).output.css.code;
 
-    const index = cache.cached.findIndex((c) => c.file === unit.file);
+    const index = cache.target.findIndex((c) => c.file === unit.file);
 
     // 更新缓存单元
     if (index > -1) {
-      cache.cached[index] = cleanUnit;
+      cache.target[index] = cleanUnit;
     } else {
-      cache.cached.push(cleanUnit);
+      cache.target.push(cleanUnit);
     }
 
-    await this.saveCache(CacheFilename.COMPILE, cache);
+    await this.saveCache(cache);
   }
 
   /**
@@ -215,47 +213,49 @@ export class FileCompiler extends BaseCompiler {
     const absFiles = new Set(assetFiles.map((f) => this.getAbsPath(f)));
 
     // 加载资产缓存
-    const cachePath = this.getCacheFilePath(CacheFilename.ASSET);
-    const cache: AssetCache = (await this.loadCache(CacheFilename.ASSET)) || { cached: [] };
+    const cache = await this.loadCache(CacheKey.ASSET);
 
     // 清理缓存中已删除的资产及其输出文件
-    await this.cleanupDeletedOutput(CacheFilename.ASSET, (u) => !absFiles.has(u.file));
+    await this.cleanupOldOutput(CacheKey.ASSET, (u) => !absFiles.has(u.file));
 
-    // @ts-ignore
-    const updatedAssetList: AssetCache['cached'] = [];
+    // 更新缓存
+    await this.updateAssetCaches(assetFiles, cache);
+  }
 
-    for (const filePath of assetFiles) {
+  private async updateAssetCaches(files: string[], cache: LoadedCache<CopiedAssetCacheMeta>) {
+    for (const filePath of files) {
       const assetMeta = await this.processSingleAsset(filePath, cache);
+
       if (assetMeta) {
-        updatedAssetList.push(assetMeta);
+        cache.target.push(assetMeta);
       }
     }
 
-    // 保存资产缓存，以便下次增量处理
-    const cacheData: AssetCache = { cached: updatedAssetList };
-
-    await this.writeFileWithDir(cachePath, JSON.stringify(cacheData));
+    await this.saveCache(cache);
   }
 
   /**
    * Process single asset file, compare with cache and decide whether to copy.
    */
-  async processSingleAsset(filePath: string, existingCache?: AssetCache): Promise<AssetCacheNode> {
+  async processSingleAsset(
+    filePath: string,
+    existingCache?: LoadedCache<CopiedAssetCacheMeta>,
+  ): Promise<CopiedAssetCacheMeta> {
     const absPath = this.getAbsPath(filePath);
-    const currentMeta: AssetCache['cached'][0] = {
+
+    const fileMeta: CopiedAssetCacheMeta = {
       file: absPath,
       ...(await this.getFileMeta(absPath)),
     };
 
-    const currentCache: AssetCache = existingCache ||
-      (await this.loadCache(CacheFilename.ASSET)) || { cached: [] };
+    const cache = existingCache || (await this.loadCache(CacheKey.ASSET));
 
     // 查找缓存记录
-    const cached = currentCache.cached?.find((f) => f.file === absPath);
+    const record = cache.target.find((f) => f.file === absPath);
 
     // 如果元数据（大小、时间）未变，跳过拷贝
-    if (cached && this.compareFileMeta(cached, currentMeta)) {
-      return currentMeta;
+    if (record && this.compareFileMeta(record, fileMeta)) {
+      return fileMeta;
     }
 
     // 计算输出路径并执行拷贝
@@ -264,9 +264,9 @@ export class FileCompiler extends BaseCompiler {
     await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.promises.copyFile(absPath, outputPath);
 
-    this.print(kleur.blue('Copied Asset'), kleur.dim(normalizePath(this.relativePath(absPath))));
+    this.print(kleur.blue('Copied'), kleur.dim(normalizePath(this.relativePath(absPath))));
 
-    return currentMeta;
+    return fileMeta;
   }
 
   /**
@@ -274,11 +274,11 @@ export class FileCompiler extends BaseCompiler {
    * Delete the build artifacts and cache corresponding to the specified path.
    *
    * @param targetPath The path of the source code (file or folder)
-   * @param {CacheFilename} type The type of cleanup
+   * @param {CacheKey} type The type of cleanup
    */
-  async removeOutputPath(targetPath: string, type: CacheFilename) {
+  async removeOutputPath(targetPath: string, type: CacheKey) {
     const absPath = this.getAbsPath(targetPath);
-    await this.cleanupDeletedOutput(
+    await this.cleanupOldOutput(
       type,
       (u) =>
         u.file === absPath ||
@@ -292,21 +292,23 @@ export class FileCompiler extends BaseCompiler {
   /**
    * Delete the build artifacts or asset files and cache corresponding to the specified path.
    */
+  private async cleanupOldOutput(key: CacheKey, filter: (m: CacheMeta) => boolean) {
+    const cache = await this.loadCache(key as any);
 
-  private async cleanupDeletedOutput(type: CacheFilename, filter: (c: CacheNode) => boolean) {
-    const cache = await this.loadCache(type as any);
-    if (!cache?.cached.length) return;
+    if (!cache.target.length) return;
 
     // 查找匹配条目：路径完全相等，或者是该路径下的子文件
-    const toRemove: CacheNode[] = cache.cached.filter(filter);
+    const toRemove = cache.target.filter(filter);
+
     if (!toRemove.length) return;
 
-    const onRemove = async (c: CacheNode) => {
-      if (type === CacheFilename.COMPILE) {
-        const node = c as CompileCacheNode;
-        if (!node?.output) return;
+    const onRemove = async (m: CacheMeta) => {
+      if (key === CacheKey.MAIN) {
+        const meta = m as Vue2ReactCacheMeta;
 
-        const { jsx, css } = node.output;
+        if (!meta?.output) return;
+
+        const { jsx, css } = meta.output;
 
         // 删除 JSX
         this.removeOutputFile(jsx.file);
@@ -315,13 +317,13 @@ export class FileCompiler extends BaseCompiler {
         if (css?.file) {
           this.removeOutputFile(css.file);
         }
-      } else if (type === CacheFilename.ASSET) {
+      } else if (key === CacheKey.ASSET) {
         // 删除附属资产
-        this.removeOutputFile(c.file, true);
+        this.removeOutputFile(m.file, true);
       }
     };
 
     await Promise.all(toRemove.map(onRemove));
-    await this.saveCache(type, cache);
+    await this.saveCache(cache);
   }
 }
