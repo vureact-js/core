@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
   "version": "1.0.0",
-  "description": "Compile Vue 3 code into React 18+ (JSX/TSX), supporting automated batch processing, precise logic migration, and core adapter packages to simplify component migration from Vue to React.",
+  "description": "This is a next-generation compiler framework that compiles Vue 3 syntax into runnable React 18+ code.",
   "author": "Ryan John",
   "license": "MIT",
   "type": "module",
