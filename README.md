@@ -4,11 +4,9 @@
 
 English | [中文](./README.zh.md)
 
+This is a compiler + adapter library project specifically designed for converting the Vue 3 `<script setup>` syntax.
+
 </div>
-
-The core monorepo for adapting Vue-style APIs/components to React, including compiler and runtime adaptation packages. It aims to convert Vue3 SFC/templates into code runnable in React and provide Vue-style compatible Hooks and components.
-
-
 
 ## Table of Contents
 
@@ -26,7 +24,15 @@ This repository is the core codebase (Core) of VuReact, with the core objectives
 - Provide **compiler-core**: A compiler kernel that parses and converts Vue 3 SFC/templates into React (TSX/JSX) code;
 - Provide **runtime-core**: Implement Vue-style runtime adaptations (components and utilities like Hooks, KeepAlive, Transition, Teleport, etc.).
 
-Application scenarios of the project: Migrating existing Vue3 components to React, using Vue-style APIs in React, or serving as part of a cross-framework conversion toolchain.
+Applicable Scenarios: Batch/individual migration of Vue 3 components to React, with Vue-style APIs used in React, or as part of a cross-framework conversion toolchain.
+
+### Important Note
+
+Our primary focus is on efficiently converting Vue 3's `<script setup>` syntax to React code, and therefore Vue 2 is not supported.
+
+To make the conversion process more reliable, we have established a small set of clear coding rules based on Vue's own programming paradigms. These rules help the compiler better understand your code intent, so please pay slight attention to them before conversion. Rest assured, this will not introduce new complex concepts.
+
+If you have existing Vue 3 components that need conversion, we recommend spending a little time understanding these conventions. All detailed rules and background explanations are available for you in the [official documentation](https://vureact.vercel.app/en).
 
 ## Subpackages (Packages)
 

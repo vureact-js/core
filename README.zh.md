@@ -4,9 +4,8 @@
 
 中文 | [English](./README.md)
 
+这是一款专为转换 Vue 3 `<script setup>` 语法而设计的编译器 + 适配库项目。
 </div>
-
-将 Vue 风格 API/组件适配到 React 的核心仓库（monorepo），包含编译器与运行时适配包，旨在将 Vue3 SFC/模板转换为可在 React 中运行的代码并提供 Vue 风格的兼容 Hooks 与组件。
 
 ## 目录
 
@@ -24,7 +23,15 @@
 - 提供 **compiler-core**：将 Vue 3 SFC/模板解析并转换为 React (TSX/JSX) 代码的编译器内核；
 - 提供 **runtime-core**：实现 Vue 风格的运行时适配（Hooks、KeepAlive、Transition、Teleport 等组件与工具）。
 
-项目适用场景：将现有 Vue3 组件迁移到 React、在 React 中使用 Vue 风格 API 或作为跨框架转换工具链的一部分。
+项目适用场景：将 Vue3 组件批量/单个迁移到 React，且在 React 中使用 Vue 风格 API 或作为跨框架转换工具链的一部分。
+
+### 重要提醒
+
+我们的主要工作是将 Vue 3 的 `<script setup>` 语法高效地转换为 React 代码，因此不支持 Vue 2。
+
+为了使转换过程更可靠，我们依据 Vue 自身的编程范式，约定了一小组清晰的代码规则。这能帮助编译器更好地理解您的代码意图，请您在转换前稍加留意。请放心，这不会引入新的复杂概念。
+
+如果您有现有的 Vue 3 组件需要转换，建议先花一点时间了解这些约定。所有详细规则和背景说明，我们都在[官方文档](https://vureact.vercel.app)中为您准备好了。
 
 ## 子包（Packages）
 
