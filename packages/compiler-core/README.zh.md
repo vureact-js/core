@@ -1,8 +1,12 @@
+<div align="center">
+
 # @vureact/compiler-core
 
 中文 | [English](./README.md)
 
-这是一个将 Vue 3 语法编译为 React 18+ 可运行代码的下一代编译器框架。
+**这是一个将 Vue 3 语法编译为 React 18+ 可运行代码的下一代编译器框架。**
+
+</div>
 
 ## 快速上手
 
@@ -126,6 +130,14 @@ export default function Card(__props: ReactCardProps) {
   ) : null;
 }
 ```
+
+## 贡献指南
+
+[CONTRIBUTING](./CONTRIBUTING.zh.md)
+
+## Issues
+
+[Issues](https://gitee.com/vureact-js/core/issues)
 
 ## 许可
 

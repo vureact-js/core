@@ -1,12 +1,16 @@
+<div align="center">
+
 # @vureact/compiler-core
 
 English | [中文](./README.zh.md)
 
-This is a next-generation compiler framework that compiles Vue 3 syntax into runnable React 18+ code.
+**This is a next-generation compiler framework that compiles Vue 3 syntax into runnable React 18+ code.**
+
+</div>
 
 ## Quick Start
 
-> For more detailed documentation, visit [vureact.vercel.app](https://vureact.vercel.app)！
+> For more detailed documentation, visit [vureact.vercel.app](https://vureact.vercel.app/en)！
 
 ### Installation
 
@@ -126,6 +130,14 @@ export default function Card(__props: ReactCardProps) {
   ) : null;
 }
 ```
+
+## Contributing
+
+[CONTRIBUTING](./CONTRIBUTING.md)
+
+## Issues
+
+[Issues](https://gitee.com/vureact-js/core/issues)
 
 ## License
 
