@@ -8,9 +8,29 @@ English | [中文](./README.zh.md)
 
 </div>
 
+## About the VuReact Compiler
+
+### 🎯 Core Objectives
+
+Specialized in compiling Vue 3 Single-File Components (SFCs).Core conversion is based on the `<script setup>` syntax.Vue 2 is not supported.
+
+### 📜 Required Coding Rules
+
+To provide clear grounds for static analysis by the compiler, we have defined a concise set of Vue paradigm rules.
+
+Purpose: Ensure accurate and controllable conversion.
+
+Nature: These rules are not new inventions, but necessary conventions within Vue's existing programming paradigms.
+
+Experience: You will not bear excessive additional mental burden.
+
+### ℹ️ Notes Before Use
+
+If you plan to convert existing Vue 3 SFCs, ensure they comply with the above rules. For the complete rules and detailed explanations, please visit the [official documentation](https://vureact.vercel.app/en).
+
 ## Quick Start
 
-> For more detailed documentation, visit [vureact.vercel.app](https://vureact.vercel.app/en)！
+> For more detailed tutorials, please visit the [official documentation](https://vureact.vercel.app/en)！
 
 ### Installation
 
@@ -66,7 +86,7 @@ When compilation starts, vureact will automatically use the `src` directory as t
 
 A simple Vue SFC template snippet:
 
-```vue
+```html
 <!-- Card.vue -->
 <template>
   <div class="card" v-if="visible">
@@ -76,11 +96,11 @@ A simple Vue SFC template snippet:
 </template>
 
 <script setup lang="ts">
+// @vr-name: Card (1. This comment is placed at the very top and used to define the component name for the compiler.)
 import { ref } from 'vue';
 
-defineOptions({
-  name: 'Card' /* Define component name for compiler usage */,
-});
+// 2. Alternatively, use Vue's defineOptions to define the component name; there is no conflict between the two approaches.
+defineOptions({ name: 'Card' });
 
 const count = ref(0);
 const visible = ref(true);
@@ -111,7 +131,7 @@ export default function Card(__props: ReactCardProps) {
   const [count, setCount] = useState$(0);
   const [visible, setVisible] = useState$(true);
 
-  // count++
+  // count++ -> __on + Count + Event type
   const __onCountClick = useCallback(() => {
     setCount((count) => {
       count++;

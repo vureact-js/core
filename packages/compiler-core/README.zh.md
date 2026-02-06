@@ -8,9 +8,33 @@
 
 </div>
 
+## 关于 VuReact 编译器
+
+### 🎯 核心目标
+
+专门编译 Vue 3 的单文件组件（SFC）。
+
+核心转换基于 `<script setup>` 语法。
+
+不支持 Vue 2。
+
+### 📜 必要的编程规则
+
+为了给编译器提供明确的静态分析依据，我们定义了一组简明的 Vue 范式规则。
+
+目的：确保转换的精准与可控。
+
+性质：这些规则并非新发明，而是在 Vue 现有编程范式内的必要约定。
+
+体验：您无需承受过多额外的心智负担。
+
+### ℹ️ 使用前请注意
+
+如果您计划转换现有的 Vue 3 SFC，请确保其遵循上述规则。完整规则与详细说明，请访问[官方文档](https://vureact.vercel.app)。
+
 ## 快速上手
 
-> 更详细的文档说明尽在 [vureact.vercel.app](https://vureact.vercel.app) ！
+更多详细教程请访问[官方文档](https://vureact.vercel.app)！
 
 ### 安装
 
@@ -66,7 +90,7 @@ npm run vureact
 
 简单的 Vue SFC 模板片段：
 
-```vue
+```html
 <!-- Card.vue -->
 <template>
   <div class="card" v-if="visible">
@@ -76,11 +100,11 @@ npm run vureact
 </template>
 
 <script setup lang="ts">
+// @vr-name: Card （1. 该注释放在最顶部，用于定义组件名，供编译器使用）
 import { ref } from 'vue';
 
-defineOptions({
-  name: 'Card' /* 定义组件名，供编译器使用 */,
-});
+// 2. 或者使用 Vue 的 defineOptions 定义组件名，互不冲突
+defineOptions({ name: 'Card' });
 
 const count = ref(0);
 const visible = ref(true);
@@ -111,7 +135,7 @@ export default function Card(__props: ReactCardProps) {
   const [count, setCount] = useState$(0);
   const [visible, setVisible] = useState$(true);
 
-  // count++
+  // count++ ->  __on + Count + 事件类型
   const __onCountClick = useCallback(() => {
     setCount((count) => {
       count++;
