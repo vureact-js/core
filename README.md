@@ -1,6 +1,14 @@
+<div align="center">
+
 # VuReact Core
 
-> The core monorepo for adapting Vue-style APIs/components to React, including compiler and runtime adaptation packages. It aims to convert Vue3 SFC/templates into code runnable in React and provide Vue-style compatible Hooks and components.
+English | [中文](./README.zh.md)
+
+</div>
+
+The core monorepo for adapting Vue-style APIs/components to React, including compiler and runtime adaptation packages. It aims to convert Vue3 SFC/templates into code runnable in React and provide Vue-style compatible Hooks and components.
+
+
 
 ## Table of Contents
 
@@ -23,16 +31,18 @@ Application scenarios of the project: Migrating existing Vue3 components to Reac
 ## Subpackages (Packages)
 
 - **@vureact/compiler-core**
+  - Link: [vureact.vercel.app](https://vureact.vercel.app/en)
   - Location: [packages/compiler-core](packages/compiler-core)
-  - Features: Vue SFC parsing, AST transformation, React code generation, CLI (`vureact`) and examples
-  - Documentation: [README.zh.md](./packages/compiler-core/README.zh.md)
-  - Contribution Guide: [CONTRIBUTING.zh.md](./packages/compiler-core/CONTRIBUTING.zh.md)
+  - Features: Vue 3 SFC parsing, AST transformation, React code generation, CLI (`vureact`) and examples
+  - Documentation: [README.md](./packages/compiler-core/README.md)
+  - Contribution Guide: [CONTRIBUTING.md](./packages/compiler-core/CONTRIBUTING.md)
 
 - **@vureact/runtime-core**
+  - Link: [vureact-runtime.vercel.app](https://vureact-runtime.vercel.app/en)
   - Location: [packages/runtime-core](packages/runtime-core)
-  - Features: Adaptation of Vue built-in components (`KeepAlive`/`Transition`, etc.), compatible Hooks (`useState$`/`useWatch`, etc.), directive utils (`vCls`/`vStyle`/`vOn`)
-  - Documentation: [README.zh.md](./packages/runtime-core/README.zh.md)
-  - Contribution Guide: [CONTRIBUTING.zh.md](./packages/runtime-core/CONTRIBUTING.zh.md)
+  - Features: Adaptation of Vue 3 built-in components (`KeepAlive`/`Transition`, etc.), compatible Hooks (`useState$`/`useWatch`, etc.), directive utils (`vCls`/`vStyle`/`vOn`)
+  - Documentation: [README.md](./packages/runtime-core/README.md)
+  - Contribution Guide: [CONTRIBUTING.md](./packages/runtime-core/CONTRIBUTING.md)
 
 ## Repository Structure Overview
 

@@ -1,6 +1,12 @@
+<div align="center">
+
 # VuReact Core
 
-> 将 Vue 风格 API/组件适配到 React 的核心仓库（monorepo），包含编译器与运行时适配包，旨在将 Vue3 SFC/模板转换为可在 React 中运行的代码并提供 Vue 风格的兼容 Hooks 与组件。
+中文 | [English](./README.md)
+
+</div>
+
+将 Vue 风格 API/组件适配到 React 的核心仓库（monorepo），包含编译器与运行时适配包，旨在将 Vue3 SFC/模板转换为可在 React 中运行的代码并提供 Vue 风格的兼容 Hooks 与组件。
 
 ## 目录
 
@@ -23,14 +29,16 @@
 ## 子包（Packages）
 
 - **@vureact/compiler-core**
+  - 官网： [vureact.vercel.app](https://vureact.vercel.app)
   - 位置： [packages/compiler-core](packages/compiler-core)
-  - 功能：Vue SFC 解析、AST 转换、React 代码生成、CLI（`vureact`）和示例
+  - 功能：Vue3 SFC 解析、AST 转换、React 代码生成、CLI（`vureact`）和示例
   - 文档： [README.zh.md](./packages/compiler-core/README.zh.md)
   - 贡献指南： [CONTRIBUTING.zh.md](./packages/compiler-core/CONTRIBUTING.zh.md)
 
 - **@vureact/runtime-core**
+  - 官网： [vureact-runtime.vercel.app](https://vureact-runtime.vercel.app)
   - 位置： [packages/compiler-core](packages/runtime-core)
-  - 功能：Vue 内置组件适配（`KeepAlive`/`Transition` 等）、兼容 Hooks（`useState$`/`useWatch` 等）、指令 util（`vCls`/`vStyle`/`vOn`）
+  - 功能：Vue3 内置组件适配（`KeepAlive`/`Transition` 等）、兼容 Hooks（`useState$`/`useWatch` 等）、指令 util（`vCls`/`vStyle`/`vOn`）
   - 文档： [README.zh.md](./packages/runtime-core/README.zh.md)
   - 贡献指南： [CONTRIBUTING.zh.md](./packages/runtime-core/CONTRIBUTING.zh.md)
 
