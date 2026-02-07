@@ -47,6 +47,13 @@ export class CompilationContext {
           isOccupied: false,
           provide: {},
         },
+        propsTSIface: {
+          name: '',
+          propsTypes: [],
+          emitTypes: [],
+          slotTypes: [],
+        },
+        source: '',
       },
 
       styleData: {
