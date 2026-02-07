@@ -5,8 +5,10 @@ import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { genHashByXXH } from '@utils/hash';
 import { basename } from 'path';
-import { PropsIntersectionType } from '../transform/const';
 import { JSXChild } from './jsx/types';
+
+// 组件 props 参数名
+const propsName = '$props';
 
 export function genReactComponent(
   ctx: ICompilationContext,
@@ -46,19 +48,25 @@ function buildCompFunc(
     return t.functionExpression(fnId, [], t.blockStatement([jsxRoot]));
   }
 
-  const { scriptData } = ctx;
-  const { statement, defineProps } = script;
-
+  const { statement } = script;
   const localStmt = statement.local;
+
   localStmt.push(jsxRoot);
 
-  const paramId = defineProps.id.typeName as t.Identifier;
+  const paramId = t.identifier(propsName);
   const fnExp = t.functionExpression(fnId, [paramId], t.blockStatement(localStmt));
 
+  const { scriptData } = ctx;
+
+  // 追加 ts 类型注解
   if (scriptData.lang.startsWith('ts')) {
-    paramId.typeAnnotation = t.tsTypeAnnotation(
-      t.tsTypeReference(t.identifier(PropsIntersectionType)),
-    );
+    const { name, propsTypes, emitTypes, slotTypes } = scriptData.propsTSIface;
+
+    // 如果没有任何 props 则类型注解为 any
+    const hasProps = propsTypes.length > 0 && emitTypes.length > 0 && slotTypes.length > 0;
+    const refId = t.identifier(hasProps ? name : 'any');
+
+    paramId.typeAnnotation = t.tsTypeAnnotation(t.tsTypeReference(refId));
   }
 
   return fnExp;
