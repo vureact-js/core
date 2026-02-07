@@ -27,7 +27,10 @@ export function processVueScript(
   // 按预定顺序执行流水线
   pipeline(ctx, ast, skipTraversal?.preprocess);
   pipeline(ctx, ast, traversal.preprocess, true);
+
+  pipeline(ctx, ast, skipTraversal?.processMain);
   pipeline(ctx, ast, traversal.processMain, true);
+
   pipeline(ctx, ast, traversal.postprocess, true);
   pipeline(ctx, ast, skipTraversal?.postprocess);
 }
