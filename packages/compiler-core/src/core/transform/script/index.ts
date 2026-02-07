@@ -1,7 +1,6 @@
 import { parse as babelParse, ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { __props, ReactCompEvents, ReactCompProps, ReactCompSlots } from '../const';
 import { optimizeFunction } from './optimizations/function';
 import { processVueScript } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
@@ -11,7 +10,6 @@ import { processReactiveApi } from './syntax-processor/main-process/reactive';
 import { processReadonlyApi } from './syntax-processor/main-process/readonly';
 import { processWatchApi } from './syntax-processor/main-process/watch';
 import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
-import { createPropsIntersectionType } from './syntax-processor/post-process/create-props-interface';
 import { insertCSSImport } from './syntax-processor/post-process/insert-css-import';
 import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
 import { insertVModelEventHandlers } from './syntax-processor/post-process/insert-vmodel-handlers';
@@ -22,8 +20,11 @@ import {
 } from './syntax-processor/post-process/script-blocks';
 import { resolveAsyncComponent } from './syntax-processor/pre-process/resolve-async-component';
 import { resolvesDefineOptions } from './syntax-processor/pre-process/resolve-define-options';
-import { resolveProps } from './syntax-processor/pre-process/resolve-props';
-import { processTemplateSlots } from './syntax-processor/pre-process/resolve-template-slots';
+import {
+  resolveCompIProps,
+  resolvePropsIface,
+} from './syntax-processor/pre-process/resolve-props-interface';
+import { resolveTemplateSlotIface } from './syntax-processor/pre-process/resolve-props-interface/resolve-slot';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
 
@@ -31,14 +32,6 @@ export interface ScriptBlockIR {
   imports: t.ImportDeclaration[];
   exports: t.ExportDeclaration[];
   tsTypes: t.TypeScript[];
-  defineProps: {
-    readonly id: t.TSTypeReference;
-    typeAnnotation: {
-      propsType: PropTSInterface;
-      slotType: PropTSInterface;
-      eventType: PropTSInterface;
-    };
-  };
   /** 存放可执行 js 语句 */
   statement: {
     /**
@@ -74,7 +67,7 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
     traversal: {
       preprocess: [
         resolvesDefineOptions,
-        resolveProps,
+        resolvePropsIface,
         resolveAsyncComponent,
         stripReactiveValueSuffix,
         processTemplateNodeRef,
@@ -98,13 +91,9 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
     },
 
     skipTraversal: {
-      preprocess: [processTemplateSlots],
-      postprocess: [
-        insertCSSImport,
-        insertVModelEventHandlers,
-        extractLocalStatements,
-        createPropsIntersectionType,
-      ],
+      preprocess: [],
+      processMain: [resolveTemplateSlotIface, resolveCompIProps],
+      postprocess: [insertCSSImport, insertVModelEventHandlers, extractLocalStatements],
     },
   });
 
@@ -116,20 +105,6 @@ function createIR(): ScriptBlockIR {
     imports: [],
     exports: [],
     tsTypes: [],
-    defineProps: {
-      id: t.tsTypeReference(t.identifier(__props)),
-      typeAnnotation: {
-        propsType: {
-          id: t.tsTypeReference(t.identifier(ReactCompProps)),
-        },
-        slotType: {
-          id: t.tsTypeReference(t.identifier(ReactCompSlots)),
-        },
-        eventType: {
-          id: t.tsTypeReference(t.identifier(ReactCompEvents)),
-        },
-      },
-    },
     statement: {
       global: [],
       local: [],
