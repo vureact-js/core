@@ -1,3 +1,4 @@
+import * as t from '@babel/types';
 import { LangType } from '@shared/babel-utils';
 
 export interface ICompilationContext {
@@ -23,6 +24,8 @@ export interface ICompilationContext {
     lang: LangType;
     /** 用于收集 Vue 的 `provide(name, value)` */
     provide: ProvideData;
+    propsTSIface: IPropsContext;
+    source: string;
   };
 
   styleData: {
@@ -66,4 +69,24 @@ export interface ProvideData {
   value: string;
   isOccupied: boolean;
   provide: ProvideData | Record<string, any>;
+}
+
+export interface IPropsContext {
+  /**
+   * props 接口名称
+   */
+  name: string;
+
+  /**
+   * 用于记录源码中对应 API 的 ts 类型
+   *
+   * 1.推导出的属性元数据，如 (defineProps(['foo', 'bar']))
+   * 记录 key 和对应的类型（默认为 any/String 等）
+   *
+   * 2.显式定义的 TS 类型节点，如 (defineProps<{...}>)
+   */
+
+  propsTypes: t.TSType[];
+  emitTypes: t.TSType[];
+  slotTypes: t.TSType[];
 }
