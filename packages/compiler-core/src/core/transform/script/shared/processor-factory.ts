@@ -1,9 +1,7 @@
 import { types as t } from '@babel/core';
 import { NodePath } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
-import { logger } from '@src/shared/logger';
-import { __emits, __props } from '../../const';
-import { isCalleeNamed, replaceCallName, setNodeExtensionMeta } from './babel-utils';
+import { replaceCallName, setNodeExtensionMeta } from './babel-utils';
 import { CallExpArgs, ReactiveTypes } from './types';
 import {
   warnVueHookArguments,
@@ -93,52 +91,3 @@ export type PropDescribe = {
   arg: CallExpArgs;
   tsType: t.TSTypeParameterInstantiation | null | undefined;
 };
-
-export function createPropsProcessor(
-  ctx: ICompilationContext,
-  path: NodePath<t.CallExpression>,
-  options: ProcessPropsOptions,
-) {
-  const { node, parentPath } = path;
-  const { callee } = node;
-  const { onProcessed } = options;
-  const { source, filename } = ctx;
-
-  const warnUnexpectedVarName = (target: string, loc: any) => {
-    const expect = (callee as t.Identifier).name === 'defineProps' ? __props : __emits;
-    if (target !== expect) {
-      logger.error(
-        `You must assign the result to the controlled variable "${expect}". ` +
-          'Do not use any other variable name',
-        { source, file: filename, loc },
-      );
-    }
-  };
-
-  if (!isCalleeNamed(node, 'defineProps') && !isCalleeNamed(node, 'defineEmits')) {
-    path.skip();
-    return;
-  }
-
-  if (parentPath.isVariableDeclarator()) {
-    const id = parentPath.node.id as t.Identifier;
-    warnUnexpectedVarName(id.name, id.loc);
-  } else {
-    warnUnexpectedVarName('undefined', node.loc);
-  }
-
-  const prop = {
-    type: (callee as t.Identifier).name as any,
-    id: t.identifier(__props),
-    arg: node.arguments,
-    tsType: node.typeParameters,
-  };
-
-  onProcessed(prop);
-
-  if (parentPath.isVariableDeclaration() || parentPath.isVariableDeclarator()) {
-    parentPath.remove();
-  } else {
-    path.remove();
-  }
-}
