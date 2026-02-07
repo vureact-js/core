@@ -51,6 +51,7 @@ export function parseScript(
   }
 
   ctx.scriptData.lang = (scriptBlock.lang as LangType) || 'js';
+  ctx.scriptData.source = scriptBlock.content;
 
   return result;
 }
