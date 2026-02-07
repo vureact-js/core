@@ -24,6 +24,7 @@ import {
   resolveCompIProps,
   resolvePropsIface,
 } from './syntax-processor/pre-process/resolve-props-interface';
+import { resolveEmitsTopLevelTypes } from './syntax-processor/pre-process/resolve-props-interface/resolve-emits';
 import { resolveTemplateSlotIface } from './syntax-processor/pre-process/resolve-props-interface/resolve-slot';
 import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
@@ -67,6 +68,7 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
     traversal: {
       preprocess: [
         resolvesDefineOptions,
+        resolveEmitsTopLevelTypes,
         resolvePropsIface,
         resolveAsyncComponent,
         stripReactiveValueSuffix,
