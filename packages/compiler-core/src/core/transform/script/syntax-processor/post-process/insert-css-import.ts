@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { normalizePath } from '@shared/path';
-import { __scriptBlockIR } from '../..';
+import { SCRIPT_IR } from '../..';
 
 export function insertCSSImport(ctx: ICompilationContext) {
   const { filePath, moduleName } = ctx.styleData;
@@ -16,5 +16,5 @@ export function insertCSSImport(ctx: ICompilationContext) {
     t.stringLiteral(path),
   );
 
-  __scriptBlockIR.imports.push(importDecl!);
+  SCRIPT_IR.imports.push(importDecl!);
 }

@@ -2,18 +2,18 @@ import { ParseResult } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { __scriptBlockIR } from '../..';
+import { SCRIPT_IR } from '../..';
 import { getNodeExtensionMeta, isVariableDeclTopLevel } from '../../shared/babel-utils';
 
 export function splitScriptBlocks(): TraverseOptions {
   return {
     ImportDeclaration(path) {
-      __scriptBlockIR.imports.push(path.node);
+      SCRIPT_IR.imports.push(path.node);
       path.remove();
     },
 
     ExportDeclaration(path) {
-      __scriptBlockIR.exports.push(path.node);
+      SCRIPT_IR.exports.push(path.node);
       path.remove();
     },
 
@@ -23,7 +23,7 @@ export function splitScriptBlocks(): TraverseOptions {
     ) {
       // 确保是顶级声明（父节点是 Program）
       if (t.isProgram(path.parent)) {
-        __scriptBlockIR.tsTypes.push(path.node as t.TypeScript);
+        SCRIPT_IR.tsTypes.push(path.node as t.TypeScript);
         path.remove();
       }
     },
@@ -36,7 +36,7 @@ export function splitScriptBlocks(): TraverseOptions {
       const globalVar = path.node.declarations.every((node) => !getNodeExtensionMeta(node));
       if (!globalVar) return;
 
-      __scriptBlockIR.statement.global.push(path.node);
+      SCRIPT_IR.statement.global.push(path.node);
       path.remove();
     },
   };
@@ -46,6 +46,6 @@ export function splitScriptBlocks(): TraverseOptions {
  * 提取 `splitScriptBlocks` 分割后的剩余语句，这些语句应放在组件内使用
  */
 export function extractLocalStatements(_: ICompilationContext, ast: ParseResult) {
-  const { statement } = __scriptBlockIR;
+  const { statement } = SCRIPT_IR;
   statement.local = ast.program.body;
 }

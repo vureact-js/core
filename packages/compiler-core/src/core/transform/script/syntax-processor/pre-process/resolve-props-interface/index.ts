@@ -5,7 +5,7 @@ import { COMP_PROPS_NAME, EMITS_API_VAR_NAME, SLOTS_API_VAR_NAME } from '@consts
 import { logger } from '@shared/logger';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
-import { __scriptBlockIR } from '../../..';
+import { SCRIPT_IR } from '../../..';
 import { resolveDefineEmitsIface } from './resolve-emits';
 import { resolveDefinePropsIface } from './resolve-props';
 import { resolveDefineSlotsIface } from './resolve-slot';
@@ -92,5 +92,5 @@ export function resolveCompIProps(ctx: ICompilationContext) {
   propsTSIface.name = ns;
 
   // 导出类型声明
-  __scriptBlockIR.exports.push(t.exportNamedDeclaration(decl));
+  SCRIPT_IR.exports.push(t.exportNamedDeclaration(decl));
 }

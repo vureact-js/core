@@ -4,7 +4,7 @@ import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
 import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
 import { logger } from '@src/shared/logger';
-import { __scriptBlockIR } from '../..';
+import { SCRIPT_IR } from '../..';
 import { isCalleeNamed } from '../../shared/babel-utils';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
@@ -139,6 +139,6 @@ function pushToGlobalScope(path: NodePath<t.CallExpression>) {
     path.remove();
   }
 
-  const { statement } = __scriptBlockIR;
+  const { statement } = SCRIPT_IR;
   statement.global.push(fullNode as t.Statement);
 }
