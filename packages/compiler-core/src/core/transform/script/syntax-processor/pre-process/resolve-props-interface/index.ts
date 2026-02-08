@@ -1,7 +1,7 @@
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { $$emits, $$props, $$slots } from '@core/transform/const';
+import { COMP_PROPS_NAME, EMITS_API_VAR_NAME, SLOTS_API_VAR_NAME } from '@consts/other';
 import { logger } from '@shared/logger';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
@@ -16,9 +16,9 @@ import { resolveDefineSlotsIface } from './resolve-slot';
 export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
   const isTS = ctx.scriptData.lang.startsWith('ts');
   const macroVarNames: Record<string, string> = {
-    defineProps: $$props,
-    defineEmits: $$emits,
-    defineSlots: $$slots,
+    defineProps: COMP_PROPS_NAME,
+    defineEmits: EMITS_API_VAR_NAME,
+    defineSlots: SLOTS_API_VAR_NAME,
   };
 
   return {
