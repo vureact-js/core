@@ -1,14 +1,12 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { COMP_PROPS_NAME } from '@consts/other';
 import { ScriptBlockIR } from '@core/transform/script';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { genHashByXXH } from '@utils/hash';
 import { basename } from 'path';
 import { JSXChild } from './jsx/types';
-
-// 组件 props 参数名
-const propsName = '$props';
 
 export function genReactComponent(
   ctx: ICompilationContext,
@@ -53,7 +51,7 @@ function buildCompFunc(
 
   localStmt.push(jsxRoot);
 
-  const paramId = t.identifier(propsName);
+  const paramId = t.identifier(COMP_PROPS_NAME);
   const fnExp = t.functionExpression(fnId, [paramId], t.blockStatement(localStmt));
 
   const { scriptData } = ctx;
