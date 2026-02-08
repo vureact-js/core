@@ -32,22 +32,25 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
         return;
       }
 
-      // 只在 ts 环境下处�?
+      const { source } = ctx.scriptData;
+
+      // 只在 ts 环境下处理
       if (isTS) {
         if (parentPath.isVariableDeclarator() && t.isIdentifier(parentPath.node.id)) {
           const curId = parentPath.node.id;
+
           if (curId.name !== macroVarName) {
             logger.error(
               `You must assign the result to the controlled variable "${macroVarName}". ` +
                 'Do not use any other variable name',
-              { source: ctx.source, file: ctx.filename, loc: curId.loc! },
+              { source, file: ctx.filename, loc: curId.loc! },
             );
           }
         } else {
           logger.error(
             `You must assign the result to the controlled variable "${macroVarName}". `,
             {
-              source: ctx.source,
+              source,
               file: ctx.filename,
               loc: node.loc!,
             },
