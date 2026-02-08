@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { styleModule } from '@consts/other';
+import { STYLE_MODULE_NAME } from '@consts/other';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { recordImport } from '../../shared/setup-runtime-utils';
 import { PropsIR, PropTypes } from '../props';
@@ -48,7 +48,7 @@ export function resolvePropAsBabelExp(ctx: ICompilationContext, propIR: PropsIR)
     return;
   }
 
-  if (isClassAttr(name) && !value.isStringLiteral && !valueContent.startsWith(styleModule)) {
+  if (isClassAttr(name) && !value.isStringLiteral && !valueContent.startsWith(STYLE_MODULE_NAME)) {
     const arg = mergeItem?.join(',') || wrapSingleQuotes(valueContent);
     const newContent = makeCall(VuR_Runtime.dirCls, [arg]);
 

@@ -1,6 +1,6 @@
 import { Expression, JSXIdentifier } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { styleModule } from '@consts/other';
+import { STYLE_MODULE_NAME } from '@consts/other';
 import { DirectiveNode, NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
 import { BabelExp } from '../shared/types';
@@ -65,7 +65,7 @@ function normalizeDefaultStyleModuleName(prop: DirectiveNode) {
   // 使用 $style 的情况必然是 <style module>
   // 这种情况必须替换成 styleModule
   if (exp.content.includes('$style')) {
-    const newContent = exp.content.replaceAll('$style', styleModule);
+    const newContent = exp.content.replaceAll('$style', STYLE_MODULE_NAME);
     exp.content = newContent;
   }
 }
