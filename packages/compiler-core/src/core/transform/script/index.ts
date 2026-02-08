@@ -2,7 +2,7 @@ import { parse as babelParse, ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { optimizeFunction } from './optimizations/function';
-import { processVueScript } from './syntax-processor';
+import { processVueSyntax } from './syntax-processor';
 import { processComputedApi } from './syntax-processor/main-process/computed';
 import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
 import { resolveProvideInject } from './syntax-processor/main-process/provide-inject';
@@ -49,27 +49,18 @@ export interface ScriptBlockIR {
   };
 }
 
-export type PropTSInterface = {
-  readonly id: t.TSTypeReference;
-  tsType?: t.TSInterfaceDeclaration | t.TSType | t.TSTypeAliasDeclaration;
-};
-
-export const __scriptBlockIR = createIR();
+export const SCRIPT_IR = createScriptIR();
 
 export function transformScript(ctx: ICompilationContext, ast?: ParseResult): ScriptBlockIR {
-  // 没有 script 的情况下，自动添加占位注释以确保转换流程正常运行
   if (!ast) {
-    const comments =
-      '// A placeholder comment is automatically inserted \n' +
-      '// when no script block is present to ensure the processing pipeline works correctly. \n' +
-      '// You can choose whether to remove it.';
-
-    ast = babelParse(comments);
+    // 没有 script 的情况下，自动添加占位注释以确保转换流程正常运行
+    ast = createDefaultAST();
   }
 
-  processVueScript(ctx, ast, {
-    traversal: {
-      preprocess: [
+  // 处理 Vue 脚本语法
+  processVueSyntax(ast, ctx, {
+    preprocess: {
+      applyBabel: [
         resolvesDefineOptions,
         resolveEmitsTopLevelTypes,
         resolveSlotsTopLevelTypes,
@@ -78,35 +69,32 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
         stripReactiveValueSuffix,
         processTemplateNodeRef,
       ],
+    },
 
-      processMain: [
+    process: {
+      applyBabel: [
         processReactiveApi,
         processReadonlyApi,
         processComputedApi,
-        // optimizeFunction 必须放在处理响应式API和生命周期之间，起到承上启下的作用。
-        // 因为需要分析顶层函数体内的响应式依赖，通过阶段标记识别，且变为 useCallback 后，
-        // 也需被其他 hook 调用作为依赖项收集。
         optimizeFunction,
         processWatchApi,
         processWatchEffectApi,
         processLifecycleApi,
         resolveProvideInject,
       ],
-
-      postprocess: [processReactiveValueUpdate, insertRequiredImports, splitScriptBlocks],
+      excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],
     },
 
-    skipTraversal: {
-      preprocess: [],
-      processMain: [resolveTemplateSlotIface, resolveCompIProps],
-      postprocess: [insertCSSImport, insertVModelEventHandlers, extractLocalStatements],
+    postprocess: {
+      applyBabel: [processReactiveValueUpdate, insertRequiredImports, splitScriptBlocks],
+      excludeBabel: [insertCSSImport, insertVModelEventHandlers, extractLocalStatements],
     },
   });
 
-  return __scriptBlockIR;
+  return SCRIPT_IR;
 }
 
-function createIR(): ScriptBlockIR {
+function createScriptIR(): ScriptBlockIR {
   return {
     imports: [],
     exports: [],
@@ -116,4 +104,13 @@ function createIR(): ScriptBlockIR {
       local: [],
     },
   };
+}
+
+function createDefaultAST(): ParseResult<t.File> {
+  const comments =
+    '// A placeholder comment is automatically inserted \n' +
+    '// when no script block is present to ensure the processing pipeline works correctly. \n' +
+    '// You can choose whether to remove it.';
+
+  return babelParse(comments);
 }
