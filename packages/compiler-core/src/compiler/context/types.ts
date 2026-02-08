@@ -15,7 +15,7 @@ export interface ICompilationContext {
     /** 用于收集节点的 ref 属性值 */
     refs: Set<string>;
     /** 用于描述 `<slot>` / `<slot name="" ...props>` */
-    slots: Record<string, object>;
+    slots: Record<string, SlotNodesContext>;
     /** 用于描述 v-model 对应 React 的事件处理函数 */
     models: IRModelEventHandler[];
   };
@@ -38,6 +38,12 @@ export interface ICompilationContext {
 }
 
 export type ImportItem = { name: string; onDemand: boolean };
+
+export interface SlotNodesContext {
+  name: string;
+  isScope: boolean;
+  props: { prop: string; value: string; tsType: t.TSTypeAnnotation }[];
+}
 
 export interface IRModelEventHandler {
   key: string;
