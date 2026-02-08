@@ -1,15 +1,15 @@
-import { ICompilationContext } from '@compiler/context/types';
+import * as t from '@babel/types';
+import { ICompilationContext, SlotNodesContext } from '@compiler/context/types';
 import { logger } from '@src/shared/logger';
 import {
   AttributeNode,
   DirectiveNode,
   NodeTypes,
   SimpleExpressionNode,
-  SourceLocation,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
 import { $$props } from '../../const';
-import { resolveTemplateExp } from '../shared/resolve-str-exp';
+import { stringValueToTSType } from '../../script/shared/babel-utils';
 import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { ElementNodeIR } from './element';
 import { createInterpolationNodeIR } from './node-creators';
@@ -19,93 +19,97 @@ export function transformSlot(
   node: VueElementNode,
   parentIR: ElementNodeIR,
 ) {
-  const slotIR = resolveSlotProps(ctx, node.props);
-  const { slots } = ctx.templateData;
+  const { templateData } = ctx;
+  const slotCtx = resolveSlotProps(ctx, node.props);
 
-  slots[slotIR.name] = slotIR.props;
-
-  replaceSlotNode(ctx, parentIR, slotIR);
+  templateData.slots[slotCtx.name] = slotCtx;
+  replaceSlotNode(parentIR, slotCtx);
 }
-
-type SlotIR = {
-  name: string;
-  props: Record<string, any>;
-};
 
 function resolveSlotProps(
   ctx: ICompilationContext,
   props: (AttributeNode | DirectiveNode)[],
-): SlotIR {
-  const ir: SlotIR = {
-    name: '',
-    props: {},
+): SlotNodesContext {
+  const result: SlotNodesContext = {
+    // 默认插槽 'default' 相当于 react 的 'children'
+    name: 'children',
+    isScope: false,
+    props: [],
   };
 
-  props.forEach((p) => {
-    if (p.type === NodeTypes.ATTRIBUTE) {
-      const key = p.name;
-      const value = p.value?.content.trim();
+  const { source, filename } = ctx;
 
-      if (key === 'name' && value) {
-        ir.name = value;
-        return;
+  const setSlotProps = (key: string, value: any) => {
+    const tsType = stringValueToTSType(ctx, value, true);
+    result.isScope = true;
+    result.props.push({
+      prop: key,
+      value,
+      tsType,
+    });
+  };
+
+  for (const prop of props) {
+    if (prop.type === NodeTypes.ATTRIBUTE) {
+      const attr = prop.name;
+      const value = prop.value?.content.trim();
+
+      // named slot
+      if (attr === 'name' && value) {
+        result.name = value;
+      } else {
+        setSlotProps(attr, `'${value}'`);
       }
 
-      ir.props[key] = `'${value}'`;
-      return;
+      continue;
     }
 
-    if (p.type === NodeTypes.DIRECTIVE) {
-      const arg = p.arg as SimpleExpressionNode;
-      const exp = p.exp as SimpleExpressionNode;
+    if (prop.type === NodeTypes.DIRECTIVE) {
+      const arg = prop.arg as SimpleExpressionNode;
+      const exp = prop.exp as SimpleExpressionNode;
 
-      warnVueDollarVar(ctx, p);
+      warnVueDollarVar(ctx, prop);
 
+      // 不允许使用动态属性名
       if (!arg.isStatic) {
-        warnDynamicSlotProp(ctx, arg.loc);
+        logger.warn('Dynamic slot prop detected. This usage may not be fully supported.', {
+          source,
+          file: filename,
+          loc: arg.loc!,
+        });
       }
 
-      if (arg.content === 'name') {
-        ir.name = exp.content.trim();
-        return;
-      }
+      const key = arg.content;
+      const value = exp.content.trim();
 
-      ir.props[arg.content] = exp.content.toString();
+      if (key === 'name') {
+        result.name = value;
+      } else {
+        setSlotProps(key, value);
+      }
     }
-  });
-
-  // 默认插槽 'default' 相当于 react 的 props.children
-  if (!ir.name || ir.name === 'default') {
-    ir.name = 'children';
   }
 
-  return ir;
+  return result;
 }
 
-function replaceSlotNode(ctx: ICompilationContext, parentIR: ElementNodeIR, slotIR: SlotIR) {
-  let interpContent = `${$$props}.${slotIR.name}`;
+function replaceSlotNode(parentIR: ElementNodeIR, slotCtx: SlotNodesContext) {
+  let expr = `${$$props}.${slotCtx.name}`;
 
-  const isScoped = Object.keys(slotIR.props).length !== 0;
-
-  if (isScoped) {
-    const strKeyVal = Object.entries(slotIR.props)
+  // 处理作用域插槽，转变为 $$props.xxx?.()
+  if (slotCtx.isScope) {
+    const strKeyVal = Object.entries(slotCtx.props)
       .map(([k, v]) => `'${k}': ${v}`)
       .join(', ');
+
     // 转为调用表达式
-    interpContent += `?.({ ${strKeyVal} })`;
+    expr += `?.({ ${strKeyVal} })`;
   }
 
-  const interp = createInterpolationNodeIR(interpContent);
+  const interp = createInterpolationNodeIR(expr);
 
-  interp.babelExp = resolveTemplateExp(ctx, interpContent);
+  // 直接转换成简单的标识符表达式
+  interp.babelExp = t.identifier(expr);
+
   parentIR.children.push(interp);
-}
-
-function warnDynamicSlotProp(ctx: ICompilationContext, loc: SourceLocation) {
-  const { source, filename } = ctx;
-  logger.warn('Dynamic slot prop detected. This usage may not be fully supported.', {
-    source,
-    file: filename,
-    loc,
-  });
 }
