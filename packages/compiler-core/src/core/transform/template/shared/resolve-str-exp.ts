@@ -1,10 +1,10 @@
 import { parseExpression } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { getBabelParseOptions, ParseContext } from '@src/shared/babel-utils';
+import { COMP_PROPS_NAME } from '@consts/other';
+import { getBabelParseOptions, ParseContext } from '@shared/babel-utils';
 import { camelCase } from '@src/utils/camelCase';
-import { capitalize } from '@src/utils/capitalize';
-import { $$props } from '../../const';
+import { capitalize } from '@utils/capitalize';
 
 /**
  * 解决 Vue 模板的各种 js 字符串表达式
@@ -62,7 +62,7 @@ function transformEmitToPropsCall(code: string): string {
 
   const call = args ? `on${handlerName}(${args})` : `on${handlerName}()`;
 
-  return `${$$props}?.${call}`;
+  return `${COMP_PROPS_NAME}?.${call}`;
 }
 
 /**

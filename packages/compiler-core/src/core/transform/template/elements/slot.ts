@@ -1,5 +1,6 @@
 import * as t from '@babel/types';
 import { ICompilationContext, SlotNodesContext } from '@compiler/context/types';
+import { COMP_PROPS_NAME } from '@src/consts/other';
 import { logger } from '@src/shared/logger';
 import {
   AttributeNode,
@@ -8,7 +9,6 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { $$props } from '../../const';
 import { stringValueToTSType } from '../../script/shared/babel-utils';
 import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { ElementNodeIR } from './element';
@@ -94,7 +94,7 @@ function resolveSlotProps(
 }
 
 function replaceSlotNode(parentIR: ElementNodeIR, slotCtx: SlotNodesContext) {
-  let expr = `${$$props}.${slotCtx.name}`;
+  let expr = `${COMP_PROPS_NAME}.${slotCtx.name}`;
 
   // 处理作用域插槽，转变为 $$props.xxx?.()
   if (slotCtx.isScope) {
