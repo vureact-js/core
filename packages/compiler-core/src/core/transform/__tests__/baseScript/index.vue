@@ -12,16 +12,16 @@ enum B {}
 
 defineOptions({ name: 'BaseScript' });
 
-const __props = defineProps(['foo', 'bar']);
+const $$props = defineProps(['foo', 'bar']);
 
-// const __props = defineProps<Props>();
+// const $$props = defineProps<Props>();
 
-// const __props = defineProps<{
+// const $$props = defineProps<{
 //   foo?: string;
 //   bar: number;
 // }>();
 
-// const __props = defineProps({
+// const $$props = defineProps({
 //   foo: String,
 //   bar: {
 //     type: Number,
@@ -29,14 +29,14 @@ const __props = defineProps(['foo', 'bar']);
 //   },
 // });
 
-const __emits = defineEmits(['change', 'update', 'update:name']);
+const $$emits = defineEmits(['change', 'update', 'update:name']);
 
-// const __emits = defineEmits<{
+// const $$emits = defineEmits<{
 //   change: [];
 //   update: [value: number];
 // }>();
 
-// const __emits = defineEmits<{ (e: 'change'): void; (e: 'update', value: number): number }>();
+// const $$emits = defineEmits<{ (e: 'change'): void; (e: 'update', value: number): number }>();
 
 const AdminPage = defineAsyncComponent(() => import('./components/AdminPageComponent.vue'));
 
