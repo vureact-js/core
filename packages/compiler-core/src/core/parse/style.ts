@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { styleModule } from '@consts/other';
+import { STYLE_MODULE_NAME } from '@consts/other';
 import { processScopedWithPostCss } from '@plugins/postcss';
 import { logger } from '@shared/logger';
 import { SFCStyleBlock } from '@vue/compiler-sfc';
@@ -34,7 +34,7 @@ export function parseStyle(
 
   if (style.module) {
     fileExt = `-${fileId}.module${fileExt}`;
-    styleData.moduleName = typeof style.module === 'boolean' ? styleModule : style.module;
+    styleData.moduleName = typeof style.module === 'boolean' ? STYLE_MODULE_NAME : style.module;
   } else {
     fileExt = `-${fileId}${fileExt}`;
   }
