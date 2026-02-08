@@ -1,3 +1,3 @@
-export const __props = '__props';
-export const __emits = '__emits';
-export const __slots = '__slots';
+export const $$props = '$$props';
+export const $$emits = '$$emits';
+export const $$slots = '$$slots';
