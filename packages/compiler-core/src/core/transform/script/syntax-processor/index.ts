@@ -2,52 +2,37 @@ import { ParseResult, traverse } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
 
-interface ProcessOptions {
-  traversal: ProcessFuncOpts<TraversalFunc>;
-  skipTraversal?: ProcessFuncOpts<SkipTraversalFunc>;
+interface ProcessorOptions {
+  preprocess: ProcessorConfig;
+  process: ProcessorConfig;
+  postprocess: ProcessorConfig;
 }
 
-interface ProcessFuncOpts<T> {
-  preprocess?: T[];
-  processMain?: T[];
-  postprocess?: T[];
+interface ProcessorConfig {
+  /** 处理器需依赖于 babel 的 traverse 函数进行调用 */
+  applyBabel?: Array<(ctx: ICompilationContext, ast: ParseResult) => TraverseOptions>;
+  excludeBabel?: Array<(ctx: ICompilationContext, ast: ParseResult) => void>;
 }
 
-type SkipTraversalFunc = (ctx: ICompilationContext, ast: ParseResult) => void;
-
-type TraversalFunc = (ctx: ICompilationContext, ast: ParseResult) => TraverseOptions;
-
-export function processVueScript(
-  ctx: ICompilationContext,
+export function processVueSyntax(
   ast: ParseResult,
-  options: ProcessOptions,
+  ctx: ICompilationContext,
+  options: ProcessorOptions,
 ) {
-  const { traversal, skipTraversal } = options;
+  // 先执行普通处理函数，后执行依赖 babel 的处理函数
+  const runExcludeThenApply = (cfg: ProcessorConfig) => {
+    cfg.excludeBabel?.forEach((fn) => fn(ctx, ast));
+    cfg.applyBabel?.forEach((fn) => traverse(ast, fn(ctx, ast)));
+  };
+
+  // 反之
+  const runApplyThenExclude = (cfg: ProcessorConfig) => {
+    cfg.applyBabel?.forEach((fn) => traverse(ast, fn(ctx, ast)));
+    cfg.excludeBabel?.forEach((fn) => fn(ctx, ast));
+  };
 
   // 按预定顺序执行流水线
-  pipeline(ctx, ast, skipTraversal?.preprocess);
-  pipeline(ctx, ast, traversal.preprocess, true);
-
-  pipeline(ctx, ast, skipTraversal?.processMain);
-  pipeline(ctx, ast, traversal.processMain, true);
-
-  pipeline(ctx, ast, traversal.postprocess, true);
-  pipeline(ctx, ast, skipTraversal?.postprocess);
-}
-
-function pipeline(
-  ctx: ICompilationContext,
-  ast: ParseResult,
-  pipelines?: (TraversalFunc | SkipTraversalFunc)[],
-  needsTraverse: boolean = false,
-) {
-  if (!pipelines?.length) return;
-
-  for (const handler of pipelines) {
-    if (!needsTraverse) {
-      handler(ctx, ast);
-    } else {
-      traverse(ast, handler(ctx, ast) as TraverseOptions);
-    }
-  }
+  runExcludeThenApply(options.preprocess);
+  runExcludeThenApply(options.process);
+  runApplyThenExclude(options.postprocess);
 }
