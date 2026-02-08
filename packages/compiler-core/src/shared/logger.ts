@@ -10,7 +10,7 @@ interface LogOptions {
       line?: number;
       column?: number;
     };
-  };
+  } | null;
   // 自定义上下文行数
   contextLines?: number;
 }
