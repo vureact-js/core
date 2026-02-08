@@ -84,7 +84,7 @@ export function resolveCompIProps(ctx: ICompilationContext) {
   const { propsTypes, emitTypes, slotTypes } = propsTSIface;
 
   const n = ctx.funcName || 'Comp';
-  const ns = `Iface${camelCase(capitalize(n))}Props`;
+  const ns = `Type${camelCase(capitalize(n))}Props`;
 
   const typeNode = t.tsIntersectionType([...propsTypes, ...emitTypes, ...slotTypes]);
   const decl = t.tsTypeAliasDeclaration(t.identifier(ns), null, typeNode);
