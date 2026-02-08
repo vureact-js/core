@@ -1,9 +1,9 @@
 import { parseExpression } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
+import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions } from '@src/shared/babel-utils';
 import { ReactiveTypes, VarDeclKind } from './types';
-import { ICompilationContext } from '@compiler/context/types';
 
 export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
   const {
@@ -266,11 +266,11 @@ export function replaceCallName(callExp: t.CallExpression, identifierName: strin
  *
  * => { title: string; count: number; text: any; fn: () => number }
  */
-export function resolveObjectToTSType(ctx: ICompilationContext,obj: object): t.TSTypeLiteral {
+export function resolveObjectToTSType(ctx: ICompilationContext, obj: object): t.TSTypeLiteral {
   const properties = Object.entries(obj).map(([key, value]) => {
     const propSignature = t.tsPropertySignature(
       t.stringLiteral(key),
-      stringValueToTSType(ctx,String(value)),
+      stringValueToTSType(ctx, String(value), true),
     );
     return propSignature;
   });
@@ -291,12 +291,27 @@ export function resolveObjectToTSType(ctx: ICompilationContext,obj: object): t.T
  *
  * '() => 1' -> () => number
  *
- * @returns {t.TSTypeAnnotation}
  */
-export function stringValueToTSType(ctx: ICompilationContext,input: string): t.TSTypeAnnotation {
-  const exp = parseExp(ctx,input);
+export function stringValueToTSType(
+  ctx: ICompilationContext,
+  input: string,
+  tsTypeAnnotation: true,
+): t.TSTypeAnnotation;
+
+export function stringValueToTSType(
+  ctx: ICompilationContext,
+  input: string,
+  tsTypeAnnotation: false,
+): t.TSType;
+
+export function stringValueToTSType(
+  ctx: ICompilationContext,
+  input: string,
+  tsTypeAnnotation: true | false,
+): t.TSType | t.TSTypeAnnotation {
+  const exp = parseExp(ctx, input);
   const ts = expressionToTSType(exp);
-  return t.tsTypeAnnotation(ts);
+  return tsTypeAnnotation ? t.tsTypeAnnotation(ts) : ts;
 }
 
 /**
