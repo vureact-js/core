@@ -131,7 +131,7 @@ interface ReactCardProps {
   footer?: ReactNode;
 }
 
-export default function Card(__props: ReactCardProps) {
+export default function Card($props: ReactCardProps) {
   const [count, setCount] = useState$(0);
   const [visible, setVisible] = useState$(true);
 
@@ -149,7 +149,7 @@ export default function Card(__props: ReactCardProps) {
         {count}
       </button>
       {/* named slots 映射 */}
-      {__props.footer}
+      {$props.footer}
     </div>
   ) : null;
 }

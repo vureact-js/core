@@ -62,7 +62,7 @@ yarn add @vureact/compiler-core -D
 npx vureact
 ```
 
-2. Add a script to package.json:
+1. Add a script to package.json:
 
 ```json
 {
@@ -127,7 +127,7 @@ interface ReactCardProps {
   footer?: ReactNode;
 }
 
-export default function Card(__props: ReactCardProps) {
+export default function Card($props: ReactCardProps) {
   const [count, setCount] = useState$(0);
   const [visible, setVisible] = useState$(true);
 
@@ -145,7 +145,7 @@ export default function Card(__props: ReactCardProps) {
         {count}
       </button>
       {/* named slots mapping */}
-      {__props.footer}
+      {$props.footer}
     </div>
   ) : null;
 }
