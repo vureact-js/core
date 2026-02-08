@@ -10,7 +10,10 @@ import { CallExpArgs } from './types';
  */
 export function warnVueHookArguments(ctx: ICompilationContext, args: CallExpArgs) {
   const [callExp, opt] = args;
-  const { source, filename } = ctx;
+  const {
+    scriptData: { source },
+    filename,
+  } = ctx;
 
   if (t.isFunction(callExp) && callExp.params.length) {
     logger.warn('Unsupported Vue hook params may result in reference errors.', {
@@ -34,7 +37,10 @@ export function warnVueHookArguments(ctx: ICompilationContext, args: CallExpArgs
  * 检查 Vue hook 是否在块语句中（如 if、for、while 等）
  */
 export function warnVueHookInBlock(ctx: ICompilationContext, path: NodePath) {
-  const { source, filename } = ctx;
+  const {
+    scriptData: { source },
+    filename,
+  } = ctx;
   const inBlock = path.findParent((p) => t.isBlockStatement(p.node) && !t.isFunction(p.parent));
 
   if (inBlock) {
@@ -56,7 +62,10 @@ export function warnVueHookInAnyCallback(
   ctx: ICompilationContext,
   path: NodePath<t.CallExpression>,
 ) {
-  const { source, filename } = ctx;
+  const {
+    scriptData: { source },
+    filename,
+  } = ctx;
   // 检查当前 hook 是否在任何回调函数中
   const isInCallback = checkIsCallExpInAnyCallback(path);
 
@@ -70,7 +79,10 @@ export function warnVueHookInAnyCallback(
 }
 
 export function warnVueHookWithoutDeclaration(ctx: ICompilationContext, loc: any) {
-  const { source, filename } = ctx;
+  const {
+    scriptData: { source },
+    filename,
+  } = ctx;
   logger.warn('Calling hooks directly without variable declaration is not supported.', {
     source,
     file: filename,

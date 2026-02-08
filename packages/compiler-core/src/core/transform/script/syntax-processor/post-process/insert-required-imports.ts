@@ -70,7 +70,7 @@ function createRequiredImports(ctx: ICompilationContext): t.ImportDeclaration[] 
 // todo
 function removeVueRelatedModules(ctx: ICompilationContext, path: NodePath<t.ImportDeclaration>) {
   const { source } = path.node;
-  const { source: sourceCode, filename } = ctx;
+  const { scriptData, filename } = ctx;
 
   if (!isBlacklistedVueImport(source.value)) return;
 
@@ -79,7 +79,7 @@ function removeVueRelatedModules(ctx: ICompilationContext, path: NodePath<t.Impo
       'the compiled output will not run correctly, ' +
       'and you need to manually find and apply appropriate alternatives to handle them.',
     {
-      source: sourceCode,
+      source: scriptData.source,
       file: filename,
       loc: source.loc!,
     },

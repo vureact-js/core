@@ -64,12 +64,14 @@ function normalizeToRefArgs(ctx: ICompilationContext, args: CallExpArgs) {
   if (!key) return;
 
   if (!t.isIdentifier(obj)) {
-    const { source, filename } = ctx;
+    const { scriptData, filename } = ctx;
+
     logger.error(`Expected an object variable identifier.`, {
-      source,
+      source: scriptData.source,
       file: filename,
       loc: obj!.loc!,
     });
+
     return;
   }
 

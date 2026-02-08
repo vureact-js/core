@@ -47,14 +47,14 @@ function checkIsUnsupported(
 }
 
 function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
-  const { source, filename } = ctx;
+  const { scriptData, filename } = ctx;
 
   const warnIsNotImport = (node?: t.Node | null) => {
     if (!node || !t.isImport(node)) {
       logger.error(
         `Only ES module dynamic imports are supported. You must use and return import('...').`,
         {
-          source,
+          source: scriptData.source,
           file: filename,
           loc: node?.loc || {},
         },
@@ -93,14 +93,14 @@ function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
 }
 
 function warnMultipleOptionsUsed(ctx: ICompilationContext, node: t.Node) {
-  const { source, filename } = ctx;
+  const { scriptData, filename } = ctx;
   logger.warn(
     'Only the loader option is supported. ' +
       'Other options may be implemented manually based on your needs.',
     {
-      source,
+      source: scriptData.source,
       file: filename,
-      loc: node.loc!,
+      loc: node.loc,
     },
   );
 }

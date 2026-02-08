@@ -18,12 +18,13 @@ export function resolvesDefineOptions(ctx: ICompilationContext): TraverseOptions
       }
 
       const [arg] = node.arguments;
+      const { filename, scriptData } = ctx;
 
       if (!t.isObjectExpression(arg)) {
         logger.error('Argument for defineOptions must be an object expression.', {
-          source: ctx.source,
-          file: ctx.filename,
-          loc: arg!.loc!,
+          source: scriptData.source,
+          file: filename,
+          loc: arg?.loc,
         });
       } else {
         let name = '';
@@ -43,9 +44,9 @@ export function resolvesDefineOptions(ctx: ICompilationContext): TraverseOptions
             }
 
             logger.error(`name must be a string type, but got ${prop.value.type}`, {
-              source: ctx.source,
-              file: ctx.filename,
-              loc: prop.key!.loc!,
+              source: scriptData.source,
+              file: filename,
+              loc: prop.key?.loc,
             });
 
             break;
