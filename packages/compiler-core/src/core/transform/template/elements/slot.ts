@@ -8,7 +8,7 @@ import {
   SourceLocation,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
-import { __props } from '../../const';
+import { $$props } from '../../const';
 import { resolveTemplateExp } from '../shared/resolve-str-exp';
 import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { ElementNodeIR } from './element';
@@ -83,7 +83,7 @@ function resolveSlotProps(
 }
 
 function replaceSlotNode(ctx: ICompilationContext, parentIR: ElementNodeIR, slotIR: SlotIR) {
-  let interpContent = `${__props}.${slotIR.name}`;
+  let interpContent = `${$$props}.${slotIR.name}`;
 
   const isScoped = Object.keys(slotIR.props).length !== 0;
 

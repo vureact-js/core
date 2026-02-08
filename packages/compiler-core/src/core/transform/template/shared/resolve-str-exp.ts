@@ -4,7 +4,7 @@ import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions, ParseContext } from '@src/shared/babel-utils';
 import { camelCase } from '@src/utils/camelCase';
 import { capitalize } from '@src/utils/capitalize';
-import { __props } from '../../const';
+import { $$props } from '../../const';
 
 /**
  * 解决 Vue 模板的各种 js 字符串表达式
@@ -46,9 +46,9 @@ export function normalizePropValue(v: string): string {
   return newVal;
 }
 
-// 将 __emits('event') 换成 __props?.onEvent()
+// 将 $$emits('event') 换成 $$props?.onEvent()
 function transformEmitToPropsCall(code: string): string {
-  const emitCallRE = /^__emits*\(\s*['"`]([^'"`]+)['"`]\s*(?:,\s*(.*))?\s*\)$/;
+  const emitCallRE = /^$$emits*\(\s*['"`]([^'"`]+)['"`]\s*(?:,\s*(.*))?\s*\)$/;
   const match = code.trim().match(emitCallRE);
 
   if (!match) return code;
@@ -62,7 +62,7 @@ function transformEmitToPropsCall(code: string): string {
 
   const call = args ? `on${handlerName}(${args})` : `on${handlerName}()`;
 
-  return `${__props}?.${call}`;
+  return `${$$props}?.${call}`;
 }
 
 /**
