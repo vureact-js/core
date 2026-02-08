@@ -4,6 +4,7 @@ import { ICompilationContext } from '@compiler/context/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { CallExpArgs } from '../../../shared/types';
+import { cloneCallableParams } from './shared';
 
 /**
  * 解析顶层的 defineEmits 类型声明，并将 Vue 风格的
@@ -526,37 +527,4 @@ function resolveTupleElementParam(
   id.typeAnnotation = t.tsTypeAnnotation(element as t.TSType);
 
   return id;
-}
-
-function cloneCallableParams(
-  params: Array<t.Identifier | t.RestElement | t.PatternLike>,
-): Array<t.Identifier | t.RestElement> {
-  return params.map((param, index) => cloneCallableParam(param, index));
-}
-
-function cloneCallableParam(
-  param: t.Identifier | t.RestElement | t.PatternLike,
-  index: number,
-): t.Identifier | t.RestElement {
-  if (t.isRestElement(param)) {
-    const arg = param.argument;
-    const name = t.isIdentifier(arg) ? arg.name : `args${index}`;
-    const rest = t.restElement(t.identifier(name));
-    rest.typeAnnotation =
-      param.typeAnnotation ||
-      (t.isIdentifier(arg) ? arg.typeAnnotation : null) ||
-      t.tsTypeAnnotation(t.tsArrayType(t.tsAnyKeyword()));
-    return rest;
-  }
-
-  if (t.isIdentifier(param)) {
-    const id = t.identifier(param.name || `arg${index}`);
-    id.optional = param.optional;
-    id.typeAnnotation = param.typeAnnotation || t.tsTypeAnnotation(t.tsAnyKeyword());
-    return id;
-  }
-
-  const fallback = t.identifier(`arg${index}`);
-  fallback.typeAnnotation = t.tsTypeAnnotation(t.tsAnyKeyword());
-  return fallback;
 }
