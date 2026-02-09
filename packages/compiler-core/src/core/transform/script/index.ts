@@ -1,36 +1,7 @@
 import { parse as babelParse, ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { optimizeFunction } from './optimizations/function';
 import { processVueSyntax } from './syntax-processor';
-import { processComputedApi } from './syntax-processor/main-process/computed';
-import { processLifecycleApi } from './syntax-processor/main-process/lifecycle';
-import { resolveProvideInject } from './syntax-processor/main-process/provide-inject';
-import { processReactiveApi } from './syntax-processor/main-process/reactive';
-import { processReadonlyApi } from './syntax-processor/main-process/readonly';
-import { processWatchApi } from './syntax-processor/main-process/watch';
-import { processWatchEffectApi } from './syntax-processor/main-process/watchEffect';
-import { insertCSSImport } from './syntax-processor/post-process/insert-css-import';
-import { insertRequiredImports } from './syntax-processor/post-process/insert-required-imports';
-import { insertVModelEventHandlers } from './syntax-processor/post-process/insert-vmodel-handlers';
-import { processReactiveValueUpdate } from './syntax-processor/post-process/reactive-value-update';
-import {
-  extractLocalStatements,
-  splitScriptBlocks,
-} from './syntax-processor/post-process/script-blocks';
-import { resolveAsyncComponent } from './syntax-processor/pre-process/resolve-async-component';
-import { resolvesDefineOptions } from './syntax-processor/pre-process/resolve-define-options';
-import {
-  resolveCompIProps,
-  resolvePropsIface,
-} from './syntax-processor/pre-process/resolve-props-interface';
-import { resolveEmitsTopLevelTypes } from './syntax-processor/pre-process/resolve-props-interface/resolve-emits';
-import {
-  resolveSlotsTopLevelTypes,
-  resolveTemplateSlotIface,
-} from './syntax-processor/pre-process/resolve-props-interface/resolve-slot';
-import { stripReactiveValueSuffix } from './syntax-processor/pre-process/strip-value-suffix';
-import { processTemplateNodeRef } from './syntax-processor/pre-process/template-node-ref';
 
 export interface ScriptBlockIR {
   imports: t.ImportDeclaration[];
@@ -57,39 +28,7 @@ export function transformScript(ctx: ICompilationContext, ast?: ParseResult): Sc
     ast = createDefaultAST();
   }
 
-  // 处理 Vue 脚本语法
-  processVueSyntax(ast, ctx, {
-    preprocess: {
-      applyBabel: [
-        resolvesDefineOptions,
-        resolveEmitsTopLevelTypes,
-        resolveSlotsTopLevelTypes,
-        resolvePropsIface,
-        resolveAsyncComponent,
-        stripReactiveValueSuffix,
-        processTemplateNodeRef,
-      ],
-    },
-
-    process: {
-      applyBabel: [
-        processReactiveApi,
-        processReadonlyApi,
-        processComputedApi,
-        optimizeFunction,
-        processWatchApi,
-        processWatchEffectApi,
-        processLifecycleApi,
-        resolveProvideInject,
-      ],
-      excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],
-    },
-
-    postprocess: {
-      applyBabel: [processReactiveValueUpdate, insertRequiredImports, splitScriptBlocks],
-      excludeBabel: [insertCSSImport, insertVModelEventHandlers, extractLocalStatements],
-    },
-  });
+  processVueSyntax(ast, ctx);
 
   return SCRIPT_IR;
 }
