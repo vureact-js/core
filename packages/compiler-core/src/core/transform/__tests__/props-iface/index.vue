@@ -1,9 +1,7 @@
 <template>
-  <div>
-    <slot name="header" title="title"></slot>
-    <slot></slot>
-    <slot name="footer" :count="1"></slot>
-  </div>
+  <slot name="header" title="title"></slot>
+  <slot></slot>
+  <slot name="footer" :count="1"></slot>
 </template>
 
 <script setup lang="ts">
