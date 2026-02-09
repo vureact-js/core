@@ -9,6 +9,7 @@ import {
   SimpleExpressionNode,
   ElementNode as VueElementNode,
 } from '@vue/compiler-core';
+import { TemplateChildNodeIR } from '..';
 import { stringValueToTSType } from '../../script/shared/babel-utils';
 import { warnVueDollarVar } from '../shared/unsupported-warn';
 import { ElementNodeIR } from './element';
@@ -17,13 +18,18 @@ import { createInterpolationNodeIR } from './node-creators';
 export function transformSlot(
   ctx: ICompilationContext,
   node: VueElementNode,
-  parentIR: ElementNodeIR,
+  parentIR: ElementNodeIR | null,
+  childrenIR: TemplateChildNodeIR[],
 ) {
   const { templateData } = ctx;
   const slotCtx = resolveSlotProps(ctx, node.props);
 
   templateData.slots[slotCtx.name] = slotCtx;
-  replaceSlotNode(parentIR, slotCtx);
+
+  const interp = replaceSlotNode(parentIR, slotCtx);
+  if (!parentIR) {
+    childrenIR.push(interp);
+  }
 }
 
 function resolveSlotProps(
@@ -93,7 +99,10 @@ function resolveSlotProps(
   return result;
 }
 
-function replaceSlotNode(parentIR: ElementNodeIR, slotCtx: SlotNodesContext) {
+function replaceSlotNode(
+  parentIR: ElementNodeIR | null,
+  slotCtx: SlotNodesContext,
+): TemplateChildNodeIR {
   let expr = `${COMP_PROPS_NAME}.${slotCtx.name}`;
 
   // 处理作用域插槽，转变为 $$props.xxx?.()
@@ -111,5 +120,9 @@ function replaceSlotNode(parentIR: ElementNodeIR, slotCtx: SlotNodesContext) {
   // 直接转换成简单的标识符表达式
   interp.babelExp = t.identifier(expr);
 
-  parentIR.children.push(interp);
+  if (parentIR) {
+    parentIR.children.push(interp);
+  }
+
+  return interp;
 }
