@@ -1,6 +1,6 @@
 ﻿import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
-import { ICompilationContext } from '@compiler/context/types';
+import { ICompilationContext, SlotNodesContext } from '@compiler/context/types';
 import { RuntimeModules } from '@consts/runtimeModules';
 import { recordImport } from '@core/transform/shared/setup-runtime-utils';
 import { cloneCallableParams } from './shared';
@@ -103,7 +103,7 @@ export function resolveTemplateSlotIface(ctx: ICompilationContext) {
 
     if (!slotObj) continue;
 
-    const params = slotObj.isScope ? [createSlotScopeParam(slotObj.props)] : [];
+    const params = slotObj.isScope ? [createSlotScopeParam(slotObj.props, ctx)] : [];
     const tsNode = buildSlotPropSignature(slotObj.name, params, true);
     tsMembers.push(tsNode);
   }
@@ -281,12 +281,21 @@ function buildSlotPropSignature(
   return prop;
 }
 
-function createSlotScopeParam(props: { prop: string; tsType: t.TSTypeAnnotation }[]): t.Identifier {
+function createSlotScopeParam(
+  props: SlotNodesContext['props'],
+  ctx: ICompilationContext,
+): t.Identifier {
   const paramId = t.identifier(SLOT_FN_PARAM_NAME);
   const propsSigns: t.TSPropertySignature[] = [];
+  const { reactiveBindMeta } = ctx.templateData;
 
-  props.forEach((p) => {
-    const propSign = t.tsPropertySignature(t.identifier(p.prop), p.tsType);
+  props.forEach(({ prop, tsType }) => {
+    // 尝试从响应式绑定源中寻找对应 ts 类型
+    const foundBindingTypes = reactiveBindMeta.get(prop)?.tsType;
+    const typeAnnotation = foundBindingTypes ? t.tsTypeAnnotation(foundBindingTypes) : tsType;
+
+    const propSign = t.tsPropertySignature(t.identifier(prop), typeAnnotation);
+
     propsSigns.push(propSign);
   });
 
