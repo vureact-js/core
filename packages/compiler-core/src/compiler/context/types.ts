@@ -4,8 +4,7 @@ import { LangType } from '@shared/babel-utils';
 export interface ICompilationContext {
   fileId: string;
   source: string;
-  /** 函数组件名 */
-  funcName: string;
+  compName: string;
   filename: string;
   imports: Map<string, ImportItem[]>;
   cssVars: string[];
