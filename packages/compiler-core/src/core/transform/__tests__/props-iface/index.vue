@@ -7,6 +7,7 @@
 </template>
 
 <script setup lang="ts">
+// @vr-name: Demo
 interface Props<T> {
   foo?: string;
   bar: number;

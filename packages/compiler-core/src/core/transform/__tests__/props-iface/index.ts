@@ -23,6 +23,8 @@ export function testPropsIface() {
 
   // console.log(result.script?.exports);
 
+  console.log('\nmatched component name:', ctx.data.compName, '\n');
+
   const code = result.script?.exports.map((node) => generate(node).code).join('');
   console.log(code);
 
