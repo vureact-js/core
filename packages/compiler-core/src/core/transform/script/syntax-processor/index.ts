@@ -15,7 +15,7 @@ import { insertVModelEventHandlers } from './post-process/insert-vmodel-handlers
 import { processReactiveValueUpdate } from './post-process/reactive-value-update';
 import { extractLocalStatements, splitScriptBlocks } from './post-process/script-blocks';
 import { resolveAsyncComponent } from './pre-process/resolve-async-component';
-import { resolvesDefineOptions } from './pre-process/resolve-define-options';
+import { resolveOptions } from './pre-process/resolve-options';
 import { resolveCompIProps, resolvePropsIface } from './pre-process/resolve-props-interface';
 import { resolveEmitsTopLevelTypes } from './pre-process/resolve-props-interface/resolve-emits';
 import {
@@ -41,7 +41,7 @@ export function processVueSyntax(ast: ParseResult, ctx: ICompilationContext) {
   vueSyntaxProcessor(ast, ctx, {
     preprocess: {
       applyBabel: [
-        resolvesDefineOptions,
+        resolveOptions,
         resolveEmitsTopLevelTypes,
         resolveSlotsTopLevelTypes,
         resolvePropsIface,
