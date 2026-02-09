@@ -25,7 +25,7 @@ export function transformElements(
   for (const vueNode of parent.children) {
     if (vueNode.type === VueNodeTypes.ELEMENT) {
       if (isSlotOutlet(vueNode)) {
-        transformSlot(ctx, vueNode, parentIR);
+        transformSlot(ctx, vueNode, parentIR, childrenIR);
         continue;
       }
 
