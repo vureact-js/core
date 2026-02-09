@@ -1,25 +1,25 @@
 import { generate } from '@babel/generator';
-import { parse as babelParse, ParseResult } from '@babel/parser';
+import { parse as babelParse, ParseResult as BabelParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions, LangType } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
 import { SFCScriptBlock } from '@vue/compiler-sfc';
-import { VueASTDescriptor } from '.';
+import { ParseResult } from '.';
 
 export function parseScript(
   script: SFCScriptBlock | null,
   scriptSetup: SFCScriptBlock | null,
   ctx: ICompilationContext,
-): VueASTDescriptor['script'] {
+): ParseResult['script'] {
   // 优先使用 <script setup>
   const scriptBlock = scriptSetup || script;
 
   if (!scriptBlock) return null;
 
-  const result: VueASTDescriptor['script'] = {
+  const result: ParseResult['script'] = {
     source: scriptBlock,
-    ast: {} as ParseResult,
+    ast: {} as BabelParseResult,
   };
 
   const options = getBabelParseOptions(scriptBlock.lang as 'js', 'script', ctx.filename);
@@ -62,11 +62,11 @@ export function parseScript(
 function extractSetupBodyToTopLevel(
   content: string,
   options: any,
-): { code: string; name: string; ast?: ParseResult } {
+): { code: string; name: string; ast?: BabelParseResult } {
   let name = '';
 
   try {
-    const ast: ParseResult = babelParse(content, options);
+    const ast: BabelParseResult = babelParse(content, options);
 
     const importNodes: t.Node[] = [];
     const otherTopLevel: t.Node[] = [];

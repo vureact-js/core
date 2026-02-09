@@ -4,12 +4,12 @@ import { processScopedWithPostCss } from '@plugins/postcss';
 import { logger } from '@shared/logger';
 import { SFCStyleBlock } from '@vue/compiler-sfc';
 import { basename } from 'path';
-import { VueASTDescriptor } from '.';
+import { ParseResult } from '.';
 
 export function parseStyle(
   styles: SFCStyleBlock[],
   ctx: ICompilationContext,
-): VueASTDescriptor['style'] {
+): ParseResult['style'] {
   const [style, ...more] = styles;
 
   if (!style) return null;

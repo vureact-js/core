@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { VueASTDescriptor } from '../parse';
+import { ParseResult } from '../parse';
 import { ScriptBlockIR, transformScript } from './script';
 import { TemplateBlockIR, transformTemplate } from './template';
 
@@ -28,7 +28,7 @@ type ReactIR = TemplateBlockIR | ScriptBlockIR;
  * through their respective transformers and plugins. It ensures proper context setup and logs output
  * regardless of success or failure.
  *
- * @param {VueASTDescriptor} ast - The Vue AST descriptor containing template and script information to be transformed
+ * @param {ParseResult} ast - The Vue AST descriptor containing template and script information to be transformed
  * @param {ICompilationContext} ctx - Compilation context
  * @returns A ReactIRDescriptor containing the transformed template and script intermediate representations
  *
@@ -38,7 +38,7 @@ type ReactIR = TemplateBlockIR | ScriptBlockIR;
  * const reactIR = transform(vueAST);
  * console.log(reactIR.template, reactIR.script);
  */
-export function transform(ast: VueASTDescriptor, ctx: ICompilationContext): ReactIRDescriptor {
+export function transform(ast: ParseResult, ctx: ICompilationContext): ReactIRDescriptor {
   const templateIR = runPipeline(ctx, ast.template?.ast, {
     type: 'template',
     transformer: transformTemplate,

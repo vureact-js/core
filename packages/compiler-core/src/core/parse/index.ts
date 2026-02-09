@@ -8,11 +8,12 @@ import {
   SFCStyleBlock,
   SFCTemplateBlock,
 } from '@vue/compiler-sfc';
+import { processParsing } from './processor';
 import { parseScript } from './script';
 import { parseStyle } from './style';
 import { parseTemplate } from './template';
 
-export interface VueASTDescriptor {
+export interface ParseResult {
   template: Block<SFCTemplateBlock, RootNode>;
   script: Block<SFCScriptBlock, BabelParseResult>;
   style: Block<SFCStyleBlock, undefined>;
@@ -33,7 +34,7 @@ type Block<S, T> = {
  * @param source - The source code string of the Vue SFC file to parse
  * @param {ICompilationContext} ctx - Compilation context
  *
- * @returns {VueASTDescriptor} An object containing:
+ * @returns {ParseResult} An object containing:
  *   - template: Parsed template AST block with SFCTemplateBlock and RootNode
  *   - script: Parsed script AST block with SFCScriptBlock and BabelParseResult
  *   - style: Parsed style block from the component
@@ -57,12 +58,14 @@ type Block<S, T> = {
  * const descriptor = parse(code);
  * ```
  */
-export function parse(source: string, ctx: ICompilationContext): VueASTDescriptor {
+export function parse(source: string, ctx: ICompilationContext): ParseResult {
   const { descriptor, errors } = parseVueSFC(source, {
     filename: ctx.filename,
   });
 
-  const result: VueASTDescriptor = {
+  processParsing(descriptor, ctx);
+
+  const result: ParseResult = {
     template: parseTemplate(descriptor.template),
     script: parseScript(descriptor.script, descriptor.scriptSetup, ctx),
     style: parseStyle(descriptor.styles, ctx),
