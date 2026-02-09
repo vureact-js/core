@@ -31,7 +31,7 @@ export function parseScript(
     if (ast) {
       result.source!.content = code;
       result.ast = ast;
-      ctx.funcName = name;
+      ctx.compName = name;
     }
 
     logger.warn(
@@ -50,8 +50,11 @@ export function parseScript(
     });
   }
 
+  const source = scriptBlock.content;
+
+  ctx.scriptData.source = source;
+  ctx.compName = extractCompName(source);
   ctx.scriptData.lang = (scriptBlock.lang as LangType) || 'js';
-  ctx.scriptData.source = scriptBlock.content;
 
   return result;
 }
@@ -156,4 +159,10 @@ function extractSetupBodyToTopLevel(
     console.error(e);
     return { name, code: content };
   }
+}
+
+function extractCompName(source: string): string {
+  // 匹配最顶部的注释
+  const nameMatch = source.match(/@vr-name:\s*(\w+)/);
+  return nameMatch?.[1]?.trim() || '';
 }
