@@ -42,11 +42,8 @@ const externalPkgs = [
   'react',
   'react-dom',
   'react-transition-group',
-  'freeze-mutate',
-  'immer',
-  'klona',
   'react-fast-compare',
-  'use-immer',
+  'valtio',
 ];
 
 const external = (id) => externalPkgs.some((pkg) => id === pkg || id.startsWith(pkg + '/'));
