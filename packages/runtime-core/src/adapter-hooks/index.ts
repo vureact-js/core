@@ -6,6 +6,7 @@ export * from './lifecycle/useBeforeUpdate';
 export * from './lifecycle/useMounted';
 export * from './lifecycle/useUnmounted';
 export * from './lifecycle/useUpdated';
+export * from './shared/toRaw';
 export * from './state/useReactive';
 export * from './state/useReadonly';
 export * from './state/useRefState';
