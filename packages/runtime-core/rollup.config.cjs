@@ -44,6 +44,8 @@ const externalPkgs = [
   'react-transition-group',
   'react-fast-compare',
   'valtio',
+  'klona',
+  'freeze-mutate',
 ];
 
 const external = (id) => externalPkgs.some((pkg) => id === pkg || id.startsWith(pkg + '/'));
