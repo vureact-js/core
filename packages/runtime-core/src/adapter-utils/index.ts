@@ -9,7 +9,7 @@ export * from './vKeyless';
 export * from './vOn';
 export * from './vStyle';
 
-class Adapter {
+class AdapterUtil {
   cls(value: ClsInputValue, mergeItem?: ClsInputValue) {
     return vCls(value, mergeItem);
   }
@@ -27,5 +27,5 @@ class Adapter {
   }
 }
 
-export const adapter = new Adapter();
-export const dir = adapter;
+export const adapterUtils = new AdapterUtil();
+export const dir = adapterUtils;
