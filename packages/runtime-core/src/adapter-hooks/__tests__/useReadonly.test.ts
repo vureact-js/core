@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { useReactive } from '../state/useReactive';
 import { useReadonly, useShallowReadonly } from '../state/useReadonly';
+import { useRefState } from '../state/useRefState';
 
 describe('useReadonly Advanced Test Suites', () => {
   it('should sync with the source proxy automatically', async () => {
@@ -40,6 +41,41 @@ describe('useReadonly Advanced Test Suites', () => {
 
     expect(readonlyState.current.nested.val).toBe('new');
   });
+
+  it('should unwrap useRefState, eliminating the need to access via .value', async () => {
+    const { result: source } = renderHook(() => useRefState(1));
+
+    // 使用 useReadonly 解包 .value
+    const { result: readonlyState } = renderHook(() => useReadonly(source.current));
+
+    expect(readonlyState.current).toBe(1);
+
+    // 修改源对象
+    await act(async () => {
+      source.current.value++;
+    });
+
+    // 只读快照应自动同步新值
+    expect(readonlyState.current).toBe(2);
+  });
+
+  it('should make plain objects read-only', async () => {
+    const source = { nested: { val: 'old' } };
+
+    const { result: readonlyState } = renderHook(() => useReadonly(source));
+
+    expect(readonlyState).not.toEqual(source);
+
+    expect(() => {
+      (readonlyState.current as any).nested.val = 'new';
+    }).toThrow();
+
+    await act(async () => {
+      source.nested.val = 'new';
+    });
+
+    expect(readonlyState.current.nested.val).not.toBe('new');
+  });
 });
 
 describe('useShallowReadonly Advanced Test Suites', () => {
@@ -72,7 +108,7 @@ describe('useShallowReadonly Advanced Test Suites', () => {
 
     await act(async () => {
       // 嵌套对象是可写的，因为它本质是原始 Proxy 的引用
-      shallowReadonly.current.obj.count = 100;
+      (shallowReadonly.current.obj as any).count = 100;
     });
 
     expect(shallowReadonly.current.obj.count).toBe(100);
@@ -89,5 +125,27 @@ describe('useShallowReadonly Advanced Test Suites', () => {
 
     // 虽不能通过只读对象改，但源对象的改动应能反映出来
     expect(shallowReadonly.current.a).toBe(99);
+  });
+
+  it('should make plain objects shallowly read-only.', async () => {
+    const source = { a: 1, nested: { val: 'old' } };
+
+    const { result: shallowReadonly } = renderHook(() => useShallowReadonly(source));
+
+    expect(shallowReadonly).not.toEqual(source);
+
+    expect(() => {
+      (shallowReadonly.current as any).a++;
+    }).toThrow();
+
+    expect(() => {
+      (shallowReadonly.current as any).nested.val = 'new';
+    }).not.toThrow();
+
+    await act(async () => {
+      source.a = 2;
+    });
+
+    expect(shallowReadonly.current.a).not.toBe(2);
   });
 });
