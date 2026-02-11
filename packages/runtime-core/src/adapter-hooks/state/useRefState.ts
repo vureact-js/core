@@ -1,12 +1,28 @@
 import { ref } from 'valtio/vanilla';
-import { PROXY_FLAG_KEY, PROXY_FLAG_VALUE } from '../shared/consts';
-import { isPrimitive } from '../shared/utils';
+import { PROXY_FLAG_VALUE } from '../shared/consts';
+import { isPrimitive, isProxy } from '../shared/utils';
 import { createProxy } from './useReactive';
 
-export type RefState<T = unknown> = T extends WrapRef ? T : WrapRef<T>;
+export type RefState<T = unknown> = T extends WrapRef<infer T> ? T : WrapRef<T>;
 
 export interface WrapRef<T = unknown> {
   value: T;
+}
+
+export type UnwrapRef<T> = T extends WrapRef<infer U> ? U : unknown;
+
+/**
+ * Wraps the target in an object, accessible via the `value` property.
+ */
+export function wrapRef<T>(target: T): WrapRef<T> {
+  return { value: target };
+}
+
+/**
+ * Unwraps the `value` property from `useRefState`.
+ */
+export function unwrapRef<T extends WrapRef<any>>(ref: T): UnwrapRef<T> {
+  return ref.value;
 }
 
 /**
@@ -42,16 +58,17 @@ export function useShallowRefState<T>(initialValue: T): RefState<T> {
 }
 
 function createStateRef<T>(initialValue: T, shallow = false): RefState<T> {
-  if (isRefState(initialValue)) {
+  if (isProxy(initialValue)) {
+    // 返回已代理过的对象
     return initialValue as RefState<T>;
   }
 
+  const target = wrapRef(initialValue);
   const isComplex = !isPrimitive(initialValue);
-  let target = { value: initialValue } as any;
 
   if (shallow && isComplex) {
     // 如果值是对象才用 ref() 锁定 value，防止深层代理（行为更接近 Vue 的 shallowRef）
-    target.value = ref(initialValue as object);
+    target.value = ref(initialValue as object) as any;
   }
 
   // 当为浅 ref 时，不对目标进行深拷贝（会破坏 valtio.ref 标记），
@@ -60,8 +77,4 @@ function createStateRef<T>(initialValue: T, shallow = false): RefState<T> {
     clone: isComplex && !shallow,
     flag: PROXY_FLAG_VALUE.ref,
   }) as RefState<T>;
-}
-
-function isRefState(value: any): boolean {
-  return (value as any)[PROXY_FLAG_KEY] === PROXY_FLAG_VALUE.ref;
 }
