@@ -1,8 +1,9 @@
 import { klona } from 'klona';
-import { useRef, useSyncExternalStore } from 'react';
-import { proxy, ref, snapshot, subscribe } from 'valtio/vanilla';
+import { useRef } from 'react';
+import { proxy, ref } from 'valtio/vanilla';
 import { PROXY_FLAG_KEY, PROXY_FLAG_VALUE, RAW_OBJ_KEY } from '../shared/consts';
-import { isPrimitive } from '../shared/utils';
+import { useProxySubscribe } from '../shared/hooks';
+import { isPrimitive, isProxy, setProxyMeta } from '../shared/utils';
 
 /**
  * Wraps a plain object into reactive state (based on Valtio).
@@ -45,34 +46,38 @@ export function useShallowReactive<T extends object>(target: T): T {
   return createReactive(target, true);
 }
 
-export function createReactive<T extends object>(target: T, shallow = false): T {
-  if (isReactive(target)) return target;
+function createReactive<T extends object>(target: T, shallow = false): T {
+  if (isProxy(target)) {
+    // 返回已代理过的对象
+    return target;
+  }
 
-  let clone: Record<string, any> = target;
+  let baseObject: Record<string, any> = target;
 
   if (shallow) {
     // 手动浅拷贝对象
-    clone = { ...target };
+    baseObject = { ...target };
 
-    Object.keys(clone).forEach((key) => {
-      const val = clone[key];
+    Object.keys(baseObject).forEach((key) => {
+      const val = baseObject[key];
       if (!isPrimitive(val)) {
         // 只监听第一层的属性赋值
-        clone[key] = ref(val);
+        baseObject[key] = ref(val);
       }
     });
   }
 
-  return createProxy(clone as T, { clone: !shallow, flag: PROXY_FLAG_VALUE.reactive });
-}
-
-function isReactive(value: any): boolean {
-  return (value as any)[PROXY_FLAG_KEY] === PROXY_FLAG_VALUE.reactive;
+  return createProxy(baseObject as T, {
+    clone: !shallow,
+    flag: PROXY_FLAG_VALUE.reactive,
+    originalTarget: target,
+  });
 }
 
 interface CreateProxyOptions {
   clone?: boolean;
   flag: PROXY_FLAG_VALUE;
+  originalTarget?: object;
 }
 
 /**
@@ -94,16 +99,15 @@ export function createProxy<T extends object>(target: T, options?: CreateProxyOp
     const proxyObject = proxy(baseObject);
 
     // 注入元数据标识
-    (proxyObject as any)[RAW_OBJ_KEY] = target;
-    (proxyObject as any)[PROXY_FLAG_KEY] = options?.flag;
+    setProxyMeta(proxyObject, {
+      [PROXY_FLAG_KEY]: options?.flag,
+      [RAW_OBJ_KEY]: options?.originalTarget ?? target,
+    });
 
     proxyRef.current = proxyObject;
   }
 
-  useSyncExternalStore(
-    (callback) => subscribe(proxyRef.current!, callback),
-    () => snapshot(proxyRef.current!),
-  );
+  useProxySubscribe(proxyRef.current!);
 
   return proxyRef.current!;
 }
