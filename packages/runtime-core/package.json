@@ -58,6 +58,7 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
+    "freeze-mutate": "^1.3.0",
     "klona": "^2.0.6",
     "react-fast-compare": "^3.2.2",
     "react-transition-group": "^4.4.5",
