@@ -1,7 +1,6 @@
-export const RAW_OBJ_KEY = '__rawObject__';
-export const PROXY_FLAG_KEY = '__flag__';
+export const RAW_TARGET = '__raw_target';
+export const IS_REF_PROXY = '__is_ref_proxy';
+export const IS_REACTIVE_PROXY = '__is_reactive_proxy';
 
-export enum PROXY_FLAG_VALUE {
-  ref = 'ref-state',
-  reactive = 'reactive-state',
-}
+// Valtio 内部 proxy 指针
+export const VALTIO_PROXY_TARGET = '__valtio_proxy_target';
