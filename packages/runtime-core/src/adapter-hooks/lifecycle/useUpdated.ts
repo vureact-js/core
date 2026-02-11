@@ -1,6 +1,6 @@
 import { DependencyList, useEffect } from 'react';
+import { useIsFirstMount } from '../shared/hooks';
 import { EffectCallback } from '../shared/types';
-import { useIsFirstMount } from '../shared/useIsFirstMount';
 
 /**
  * @see https://vureact-runtime.vercel.app/en/hooks/useUpdated
