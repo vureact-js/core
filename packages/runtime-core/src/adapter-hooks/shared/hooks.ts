@@ -1,15 +1,60 @@
-import { useSyncExternalStore } from 'react';
-import { Snapshot, snapshot, subscribe } from 'valtio/vanilla';
+import { DependencyList, EffectCallback, useEffect, useRef, useSyncExternalStore } from 'react';
+import isEqual from 'react-fast-compare';
+import { Snapshot, getVersion, snapshot, subscribe } from 'valtio/vanilla';
+import { getValtioProxyTarget } from './proxy';
 
 /**
- * 订阅 valtio 代理的响应式状态变化，并通知 React 更新
+ * @private
+ *
+ * Subscribes a React component to changes in a proxy object (such as a Valtio proxy)
+ * and returns a snapshot of the current state. This hook ensures the component re-renders
+ * when the proxy state changes.
+ *
+ * @template T - The type of the target object.
+ * @param target - The proxy object to subscribe to.
+ * @param getSnapshot - Optional function to get the current snapshot of the state.
+ * @returns A snapshot of the current state of the proxy object.
  */
 export function useProxySubscribe<T extends object>(
   target: T,
   getSnapshot?: () => T | Snapshot<T>,
 ): Snapshot<T> {
+  const valtioTarget = getValtioProxyTarget(target);
+  const isValtioProxy = getVersion(valtioTarget as object) !== undefined;
+
   return useSyncExternalStore(
-    (callback) => subscribe(target, callback),
-    !getSnapshot ? () => snapshot(target) : getSnapshot,
+    (callback) => (isValtioProxy ? subscribe(valtioTarget as object, callback) : () => {}),
+    !getSnapshot
+      ? () => (isValtioProxy ? snapshot(valtioTarget as object) : (target as Snapshot<T>))
+      : getSnapshot,
   ) as any;
+}
+
+/** @private */
+export function useDeepEffect(fn: EffectCallback, deps: DependencyList) {
+  const lastDeps = useRef<DependencyList>([]);
+
+  if (!lastDeps.current || !isEqual(lastDeps.current, deps)) {
+    lastDeps.current = deps;
+  }
+
+  useEffect(() => {
+    const cleanup = fn();
+    return () => {
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
+    };
+  }, lastDeps.current);
+}
+
+/** @private */
+export function useIsFirstMount(): boolean {
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    isFirstMount.current = false;
+  }, []);
+
+  return isFirstMount.current;
 }
