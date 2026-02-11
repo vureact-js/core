@@ -1,7 +1,7 @@
 import { ref } from 'valtio/vanilla';
-import { PROXY_FLAG_VALUE } from '../shared/consts';
-import { isPrimitive, isProxy } from '../shared/utils';
-import { createProxy } from './useReactive';
+import { IS_REF_PROXY } from '../shared/consts';
+import { createProxy, isProxy } from '../shared/proxy';
+import { isPrimitive } from '../shared/utils';
 
 export type RefState<T = unknown> = T extends WrapRef<infer T> ? T : WrapRef<T>;
 
@@ -12,6 +12,7 @@ export interface WrapRef<T = unknown> {
 export type UnwrapRef<T> = T extends WrapRef<infer U> ? U : unknown;
 
 /**
+ * @private
  * Wraps the target in an object, accessible via the `value` property.
  */
 export function wrapRef<T>(target: T): WrapRef<T> {
@@ -19,6 +20,7 @@ export function wrapRef<T>(target: T): WrapRef<T> {
 }
 
 /**
+ * @private
  * Unwraps the `value` property from `useRefState`.
  */
 export function unwrapRef<T extends WrapRef<any>>(ref: T): UnwrapRef<T> {
@@ -26,32 +28,32 @@ export function unwrapRef<T extends WrapRef<any>>(ref: T): UnwrapRef<T> {
 }
 
 /**
- * Creates and returns a reactive `ref` wrapper object (based on Valtio).
+ * Creates a reactive reference state initialized with the provided value.
  *
- * Features:
- * - Behaves similarly to Vue's `ref`: returns a reactive reference wrapped with `value` for both primitive types and objects;
- * - Isolates complex types by default (deep clone + proxy) to avoid side effects caused by direct external references.
  *
  * @example
  *
  * const countRef = useRefState(1);
  * countRef.value++; // Triggers updates for subscribed components
+ *
+ * @param initialValue - The initial value for the reference state.
+ * @returns A `RefState<T>` object representing the reactive state.
  */
 export function useRefState<T>(initialValue: T): RefState<T> {
   return createStateRef(initialValue);
 }
 
 /**
- * Creates a shallow proxy object (based on Valtio).
- *
- * Features:
- * - Behaves similarly to Vue's `shallowRef`: does not perform deep proxying on objects, but replacing the entire object will trigger updates;
+ * Creates a shallow reactive reference state for the given initial value.
  *
  * @example
  *
  * const countRef = useShallowRefState({ count: 1 });
  * countRef.value.count++; // Does not trigger component updates
  * countRef.value = { count: 3 } // Replacing the entire object will trigger updates
+ *
+ * @param initialValue - The initial value to be stored in the shallow ref state.
+ * @returns A `RefState<T>` object that holds the shallow reactive state.
  */
 export function useShallowRefState<T>(initialValue: T): RefState<T> {
   return createStateRef(initialValue, true);
@@ -75,6 +77,6 @@ function createStateRef<T>(initialValue: T, shallow = false): RefState<T> {
   // 否则浅 ref 的语义（锁定内部对象）会失效。
   return createProxy(target, {
     clone: isComplex && !shallow,
-    flag: PROXY_FLAG_VALUE.ref,
+    meta: { [IS_REF_PROXY]: true },
   }) as RefState<T>;
 }

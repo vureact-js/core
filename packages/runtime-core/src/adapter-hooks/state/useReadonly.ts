@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Snapshot } from 'valtio/vanilla';
 import { useProxySubscribe } from '../shared/hooks';
-import { freezeObject, isProxy, isRefState } from '../shared/utils';
+import { isProxy, isRef } from '../shared/proxy';
+import { freezeObject } from '../shared/utils';
 import { UnwrapRef, unwrapRef, WrapRef } from './useRefState';
 
 export type ReadonlySnapshot<T> =
@@ -10,12 +11,10 @@ export type ReadonlySnapshot<T> =
 export type ReadonlyType<T> = Readonly<T> | Snapshot<T>;
 
 /**
- * Returns an immutable snapshot of the current state of a proxy or plain object (based on Valtio).
+ * Creates a readonly snapshot of the given target object.
  *
- * Features:
- * - Behaves similarly to Vue's `readonly`: returns an immutable snapshot for safely reading the state;
- * - The snapshot will be automatically updated as the original proxy changes subsequently.
- * - Automatically unwraps the `value` property of `RefState`.
+ * If the target is not a reactive proxy, it deeply freezes the object to prevent mutations.
+ * If the target is a reactive proxy, it returns a readonly version of the proxy.
  *
  * @example
  *
@@ -23,6 +22,9 @@ export type ReadonlyType<T> = Readonly<T> | Snapshot<T>;
  * const read = useReadonly(stateProxy);
  * read.a; // Read-only, cannot be modified
  * stateProxy.a++; // Modify the source proxy, read.a is automatically synced and updated
+ *
+ * @param target - The object to make readonly.
+ * @returns A readonly snapshot of the target object.
  */
 export function useReadonly<T extends object>(target: T): ReadonlySnapshot<T> {
   if (!isProxy(target)) {
@@ -34,18 +36,25 @@ export function useReadonly<T extends object>(target: T): ReadonlySnapshot<T> {
 }
 
 /**
- * Creates a shallow immutable snapshot where outer properties are read-only, while internal nested objects retain references to the original proxy.
+ * Creates a shallow readonly proxy for the given target object.
  *
- * Features:
- * - Behaves similarly to Vue's `shallowReadonly`: prevents write/delete operations on first-level properties, but does not deeply freeze nested objects.
- * - Automatically unwraps the `value` property of `RefState`.
+ * - If the target is not a reactive proxy, it returns a shallow frozen version of the object.
+ * - If the target is a proxy, it wraps it in a shallow readonly proxy that prevents mutation and deletion,
+ *   emitting warnings in non-production environments.
+ * - The returned proxy is memoized to ensure stable references as long as the target does not change.
+ * - The returned value is a readonly snapshot that updates when the target changes, ensuring React components
+ *   re-render appropriately.
  *
  * @example
  *
  * const stateProxy = useReactive({ a: 1, b: { c: 2 } });
  * const read = useShallowReadonly(stateProxy);
+ *
  * read.a++; // Read-only access, cannot be modified
  * read.b.c++; // Nested objects can be modified
+ *
+ * @param target - The object to be wrapped in a shallow readonly proxy.
+ * @returns A readonly snapshot of the target object.
  */
 export function useShallowReadonly<T extends object>(target: T): ReadonlySnapshot<T> {
   if (!isProxy(target)) {
@@ -85,7 +94,7 @@ export function useShallowReadonly<T extends object>(target: T): ReadonlySnapsho
 
 function createReadonly<T extends object>(target: T, getSnapshot?: () => T): ReadonlySnapshot<T> {
   const read = useProxySubscribe(target, getSnapshot);
-  return isRefState(read)
-    ? (unwrapRef(read) as any) // 自动解包 ref
+  return isRef(read)
+    ? (unwrapRef(read as WrapRef<T>) as any) // 自动解包 ref
     : (read as any);
 }
