@@ -1,14 +1,21 @@
-import { useMemo, useSyncExternalStore } from 'react';
-import { snapshot, Snapshot, subscribe } from 'valtio/vanilla';
+import { useMemo } from 'react';
+import { Snapshot } from 'valtio/vanilla';
+import { useProxySubscribe } from '../shared/hooks';
+import { freezeObject, isProxy, isRefState } from '../shared/utils';
+import { UnwrapRef, unwrapRef, WrapRef } from './useRefState';
 
-export type ReadonlyState<T> = Readonly<Snapshot<T>>;
+export type ReadonlySnapshot<T> =
+  T extends WrapRef<any> ? ReadonlyType<UnwrapRef<T>> : ReadonlyType<T>;
+
+export type ReadonlyType<T> = Readonly<T> | Snapshot<T>;
 
 /**
- * Returns an immutable snapshot of the current state of a `proxy` object (based on Valtio).
+ * Returns an immutable snapshot of the current state of a proxy or plain object (based on Valtio).
  *
  * Features:
  * - Behaves similarly to Vue's `readonly`: returns an immutable snapshot for safely reading the state;
  * - The snapshot will be automatically updated as the original proxy changes subsequently.
+ * - Automatically unwraps the `value` property of `RefState`.
  *
  * @example
  *
@@ -17,11 +24,13 @@ export type ReadonlyState<T> = Readonly<Snapshot<T>>;
  * read.a; // Read-only, cannot be modified
  * stateProxy.a++; // Modify the source proxy, read.a is automatically synced and updated
  */
-export function useReadonly<T extends object>(proxyObject: T): ReadonlyState<T> {
-  return useSyncExternalStore(
-    (callback) => subscribe(proxyObject, callback),
-    () => snapshot(proxyObject),
-  );
+export function useReadonly<T extends object>(target: T): ReadonlySnapshot<T> {
+  if (!isProxy(target)) {
+    // 非响应式对象则深度冻结
+    return freezeObject(target) as any;
+  }
+
+  return createReadonly(target);
 }
 
 /**
@@ -29,6 +38,7 @@ export function useReadonly<T extends object>(proxyObject: T): ReadonlyState<T> 
  *
  * Features:
  * - Behaves similarly to Vue's `shallowReadonly`: prevents write/delete operations on first-level properties, but does not deeply freeze nested objects.
+ * - Automatically unwraps the `value` property of `RefState`.
  *
  * @example
  *
@@ -37,9 +47,14 @@ export function useReadonly<T extends object>(proxyObject: T): ReadonlyState<T> 
  * read.a++; // Read-only access, cannot be modified
  * read.b.c++; // Nested objects can be modified
  */
-export function useShallowReadonly<T extends object>(proxyObject: T): Readonly<T> {
+export function useShallowReadonly<T extends object>(target: T): ReadonlySnapshot<T> {
+  if (!isProxy(target)) {
+    // 非响应式对象则浅冻结
+    return freezeObject(target, { deep: false }) as any;
+  }
+
   // 手动拦截对象，不进行递归代理
-  const shallowProxy = new Proxy(proxyObject, {
+  const shallowProxy = new Proxy(target, {
     get(target, prop, receiver) {
       return Reflect.get(target, prop, receiver);
     },
@@ -58,15 +73,19 @@ export function useShallowReadonly<T extends object>(proxyObject: T): Readonly<T
   });
 
   // 缓存 shallowReadonly 代理实例
-  // 只要 proxyObject 引用没变，就复用同一个只读代理外壳
+  // 只要 target 引用没变，就复用同一个只读代理外壳
   // 确保 getSnapshot 返回的引用稳定性
-  const state = useMemo(() => shallowProxy, [proxyObject]);
+  const state = useMemo(() => shallowProxy, [target]);
 
   // 这里的 getSnapshot 变成了缓存的 state
-  // 当 proxyObject 内部发生变化触发 callback 时，React 会重新渲染
+  // 当 target 内部发生变化触发 callback 时，React 会重新渲染
   // 虽然 state 引用没变，但组件会因为 subscribe 的触发而更新
-  return useSyncExternalStore(
-    (callback) => subscribe(proxyObject, callback),
-    () => state,
-  );
+  return createReadonly(target, () => state);
+}
+
+function createReadonly<T extends object>(target: T, getSnapshot?: () => T): ReadonlySnapshot<T> {
+  const read = useProxySubscribe(target, getSnapshot);
+  return isRefState(read)
+    ? (unwrapRef(read) as any) // 自动解包 ref
+    : (read as any);
 }
