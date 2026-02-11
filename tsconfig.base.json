@@ -17,8 +17,7 @@
     "moduleDetection": "force",
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": false,
-    "noUncheckedSideEffectImports": true,
-    "allowImportingTsExtensions": true
+    "noUncheckedSideEffectImports": true
   },
   "types": ["jest", "node"],
   "exclude": ["lib", "node_modules"]
