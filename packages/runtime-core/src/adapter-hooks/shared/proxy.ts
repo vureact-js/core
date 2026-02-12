@@ -30,6 +30,8 @@ export function createProxy<T extends object>(target: T, options?: ProxyOptions)
         if (prop === VALTIO_PROXY_TARGET) return target;
         if (prop === RAW_TARGET) return raw;
 
+        trackProxyAccess(target);
+
         const value = Reflect.get(target, prop, receiver);
 
         // 只有当访问的是对象，且它是 Valtio 产生的子 Proxy 时，才进行懒包装
@@ -152,4 +154,29 @@ export function setProxyMeta(object: object, data: Record<string, any>) {
 export function getValtioProxyTarget<T extends object>(target: T): object {
   const innerProxy = (target as any)[VALTIO_PROXY_TARGET];
   return innerProxy ?? target;
+}
+
+type ProxyAccessCollector = (proxy: object) => void;
+
+let activeCollector: ProxyAccessCollector | null = null;
+
+/**
+ * @private
+ * 拦截执行期间所有的 Proxy get 操作
+ */
+export function collectProxyAccess<T>(fn: () => T): { value: T; proxies: Set<object> } {
+  const proxies = new Set<object>();
+  const prev = activeCollector;
+  activeCollector = (proxy) => proxies.add(proxy);
+  try {
+    return { value: fn(), proxies };
+  } finally {
+    activeCollector = prev;
+  }
+}
+
+function trackProxyAccess(proxy: object) {
+  if (activeCollector) {
+    activeCollector(proxy);
+  }
 }
