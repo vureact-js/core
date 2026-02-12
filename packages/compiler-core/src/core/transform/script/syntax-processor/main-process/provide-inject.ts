@@ -2,7 +2,8 @@ import { generate } from '@babel/generator';
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext, ProvideData } from '@compiler/context/types';
-import { RuntimeModules, VuR_Runtime } from '@src/consts/runtimeModules';
+import { ADAPTER_HOOKS } from '@consts/adapters-map';
+import { PACKAGE_NAME } from '@consts/other';
 import { recordImport } from '@src/core/transform/shared/record-import';
 import {
   getParentVariableDeclarator,
@@ -93,17 +94,15 @@ function assignProviderValue(
 function processInjectApi(ctx: ICompilationContext, path: NodePath<t.CallExpression>) {
   const { node } = path;
 
-  if (!isCalleeNamed(node, 'inject')) {
-    path.skip();
-    return;
-  }
+  if (!isCalleeNamed(node, 'inject')) return;
 
   warnVueHookInBlock(ctx, path);
   warnVueHookInAnyCallback(ctx, path);
 
   const parentVarDecl = getParentVariableDeclarator(path);
+
   setNodeExtensionMeta(parentVarDecl.node, { isReactive: true, reactiveType: 'indirect' });
 
-  replaceCallName(node, VuR_Runtime.useCtx);
-  recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.useCtx);
+  replaceCallName(node, ADAPTER_HOOKS.useCtx);
+  recordImport(ctx, PACKAGE_NAME.runtime, ADAPTER_HOOKS.useCtx);
 }
