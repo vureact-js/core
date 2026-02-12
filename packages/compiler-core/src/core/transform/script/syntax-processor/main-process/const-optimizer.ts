@@ -4,13 +4,13 @@ import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
 import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
-import { isReactiveBinding } from '../shared/analyze-dependency';
+import { isReactiveBinding } from '../../shared/analyze-dependency';
 import {
   getNodeExtensionMeta,
   isRealVariableAccess,
   isVariableDeclTopLevel,
   setNodeExtensionMeta,
-} from '../shared/babel-utils';
+} from '../../shared/babel-utils';
 
 export function optimizeConstant(ctx: ICompilationContext): TraverseOptions {
   return {
