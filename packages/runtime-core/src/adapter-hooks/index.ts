@@ -10,6 +10,7 @@ export * from './shared/proxy';
 export * from './state/useReactive';
 export * from './state/useReadonly';
 export * from './state/useRefState';
+export * from './state/useComputed';
 export * from './state/useToRaw';
 export * from './state/useToRefState';
 export * from './state/useToRefStates';
