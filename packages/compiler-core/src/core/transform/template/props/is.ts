@@ -1,5 +1,6 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
+import { ADAPTER_COMPS } from '@consts/adapters-map';
+import { PACKAGE_NAME } from '@consts/other';
 import { strCodeTypes } from '@shared/string-code-types';
 import { recordImport } from '@src/core/transform/shared/record-import';
 import { camelCase } from '@utils/camelCase';
@@ -42,9 +43,9 @@ export function handleDynamicIs(
 
   resolvePropAsBabelExp(ctx, propIR);
 
-  nodeIR.tag = VuR_Runtime.Component;
+  nodeIR.tag = ADAPTER_COMPS.Component;
   nodeIR.isComponent = true;
   nodeIR.props.push(propIR);
 
-  recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag);
+  recordImport(ctx, PACKAGE_NAME.runtime, nodeIR.tag);
 }

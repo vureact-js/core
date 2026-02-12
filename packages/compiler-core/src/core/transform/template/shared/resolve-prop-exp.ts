@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { STYLE_MODULE_NAME } from '@consts/other';
-import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
+import { ADAPTER_UTILS_MAP } from '@consts/adapters-map';
+import { PACKAGE_NAME, STYLE_MODULE_NAME } from '@consts/other';
 import { recordImport } from '../../shared/record-import';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
@@ -39,18 +39,18 @@ export function resolvePropAsBabelExp(ctx: ICompilationContext, propIR: PropsIR)
   ) => {
     if (setName && nm) setNameIdentifier(nameExp, nm);
     setValueExp(value.babelExp, content, isStringLiteral);
-    recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.dir);
+    recordImport(ctx, PACKAGE_NAME.runtime, ADAPTER_UTILS_MAP.dir);
   };
 
   if (propIR.isKeyLessVBind) {
-    const newContent = makeCall(VuR_Runtime.dirKeyless, [valueContent]);
+    const newContent = makeCall(ADAPTER_UTILS_MAP.dirKeyless, [valueContent]);
     applyRuntime(newContent, false);
     return;
   }
 
   if (isClassAttr(name) && !value.isStringLiteral && !valueContent.startsWith(STYLE_MODULE_NAME)) {
     const arg = mergeItem?.join(',') || wrapSingleQuotes(valueContent);
-    const newContent = makeCall(VuR_Runtime.dirCls, [arg]);
+    const newContent = makeCall(ADAPTER_UTILS_MAP.dirCls, [arg]);
 
     applyRuntime(newContent, true, name);
 
@@ -62,7 +62,7 @@ export function resolvePropAsBabelExp(ctx: ICompilationContext, propIR: PropsIR)
     (!isSimpleStyle(valueContent) || mergeItem?.some((m) => !isSimpleStyle(m)))
   ) {
     const arg = mergeItem?.join(',') || valueContent;
-    const newContent = makeCall(VuR_Runtime.dirStyle, [arg]);
+    const newContent = makeCall(ADAPTER_UTILS_MAP.dirStyle, [arg]);
 
     applyRuntime(newContent, true, name);
 
@@ -73,7 +73,7 @@ export function resolvePropAsBabelExp(ctx: ICompilationContext, propIR: PropsIR)
     // 临时字段 __vOnEvName 存储了原始的 vue 事件名
     const event = wrapSingleQuotes((propIR as any).__vOnEvName || name, propIR.isStatic);
     const handler = valueContent;
-    const newContent = makeCall(VuR_Runtime.dirOn, [event, handler]);
+    const newContent = makeCall(ADAPTER_UTILS_MAP.dirOn, [event, handler]);
 
     applyRuntime(newContent, true, name);
 

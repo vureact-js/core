@@ -2,15 +2,16 @@ import { NodePath } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
+import { PACKAGE_NAME } from '@consts/other';
+import { REACT_API_MAP } from '@src/consts/react-api-map';
 import { recordImport } from '@src/core/transform/shared/record-import';
-import { isReactiveBinding } from '../../shared/analyze-dependency';
 import {
   getNodeExtensionMeta,
   isRealVariableAccess,
   isVariableDeclTopLevel,
   setNodeExtensionMeta,
 } from '../../shared/babel-utils';
+import { isReactiveBinding } from '../../shared/dependency-analyzer';
 
 export function optimizeConstant(ctx: ICompilationContext): TraverseOptions {
   return {
@@ -38,9 +39,9 @@ function transformToUseRef(ctx: ICompilationContext, path: NodePath<t.VariableDe
     return;
   }
 
-  node.init = t.callExpression(t.identifier(ReactApis.useRef), [node.init!]);
+  node.init = t.callExpression(t.identifier(REACT_API_MAP.useRef), [node.init!]);
 
-  recordImport(ctx, RuntimeModules.REACT, ReactApis.useRef);
+  recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.useRef);
   setNodeExtensionMeta(node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }
 
