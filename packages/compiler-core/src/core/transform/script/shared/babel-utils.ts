@@ -3,17 +3,7 @@ import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions } from '@src/shared/babel-utils';
-import { ReactiveTypes, VarDeclKind } from './types';
-
-export function getVarKind(path: NodePath<t.VariableDeclarator>): VarDeclKind {
-  const {
-    parentPath: { node },
-  } = path;
-  if (t.isVariableDeclaration(node)) {
-    return node.kind;
-  }
-  return 'const';
-}
+import { ReactiveTypes } from './types';
 
 export function getRootIdByMemberNodePath(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
@@ -392,7 +382,7 @@ export function isCalleeNamed(node: t.CallExpression, name: string): boolean {
 /**
  * 以当前路径为起点，查找自身的上级父路径节点的变量声明节点
  */
-export function getParentVariableDeclarator(path: NodePath): NodePath {
+export function getParentVariableDeclarator(path: NodePath): NodePath<t.Node> {
   let current = path;
 
   while (!current.isVariableDeclarator()) {
