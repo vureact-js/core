@@ -11,6 +11,7 @@
     "test:useReactive": "pnpm -F @vureact/runtime-core test -- useReactive.test.ts",
     "test:useRefState": "pnpm -F @vureact/runtime-core test -- useRefState.test.ts",
     "test:useReadonly": "pnpm -F @vureact/runtime-core test -- useReadonly.test.ts",
+    "test:useComputed": "pnpm -F @vureact/runtime-core test -- useComputed.test.ts",
     "test:useToRaw": "pnpm -F @vureact/runtime-core test -- useToRaw.test.ts",
     "test:useToRefState": "pnpm -F @vureact/runtime-core test -- useToRefState.test.ts",
     "test:useToRefStates": "pnpm -F @vureact/runtime-core test -- useToRefStates.test.ts",
