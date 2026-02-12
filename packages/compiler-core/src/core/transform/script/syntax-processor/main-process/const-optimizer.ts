@@ -3,7 +3,7 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@src/consts/runtimeModules';
-import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
+import { recordImport } from '@src/core/transform/shared/record-import';
 import { isReactiveBinding } from '../../shared/analyze-dependency';
 import {
   getNodeExtensionMeta,
@@ -40,7 +40,7 @@ function transformToUseRef(ctx: ICompilationContext, path: NodePath<t.VariableDe
 
   node.init = t.callExpression(t.identifier(ReactApis.useRef), [node.init!]);
 
-  recordImport(ctx, RuntimeModules.REACT, ReactApis.useRef, true);
+  recordImport(ctx, RuntimeModules.REACT, ReactApis.useRef);
   setNodeExtensionMeta(node, { isUseRef: true, isReactive: false, reactiveType: 'none' });
 }
 

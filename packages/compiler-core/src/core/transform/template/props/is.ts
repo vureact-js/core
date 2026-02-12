@@ -1,7 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
-import { recordImport } from '@core/transform/shared/setup-runtime-utils';
 import { strCodeTypes } from '@shared/string-code-types';
+import { recordImport } from '@src/core/transform/shared/record-import';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../elements/element';
@@ -46,5 +46,5 @@ export function handleDynamicIs(
   nodeIR.isComponent = true;
   nodeIR.props.push(propIR);
 
-  recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag, true);
+  recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag);
 }

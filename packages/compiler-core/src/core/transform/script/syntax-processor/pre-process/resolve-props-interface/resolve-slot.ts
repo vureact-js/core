@@ -2,7 +2,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext, SlotNodesContext } from '@compiler/context/types';
 import { RuntimeModules } from '@consts/runtimeModules';
-import { recordImport } from '@core/transform/shared/setup-runtime-utils';
+import { recordImport } from '@src/core/transform/shared/record-import';
 import { cloneCallableParams } from './shared';
 
 const SLOT_DEFAULT_NAME = 'default';
@@ -114,7 +114,7 @@ export function resolveTemplateSlotIface(ctx: ICompilationContext) {
 
 function recordReactNode(ctx: ICompilationContext) {
   // 记录需要导入 React.ReactNode
-  recordImport(ctx, RuntimeModules.REACT, 'ReactNode', true);
+  recordImport(ctx, RuntimeModules.REACT, 'ReactNode');
 }
 
 // 将各种可能的 TS 类型节点转换为表示 slots 调用签名的类型

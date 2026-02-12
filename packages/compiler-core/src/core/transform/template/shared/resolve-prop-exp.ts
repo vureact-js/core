@@ -2,7 +2,7 @@ import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { STYLE_MODULE_NAME } from '@consts/other';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
-import { recordImport } from '../../shared/setup-runtime-utils';
+import { recordImport } from '../../shared/record-import';
 import { PropsIR, PropTypes } from '../props';
 import { isClassAttr, isStyleAttr } from '../props/utils';
 import { isSimpleStyle } from './parse-style-string';
@@ -39,7 +39,7 @@ export function resolvePropAsBabelExp(ctx: ICompilationContext, propIR: PropsIR)
   ) => {
     if (setName && nm) setNameIdentifier(nameExp, nm);
     setValueExp(value.babelExp, content, isStringLiteral);
-    recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.dir, true);
+    recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.dir);
   };
 
   if (propIR.isKeyLessVBind) {

@@ -2,8 +2,8 @@ import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext, IRModelEventHandler } from '@compiler/context/types';
 import { ReactApis, RuntimeModules } from '@consts/runtimeModules';
-import { recordImport } from '@core/transform/shared/setup-runtime-utils';
 import { resolveTemplateExp } from '@core/transform/template/shared/resolve-str-exp';
+import { recordImport } from '@src/core/transform/shared/record-import';
 import { createUseCallback } from '../../shared/hook-creator';
 
 /**
@@ -53,7 +53,7 @@ function resolveEventHandler(
 
   const declaration = t.variableDeclarator(t.identifier(handler.name), useCallback);
 
-  recordImport(ctx, RuntimeModules.REACT, ReactApis.useCallback, true);
+  recordImport(ctx, RuntimeModules.REACT, ReactApis.useCallback);
 
   return t.variableDeclaration('const', [declaration]);
 }

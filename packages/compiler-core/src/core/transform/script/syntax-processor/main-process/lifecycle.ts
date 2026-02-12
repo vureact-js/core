@@ -2,7 +2,7 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
-import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
+import { recordImport } from '@src/core/transform/shared/record-import';
 import { analyzeFuncArgDeps } from '../../shared/analyze-dependency';
 import { createCallExpProcessor } from '../../shared/processor-factory';
 
@@ -21,7 +21,7 @@ export function processLifecycleApi(ctx: ICompilationContext): TraverseOptions {
       const { node } = path;
 
       if (t.isIdentifier(node.callee) && node.callee.name === VuR_Runtime.nextTick) {
-        recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.nextTick, true);
+        recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, VuR_Runtime.nextTick);
         return;
       }
 
@@ -33,7 +33,7 @@ export function processLifecycleApi(ctx: ICompilationContext): TraverseOptions {
         addDeps: (fnArg) => analyzeFuncArgDeps(fnArg, path),
 
         onProcessed(adaptName) {
-          recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, adaptName, true);
+          recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, adaptName);
         },
       });
     },

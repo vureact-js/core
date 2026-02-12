@@ -1,7 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { RuntimeModules, VuR_Runtime } from '@consts/runtimeModules';
 import { logger } from '@shared/logger';
-import { recordImport } from '@src/core/transform/shared/setup-runtime-utils';
+import { recordImport } from '@src/core/transform/shared/record-import';
 import { SourceLocation } from '@vue/compiler-core';
 import { addKeyToNode } from '../shared/utils';
 import { ElementNodeIR } from './element';
@@ -9,7 +9,7 @@ import { ElementNodeIR } from './element';
 export function markBuiltinComponent(ctx: ICompilationContext, nodeIR: ElementNodeIR) {
   if (nodeIR.tag in VuR_Runtime) {
     nodeIR.isBuiltIn = true;
-    recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag, true);
+    recordImport(ctx, RuntimeModules.VUREACT_RUNTIME, nodeIR.tag);
   }
 }
 
