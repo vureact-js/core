@@ -1,12 +1,6 @@
 import * as t from '@babel/types';
-import { ReactApis } from '@src/consts/runtimeModules';
+import { REACT_API_MAP } from '@consts/react-api-map';
 
-export function createUseCallback(
-  body: t.Expression,
-  deps: t.ArrayExpression | t.Identifier[],
-): t.CallExpression {
-  return t.callExpression(t.identifier(ReactApis.useCallback), [
-    body,
-    Array.isArray(deps) ? t.arrayExpression(deps) : deps,
-  ]);
+export function createUseCallback(body: t.Expression, deps: t.ArrayExpression): t.CallExpression {
+  return t.callExpression(t.identifier(REACT_API_MAP.useCallback), [body, deps]);
 }
