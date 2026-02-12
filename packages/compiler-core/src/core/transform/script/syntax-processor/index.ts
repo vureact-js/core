@@ -1,8 +1,8 @@
 import { ParseResult, traverse } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
-import { optimizeFunction } from '../optimizations/function';
 import { processComputedApi } from './main-process/computed';
+import { optimizeArrowFunction } from './main-process/fn-optimizer';
 import { processLifecycleApi } from './main-process/lifecycle';
 import { resolveProvideInject } from './main-process/provide-inject';
 import { processReactiveApi } from './main-process/reactive';
@@ -12,7 +12,6 @@ import { processWatchEffectApi } from './main-process/watchEffect';
 import { insertCSSImport } from './post-process/insert-css-import';
 import { insertRequiredImports } from './post-process/insert-required-imports';
 import { insertVModelEventHandlers } from './post-process/insert-vmodel-handlers';
-import { processReactiveValueUpdate } from './post-process/reactive-value-update';
 import { extractLocalStatements, splitScriptBlocks } from './post-process/script-blocks';
 import { resolveAsyncComponent } from './pre-process/resolve-async-component';
 import { resolveOptions } from './pre-process/resolve-options';
@@ -22,7 +21,6 @@ import {
   resolveSlotsTopLevelTypes,
   resolveTemplateSlotIface,
 } from './pre-process/resolve-props-interface/resolve-slot';
-import { stripReactiveValueSuffix } from './pre-process/strip-value-suffix';
 import { processTemplateNodeRef } from './pre-process/template-node-ref';
 
 interface ProcessorOptions {
@@ -46,7 +44,6 @@ export function processVueSyntax(ast: ParseResult, ctx: ICompilationContext) {
         resolveSlotsTopLevelTypes,
         resolvePropsIface,
         resolveAsyncComponent,
-        stripReactiveValueSuffix,
         processTemplateNodeRef,
       ],
     },
@@ -56,7 +53,7 @@ export function processVueSyntax(ast: ParseResult, ctx: ICompilationContext) {
         processReactiveApi,
         processReadonlyApi,
         processComputedApi,
-        optimizeFunction,
+        optimizeArrowFunction,
         processWatchApi,
         processWatchEffectApi,
         processLifecycleApi,
@@ -66,7 +63,7 @@ export function processVueSyntax(ast: ParseResult, ctx: ICompilationContext) {
     },
 
     postprocess: {
-      applyBabel: [processReactiveValueUpdate, insertRequiredImports, splitScriptBlocks],
+      applyBabel: [insertRequiredImports, splitScriptBlocks],
       excludeBabel: [insertCSSImport, insertVModelEventHandlers, extractLocalStatements],
     },
   });
