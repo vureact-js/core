@@ -1,5 +1,5 @@
 import { ref } from 'valtio/vanilla';
-import { IS_REACTIVE_PROXY, RAW_TARGET } from '../shared/consts';
+import { IS_REACTIVE_PROXY, IS_ROOT, RAW_TARGET } from '../shared/consts';
 import { createProxy, isProxy } from '../shared/proxy';
 import { isPrimitive } from '../shared/utils';
 
@@ -68,6 +68,6 @@ function createReactive<T extends object>(target: T, shallow = false): T {
   return createProxy(baseTarget as T, {
     clone: !shallow,
     originalTarget: baseTarget,
-    meta: { [RAW_TARGET]: baseTarget, [IS_REACTIVE_PROXY]: true },
+    meta: { [IS_ROOT]: true, [RAW_TARGET]: baseTarget, [IS_REACTIVE_PROXY]: true },
   });
 }

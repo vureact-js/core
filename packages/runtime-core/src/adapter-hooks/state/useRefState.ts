@@ -1,5 +1,5 @@
 import { ref } from 'valtio/vanilla';
-import { IS_REF_PROXY } from '../shared/consts';
+import { IS_REF_PROXY, IS_ROOT } from '../shared/consts';
 import { createProxy, isProxy } from '../shared/proxy';
 import { isPrimitive } from '../shared/utils';
 
@@ -77,6 +77,6 @@ function createStateRef<T>(initialValue: T, shallow = false): RefState<T> {
   // 否则浅 ref 的语义（锁定内部对象）会失效。
   return createProxy(target, {
     clone: isComplex && !shallow,
-    meta: { [IS_REF_PROXY]: true },
+    meta: { [IS_ROOT]: true, [IS_REF_PROXY]: true },
   }) as RefState<T>;
 }
