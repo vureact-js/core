@@ -3,7 +3,7 @@ export const ADAPTER_COMPS = {
   Suspense: 'Suspense',
   Teleport: 'Teleport',
   Component: 'Component',
-  Provide: 'CtxProvider', // 实际是 Vue 的 provide 方法，为了命名统一采用 Provide
+  Provider: 'Provider', // 实际是 Vue 的 provide 方法，为了命名统一采用 Provide
   Transition: 'Transition',
   TransitionGroup: 'TransitionGroup',
 } as const;
@@ -24,7 +24,7 @@ export const ADAPTER_HOOKS = {
     isRef: 'isRef',
     isProxy: 'isProxy',
     isReactive: 'isReactive',
-    inject: 'useCtx',
+    inject: 'useInject',
     watch: 'useWatch',
     shallowRef: 'useShallowRef',
     shallowReactive: 'useShallowReactive',
