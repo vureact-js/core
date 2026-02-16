@@ -1,10 +1,10 @@
 import { PropsWithChildren } from 'react';
 import { ContextKey, contextRegistry } from './registry';
 
-export interface CtxProviderProps<T, K = ContextKey> extends PropsWithChildren {
+export interface ProviderProps<T, K = ContextKey> extends PropsWithChildren {
   /**
    * Unique identifier for the context.
-   * Used by `useCtx` hook to retrieve this value.
+   * Used by `useInject` hook to retrieve this value.
    *
    * @example "user", "theme", "settings"
    */
@@ -25,7 +25,7 @@ export interface CtxProviderProps<T, K = ContextKey> extends PropsWithChildren {
  * 上下文提供者组件，用于向后代组件提供数据。
  *
  * 该组件会根据传入的名称创建或获取对应的 React 上下文，
- * 并通过 `useCtx` 钩子将值提供给所有子组件使用。
+ * 并通过 `useInject` 钩子将值提供给所有子组件使用。
  *
  * @param props - 组件属性
  * @param props.name - 上下文的唯一标识
@@ -35,12 +35,18 @@ export interface CtxProviderProps<T, K = ContextKey> extends PropsWithChildren {
  * @returns React Provider 组件
  *
  * @example
- *
- * <CtxProvider name="theme" value="dark">
+ * ```tsx
+ * // 父组件提供数据
+ * <Provider name="theme" value="dark">
  *   <ChildComponent />
- * </CtxProvider>
+ * </Provider>
+ * 
+ * // 在子组件内接收 
+ * // value -> 'dark'
+ * const value = useInject<string>('theme')
+ * ```
  */
-export function CtxProvider<T, K = ContextKey>(props: CtxProviderProps<T, K>) {
+export function Provider<T, K = ContextKey>(props: ProviderProps<T, K>) {
   const { name, value, children } = props;
   const { Provider } = contextRegistry.create(name as ContextKey, value);
 

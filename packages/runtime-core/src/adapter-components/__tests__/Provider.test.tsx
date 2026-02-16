@@ -2,8 +2,8 @@ import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
-import { CtxProvider, useCtx } from '../ContextProvider';
-import { contextRegistry } from '../ContextProvider/registry';
+import { Provider, useInject } from '../Provider';
+import { contextRegistry } from '../Provider/registry';
 
 // 测试组件
 interface TestConsumerProps {
@@ -12,7 +12,7 @@ interface TestConsumerProps {
 }
 
 const TestConsumer = ({ name, label = 'Value' }: TestConsumerProps) => {
-  const value = useCtx(name);
+  const value = useInject(name);
   return (
     <div data-testid={`consumer-${String(name)}`}>
       {label}: {value === undefined ? 'undefined' : String(value)}
@@ -29,9 +29,9 @@ describe('Context Registry System', () => {
   describe('Basic Functionality', () => {
     test('should provide and consume value with string key', () => {
       const TestComponent = () => (
-        <CtxProvider name="test-key" value="test-value">
+        <Provider name="test-key" value="test-value">
           <TestConsumer name="test-key" />
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -40,9 +40,9 @@ describe('Context Registry System', () => {
 
     test('should provide and consume value with number key', () => {
       const TestComponent = () => (
-        <CtxProvider name={123} value={456}>
+        <Provider name={123} value={456}>
           <TestConsumer name={123} />
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -52,9 +52,9 @@ describe('Context Registry System', () => {
     test('should provide and consume value with symbol key', () => {
       const symbolKey = Symbol('test');
       const TestComponent = () => (
-        <CtxProvider name={symbolKey} value="symbol-value">
+        <Provider name={symbolKey} value="symbol-value">
           <TestConsumer name={symbolKey} />
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -67,11 +67,11 @@ describe('Context Registry System', () => {
   describe('Nested Providers', () => {
     test('should use innermost provider value', () => {
       const TestComponent = () => (
-        <CtxProvider name="nested" value="outer">
-          <CtxProvider name="nested" value="inner">
+        <Provider name="nested" value="outer">
+          <Provider name="nested" value="inner">
             <TestConsumer name="nested" />
-          </CtxProvider>
-        </CtxProvider>
+          </Provider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -80,14 +80,14 @@ describe('Context Registry System', () => {
 
     test('should work with multiple nested consumers', () => {
       const TestComponent = () => (
-        <CtxProvider name="multi" value="level1">
+        <Provider name="multi" value="level1">
           <div>
             <TestConsumer name="multi" label="Level1" />
-            <CtxProvider name="multi" value="level2">
+            <Provider name="multi" value="level2">
               <TestConsumer name="multi" label="Level2" />
-            </CtxProvider>
+            </Provider>
           </div>
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -101,12 +101,12 @@ describe('Context Registry System', () => {
     test('should handle multiple independent contexts', () => {
       const TestComponent = () => (
         <>
-          <CtxProvider name="key1" value="value1">
+          <Provider name="key1" value="value1">
             <TestConsumer name="key1" label="Key1" />
-          </CtxProvider>
-          <CtxProvider name="key2" value={42}>
+          </Provider>
+          <Provider name="key2" value={42}>
             <TestConsumer name="key2" label="Key2" />
-          </CtxProvider>
+          </Provider>
           <TestConsumer name="key3" label="Key3 (no provider)" />
         </>
       );
@@ -124,17 +124,17 @@ describe('Context Registry System', () => {
   describe('Dynamic Updates', () => {
     test('should update when provider value changes', async () => {
       const { rerender } = render(
-        <CtxProvider name="dynamic" value="initial">
+        <Provider name="dynamic" value="initial">
           <TestConsumer name="dynamic" />
-        </CtxProvider>,
+        </Provider>,
       );
 
       expect(screen.getByTestId('consumer-dynamic')).toHaveTextContent('Value: initial');
 
       rerender(
-        <CtxProvider name="dynamic" value="updated">
+        <Provider name="dynamic" value="updated">
           <TestConsumer name="dynamic" />
-        </CtxProvider>,
+        </Provider>,
       );
 
       expect(screen.getByTestId('consumer-dynamic')).toHaveTextContent('Value: updated');
@@ -145,12 +145,12 @@ describe('Context Registry System', () => {
         const [count, setCount] = React.useState(0);
 
         return (
-          <CtxProvider name="counter" value={count}>
+          <Provider name="counter" value={count}>
             <div>
               <TestConsumer name="counter" label="Count" />
               <button onClick={() => setCount(count + 1)}>Increment</button>
             </div>
-          </CtxProvider>
+          </Provider>
         );
       };
 
@@ -193,9 +193,9 @@ describe('Context Registry System', () => {
     test('should handle objects', () => {
       const objValue = { name: 'John', age: 30 };
       const TestComponent = () => (
-        <CtxProvider name="user" value={objValue}>
+        <Provider name="user" value={objValue}>
           <TestConsumer name="user" />
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -206,9 +206,9 @@ describe('Context Registry System', () => {
 
     test('should handle arrays', () => {
       const TestComponent = () => (
-        <CtxProvider name="items" value={[1, 2, 3]}>
+        <Provider name="items" value={[1, 2, 3]}>
           <TestConsumer name="items" />
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -218,9 +218,9 @@ describe('Context Registry System', () => {
     test('should handle functions', () => {
       const fnValue = () => 'test';
       const TestComponent = () => (
-        <CtxProvider name="callback" value={fnValue}>
+        <Provider name="callback" value={fnValue}>
           <TestConsumer name="callback" />
-        </CtxProvider>
+        </Provider>
       );
 
       render(<TestComponent />);
@@ -234,9 +234,9 @@ describe('Context Registry System', () => {
     test('should enforce value type consistency', () => {
       // 这段代码应该通过 TypeScript 类型检查
       const TypedComponent = () => (
-        <CtxProvider name="typed" value="string">
+        <Provider name="typed" value="string">
           <TestConsumer name="typed" />
-        </CtxProvider>
+        </Provider>
       );
 
       expect(() => render(<TypedComponent />)).not.toThrow();
@@ -249,9 +249,9 @@ describe('Performance Tests', () => {
   test('should handle many contexts efficiently', () => {
     const ManyProviders = () => {
       const providers = Array.from({ length: 100 }, (_, i) => (
-        <CtxProvider name={`key-${i}`} value={i} key={`provider-${i}`}>
+        <Provider name={`key-${i}`} value={i} key={`provider-${i}`}>
           <TestConsumer name={`key-${i}`} label={`Consumer ${i}`} />
-        </CtxProvider>
+        </Provider>
       ));
 
       return <>{providers}</>;
