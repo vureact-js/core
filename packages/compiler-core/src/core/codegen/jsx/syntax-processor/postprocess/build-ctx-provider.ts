@@ -18,7 +18,10 @@ export function buildCtxProviderNode(
     childNodes = [buildCtxProviderNode(nextProvide as ProvideData, ctx, children)];
   }
 
-  const keyProp = t.jsxAttribute(t.jsxIdentifier('key'), buildJsxExpressionNode(t.identifier(name)));
+  const keyProp = t.jsxAttribute(
+    t.jsxIdentifier('key'),
+    buildJsxExpressionNode(t.identifier(name)),
+  );
 
   const valueProp = t.jsxAttribute(
     t.jsxIdentifier('value'),
@@ -27,5 +30,5 @@ export function buildCtxProviderNode(
 
   void ctx;
 
-  return createJsxElement(ADAPTER_COMPS.Provide, [keyProp, valueProp], childNodes);
+  return createJsxElement(ADAPTER_COMPS.Provider, [keyProp, valueProp], childNodes);
 }
