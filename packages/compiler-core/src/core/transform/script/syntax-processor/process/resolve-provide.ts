@@ -25,7 +25,7 @@ export function resolveProvide(ctx: ICompilationContext): TraverseOptions {
       const target = findOrCreateCtxProvider(provide);
 
       assignProviderValue(target, key, value);
-      recordImport(ctx, PACKAGE_NAME.runtime, ADAPTER_COMPS.Provide);
+      recordImport(ctx, PACKAGE_NAME.runtime, ADAPTER_COMPS.Provider);
 
       path.parentPath.remove();
     },
