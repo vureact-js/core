@@ -325,4 +325,12 @@ export class Helper {
       cache.target.push(newData);
     }
   }
+
+  protected printCompileInfo(file: string, duration: string) {
+    this.print(
+      kleur.green('Compiled'),
+      kleur.dim(normalizePath(this.relativePath(file))),
+      kleur.grey(`(${duration})`),
+    );
+  }
 }
