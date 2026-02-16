@@ -48,7 +48,7 @@ import {
  * const result = await compiler.processSFC('/path/to/Component.vue');
  *
  * // 处理单个资源文件
- * const assetMeta = await compiler.processSingleAsset('/path/to/image.png');
+ * const assetMeta = await compiler.processAsset('/path/to/image.png');
  *
  * // 清理指定路径的输出文件
  * await compiler.removeOutputPath('/path/to/old-component.vue', CacheKey.MAIN);
@@ -85,10 +85,9 @@ export class FileCompiler extends BaseCompiler {
     // 1. Vue文件处理管线
     await this.sfcPipeline();
 
-    // 2. 资源处理管线 (所有非 vue 文件)
+    // 3. 资源拷贝处理管线 (剩余无需处理的文件)
     await this.assetPipeline();
 
-    // 3. 执行成功回调
     await this.options.onSuccess?.();
 
     if (this.skippedCount) {
@@ -160,15 +159,9 @@ export class FileCompiler extends BaseCompiler {
       await this.updateCompiledCache(processed);
     }
 
-    // 计算编译耗时
+    // 计算单个编译耗时
     const duration = calcElapsedTime(start);
-
-    // 输出编译信息
-    this.print(
-      kleur.green('Compiled'),
-      kleur.dim(normalizePath(this.relativePath(unit.file))),
-      kleur.grey(`(${duration})`),
-    );
+    this.printCompileInfo(unit.file, duration);
 
     return processed;
   }
@@ -263,7 +256,7 @@ export class FileCompiler extends BaseCompiler {
 
   private async updateAssetCaches(files: string[], cache: LoadedCache<CopiedAssetCacheMeta>) {
     for (const file of files) {
-      const meta = await this.processSingleAsset(file, cache);
+      const meta = await this.processAsset(file, cache);
       this.updateCache(file, meta, cache);
     }
 
@@ -273,7 +266,7 @@ export class FileCompiler extends BaseCompiler {
   /**
    * Process single asset file, compare with cache and decide whether to copy.
    */
-  async processSingleAsset(
+  async processAsset(
     filePath: string,
     existingCache?: LoadedCache<CopiedAssetCacheMeta>,
   ): Promise<CopiedAssetCacheMeta> {

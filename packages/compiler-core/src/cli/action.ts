@@ -135,8 +135,10 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
 
         result.compilationUnit = unit;
       }
+    } else if (/.(js|ts)$/.test(filePath)) {
+      // todo
     } else {
-      const { file } = await compiler.processSingleAsset(filePath);
+      const { file } = await compiler.processAsset(filePath);
       result.assetFile = file;
     }
 
