@@ -45,7 +45,7 @@ import {
  * await compiler.execute();
  *
  * // 处理单个文件（用于监听模式）
- * const result = await compiler.processSingleFile('/path/to/Component.vue');
+ * const result = await compiler.processSFC('/path/to/Component.vue');
  *
  * // 处理单个资源文件
  * const assetMeta = await compiler.processSingleAsset('/path/to/image.png');
@@ -109,7 +109,7 @@ export class FileCompiler extends BaseCompiler {
     const cache = await this.loadCache(CacheKey.MAIN);
 
     await this.cleanupOldOutput(CacheKey.MAIN, (c) => !absFiles.has(c.file));
-    await Promise.all(files.map(async (f) => this.processSingleFile(f, cache)));
+    await Promise.all(files.map(async (f) => this.processSFC(f, cache)));
   }
 
   /**
@@ -117,7 +117,7 @@ export class FileCompiler extends BaseCompiler {
    * @param filePath Absolute path
    * @param existingCache Optional preloaded cache object
    */
-  async processSingleFile(
+  async processSFC(
     filePath: string,
     existingCache?: LoadedCache<Vue2ReactCacheMeta>,
   ): Promise<CompilationUnit | undefined> {

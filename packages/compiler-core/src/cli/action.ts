@@ -123,7 +123,7 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
     };
 
     if (filePath.endsWith('.vue')) {
-      const unit = await compiler.processSingleFile(filePath);
+      const unit = await compiler.processSFC(filePath);
 
       if (unit) {
         unit.source = '';
