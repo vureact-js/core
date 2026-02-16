@@ -35,7 +35,6 @@ export class CompilationContext {
 
       templateData: {
         slots: {},
-        models: [],
         refBindings: {},
         reactiveBindings: {},
       },
