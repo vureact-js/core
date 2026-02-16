@@ -83,7 +83,7 @@ export class FileCompiler extends BaseCompiler {
     console.info('\n\n', `${kleur.bold('vureact')} v${this.version}`, '\n');
 
     // 1. Vue文件处理管线
-    await this.corePipeline();
+    await this.sfcPipeline();
 
     // 2. 资源处理管线 (所有非 vue 文件)
     await this.assetPipeline();
@@ -100,7 +100,7 @@ export class FileCompiler extends BaseCompiler {
   /**
    * 编译核心：负责“检查 -> 编译 -> 写入 -> 记录”的完整生命周期
    */
-  private async corePipeline() {
+  private async sfcPipeline() {
     const inputPath = this.getInputPath();
     const files = this.scanFiles(inputPath, (p) => p.endsWith('.vue'));
     const absFiles = new Set(files.map((f) => this.getAbsPath(f)));
