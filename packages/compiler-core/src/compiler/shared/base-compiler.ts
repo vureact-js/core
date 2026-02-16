@@ -1,5 +1,6 @@
 import { GeneratorOptions } from '@babel/generator';
 import { logger } from '@shared/logger';
+import { executePlugins } from '@shared/plugin-executor';
 import { generate, parse, transform } from '@src/core';
 import { version as pkgVersion } from '../../../package.json';
 import { createCompilationCtx } from '../context';
@@ -50,7 +51,7 @@ export class BaseCompiler extends Helper {
    * ```
    */
   compile(source: string, filename = 'anonymous.vue'): CompiledResult {
-    const { logging } = this.options;
+    const { plugins, logging } = this.options;
 
     // 创建编译上下文
     const ctx = createCompilationCtx();
@@ -61,14 +62,20 @@ export class BaseCompiler extends Helper {
     ctx.init({ source, filename, fileId });
 
     try {
-      const ast = parse(source, ctx.data);
-      const ir = transform(ast, ctx.data);
-      const result = generate(ir, ctx.data, this.prepareGenerateOptions(filename));
-
       const { scriptData, styleData } = ctx.data;
+
+      const ast = parse(source, ctx.data, { plugins: plugins?.parser });
+
+      const irAST = transform(ast, ctx.data, { plugins: plugins?.transformer });
+
+      const genResult = generate(irAST, ctx.data, {
+        ...this.prepareGenerateOptions(filename),
+        plugins: plugins?.codegen,
+      });
+
       const outputPath = this.resolveOutputPath(filename, `${scriptData.lang}x`);
 
-      return {
+      const result: CompiledResult = {
         fileId,
         fileInfo: {
           jsx: {
@@ -78,11 +85,18 @@ export class BaseCompiler extends Helper {
           css: {
             file: styleData.filePath,
             hash: styleData.scopeId,
-            code: ir.style,
+            code: irAST.style,
           },
         },
-        ...result,
+        ...genResult,
       };
+
+      if (plugins) {
+        const { parser, transformer, codegen, ...rest } = plugins;
+        executePlugins(rest, result, ctx);
+      }
+
+      return result;
     } finally {
       // 打印三个核心模块处理过程中收集的日志消息
       if (logging?.enabled !== false && logger.getLogs().length) {
