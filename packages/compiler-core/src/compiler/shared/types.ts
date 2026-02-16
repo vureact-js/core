@@ -66,23 +66,29 @@ export interface CompilerOptions {
 
   /**
    * Can be used to add plugins and customize the output results of
-   * the parse/transform/codegen stages respectively.
+   * the parse/transform/codegen/compiled stages respectively.
    *
    * @example
    * ```ts
    * plugins: {
-   *   parser: {
-   *    myPlugin: (result, ctx) => {
-   *      // For example, add custom data to the parsing results.
-   *      result.metadata = {
-   *        timestamp: Date.now()
-   *      }
-   *    }
-   *   }
+   *  // For example, add custom data to the parsing results.
+   *  parser: {
+   *   myPlugin: (result, ctx) => {
+   *     result.metadata = {
+   *       timestamp: Date.now()
+   *     }
+   *   },
+   *  },
+   *
+   *  // If the key names parse/transform/codegen are not specified,
+   *  // the plugin will execute upon completion of compilation.
+   *  yourPlguin: (result) => {
+   *    console.log(result)
+   *  }
    * }
    * ```
    */
-  plugins?: {
+  plugins?: PluginRegister<CompiledResult> & {
     /**
      * Register parser plugins
      */
@@ -165,10 +171,8 @@ export interface CompilerOptions {
 }
 
 export interface PluginRegister<T> {
-  [name: string]: PluginHandler<T>;
+  [name: string]: (result: T, ctx: ICompilationContext) => void;
 }
-
-export type PluginHandler<T> = (result: T, ctx: ICompilationContext) => void;
 
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径
