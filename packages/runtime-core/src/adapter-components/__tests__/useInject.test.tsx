@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import { CtxProvider, useCtx } from '../ContextProvider';
-import { contextRegistry } from '../ContextProvider/registry';
+import { Provider, useInject } from '../Provider';
+import { contextRegistry } from '../Provider/registry';
 
 // 测试组件
 const TestComponent = ({
@@ -16,10 +16,10 @@ const TestComponent = ({
   // 根据参数调用不同的重载
   const value =
     treatDefaultAsFactory !== undefined
-      ? useCtx(name, defaultValue, treatDefaultAsFactory)
+      ? useInject(name, defaultValue, treatDefaultAsFactory)
       : defaultValue !== undefined
-        ? useCtx(name, defaultValue)
-        : useCtx(name);
+        ? useInject(name, defaultValue)
+        : useInject(name);
 
   return (
     <div data-testid={`test-${String(name)}`}>
@@ -28,7 +28,7 @@ const TestComponent = ({
   );
 };
 
-describe('useCtx', () => {
+describe('useInject', () => {
   let consoleWarnSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -43,9 +43,9 @@ describe('useCtx', () => {
   describe('基本功能', () => {
     test('有 Provider 时返回值', () => {
       render(
-        <CtxProvider name="test" value="provided">
+        <Provider name="test" value="provided">
           <TestComponent name="test" />
-        </CtxProvider>,
+        </Provider>,
       );
 
       expect(screen.getByTestId('test-test')).toHaveTextContent('"provided"');
@@ -71,9 +71,9 @@ describe('useCtx', () => {
 
     test('Provider 值覆盖默认值', () => {
       render(
-        <CtxProvider name="override" value="from-provider">
+        <Provider name="override" value="from-provider">
           <TestComponent name="override" defaultValue="default" />
-        </CtxProvider>,
+        </Provider>,
       );
 
       expect(screen.getByTestId('test-override')).toHaveTextContent('"from-provider"');
@@ -81,9 +81,9 @@ describe('useCtx', () => {
 
     test('Provider 提供 undefined 时使用默认值', () => {
       render(
-        <CtxProvider name="undefined-provider" value={undefined}>
+        <Provider name="undefined-provider" value={undefined}>
           <TestComponent name="undefined-provider" defaultValue="default" />
-        </CtxProvider>,
+        </Provider>,
       );
 
       expect(screen.getByTestId('test-undefined-provider')).toHaveTextContent('"default"');
@@ -108,8 +108,8 @@ describe('useCtx', () => {
       };
 
       const Component = () => {
-        const value1 = useCtx('factory-once', factory, true);
-        const value2 = useCtx('factory-once', factory, true); // 第二个消费点
+        const value1 = useInject('factory-once', factory, true);
+        const value2 = useInject('factory-once', factory, true); // 第二个消费点
 
         return (
           <div>
@@ -133,7 +133,7 @@ describe('useCtx', () => {
       };
 
       const Component = ({ toggle }: { toggle: boolean }) => {
-        const value = useCtx('counter', factory, true);
+        const value = useInject('counter', factory, true);
         return <div data-testid="value">{value}</div>;
       };
 
@@ -149,13 +149,13 @@ describe('useCtx', () => {
       const factory = jest.fn(() => 'factory-result');
 
       render(
-        <CtxProvider name="factory-no-call" value="provider-value">
+        <Provider name="factory-no-call" value="provider-value">
           <TestComponent
             name="factory-no-call"
             defaultValue={factory}
             treatDefaultAsFactory={true}
           />
-        </CtxProvider>,
+        </Provider>,
       );
 
       expect(screen.getByTestId('test-factory-no-call')).toHaveTextContent('"provider-value"');
@@ -168,13 +168,13 @@ describe('useCtx', () => {
       // 这些应该通过 TypeScript 类型检查
       const Component = () => {
         // 无默认值
-        const v1 = useCtx<string>('key1'); // string | undefined
+        const v1 = useInject<string>('key1'); // string | undefined
 
         // 有默认值（值）
-        const v2 = useCtx('key2', 'default'); // string
+        const v2 = useInject('key2', 'default'); // string
 
         // 有默认值（工厂函数）
-        const v3 = useCtx('key3', () => 'default', true); // string
+        const v3 = useInject('key3', () => 'default', true); // string
 
         return null;
       };

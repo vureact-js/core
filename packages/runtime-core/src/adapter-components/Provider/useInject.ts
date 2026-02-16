@@ -20,15 +20,19 @@ const factoryCache = new Map<ContextKey, FactoryCache>();
  *
  * @example
  *
- * const value = useCtx<number>('count');
- * const withDefault = useCtx('count', 0);
- * const withFactory = useCtx('count', () => Date.now(), true);
+ * const value = useInject<number>('name');
+ * const withDefault = useInject('name', 0);
+ * const withFactory = useInject('name', () => Date.now(), true);
  */
-export function useCtx<T>(name: ContextKey): T | undefined;
-export function useCtx<T>(name: ContextKey, defaultValue: T, treatDefaultAsFactory?: false): T;
-export function useCtx<T>(name: ContextKey, defaultValue: () => T, treatDefaultAsFactory: true): T;
+export function useInject<T>(name: ContextKey): T | undefined;
+export function useInject<T>(name: ContextKey, defaultValue: T, treatDefaultAsFactory?: false): T;
+export function useInject<T>(
+  name: ContextKey,
+  defaultValue: () => T,
+  treatDefaultAsFactory: true,
+): T;
 
-export function useCtx<T>(
+export function useInject<T>(
   name: ContextKey,
   defaultValue?: T | (() => T),
   treatDefaultAsFactory?: boolean,
@@ -42,7 +46,7 @@ export function useCtx<T>(
 
     // 为了兼容两个测试文件，同时输出 error 和 warn
     console.error(`Context with key "${String(name)}" not found.`);
-    console.warn(`[useCtx] Context with name "${String(name)}" not found.`);
+    console.warn(`[useInject] Context with name "${String(name)}" not found.`);
     return undefined;
   }
 
