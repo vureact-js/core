@@ -1,128 +1,388 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import isEqual from 'react-fast-compare';
+import {
+  type DependencyList,
+  type MutableRefObject,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+} from 'react';
 import { useUnmounted } from '../lifecycle/useUnmounted';
 import { executeEffect } from '../shared/executeEffect';
-import { useDeepEffect, useIsFirstMount } from '../shared/hooks';
-import type { Destructor } from '../shared/types';
-import { isPrimitive } from '../shared/utils';
+import type { Destructor, FlushTiming, OnCleanup } from '../shared/types';
 
 export type WatchSource<T = any> = T | (() => T);
 
-export type WatchCallback<V = any, OV = any> = (value: V, oldValue: OV) => Destructor;
+export type WatchCallback<V = any, OV = any> = (
+  value: V,
+  oldValue: OV | undefined,
+  onCleanup?: OnCleanup,
+) => Destructor | Promise<Destructor>;
 
 export interface WatchOptions {
   immediate?: boolean;
   deep?: boolean | number;
   once?: boolean;
+  flush?: FlushTiming;
 }
 
 export type WatchStopHandle = () => void;
 
+type ResolvedWatchSource<T> = {
+  value: T;
+  deps: DependencyList;
+  isMultiSource: boolean;
+};
+
 /**
- * `useWatch` is almost identical to Vue's `watch` in terms of usage.
- * @param {WatchSource<T>} source Listen for dependencies, whether single, multiple, or the return value of a function.
- * @param {WatchCallback<T, T>} fn A effect that executes when dependencies change.
- * @param {WatchOptions} options The provided options include `immediate`, `deep`, and `once`.
- * @returns {WatchStopHandle}
- *
- * @see https://vureact-runtime.vercel.app/en/hooks/useWatch
+ * React adapter for Vue's watch API (manual dependencies mode).
  */
 export function useWatch<T>(
   source: WatchSource<T>,
   fn: WatchCallback<T, T>,
   options?: WatchOptions,
 ): WatchStopHandle {
-  const { stop, onStop } = createWatchStopHandle();
+  const callbackRef = useRef(fn);
+  callbackRef.current = fn;
 
-  const firstMount = useIsFirstMount();
-
-  const once = useRef(false);
-  const oldValue = useRef<T>(undefined);
-  const newValue = useRef<T>(undefined);
   const cleanupRef = useRef<Destructor>(undefined);
+  const currentValueRef = useRef<T | undefined>(undefined);
+  const initializedRef = useRef(false);
+  const onceTriggeredRef = useRef(false);
+  const stoppedRef = useRef(false);
 
-  const getDepsFromSource = (src: WatchSource<T>): any[] => {
-    if (typeof src === 'function') {
-      const result = (src as () => T)();
-      newValue.current = result;
+  const flush = options?.flush ?? 'pre';
+  const resolvedSource = resolveWatchDeps(source);
 
-      // 函数返回值总是作为单个依赖项
-      return [result];
+  const runCleanup = useCallback(() => {
+    if (typeof cleanupRef.current !== 'function') {
+      cleanupRef.current = undefined;
+      return;
     }
 
-    newValue.current = src;
-
-    // 非函数值：如果是数组，可能是多依赖；否则是单依赖
-    return Array.isArray(src) ? src : [src];
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const sourceDeps = useMemo(() => getDepsFromSource(source), [source]);
-  const deps = useMemo(() => [...sourceDeps, stop], [sourceDeps, stop]);
-
-  const effect = useMemo(() => {
-    if (!options?.deep) return useEffect;
-
-    // 依赖项包含非原始值时使用深度比较
-    const hasNonPrimitive = sourceDeps.some((dep) => !isPrimitive(dep));
-    return hasNonPrimitive ? useDeepEffect : useEffect;
-  }, [options?.deep, sourceDeps]);
-
-  const runCleanup = () => {
-    if (!cleanupRef.current) return;
-    cleanupRef.current();
+    const cleanup = cleanupRef.current;
     cleanupRef.current = undefined;
-  };
+    cleanup();
+  }, []);
 
-  effect(() => {
-    const updateValue = () => {
-      oldValue.current = newValue.current;
-    };
-
-    const triggerFn = () => {
-      runCleanup();
-      cleanupRef.current = executeEffect(
-        () => fn(newValue.current!, oldValue.current!),
-        (asyncCleanup) => {
-          cleanupRef.current = asyncCleanup;
-        },
-      );
-    };
-
-    if (stop) {
-      runCleanup();
+  const onStop = useCallback(() => {
+    if (stoppedRef.current) {
       return;
     }
 
-    if (firstMount) {
-      updateValue();
-      if (options?.immediate) {
-        if (options?.once) {
-          once.current = true;
-        }
-        triggerFn();
+    stoppedRef.current = true;
+    runCleanup();
+  }, [runCleanup]);
+
+  useUnmounted(onStop);
+
+  const watchDeps: DependencyList = [
+    ...resolvedSource.deps,
+    options?.immediate,
+    options?.deep,
+    options?.once,
+    flush,
+  ];
+
+  useFlushEffect(
+    flush,
+    () => {
+      if (stoppedRef.current) {
+        return;
       }
-      return;
-    }
 
-    if (once.current) return;
-    once.current = !!options?.once;
+      const nextValue = snapshotWatchValue(resolvedSource.value, resolvedSource.isMultiSource);
 
-    triggerFn();
-    updateValue();
-  }, deps);
+      if (!initializedRef.current) {
+        initializedRef.current = true;
 
-  useUnmounted(runCleanup);
+        if (options?.immediate) {
+          runAndRegisterCleanup(callbackRef.current, nextValue, undefined, cleanupRef, runCleanup);
+
+          if (options?.once) {
+            onceTriggeredRef.current = true;
+            onStop();
+            return;
+          }
+        }
+
+        currentValueRef.current = nextValue;
+        return;
+      }
+
+      if (onceTriggeredRef.current) {
+        return;
+      }
+
+      const previousValue = currentValueRef.current;
+      const changed = hasWatchValueChanged(
+        nextValue,
+        previousValue,
+        options?.deep,
+        resolvedSource.isMultiSource,
+      );
+
+      if (!changed) {
+        return;
+      }
+
+      runAndRegisterCleanup(
+        callbackRef.current,
+        nextValue,
+        previousValue,
+        cleanupRef,
+        runCleanup,
+      );
+
+      currentValueRef.current = nextValue;
+
+      if (options?.once) {
+        onceTriggeredRef.current = true;
+        onStop();
+      }
+    },
+    watchDeps,
+  );
 
   return onStop;
 }
 
-export function createWatchStopHandle() {
-  const [stop, setStop] = useState(false);
-  const onStop = useCallback(() => {
-    setStop(true);
-  }, []);
+function runAndRegisterCleanup<T>(
+  callback: WatchCallback<T, T>,
+  value: T,
+  oldValue: T | undefined,
+  cleanupRef: MutableRefObject<Destructor>,
+  runCleanup: () => void,
+) {
+  runCleanup();
+
+  const registerCleanup: OnCleanup = (cleanup) => {
+    cleanupRef.current = cleanup;
+  };
+
+  cleanupRef.current = executeEffect(
+    (onCleanup?: OnCleanup) => callback(value, oldValue, onCleanup),
+    registerCleanup,
+  );
+}
+
+function resolveWatchDeps<T>(source: WatchSource<T>): ResolvedWatchSource<T> {
+  if (typeof source === 'function') {
+    const value = (source as () => T)();
+    return {
+      value,
+      deps: [value],
+      isMultiSource: false,
+    };
+  }
+
+  if (Array.isArray(source)) {
+    return {
+      value: source as T,
+      deps: source as unknown as DependencyList,
+      isMultiSource: true,
+    };
+  }
+
   return {
-    stop,
+    value: source,
+    deps: [source],
+    isMultiSource: false,
+  };
+}
+
+function snapshotWatchValue<T>(value: T, isMultiSource: boolean): T {
+  if (isMultiSource && Array.isArray(value)) {
+    return [...value] as T;
+  }
+
+  return value;
+}
+
+function hasWatchValueChanged(
+  nextValue: unknown,
+  previousValue: unknown,
+  deep?: boolean | number,
+  isMultiSource = false,
+): boolean {
+  if (isMultiSource && Array.isArray(nextValue) && Array.isArray(previousValue)) {
+    if (nextValue.length !== previousValue.length) {
+      return true;
+    }
+
+    for (let i = 0; i < nextValue.length; i++) {
+      if (!isWatchValueEqual(nextValue[i], previousValue[i], deep)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  return !isWatchValueEqual(nextValue, previousValue, deep);
+}
+
+function isWatchValueEqual(a: unknown, b: unknown, deep?: boolean | number): boolean {
+  if (!deep) {
+    return Object.is(a, b);
+  }
+
+  if (deep === true) {
+    return isEqual(a, b);
+  }
+
+  return isEqualByDepth(a, b, deep);
+}
+
+function isEqualByDepth(a: unknown, b: unknown, maxDepth: number): boolean {
+  return isEqualByDepthInternal(a, b, maxDepth, new WeakMap<object, WeakSet<object>>());
+}
+
+function isEqualByDepthInternal(
+  a: unknown,
+  b: unknown,
+  depth: number,
+  seenPairs: WeakMap<object, WeakSet<object>>,
+): boolean {
+  if (Object.is(a, b)) {
+    return true;
+  }
+
+  if (depth <= 0) {
+    return false;
+  }
+
+  if (a == null || b == null || typeof a !== 'object' || typeof b !== 'object') {
+    return false;
+  }
+
+  if (hasSeenPair(a, b, seenPairs)) {
+    return true;
+  }
+  markSeenPair(a, b, seenPairs);
+
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) {
+      return false;
+    }
+
+    for (let i = 0; i < a.length; i++) {
+      if (!isEqualByDepthInternal(a[i], b[i], depth - 1, seenPairs)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  if (a instanceof Date || b instanceof Date) {
+    return a instanceof Date && b instanceof Date && a.getTime() === b.getTime();
+  }
+
+  if (a instanceof RegExp || b instanceof RegExp) {
+    return a instanceof RegExp && b instanceof RegExp && a.toString() === b.toString();
+  }
+
+  if (a instanceof Map || b instanceof Map || a instanceof Set || b instanceof Set) {
+    return isEqual(a, b);
+  }
+
+  if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) {
+    return false;
+  }
+
+  const keysA = Object.keys(a as Record<string, unknown>);
+  const keysB = Object.keys(b as Record<string, unknown>);
+
+  if (keysA.length !== keysB.length) {
+    return false;
+  }
+
+  for (const key of keysA) {
+    if (!(key in (b as Record<string, unknown>))) {
+      return false;
+    }
+
+    if (
+      !isEqualByDepthInternal(
+        (a as Record<string, unknown>)[key],
+        (b as Record<string, unknown>)[key],
+        depth - 1,
+        seenPairs,
+      )
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function hasSeenPair(
+  a: object,
+  b: object,
+  seenPairs: WeakMap<object, WeakSet<object>>,
+): boolean {
+  const seenSet = seenPairs.get(a);
+  return !!seenSet?.has(b);
+}
+
+function markSeenPair(
+  a: object,
+  b: object,
+  seenPairs: WeakMap<object, WeakSet<object>>,
+): void {
+  let seenSet = seenPairs.get(a);
+
+  if (!seenSet) {
+    seenSet = new WeakSet<object>();
+    seenPairs.set(a, seenSet);
+  }
+
+  seenSet.add(b);
+}
+
+function resolveFlushEffectHook(flush: FlushTiming): 'effect' | 'layout' {
+  return flush === 'post' ? 'effect' : 'layout';
+}
+
+function useFlushEffect(flush: FlushTiming, effectFn: () => Destructor, deps: DependencyList): void {
+  const hookType = resolveFlushEffectHook(flush);
+
+  useLayoutEffect(() => {
+    if (hookType !== 'layout') {
+      return;
+    }
+
+    return effectFn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
+  useEffect(() => {
+    if (hookType !== 'effect') {
+      return;
+    }
+
+    return effectFn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+export function createWatchStopHandle(onStopped?: () => void) {
+  const stoppedRef = useRef(false);
+
+  const onStop = useCallback(() => {
+    if (stoppedRef.current) {
+      return;
+    }
+
+    stoppedRef.current = true;
+    onStopped?.();
+  }, [onStopped]);
+
+  return {
+    stop: stoppedRef.current,
+    stoppedRef,
     onStop,
   };
 }

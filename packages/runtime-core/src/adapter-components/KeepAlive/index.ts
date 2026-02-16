@@ -1,3 +1,3 @@
 export * from './Alive';
 export * from './hooks/useActived';
-export * from './hooks/useDeactived';
+export * from './hooks/useDeactivated';

@@ -3,26 +3,21 @@ import { createPortal } from 'react-dom';
 
 export interface TeleportProps {
   /**
-   * Required field. Specifies the target container.
-   * It can be a selector or an actual element.
+   * Target container selector or element.
    */
   to: string | HTMLElement;
   /**
-   * When the value is `true`, the content will remain in its original position,
-   * instead of being moved to the target container.
-   * It can be changed dynamically.
+   * Render in-place when true.
    */
   disabled?: boolean;
   /**
-   * Delay until the current component is mounted
+   * Delay rendering until mounted.
    */
   defer?: boolean;
 }
 
 /**
- * Equivalent to Vue `<Teleport>` components, with the same usage.
- *
- * @see https://vureact-runtime.vercel.app/en/components/teleport
+ * React adapter for Vue's built-in component `<teleport>`.
  */
 export const Teleport = memo((props: PropsWithChildren<TeleportProps>) => {
   const { to, disabled, defer, children } = props;
@@ -32,22 +27,32 @@ export const Teleport = memo((props: PropsWithChildren<TeleportProps>) => {
 
   useEffect(() => {
     const el = typeof to === 'string' ? document.querySelector(to) : to;
+
     if (!el) {
+      setContainer(null);
+
       if (typeof to === 'string') {
+        // eslint-disable-next-line no-console
         console.error(
           `[Teleport error] Please check if the selector passed to prop 'to' is correct; Guess '.${to}' or '#${to}'?`,
         );
       }
-    } else {
-      Promise.resolve().then(() => setContainer(el));
+
+      return;
     }
+
+    setContainer(el);
   }, [to]);
 
   useEffect(() => {
-    if (defer) {
-      Promise.resolve().then(() => setShouldRender(true));
+    if (!defer) {
+      setShouldRender(true);
+      return;
     }
-  }, [defer]);
+
+    setShouldRender(false);
+    setShouldRender(true);
+  }, [defer, to]);
 
   if (!container || disabled) {
     return <>{children}</>;

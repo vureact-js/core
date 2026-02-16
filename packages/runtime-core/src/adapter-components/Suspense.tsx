@@ -2,7 +2,6 @@ import {
   memo,
   Suspense as ReactSuspense,
   useCallback,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -11,39 +10,16 @@ import {
 
 export interface SuspenseProps {
   children: ReactNode;
-
   timeout?: number;
-
-  /**
-   * Whether it can be suspended, the default is true. When set to false, Suspense will directly render the default slot content
-   */
   suspensible?: boolean;
-
-  /**
-   * Triggered when entering the suspended state
-   */
   onPending?: () => void;
-
-  /**
-   * Triggered when the default slot content parsing is completed
-   */
   onResolve?: () => void;
-
-  /**
-   * Triggered when the fallback content is displayed
-   */
   onFallback?: () => void;
-
-  /**
-   * Content displayed in the loading state
-   */
   fallback: ReactNode;
 }
 
 /**
- * Equivalent to Vue `<Suspense>` components, with the same props and usage.
- *
- * @see https://vureact-runtime.vercel.app/en/components/suspense
+ * React adapter for Vue's built-in component `<suspense>`.
  */
 export const Suspense = memo((props: SuspenseProps) => {
   const {
@@ -57,125 +33,96 @@ export const Suspense = memo((props: SuspenseProps) => {
   } = props;
 
   const [showFallback, setShowFallback] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hasPendingRef = useRef(false);
-  const hasResolvedRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingTriggeredRef = useRef(false);
+  const fallbackTriggeredRef = useRef(false);
 
-  const cleanup = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+  const clearTimer = useCallback(() => {
+    if (!timerRef.current) {
+      return;
     }
+
+    clearTimeout(timerRef.current);
+    timerRef.current = null;
   }, []);
 
-  // 清理 timeout
-  useEffect(() => {
-    const callback = () => {
-      if (!hasResolvedRef.current) {
-        // 如果内容还没准备好
-        setShowFallback(true);
-        onFallback?.();
-      }
-    };
-    timeoutRef.current = setTimeout(callback, timeout);
-    return cleanup;
-  }, [cleanup, onFallback, timeout]);
+  const emitFallback = useCallback(() => {
+    if (fallbackTriggeredRef.current) {
+      return;
+    }
 
-  // 如果 suspensible 为 false，直接渲染子组件
+    fallbackTriggeredRef.current = true;
+    setShowFallback(true);
+    onFallback?.();
+  }, [onFallback]);
+
+  const startPendingCycle = useCallback(() => {
+    if (!pendingTriggeredRef.current) {
+      pendingTriggeredRef.current = true;
+      onPending?.();
+    }
+
+    clearTimer();
+
+    if (timeout == null || timeout <= 0) {
+      emitFallback();
+      return;
+    }
+
+    timerRef.current = setTimeout(() => {
+      emitFallback();
+    }, timeout);
+  }, [clearTimer, emitFallback, onPending, timeout]);
+
+  const resolvePendingCycle = useCallback(() => {
+    const hadPending = pendingTriggeredRef.current;
+
+    clearTimer();
+    setShowFallback(false);
+
+    pendingTriggeredRef.current = false;
+    fallbackTriggeredRef.current = false;
+
+    if (hadPending) {
+      onResolve?.();
+    }
+  }, [clearTimer, onResolve]);
+
   if (!suspensible) {
     return <>{children}</>;
   }
-
-  // 处理 Suspense 解析
-  const handleResolve = useCallback(() => {
-    if (hasResolvedRef.current) return;
-
-    hasResolvedRef.current = true;
-    setShowFallback(false);
-    cleanup();
-    onResolve?.();
-  }, [cleanup, onResolve]);
 
   return (
     <ReactSuspense
       fallback={
         <SuspenseFallback
           fallback={fallback}
-          timeout={timeout}
-          onPending={onPending}
-          onFallback={onFallback}
           showFallback={showFallback}
-          setShowFallback={setShowFallback}
-          hasPendingRef={hasPendingRef}
-          timeoutRef={timeoutRef}
+          startPendingCycle={startPendingCycle}
         />
       }
     >
-      <SuspenseContent onResolve={handleResolve} children={children} />
+      <SuspenseContent onResolve={resolvePendingCycle}>{children}</SuspenseContent>
     </ReactSuspense>
   );
 });
 
-// 处理 fallback 逻辑的组件
 const SuspenseFallback: React.FC<{
-  fallback: React.ReactNode;
-  timeout?: number;
-  onPending?: () => void;
-  onFallback?: () => void;
+  fallback: ReactNode;
   showFallback: boolean;
-  setShowFallback: (show: boolean) => void;
-  hasPendingRef: React.RefObject<boolean>;
-  timeoutRef: React.RefObject<NodeJS.Timeout | null>;
-}> = (props) => {
-  const {
-    fallback,
-    timeout,
-    onPending,
-    onFallback,
-    showFallback,
-    setShowFallback,
-    hasPendingRef,
-    timeoutRef,
-  } = props;
-
-  useEffect(() => {
-    // 只有第一次进入 fallback 时触发 onPending
-    if (!hasPendingRef.current) {
-      hasPendingRef.current = true;
-      onPending?.();
-    }
-
-    // 处理 timeout 逻辑
-    if (timeout !== undefined && timeout > 0) {
-      const callback = () => {
-        setShowFallback(true);
-        onFallback?.();
-      };
-      const timer = setTimeout(callback, timeout);
-      timeoutRef.current = timer;
-    } else {
-      // 没有 timeout 或 timeout 为 0，立即显示 fallback
-      setShowFallback(true);
-      onFallback?.();
-    }
-
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  startPendingCycle: () => void;
+}> = ({ fallback, showFallback, startPendingCycle }) => {
+  useLayoutEffect(() => {
+    startPendingCycle();
+  }, [startPendingCycle]);
 
   return <>{showFallback ? fallback : null}</>;
 };
 
-// 处理内容解析的组件
 const SuspenseContent: React.FC<{
-  children: React.ReactNode;
+  children: ReactNode;
   onResolve: () => void;
 }> = ({ children, onResolve }) => {
-  // 如果这个组件被渲染，说明 Suspense 已经解析
   useLayoutEffect(() => {
     onResolve();
   }, [onResolve]);

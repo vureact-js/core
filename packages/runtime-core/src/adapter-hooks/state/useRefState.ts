@@ -1,6 +1,6 @@
 import { ref } from 'valtio/vanilla';
 import { IS_REF_PROXY, IS_ROOT } from '../shared/consts';
-import { createProxy, isProxy } from '../shared/proxy';
+import { createProxy, isProxy, isRef, isRoot } from '../shared/proxy';
 import { isPrimitive } from '../shared/utils';
 
 export type RefState<T = unknown> = T extends WrapRef<infer T> ? T : WrapRef<T>;
@@ -24,7 +24,11 @@ export function wrapRef<T>(target: T): WrapRef<T> {
  * Unwraps the `value` property from `useRefState`.
  */
 export function unwrapRef<T extends WrapRef<any>>(ref: T): UnwrapRef<T> {
-  return ref.value;
+  if (isRef(ref) && isRoot(ref)) {
+    // 只有根节点需要解包
+    return ref.value;
+  }
+  return ref as any;
 }
 
 /**

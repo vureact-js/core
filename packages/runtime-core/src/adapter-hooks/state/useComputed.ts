@@ -149,7 +149,7 @@ export function useComputed<T>(
     } as WritableComputedRef<T>;
 
     // 标记为 RefState，以便被 useToRaw 或 isRef 识别
-    return markAsRefState(ref);
+    return markAsRefState(ref, true);
   }, [recompute]);
 
   return computedRef as ComputedRef<T> | WritableComputedRef<T>;

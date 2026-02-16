@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useWatch } from '../effect/useWatch';
 
 describe('useWatch test suites', () => {
@@ -22,7 +22,6 @@ describe('useWatch test suites', () => {
       useWatch(count, mockCallback);
     });
 
-    // 初次挂载时不执行
     expect(mockCallback).not.toHaveBeenCalled();
   });
 
@@ -33,41 +32,32 @@ describe('useWatch test suites', () => {
       useWatch(count, mockCallback);
     });
 
-    // 第一次更新 (0 -> 1)
     act(() => {
       setCount(1);
     });
 
-    // Hook 重新渲染后，依赖项变化，执行回调
     expect(mockCallback).toHaveBeenCalledTimes(1);
-    expect(mockCallback).toHaveBeenCalledWith(1, 0);
+    expect(mockCallback).toHaveBeenCalledWith(1, 0, expect.any(Function));
 
-    // 第二次更新 (1 -> 1): 值不变，不应执行
     act(() => {
-      setCount(1); // 再次设置为 1
+      setCount(1);
     });
 
-    // 重新渲染，但依赖值未变，不执行
     expect(mockCallback).toHaveBeenCalledTimes(1);
 
-    // 第三次更新 (1 -> 2)
     act(() => {
       setCount(2);
     });
 
     expect(mockCallback).toHaveBeenCalledTimes(2);
-    expect(mockCallback).toHaveBeenCalledWith(2, 1);
+    expect(mockCallback).toHaveBeenCalledWith(2, 1, expect.any(Function));
   });
 
   it('should support function as source (Getter style).', () => {
     renderHook(() => {
       const [count, sC] = useState(0);
       setCount = sC;
-
-      // 监听函数返回的值
       useWatch(() => count, mockCallback);
-      // useWatch([count], mockCallback);
-      // useWatch(() => [count], mockCallback);
     });
 
     act(() => {
@@ -75,8 +65,7 @@ describe('useWatch test suites', () => {
     });
 
     expect(mockCallback).toHaveBeenCalledTimes(1);
-    expect(mockCallback).toHaveBeenCalledWith(1, 0);
-    // expect(mockCallback).toHaveBeenCalledWith([1], [0]);
+    expect(mockCallback).toHaveBeenCalledWith(1, 0, expect.any(Function));
   });
 
   it('should call the effect immediately when {immediate: true}.', () => {
@@ -86,7 +75,7 @@ describe('useWatch test suites', () => {
     });
 
     expect(mockCallback).toHaveBeenCalledTimes(1);
-    expect(mockCallback).toHaveBeenCalledWith(0, 0);
+    expect(mockCallback).toHaveBeenCalledWith(0, undefined, expect.any(Function));
   });
 
   it('should call the effect only ONCE when {once: true}.', () => {
@@ -102,11 +91,11 @@ describe('useWatch test suites', () => {
 
     expect(mockCallback).toHaveBeenCalledTimes(1);
 
-    // 第二次更新 (1 -> 2): 不应执行
     act(() => {
       setCount(2);
     });
-    expect(mockCallback).toHaveBeenCalledTimes(1); // 仍然是 1 次
+
+    expect(mockCallback).toHaveBeenCalledTimes(1);
   });
 
   it('should call immediately and stop listening when {immediate: true, once: true}.', () => {
@@ -129,28 +118,24 @@ describe('useWatch test suites', () => {
     renderHook(() => {
       const [count, sC] = useState(0);
       setCount = sC;
-      stopFn = useWatch(count, mockCallback); // 捕获 stop 函数
+      stopFn = useWatch(count, mockCallback);
       return count;
     });
 
-    // 1. 正常更新 (0 -> 1)
     act(() => {
       setCount(1);
     });
 
     expect(mockCallback).toHaveBeenCalledTimes(1);
 
-    // 2. 调用 stop 函数
     act(() => {
       stopFn();
     });
 
-    // 3. 再次更新 (1 -> 2): 不应执行
     act(() => {
       setCount(2);
     });
 
-    // 停止后，回调不应再次执行
     expect(mockCallback).toHaveBeenCalledTimes(1);
   });
 
@@ -163,32 +148,27 @@ describe('useWatch test suites', () => {
       stopFn = useWatch(count, () => mockDestructor, {});
     });
 
-    // 1. 第一次更新 (0 -> 1): 触发 effect，注册清理函数
     act(() => {
       setCount(1);
     });
 
     expect(mockDestructor).not.toHaveBeenCalled();
 
-    // 2. 第二次更新 (1 -> 2): 触发清理，然后再次注册新的清理函数
     act(() => {
       setCount(2);
     });
 
-    // 此时，第一次 effect 返回的清理函数应该被调用了
     expect(mockDestructor).toHaveBeenCalledTimes(1);
 
-    // 3. 调用 stop: 触发最后一次清理
     act(() => {
+      stopFn();
       stopFn();
     });
 
-    // 检查 stop 是否触发清理
     expect(mockDestructor).toHaveBeenCalledTimes(2);
 
-    // 4. Hook 卸载: 不应再有清理，因为 stop 已经执行了清理
     unmount();
-    expect(mockDestructor).toHaveBeenCalledTimes(2); // 调用次数不变
+    expect(mockDestructor).toHaveBeenCalledTimes(2);
   });
 
   it('should use deep comparison to SKIP execution when content is the same but reference is new.', () => {
@@ -198,40 +178,126 @@ describe('useWatch test suites', () => {
       const [arr, setArr] = useState([1, 2]);
       setStateArr = setArr;
 
-      // Watch 1: Deep watch (应跳过执行，因为内容没变)
       useWatch(() => arr, mockDeepCallback, { deep: true });
-
-      // Watch 2: Shallow watch (应执行，因为引用变了)
       useWatch(() => arr, mockShallowCallback);
     });
 
-    // 初始检查 (Mount)
     expect(mockDeepCallback).not.toHaveBeenCalled();
     expect(mockShallowCallback).not.toHaveBeenCalled();
 
-    // 第一次更新：创建新数组引用，但内容相同
     act(() => {
       setStateArr([1, 2]);
     });
 
-    // 浅层 watch 应该被触发（引用变化）
     expect(mockShallowCallback).toHaveBeenCalledTimes(1);
-    expect(mockShallowCallback).toHaveBeenCalledWith([1, 2], [1, 2]);
-
-    // 深层 watch 不应该被触发（值未变化）
+    expect(mockShallowCallback).toHaveBeenCalledWith([1, 2], [1, 2], expect.any(Function));
     expect(mockDeepCallback).not.toHaveBeenCalled();
 
-    // 第二次更新：内容和引用都变化
     act(() => {
-      setStateArr([1, 2, 3]); // 内容和引用都变化
+      setStateArr([1, 2, 3]);
     });
 
-    // 浅层 watch 再次触发
     expect(mockShallowCallback).toHaveBeenCalledTimes(2);
-    expect(mockShallowCallback).toHaveBeenCalledWith([1, 2, 3], [1, 2]);
-
-    // 深层 watch 现在应该触发
+    expect(mockShallowCallback).toHaveBeenCalledWith([1, 2, 3], [1, 2], expect.any(Function));
     expect(mockDeepCallback).toHaveBeenCalledTimes(1);
-    expect(mockDeepCallback).toHaveBeenCalledWith([1, 2, 3], [1, 2]);
+    expect(mockDeepCallback).toHaveBeenCalledWith([1, 2, 3], [1, 2], expect.any(Function));
+  });
+
+  it('should support deep:number as limited depth comparison.', () => {
+    const deep1 = jest.fn();
+    const deep2 = jest.fn();
+    let setState: (value: { a: { b: number } }) => void = () => {};
+
+    renderHook(() => {
+      const [state, setLocalState] = useState({ a: { b: 1 } });
+      setState = setLocalState;
+
+      useWatch(() => state, deep1, { deep: 1 });
+      useWatch(() => state, deep2, { deep: 2 });
+    });
+
+    act(() => {
+      setState({ a: { b: 1 } });
+    });
+
+    expect(deep1).toHaveBeenCalledTimes(1);
+    expect(deep2).not.toHaveBeenCalled();
+
+    act(() => {
+      setState({ a: { b: 2 } });
+    });
+
+    expect(deep1).toHaveBeenCalledTimes(2);
+    expect(deep2).toHaveBeenCalledTimes(1);
+  });
+
+  it('should allow cleanup registration via onCleanup and prefer it over returned cleanup.', () => {
+    const cleanupFromArg = jest.fn();
+    const cleanupFromReturn = jest.fn();
+
+    renderHook(() => {
+      const [count, setLocalCount] = useState(0);
+      setCount = setLocalCount;
+
+      useWatch(count, (_value, _oldValue, onCleanup) => {
+        onCleanup?.(cleanupFromArg);
+        return cleanupFromReturn;
+      });
+    });
+
+    act(() => {
+      setCount(1);
+    });
+
+    act(() => {
+      setCount(2);
+    });
+
+    expect(cleanupFromArg).toHaveBeenCalledTimes(1);
+    expect(cleanupFromReturn).not.toHaveBeenCalled();
+  });
+
+  it('should respect flush timing (pre/post) in React execution order.', () => {
+    const order: string[] = [];
+
+    renderHook(() => {
+      const [count, setLocalCount] = useState(0);
+      setCount = setLocalCount;
+
+      useLayoutEffect(() => {
+        order.push('layout');
+      }, [count]);
+
+      useEffect(() => {
+        order.push('effect');
+      }, [count]);
+
+      useWatch(
+        count,
+        () => {
+          order.push('watch-pre');
+        },
+        { flush: 'pre' },
+      );
+
+      useWatch(
+        count,
+        () => {
+          order.push('watch-post');
+        },
+        { flush: 'post' },
+      );
+    });
+
+    order.length = 0;
+
+    act(() => {
+      setCount(1);
+    });
+
+    expect(order.indexOf('watch-pre')).toBeGreaterThan(-1);
+    expect(order.indexOf('watch-post')).toBeGreaterThan(-1);
+    expect(order.indexOf('watch-pre')).toBeLessThan(order.indexOf('effect'));
+    expect(order.indexOf('watch-post')).toBeGreaterThan(order.indexOf('layout'));
   });
 });

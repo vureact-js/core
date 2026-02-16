@@ -1,20 +1,24 @@
-import { ComponentType, createElement, JSX, memo, PropsWithChildren, ReactNode } from 'react';
+import {
+  cloneElement,
+  ComponentType,
+  createElement,
+  isValidElement,
+  memo,
+  PropsWithChildren,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import { getReactType } from './utils';
 
 export interface ComponentProps extends Record<string, any> {
   /**
-   * It can pass tag names, component functions, and JSX elements.
+   * Dynamic render target.
    */
-  is: string | ReactNode | JSX.Element;
-  /**
-   * The props passed to the element
-   */
+  is: string | ComponentType<any> | ReactElement;
 }
 
 /**
- * Equivalent to Vue dynamic component, with the same props and usage.
- *
- * @see https://vureact-runtime.vercel.app/en/components/dynamic-component
+ * React adapter for Vue's built-in component `<component>`.
  */
 export const Component = memo(
   ({ is, children, ...otherProps }: PropsWithChildren<ComponentProps>): ReactNode => {
@@ -22,20 +26,24 @@ export const Component = memo(
       case 'text':
         return createElement(is as string, otherProps, children);
 
-      case 'element':
-        // 传入 JSX 元素 (<CompA />) 直接返回
-        return is;
+      case 'element': {
+        const element = is as ReactElement;
+        const mergedChildren =
+          children !== undefined ? children : (element.props as PropsWithChildren).children;
+
+        return cloneElement(element, otherProps, mergedChildren);
+      }
 
       case 'component':
-        // 传入组件函数 (CompA)
-        const Comp = is as unknown as ComponentType<object>;
-        return <Comp {...otherProps}>{children}</Comp>;
+        return createElement(is as ComponentType<any>, otherProps, children);
 
       default:
-        // is 可能是 null, undefined 或其他类型
-        console.error(
-          `[Component error] Invalid 'is' prop value or missing component type. -->${is}`,
-        );
+        if (!isValidElement(is)) {
+          // eslint-disable-next-line no-console
+          console.error(
+            `[Component error] Invalid 'is' prop value or missing component type. -->${String(is)}`,
+          );
+        }
         return null;
     }
   },

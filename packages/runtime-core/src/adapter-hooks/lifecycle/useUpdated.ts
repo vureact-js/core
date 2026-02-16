@@ -1,19 +1,19 @@
-import { DependencyList, useEffect } from 'react';
-import { useIsFirstMount } from '../shared/hooks';
-import { EffectCallback } from '../shared/types';
+import { useEffect, useRef, type DependencyList } from 'react';
+import { executeEffect } from '../shared/executeEffect';
+import type { EffectCallback } from '../shared/types';
 
 /**
- * @see https://vureact-runtime.vercel.app/en/hooks/useUpdated
+ * Vue-like onUpdated (skip first mount).
  */
 export function useUpdated(fn: EffectCallback, deps?: DependencyList): void {
-  const firstMount = useIsFirstMount();
+  const isFirstMount = useRef(true);
 
   useEffect(() => {
-    if (firstMount) {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
       return;
     }
 
-    fn();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return executeEffect(fn);
   }, deps);
 }

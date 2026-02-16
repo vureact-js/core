@@ -22,22 +22,23 @@ export interface CtxProviderProps<T, K = ContextKey> extends PropsWithChildren {
 }
 
 /**
- * Provides a value to the context registry for consumption by `useCtx`.
+ * 上下文提供者组件，用于向后代组件提供数据。
  *
- * @param props - Component props
- * @param props.name - Context identifier
- * @param props.value - Value to provide
- * @param props.children - Children with context access
+ * 该组件会根据传入的名称创建或获取对应的 React 上下文，
+ * 并通过 `useCtx` 钩子将值提供给所有子组件使用。
  *
- * @returns React Provider component
+ * @param props - 组件属性
+ * @param props.name - 上下文的唯一标识
+ * @param props.value - 要传递给后代组件的值
+ * @param props.children - 可访问该上下文的 React 子组件
+ *
+ * @returns React Provider 组件
  *
  * @example
  *
  * <CtxProvider name="theme" value="dark">
  *   <ChildComponent />
  * </CtxProvider>
- *
- * @see https://vureact-runtime.vercel.app/en/components/context-provider
  */
 export function CtxProvider<T, K = ContextKey>(props: CtxProviderProps<T, K>) {
   const { name, value, children } = props;

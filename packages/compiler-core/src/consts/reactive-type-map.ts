@@ -1,0 +1,16 @@
+export const REACTIVE_TYPE_MAP = {
+  ref: 'ref',
+  toRef: 'ref',
+  toRefs: 'ref',
+  customRef: 'ref',
+  shallowRef: 'ref',
+  reactive: 'reactive',
+  shallowReactive: 'reactive',
+  computed: 'ref',
+  readonly: 'reactive',
+  shallowReadonly: 'reactive',
+  provide: 'reactive',
+  inject: 'reactive',
+  defineProps: 'reactive',
+  defineEmits: 'reactive',
+} as const;

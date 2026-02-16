@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
-import { type EffectCallback } from '../shared/types';
+import { executeEffect } from '../shared/executeEffect';
+import type { EffectCallback } from '../shared/types';
 
 /**
- * @see https://vureact-runtime.vercel.app/en/hooks/useMounted
+ * Vue-like onMounted.
  */
-export function useMounted(fn: EffectCallback) {
-  useEffect(() => {
-    fn();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+export function useMounted(fn: EffectCallback): void {
+  useEffect(() => executeEffect(fn), []);
 }

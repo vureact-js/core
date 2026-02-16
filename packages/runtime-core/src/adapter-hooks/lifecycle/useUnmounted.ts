@@ -2,14 +2,13 @@ import { useEffect } from 'react';
 import type { EffectCallback } from '../shared/types';
 
 /**
- * @see https://vureact-runtime.vercel.app/en/hooks/useUnmounted
+ * Vue-like onUnmounted.
  */
-export function useUnmounted(fn: EffectCallback) {
+export function useUnmounted(fn: EffectCallback): void {
   useEffect(
     () => () => {
       fn();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 }

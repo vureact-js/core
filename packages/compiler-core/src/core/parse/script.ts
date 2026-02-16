@@ -7,7 +7,7 @@ import { logger } from '@shared/logger';
 import { SFCScriptBlock } from '@vue/compiler-sfc';
 import { ParseResult } from '.';
 
-export function parseScript(
+export function parseScriptBlock(
   script: SFCScriptBlock | null,
   scriptSetup: SFCScriptBlock | null,
   ctx: ICompilationContext,

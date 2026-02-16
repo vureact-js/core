@@ -1,7 +1,13 @@
 import { klona } from 'klona';
 import { useRef } from 'react';
 import { getVersion, proxy } from 'valtio/vanilla';
-import { IS_REACTIVE_PROXY, IS_REF_PROXY, RAW_TARGET, VALTIO_PROXY_TARGET } from './consts';
+import {
+  IS_REACTIVE_PROXY,
+  IS_REF_PROXY,
+  IS_ROOT,
+  RAW_TARGET,
+  VALTIO_PROXY_TARGET,
+} from './consts';
 import { useProxySubscribe } from './hooks';
 import { isPrimitive } from './utils';
 
@@ -124,8 +130,13 @@ export function isReactive(value: any): boolean {
 }
 
 /** @private */
-export function markAsRefState<T>(target: T): T {
-  setProxyMeta(target as object, { [IS_REF_PROXY]: true });
+export function isRoot(value: any): boolean {
+  return (value as any)?.[IS_ROOT] === true;
+}
+
+/** @private */
+export function markAsRefState<T>(target: T, root = false): T {
+  setProxyMeta(target as object, { [IS_REF_PROXY]: true, [IS_ROOT]: root });
   return target;
 }
 

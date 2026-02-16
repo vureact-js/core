@@ -1,42 +1,70 @@
-import { type Destructor } from './types';
+import { type Destructor, type OnCleanup } from './types';
 import { isPromise } from './utils';
 
 /**
- * @private
- *
- * 通用 Effect 执行器，
- * 无论函数是同步还是异步，都返回同步的清理函数
- *
- * @param effectFn effect
- * @param onCleanup 当 effect 是异步才用这个它接收
- * @returns 同步 effect 的清理函数
+ * Execute sync/async effects and normalize cleanup lifecycle.
  */
 export function executeEffect<T extends (...args: any[]) => any>(
   effectFn: T,
-  onCleanup?: (cleanup: Destructor) => void,
+  onCleanup?: OnCleanup,
 ): Destructor {
-  let isMounted = true;
-  let asyncCleanup: any = null;
+  let stopped = false;
+  let cleanup: Exclude<Destructor, void> | undefined;
+  let hasRegisteredByCallback = false;
 
-  const result = effectFn();
+  const registerCleanup: OnCleanup = (value) => {
+    if (typeof value !== 'function') {
+      return;
+    }
 
-  // 处理异步函数
-  if (isPromise(result)) {
-    result.then((cleanup: any) => {
-      if (isMounted) {
-        asyncCleanup = cleanup;
-        // 通知外部有新的清理函数
-        onCleanup?.(cleanup);
+    hasRegisteredByCallback = true;
+    cleanup = value;
+    onCleanup?.(value);
+  };
+
+  const runCleanup = () => {
+    if (typeof cleanup !== 'function') {
+      return;
+    }
+
+    const current = cleanup;
+    cleanup = undefined;
+    current();
+  };
+
+  const applyResolvedCleanup = (resolved: any) => {
+    if (typeof resolved !== 'function') {
+      return;
+    }
+
+    // If onCleanup has registered one in this run, callback registration wins.
+    if (hasRegisteredByCallback) {
+      if (stopped) {
+        resolved();
       }
-    });
+      return;
+    }
 
-    // 返回同步清理函数
-    return () => {
-      isMounted = false;
-      if (typeof asyncCleanup === 'function') asyncCleanup();
-    };
+    if (stopped) {
+      resolved();
+      return;
+    }
+
+    registerCleanup(resolved);
+  };
+
+  const result = effectFn(registerCleanup);
+
+  if (isPromise(result)) {
+    result.then((resolvedCleanup: any) => {
+      applyResolvedCleanup(resolvedCleanup);
+    });
+  } else {
+    applyResolvedCleanup(result);
   }
 
-  // 同步函数直接返回清理函数
-  return result;
+  return () => {
+    stopped = true;
+    runCleanup();
+  };
 }

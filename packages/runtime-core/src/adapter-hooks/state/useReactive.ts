@@ -2,6 +2,9 @@ import { ref } from 'valtio/vanilla';
 import { IS_REACTIVE_PROXY, IS_ROOT, RAW_TARGET } from '../shared/consts';
 import { createProxy, isProxy } from '../shared/proxy';
 import { isPrimitive } from '../shared/utils';
+import { UnwrapRef, unwrapRef, WrapRef } from './useRefState';
+
+export type ReactiveState<T> = T extends WrapRef<any> ? UnwrapRef<T> : T;
 
 /**
  * Creates a reactive proxy of the given target object, enabling reactivity tracking.
@@ -17,8 +20,8 @@ import { isPrimitive } from '../shared/utils';
  * @param target - The object to be made reactive.
  * @returns The reactive proxy of the target object.
  */
-export function useReactive<T extends object>(target: T): T {
-  return createReactive(target);
+export function useReactive<T extends object>(target: T): ReactiveState<T> {
+  return createReactive(unwrapRef(target as WrapRef<any>));
 }
 
 /**
@@ -39,8 +42,8 @@ export function useReactive<T extends object>(target: T): T {
  * @param target - The object to wrap in a shallow reactive proxy.
  * @returns The shallow reactive proxy of the target object.
  */
-export function useShallowReactive<T extends object>(target: T): T {
-  return createReactive(target, true);
+export function useShallowReactive<T extends object>(target: T): ReactiveState<T> {
+  return createReactive(unwrapRef(target as WrapRef<any>), true);
 }
 
 function createReactive<T extends object>(target: T, shallow = false): T {

@@ -1,0 +1,15 @@
+export { resolveAttributeProp } from './resolve-attribute-prop';
+export { resolveDirectiveProp } from './resolve-directive-prop';
+export { resolveDynamicAttributeProp } from './resolve-dynamic-attribute-prop';
+export { resolveDynamicIsProp, resolveStaticIsProp } from './resolve-is-prop';
+export { resolveProps, type PropIRValue, type PropsIR } from './resolve-props';
+export { resolveRefProp } from './resolve-ref-prop';
+export { resolveVFor } from './resolve-v-for';
+export { resolveVHtml } from './resolve-v-html';
+export { resolveVIf } from './resolve-v-if';
+export { resolveVMemo } from './resolve-v-memo';
+export { resolveVModel } from './resolve-v-model';
+export { resolveVOn } from './resolve-v-on';
+export { type SlotPropsIR, resolveVSlotProp } from './resolve-v-slot-prop';
+export { resolveVShow } from './resolve-v-show';
+export { resolveVText } from './resolve-v-text';

@@ -1,86 +1,39 @@
-import { parseExpression } from '@babel/parser';
 import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { getBabelParseOptions } from '@src/shared/babel-utils';
-import { ReactiveTypes } from './types';
+import { stringToExpr } from '@shared/babel-utils';
 
-export function getRootIdByMemberNodePath(
+export function findRootVariablePath(
   path: NodePath<t.MemberExpression | t.OptionalMemberExpression>,
-): NodePath<t.Identifier> | null {
-  let currentNode: t.Expression = path.node;
+): NodePath<t.VariableDeclarator> | null {
+  const rootId = findRootIdentifier(path.node);
+  if (!rootId?.name) return null;
 
-  // 沿着 object 链向上查找，直到找到标识符
-  while (t.isMemberExpression(currentNode) || t.isOptionalMemberExpression(currentNode)) {
-    currentNode = currentNode.object;
+  const binding = path.scope.getBinding(rootId.name);
+  if (!binding) return null;
+
+  const rootPath = getVariableDeclaratorPath(binding.path);
+  return rootPath;
+}
+
+export function findRootIdentifier(
+  node: t.MemberExpression | t.OptionalMemberExpression,
+): t.Identifier | null {
+  let current: t.Expression | t.Super = node.object;
+
+  while (t.isMemberExpression(current) || t.isOptionalMemberExpression(current)) {
+    current = current.object;
   }
 
-  // 如果最终找到的是标识符，返回对应的路径
-  if (t.isIdentifier(currentNode)) {
-    // 需要找到这个标识符的路径
-    // 可以通过查找父节点链来找到它
-    let currentPath: NodePath | null = path;
+  return t.isIdentifier(current) ? current : null;
+}
 
-    while (currentPath && !(currentPath.isIdentifier() && currentPath.node === currentNode)) {
-      if (
-        t.isMemberExpression(currentPath.node) ||
-        t.isOptionalMemberExpression(currentPath.node)
-      ) {
-        // 如果当前节点是 MemberExpression，检查它的 object
-        if (currentPath.node.object === currentNode) {
-          // 返回 object 的路径
-          return currentPath.get('object') as NodePath<t.Identifier>;
-        }
-      }
-
-      // 移动到父路径
-      currentPath = currentPath.parentPath;
-    }
-
-    if (currentPath?.isIdentifier()) {
-      return currentPath as NodePath<t.Identifier>;
-    }
+export function getVariableDeclaratorPath(path: NodePath): NodePath<t.VariableDeclarator> | null {
+  if (path.isVariableDeclarator()) {
+    return path as NodePath<t.VariableDeclarator>;
   }
 
-  return null;
-}
-
-export function getRootIdByNode(node: t.Node): t.Identifier | null {
-  // 获取表达式中访问的根标识符
-  let rootId: t.Identifier | null = null;
-
-  if (t.isIdentifier(node)) {
-    rootId = node;
-  } else if (t.isMemberExpression(node) || t.isOptionalMemberExpression(node)) {
-    // 遍历获取根标识符
-    let current: t.Expression = node;
-    while (t.isMemberExpression(current) || t.isOptionalMemberExpression(node)) {
-      current = (current as t.MemberExpression).object;
-    }
-    if (t.isIdentifier(current)) {
-      rootId = current;
-    }
-  }
-
-  return rootId;
-}
-
-export interface BabelNodeExtensionMeta {
-  isReactive?: boolean;
-  reactiveType?: ReactiveTypes;
-  getterName?: string;
-  setterName?: string;
-  isUseRef?: boolean;
-}
-
-export function getNodeExtensionMeta(node: t.Node): BabelNodeExtensionMeta {
-  return (node as any).__extensionMeta;
-}
-
-export function setNodeExtensionMeta(node: t.Node, opts: BabelNodeExtensionMeta) {
-  opts.isReactive = opts.isReactive ?? true;
-  opts.reactiveType = opts.reactiveType || 'ref';
-  (node as any).__extensionMeta = opts;
+  return path.findParent((p) => p.isVariableDeclarator()) as any;
 }
 
 export function checkIsCallExpInAnyCallback(path: NodePath<t.CallExpression>): boolean {
@@ -299,7 +252,8 @@ export function stringValueToTSType(
   input: string,
   tsTypeAnnotation: true | false,
 ): t.TSType | t.TSTypeAnnotation {
-  const exp = parseExp(ctx, input);
+  const { filename, scriptData } = ctx;
+  const exp = stringToExpr(input, scriptData.lang, filename);
   const ts = expressionToTSType(exp);
   return tsTypeAnnotation ? t.tsTypeAnnotation(ts) : ts;
 }
@@ -366,11 +320,6 @@ export function expressionToTSType(exp: t.Expression): t.TSType {
   return t.tsAnyKeyword();
 }
 
-export function parseExp(ctx: ICompilationContext, input: string): t.Expression {
-  const { scriptData, filename } = ctx;
-  return parseExpression(input, getBabelParseOptions(scriptData.lang, 'expression', filename));
-}
-
 export function isCalleeNamed(node: t.CallExpression, name: string): boolean {
   if (!t.isIdentifier(node.callee)) {
     return false;
@@ -380,18 +329,23 @@ export function isCalleeNamed(node: t.CallExpression, name: string): boolean {
 }
 
 /**
- * 以当前路径为起点，查找自身的上级父路径节点的变量声明节点
+ * 判断Babel AST节点是否为简单类型
+ * 简单类型包括：字面量
  */
-export function getParentVariableDeclarator(path: NodePath): NodePath<t.Node> {
-  let current = path;
+export function isSimpleLiteral(node: t.Node | null | undefined): boolean {
+  if (!node) return false;
 
-  while (!current.isVariableDeclarator()) {
-    if (current.parentPath) {
-      current = current.parentPath;
-    } else {
-      break;
-    }
+  if (
+    t.isStringLiteral(node) ||
+    t.isNumericLiteral(node) ||
+    t.isBooleanLiteral(node) ||
+    t.isNullLiteral(node) ||
+    t.isRegExpLiteral(node) ||
+    t.isBigIntLiteral(node) ||
+    t.isDecimalLiteral(node)
+  ) {
+    return true;
   }
 
-  return current;
+  return false;
 }

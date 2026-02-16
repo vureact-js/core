@@ -12,7 +12,7 @@ import {
 } from 'react';
 import { TransitionGroup as ReactTransitionGroup } from 'react-transition-group';
 import { BaseTransitionProps, useTransitionConfig } from '../hooks/useTransitionConfig';
-import BaseTransition, { TransitionState } from './BaseTransition';
+import BaseTransition, { TransitionProps, TransitionState } from './BaseTransition';
 
 export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> {
   /**
@@ -32,9 +32,7 @@ export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> 
 }
 
 /**
- * Equivalent to Vue `<TransitionGroup>` components, with the same props and usage.
- *
- * @see https://vureact-runtime.vercel.app/en/components/transition-group
+ * React adapter for Vue's built-in component `<transition-group>`.
  */
 export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupProps>) => {
   const { children, htmlProps, tag = null, ...transitionProps } = props;
@@ -51,6 +49,7 @@ export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupPro
 
   // 用于跟踪当前正在执行 enter/leave 动画的节点
   const busyNodesRef = useRef(new Set<string>());
+  const warnedMissingKeysRef = useRef(new Set<number>());
 
   const playWait = useRef(50);
 
@@ -80,13 +79,21 @@ export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupPro
 
   const renderChildren = useMemo(() => {
     return Children.map(children, (child, index) => {
-      const key = (child as ReactElement)?.key?.toString() ?? `tg-${index}`;
+      const rawKey = (child as ReactElement)?.key;
+      const key = rawKey?.toString() ?? `tg-${index}`;
+
+      if (rawKey == null && !warnedMissingKeysRef.current.has(index)) {
+        warnedMissingKeysRef.current.add(index);
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[TransitionGroup] Child element is missing a stable key; move transitions may be unstable.',
+        );
+      }
 
       return (
         <BaseTransition
-          show
           key={key}
-          {...transitionConfig}
+          {...(transitionConfig as TransitionProps)}
           __USE_THE_CONFIGURED_PROPS
           onStateChange={handleStateChange}
         >

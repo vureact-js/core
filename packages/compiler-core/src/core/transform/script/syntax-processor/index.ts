@@ -1,27 +1,30 @@
-import { ParseResult, traverse } from '@babel/core';
+import { ParseResult as BabelParseResult, traverse } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
-import { processComputedApi } from './main-process/computed';
-import { optimizeArrowFunction } from './main-process/fn-optimizer';
-import { processLifecycleApi } from './main-process/lifecycle';
-import { resolveProvideInject } from './main-process/provide-inject';
-import { processReactiveApi } from './main-process/reactive';
-import { processReadonlyApi } from './main-process/readonly';
-import { processWatchApi } from './main-process/watch';
-import { processWatchEffectApi } from './main-process/watchEffect';
-import { insertCSSImport } from './post-process/insert-css-import';
-import { insertRequiredImports } from './post-process/insert-required-imports';
-import { insertVModelEventHandlers } from './post-process/insert-vmodel-handlers';
-import { extractLocalStatements, splitScriptBlocks } from './post-process/script-blocks';
-import { resolveAsyncComponent } from './pre-process/resolve-async-component';
-import { resolveOptions } from './pre-process/resolve-options';
-import { resolveCompIProps, resolvePropsIface } from './pre-process/resolve-props-interface';
-import { resolveEmitsTopLevelTypes } from './pre-process/resolve-props-interface/resolve-emits';
 import {
+  collectLocalStatements,
+  insertCSSImport,
+  insertRequiredImports,
+  resolveStaticHoisting,
+} from './postprocess';
+import {
+  resolveAsyncComponent,
+  resolveCompIProps,
+  resolveEmitsTopLevelTypes,
+  resolveOptions,
+  resolvePropsIface,
   resolveSlotsTopLevelTypes,
+  resolveTemplateRef,
   resolveTemplateSlotIface,
-} from './pre-process/resolve-props-interface/resolve-slot';
-import { processTemplateNodeRef } from './pre-process/template-node-ref';
+} from './preprocess';
+import {
+  resolveArrowFnDeps,
+  resolveEffect,
+  resolveProvide,
+  resolveSimpleAdapter,
+  resolveUnanalyzedArrow,
+} from './process';
+import { lintHooks } from './process/lint-hooks';
 
 interface ProcessorOptions {
   preprocess: ProcessorConfig;
@@ -31,11 +34,11 @@ interface ProcessorOptions {
 
 interface ProcessorConfig {
   /** 处理器需依赖于 babel 的 traverse 函数进行调用 */
-  applyBabel?: Array<(ctx: ICompilationContext, ast: ParseResult) => TraverseOptions>;
-  excludeBabel?: Array<(ctx: ICompilationContext, ast: ParseResult) => void>;
+  applyBabel?: Array<(ctx: ICompilationContext, ast: BabelParseResult) => TraverseOptions>;
+  excludeBabel?: Array<(ctx: ICompilationContext, ast: BabelParseResult) => void>;
 }
 
-export function processVueSyntax(ast: ParseResult, ctx: ICompilationContext) {
+export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext) {
   vueSyntaxProcessor(ast, ctx, {
     preprocess: {
       applyBabel: [
@@ -44,32 +47,34 @@ export function processVueSyntax(ast: ParseResult, ctx: ICompilationContext) {
         resolveSlotsTopLevelTypes,
         resolvePropsIface,
         resolveAsyncComponent,
-        processTemplateNodeRef,
       ],
     },
 
     process: {
       applyBabel: [
-        processReactiveApi,
-        processReadonlyApi,
-        processComputedApi,
-        optimizeArrowFunction,
-        processWatchApi,
-        processWatchEffectApi,
-        processLifecycleApi,
-        resolveProvideInject,
+        resolveSimpleAdapter,
+        resolveArrowFnDeps,
+        resolveUnanalyzedArrow,
+        resolveEffect,
+        resolveTemplateRef,
+        lintHooks,
+        resolveProvide,
       ],
       excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],
     },
 
     postprocess: {
-      applyBabel: [insertRequiredImports, splitScriptBlocks],
-      excludeBabel: [insertCSSImport, insertVModelEventHandlers, extractLocalStatements],
+      applyBabel: [insertRequiredImports, resolveStaticHoisting],
+      excludeBabel: [insertCSSImport, collectLocalStatements],
     },
   });
 }
 
-function vueSyntaxProcessor(ast: ParseResult, ctx: ICompilationContext, options: ProcessorOptions) {
+function vueSyntaxProcessor(
+  ast: BabelParseResult,
+  ctx: ICompilationContext,
+  options: ProcessorOptions,
+) {
   // 先执行普通处理函数，后执行依赖 babel 的处理函数
   const runExcludeThenApply = (cfg: ProcessorConfig) => {
     cfg.excludeBabel?.forEach((fn) => fn(ctx, ast));

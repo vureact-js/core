@@ -1,5 +1,6 @@
 import * as t from '@babel/types';
 import { LangType } from '@shared/babel-utils';
+import { ReactiveTypes } from '@shared/reactive-utils';
 
 export interface ICompilationContext {
   fileId: string;
@@ -11,12 +12,12 @@ export interface ICompilationContext {
 
   templateData: {
     lang?: string;
-    /** 用于收集节点的 ref 属性值 */
-    refs: Set<string>;
     /** 用于描述 `<slot>` / `<slot name="" ...props>` */
     slots: Record<string, SlotNodesContext>;
-    /** 用于描述 v-model 对应 React 的事件处理函数 */
-    models: IRModelEventHandler[];
+    /** 收集模板 ref 对应的 script 绑定元数据 */
+    refBindings: RefBindings;
+    /** 收集所有模板中的响应式变量，其来自 script 的绑定元数据 */
+    reactiveBindings: ReactiveBindinds;
   };
 
   scriptData: {
@@ -44,29 +45,12 @@ export interface SlotNodesContext {
   props: { prop: string; value: string; tsType: t.TSTypeAnnotation }[];
 }
 
-export interface IRModelEventHandler {
-  key: string;
-  handler: {
-    /** 函数名 */
-    name: string;
-    /** 对应 v-model 的用于处理数据更新的函数表达式 */
-    exp: {
-      /** 函数参数 */
-      arg: string;
-      /** 函数体 */
-      body: {
-        /** 处理数据更新的 setter 函数表达式 */
-        setterExp: {
-          /** setter 函数名 */
-          name: string;
-          /** setter 函数参数 */
-          arg: string;
-          /** setter 函数体 */
-          body: string;
-        };
-      };
-    };
-  };
+export interface ReactiveBindinds {
+  [name: string]: { name: string; value: t.Expression; reactiveType: ReactiveTypes };
+}
+
+export interface RefBindings {
+  [name: string]: { tag: string; name: string; htmlType: string };
 }
 
 export interface ProvideData {

@@ -1,4 +1,4 @@
-import { parse as babelParse, ParseResult } from '@babel/parser';
+import { parse as babelParse, ParseResult as BabelParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { processVueSyntax } from './syntax-processor';
@@ -12,25 +12,29 @@ export interface ScriptBlockIR {
     /**
      * 位于组件函数外的 script 语句
      */
-    global: t.Statement[];
+    global: t.Node[];
     /**
      * 位于组件函数内的 script 语句
      */
-    local: t.Statement[];
+    local: BabelParseResult<t.File> | null;
   };
 }
 
-export const SCRIPT_IR = createScriptIR();
+export const scriptBlockIR = createScriptIR();
 
-export function transformScript(ctx: ICompilationContext, ast?: ParseResult): ScriptBlockIR {
+export function resolveScript(
+  ast: BabelParseResult | undefined,
+  ctx: ICompilationContext,
+): ScriptBlockIR {
   if (!ast) {
     // 没有 script 的情况下，自动添加占位注释以确保转换流程正常运行
-    ast = createDefaultAST();
+    const comments = '// No script';
+    ast = babelParse(comments);
   }
 
   processVueSyntax(ast, ctx);
 
-  return SCRIPT_IR;
+  return scriptBlockIR;
 }
 
 function createScriptIR(): ScriptBlockIR {
@@ -40,16 +44,7 @@ function createScriptIR(): ScriptBlockIR {
     tsTypes: [],
     statement: {
       global: [],
-      local: [],
+      local: null,
     },
   };
-}
-
-function createDefaultAST(): ParseResult<t.File> {
-  const comments =
-    '// A placeholder comment is automatically inserted \n' +
-    '// when no script block is present to ensure the processing pipeline works correctly. \n' +
-    '// You can choose whether to remove it.';
-
-  return babelParse(comments);
 }

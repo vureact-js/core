@@ -2,10 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useInnerKeepAliveKey, useKeepAliveLifeContext } from '../context';
 
 /**
- * The calls are made on the first mount and each time
- * the item is re-inserted from the cache.
- *
- * @see https://vureact-runtime.vercel.app/en/components/keep-alive
+ * React adapter for Vue's KeepAlive useActived hook.
  */
 export function useActived(fn: () => void) {
   const key = useInnerKeepAliveKey();

@@ -1,4 +1,4 @@
-import { normalizePath } from '@src/shared/path';
+import { normalizePath } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import fs from 'fs';
 import kleur from 'kleur';
@@ -15,13 +15,62 @@ import {
 } from './types';
 
 /**
- * Compiler with file system processing capability
+ * 文件系统编译器，负责批量处理 Vue 文件和资源文件的编译。
  *
- * @extends BaseCompiler
+ * 此类继承自 {@link BaseCompiler}，提供文件系统级别的编译功能，包括：
+ * 1. 批量扫描和编译 Vue 文件
+ * 2. 资源文件（非 Vue 文件）的拷贝处理
+ * 3. 增量编译和缓存管理
+ * 4. 文件系统监控和清理
+ *
+ * 主要特性：
+ * - 增量编译：基于文件哈希和元数据变化检测，跳过未变更的文件
+ * - 缓存管理：维护编译缓存，支持清理过期文件
+ * - 资源处理：自动拷贝非 Vue 文件到输出目录
+ * - 错误恢复：单个文件编译失败不影响其他文件处理
+ *
+ * @example
+ * ```typescript
+ * // 创建文件编译器实例
+ * const compiler = new FileCompiler({
+ *   input: './src',
+ *   watch: true,
+ *   output: {
+ *    workspace: '.vureact',
+ *    outDir: 'dist'
+ *   },
+ * });
+ *
+ * // 执行完整编译
+ * await compiler.execute();
+ *
+ * // 处理单个文件（用于监听模式）
+ * const result = await compiler.processSingleFile('/path/to/Component.vue');
+ *
+ * // 处理单个资源文件
+ * const assetMeta = await compiler.processSingleAsset('/path/to/image.png');
+ *
+ * // 清理指定路径的输出文件
+ * await compiler.removeOutputPath('/path/to/old-component.vue', CacheKey.MAIN);
+ * ```
+ *
+ * @remarks
+ * - 缓存机制：使用文件哈希、大小和修改时间进行变更检测
+ * - 并发处理：支持 Promise.all 并发处理多个文件
+ * - 目录结构：保持输入目录结构到输出目录
+ * - 错误处理：编译错误会记录日志但不会中断整个流程
+ *
+ * @see {@link BaseCompiler} 提供核心编译功能
+ * @see {@link Helper} 提供基础工具方法
  */
 export class FileCompiler extends BaseCompiler {
   private skippedCount = 0;
 
+  /**
+   * 创建文件系统编译器实例
+   *
+   * @param options - 编译器选项，继承自 BaseCompiler 的选项
+   */
   constructor(options: CompilerOptions = {}) {
     super(options);
   }

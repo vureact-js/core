@@ -1,0 +1,1 @@
+export { resolveBuiltInComponentRules } from './resolve-built-in-component-rules';

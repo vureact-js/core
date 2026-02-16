@@ -1,6 +1,7 @@
 import { GeneratorOptions } from '@babel/generator';
-import { GeneratorResult } from '@src/core/codegen';
+import { GeneratorResult, ParseResult, ReactIRDescriptor } from '@src/core';
 import { Options as PrettierOptions } from 'prettier';
+import { ICompilationContext } from '../context/types';
 
 export interface CompilerOptions {
   /**
@@ -62,6 +63,41 @@ export interface CompilerOptions {
    * @default false
    */
   watch?: boolean;
+
+  /**
+   * Can be used to add plugins and customize the output results of
+   * the parse/transform/codegen stages respectively.
+   *
+   * @example
+   * ```ts
+   * plugins: {
+   *   parser: {
+   *    myPlugin: (result, ctx) => {
+   *      // For example, add custom data to the parsing results.
+   *      result.metadata = {
+   *        timestamp: Date.now()
+   *      }
+   *    }
+   *   }
+   * }
+   * ```
+   */
+  plugins?: {
+    /**
+     * Register parser plugins
+     */
+    parser?: PluginRegister<ParseResult>;
+
+    /**
+     * Register transformer plugins
+     */
+    transformer?: PluginRegister<ReactIRDescriptor>;
+
+    /**
+     * Register codegen plugins
+     */
+    codegen?: PluginRegister<GeneratorResult>;
+  };
 
   format?: {
     /**
@@ -127,6 +163,12 @@ export interface CompilerOptions {
     },
   ) => Promise<void | undefined>;
 }
+
+export interface PluginRegister<T> {
+  [name: string]: PluginHandler<T>;
+}
+
+export type PluginHandler<T> = (result: T, ctx: ICompilationContext) => void;
 
 export interface CompilationUnit extends FileMeta {
   file: string; // 原始Vue文件路径

@@ -7,7 +7,7 @@ import { getDirname } from '@shared/path';
 import { readFileSync } from 'fs';
 import path from 'path';
 
-export function testPropsIface() {
+function testPropsIface() {
   const __dirname = getDirname(import.meta.url);
   const content = readFileSync(path.resolve(__dirname, './index.vue'), 'utf-8');
 

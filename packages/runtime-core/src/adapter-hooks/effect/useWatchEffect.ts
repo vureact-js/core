@@ -1,62 +1,118 @@
-import { type DependencyList, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { type DependencyList, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { executeEffect } from '../shared/executeEffect';
-import type { Destructor, EffectCallback } from '../shared/types';
-import { createWatchStopHandle, type WatchStopHandle } from './useWatch';
+import type { Destructor, EffectCallback, FlushTiming, OnCleanup } from '../shared/types';
+import type { WatchStopHandle } from './useWatch';
 
-/**
- * `useWatchEffect` is similar to Vue's `watchEffect` and returns a stop function.
- * @see https://vureact-runtime.vercel.app/en/hooks/useWatchEffect
- */
-export function useWatchEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
-  return handleEffect(fn, deps, 'post');
+export interface WatchEffectOptions {
+  flush?: FlushTiming;
 }
 
 /**
- * `useWatchPostEffect` is similar to Vue's `watchPostEffect` and returns a stop function.
- * @see https://vureact-runtime.vercel.app/en/hooks/useWatchPostEffect
+ * Vue-like watchEffect adapter with manual React dependency control.
  */
+export function useWatchEffect(
+  fn: EffectCallback,
+  deps?: DependencyList,
+  options?: WatchEffectOptions,
+): WatchStopHandle {
+  return handleEffect(fn, deps, { flush: 'pre', ...options });
+}
+
 export function useWatchPostEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
-  return handleEffect(fn, deps, 'post');
+  return handleEffect(fn, deps, { flush: 'post' });
 }
 
-/**
- * `useWatchSyncEffect` is similar to Vue's `watchSyncEffect` and returns a stop function.
- * @see https://vureact-runtime.vercel.app/en/hooks/useWatchSyncEffect
- */
 export function useWatchSyncEffect(fn: EffectCallback, deps?: DependencyList): WatchStopHandle {
-  return handleEffect(fn, deps, 'sync');
+  return handleEffect(fn, deps, { flush: 'sync' });
 }
 
-/**
- * @private
- */
 export function handleEffect(
   fn: EffectCallback,
   deps?: DependencyList,
-  timing?: 'post' | 'sync',
+  options?: WatchEffectOptions,
 ): WatchStopHandle {
-  const { stop, onStop } = createWatchStopHandle();
+  const callbackRef = useRef(fn);
+  callbackRef.current = fn;
 
   const cleanupRef = useRef<Destructor>(undefined);
+  const stoppedRef = useRef(false);
 
-  const newDeps = useMemo(() => [...(deps ?? []), stop], [deps, stop]);
-  const effect = useMemo(() => (timing === 'post' ? useEffect : useLayoutEffect), [timing]);
+  const flush = options?.flush ?? 'pre';
 
-  effect(() => {
-    if (stop) {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = undefined;
-      }
+  const runCleanup = useCallback(() => {
+    if (typeof cleanupRef.current !== 'function') {
+      cleanupRef.current = undefined;
       return;
     }
 
-    cleanupRef.current = executeEffect(fn, (cleanup) => {
-      cleanupRef.current = cleanup;
-    });
+    const cleanup = cleanupRef.current;
+    cleanupRef.current = undefined;
+    cleanup();
+  }, []);
 
-    return cleanupRef.current;
-  }, newDeps);
+  const onStop = useCallback(() => {
+    if (stoppedRef.current) {
+      return;
+    }
+
+    stoppedRef.current = true;
+    runCleanup();
+  }, [runCleanup]);
+
+  const effectDeps = deps ? [...deps, flush] : undefined;
+
+  useFlushEffect(
+    flush,
+    () => {
+      if (stoppedRef.current) {
+        return;
+      }
+
+      runCleanup();
+
+      const registerCleanup: OnCleanup = (cleanup) => {
+        cleanupRef.current = cleanup;
+      };
+
+      cleanupRef.current = executeEffect(
+        (onCleanup?: OnCleanup) => callbackRef.current(onCleanup),
+        registerCleanup,
+      );
+
+      return runCleanup;
+    },
+    effectDeps,
+  );
 
   return onStop;
+}
+
+function resolveFlushEffectHook(flush: FlushTiming): 'effect' | 'layout' {
+  return flush === 'post' ? 'effect' : 'layout';
+}
+
+function useFlushEffect(
+  flush: FlushTiming,
+  effectFn: () => Destructor,
+  deps?: DependencyList,
+): void {
+  const hookType = resolveFlushEffectHook(flush);
+
+  useLayoutEffect(() => {
+    if (hookType !== 'layout') {
+      return;
+    }
+
+    return effectFn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
+  useEffect(() => {
+    if (hookType !== 'effect') {
+      return;
+    }
+
+    return effectFn();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }

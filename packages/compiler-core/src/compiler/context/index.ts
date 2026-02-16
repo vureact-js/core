@@ -29,14 +29,15 @@ export class CompilationContext {
       fileId: '',
       source: '',
       filename: '',
-      funcName: '',
+      compName: '',
       imports: new Map(),
       cssVars: [],
 
       templateData: {
         slots: {},
         models: [],
-        refs: new Set(),
+        refBindings: {},
+        reactiveBindings: {},
       },
 
       scriptData: {
