@@ -2,6 +2,12 @@ import * as t from '@babel/types';
 import { LangType } from '@shared/babel-utils';
 import { ReactiveTypes } from '@shared/reactive-utils';
 
+export interface CompilationInput {
+  type: 'sfc' | 'script';
+  source: string;
+  filename: string;
+}
+
 export interface ICompilationContext {
   fileId: string;
   source: string;
@@ -9,6 +15,7 @@ export interface ICompilationContext {
   filename: string;
   imports: Map<string, ImportItem[]>;
   cssVars: string[];
+  inputType: 'sfc' | 'script';
 
   templateData: {
     lang?: string;

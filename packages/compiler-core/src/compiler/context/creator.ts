@@ -32,6 +32,7 @@ export class CompilationContext {
       compName: '',
       imports: new Map(),
       cssVars: [],
+      inputType: 'sfc',
 
       templateData: {
         slots: {},
