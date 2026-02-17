@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { COMP_PROPS_NAME } from '@consts/other';
-import { ScriptBlockIR } from '@transform/script';
+import { ScriptBlockIR } from '@src/core/transform/sfc/script';
 import { ScriptBuildState } from '..';
 import { buildComponentName } from '../../utils/build-component-name';
 

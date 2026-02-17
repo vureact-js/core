@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ElementNodeIR } from '@transform/template/syntax-processor/process';
+import { ElementNodeIR } from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXChild } from '../../types';
 import { convertJsxChildToExpression } from '../../utils/jsx-expression-utils';
 import { buildElementNode } from './build-element-node';

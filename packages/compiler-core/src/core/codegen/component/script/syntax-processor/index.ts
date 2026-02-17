@@ -1,6 +1,6 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ScriptBlockIR } from '@transform/script';
+import { ScriptBlockIR } from '@src/core/transform/sfc/script';
 import { JSXChild } from '../../jsx/types';
 import { buildProgramNodeProcessor } from './postprocess';
 import { buildComponentFunctionProcessor, buildProgramPreambleProcessor } from './process';

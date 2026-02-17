@@ -1,8 +1,8 @@
 import { parseExpression } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateChildNodeIR } from '@transform/template';
-import { SlotPropsIR } from '@transform/template/syntax-processor/process';
+import { TemplateChildNodeIR } from '@src/core/transform/sfc/template';
+import { SlotPropsIR } from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXChild } from '../../types';
 import { convertJsxChildToExpression } from '../../utils/jsx-expression-utils';
 import { buildJsxChildren } from './build-jsx-children';

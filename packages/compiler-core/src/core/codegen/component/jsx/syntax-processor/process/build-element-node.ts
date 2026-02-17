@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { ElementNodeIR } from '@transform/template/syntax-processor/process';
+import { ElementNodeIR } from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXChild } from '../../types';
 import { createJsxElement } from '../../utils/jsx-element-utils';
 import { buildConditionNode } from './build-condition-node';

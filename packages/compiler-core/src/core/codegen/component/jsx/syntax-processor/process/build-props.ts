@@ -1,8 +1,12 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateChildNodeIR } from '@transform/template';
-import { PropTypes } from '@transform/template/shared/types';
-import { ElementNodeIR, PropsIR, SlotPropsIR } from '@transform/template/syntax-processor/process';
+import { TemplateChildNodeIR } from '@src/core/transform/sfc/template';
+import { PropTypes } from '@src/core/transform/sfc/template/shared/types';
+import {
+  ElementNodeIR,
+  PropsIR,
+  SlotPropsIR,
+} from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXProp } from '../../types';
 import { buildJsxExpressionNode } from './build-simple-node';
 import { buildSlotProp } from './build-slot-prop';

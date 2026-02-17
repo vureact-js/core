@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateBlockIR, TemplateChildNodeIR } from '@transform/template';
+import { TemplateBlockIR, TemplateChildNodeIR } from '@src/core/transform/sfc/template';
 import { JsxBuildState } from '..';
 import { JSXChild } from '../../types';
 import { buildJsxNode } from './build-jsx-node';

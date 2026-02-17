@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateChildNodeIR } from '@transform/template';
-import { BaseSimpleNodeIR } from '@transform/template/shared/node-ir-utils';
-import { NodeTypes } from '@transform/template/shared/types';
-import { ElementNodeIR } from '@transform/template/syntax-processor/process';
+import { TemplateChildNodeIR } from '@src/core/transform/sfc/template';
+import { BaseSimpleNodeIR } from '@src/core/transform/sfc/template/shared/node-ir-utils';
+import { NodeTypes } from '@src/core/transform/sfc/template/shared/types';
+import { ElementNodeIR } from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXChild } from '../../types';
 import { buildElementNode } from './build-element-node';
 import { buildJsxChildren } from './build-jsx-children';

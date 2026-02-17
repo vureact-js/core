@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateBlockIR } from '@core/transform/template';
+import { TemplateBlockIR } from '@src/core/transform/sfc/template';
 import { buildJSXChild } from './syntax-processor';
 import { JSXChild } from './types';
 
