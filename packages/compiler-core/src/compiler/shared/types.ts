@@ -88,7 +88,7 @@ export interface CompilerOptions {
    * }
    * ```
    */
-  plugins?: PluginRegister<CompiledResult> & {
+  plugins?: PluginRegister<CompilationResult> & {
     /**
      * Register parser plugins
      */
@@ -174,37 +174,9 @@ export interface PluginRegister<T> {
   [name: string]: (result: T, ctx: ICompilationContext) => void;
 }
 
-export interface CompilationUnit extends FileMeta {
-  file: string; // 原始Vue文件路径
-  fileId: string; // 文件id
-  source: string; // Vue源代码
-  output: {
-    jsx: {
-      file: string;
-      code: string; // React组件代码
-    };
-    css: {
-      file?: string;
-      code?: string;
-    };
-  } | null;
-}
+export type CompilationResult = SFCCompilationResult | ScriptCompilationResult;
 
-export interface FileMeta {
-  fileSize: number; // 文件大小
-  mtime: number; // 修改时间
-  hash?: string; // 内容哈希
-}
-
-export interface CompiledFile {
-  /** React file path. */
-  filePath: string;
-
-  /** The result of compiling Vue code into React code. */
-  result: CompiledResult;
-}
-
-export interface CompiledResult extends GeneratorResult {
+export interface SFCCompilationResult extends GeneratorResult {
   fileId: string;
   fileInfo: {
     jsx: {
@@ -219,27 +191,73 @@ export interface CompiledResult extends GeneratorResult {
   };
 }
 
+export interface ScriptCompilationResult extends GeneratorResult {
+  fileId: string;
+  fileInfo: {
+    script: {
+      file: string;
+      lang: string;
+    };
+  };
+}
+
+export interface ScriptUnit extends CompilationUnit {
+  output: {
+    script: OutputItem;
+  } | null;
+}
+
+export interface SFCUnit extends CompilationUnit {
+  output: {
+    jsx: OutputItem;
+    css: Partial<OutputItem>;
+  } | null;
+}
+
+interface OutputItem {
+  file: string;
+  code: string;
+}
+
+export interface AssetUnit extends Omit<CompilationUnit, 'fileId' | 'source'> {}
+
+export interface CompilationUnit extends FileMeta {
+  file: string; // 原始文件路径
+  fileId: string; // 文件id
+  source: string; // 源代码
+}
+
 export type LoadedCache<T = CacheMeta> = {
   key: CacheKey;
   target: T[];
   source: CacheList;
 };
 
-export type CacheMeta = Vue2ReactCacheMeta | CopiedAssetCacheMeta;
+export type CacheMeta = Vue2ReactCacheMeta | FileCacheMeta;
 
 export enum CacheKey {
   MAIN = 'vue > react',
+  SCRIPT = 'script',
   ASSET = 'copied',
 }
 
 export interface CacheList {
   [CacheKey.MAIN]: Vue2ReactCacheMeta[];
-  [CacheKey.ASSET]: CopiedAssetCacheMeta[];
+  [CacheKey.SCRIPT]: FileCacheMeta[];
+  [CacheKey.ASSET]: FileCacheMeta[];
 }
 
-export type Vue2ReactCacheMeta = Omit<CompilationUnit, 'source'>;
+export type Vue2ReactCacheMeta = Omit<SFCUnit, 'source'>;
 
-export type CopiedAssetCacheMeta = FileMeta & { file: string };
+export interface FileCacheMeta extends FileMeta {
+  file: string;
+}
+
+export interface FileMeta {
+  fileSize: number; // 文件大小
+  mtime: number; // 修改时间
+  hash?: string; // 内容哈希
+}
 
 export interface CacheCheckResult {
   shouldCompile: boolean;

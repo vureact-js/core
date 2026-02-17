@@ -1,11 +1,17 @@
 import { GeneratorOptions } from '@babel/generator';
 import { logger } from '@shared/logger';
 import { executePlugins } from '@shared/plugin-executor';
-import { generate, parse, transform } from '@src/core';
+import { generate, GeneratorResult, parse, ReactIRDescriptor, transform } from '@src/core';
 import { version as pkgVersion } from '../../../package.json';
-import { createCompilationCtx } from '../context';
+import { CompilationAdapter } from '../context/adapter';
+import { ICompilationContext } from '../context/types';
 import { Helper } from './helper';
-import { CompiledResult, CompilerOptions } from './types';
+import {
+  CompilationResult,
+  CompilerOptions,
+  ScriptCompilationResult,
+  SFCCompilationResult,
+} from './types';
 
 /**
  * 基础编译器类，提供 Vue 到 React 代码转换的核心编译功能。
@@ -28,69 +34,37 @@ import { CompiledResult, CompilerOptions } from './types';
  * @see {@link Helper} 提供基础的工具方法
  */
 export class BaseCompiler extends Helper {
-  protected options: CompilerOptions;
-
   version = pkgVersion;
+  protected options: CompilerOptions;
+  private createContext = CompilationAdapter.createContext;
 
   constructor(options: CompilerOptions = {}) {
     super(options);
     this.options = options;
   }
 
-  /**
-   * Compiles Vue source code into React code.
-   *
-   * @param source - The Vue source code string to compile
-   * @param filename - Filename with path or only filename
-   * @returns {CompiledResult} The compilation result containing generated react component code and metadata
-   * @throws Will not throw, errors are caught and log
-   *
-   * @example
-   * ```ts
-   * const result = compiler.compile('<template><div>Hello</div></template>', 'App.vue');
-   * ```
-   */
-  compile(source: string, filename = 'anonymous.vue'): CompiledResult {
+  compile(source: string, filename: string): CompilationResult {
     const { plugins, logging } = this.options;
 
-    // 创建编译上下文
-    const ctx = createCompilationCtx();
-
-    // 生成文件id
     const fileId = this.genHash(filename);
-
-    ctx.init({ source, filename, fileId });
+    const genOptions = this.prepareGenerateOptions(filename);
+    const ctx = this.createContext({
+      fileId,
+      filename,
+      source,
+    });
 
     try {
-      const { scriptData, styleData } = ctx.data;
-
       const ast = parse(source, ctx.data, { plugins: plugins?.parser });
-
-      const irAST = transform(ast, ctx.data, { plugins: plugins?.transformer });
-
-      const genResult = generate(irAST, ctx.data, {
-        ...this.prepareGenerateOptions(filename),
+      const ir = transform(ast, ctx.data, { plugins: plugins?.transformer });
+      const gen = generate(ir, ctx.data, {
+        ...genOptions,
         plugins: plugins?.codegen,
       });
 
-      const outputPath = this.resolveOutputPath(filename, `${scriptData.lang}x`);
+      const result = this.resolveResult(ir, gen, ctx.data);
 
-      const result: CompiledResult = {
-        fileId,
-        fileInfo: {
-          jsx: {
-            file: outputPath,
-            lang: scriptData.lang,
-          },
-          css: {
-            file: styleData.filePath,
-            hash: styleData.scopeId,
-            code: irAST.style,
-          },
-        },
-        ...genResult,
-      };
-
+      // 执行最终插件
       if (plugins) {
         const { parser, transformer, codegen, ...rest } = plugins;
         executePlugins(rest, result, ctx);
@@ -98,7 +72,6 @@ export class BaseCompiler extends Helper {
 
       return result;
     } finally {
-      // 打印三个核心模块处理过程中收集的日志消息
       if (logging?.enabled !== false && logger.getLogs().length) {
         logger.printAll(logging);
         logger.clear();
@@ -107,6 +80,44 @@ export class BaseCompiler extends Helper {
       // 编译结束后清理上下文
       ctx.clear();
     }
+  }
+
+  /**
+   * 处理 sfc / script 编译结果
+   */
+  private resolveResult(
+    ir: ReactIRDescriptor,
+    gen: GeneratorResult,
+    ctxData: ICompilationContext,
+  ): CompilationResult {
+    const { fileId, filename, scriptData, styleData } = ctxData;
+    const { lang } = scriptData;
+    const file = this.resolveOutputPath(filename, lang);
+
+    if (ctxData.inputType === 'sfc') {
+      return {
+        fileId,
+        fileInfo: {
+          jsx: {
+            file: `${file}x`, // 'xxx.ts' + 'x' => 'xxx.tsx'
+            lang,
+          },
+          css: {
+            file: styleData?.filePath,
+            hash: styleData?.scopeId,
+            code: ir?.style,
+          },
+        },
+        ...gen,
+      } as SFCCompilationResult;
+    }
+
+    // script file
+    return {
+      fileId,
+      fileInfo: { script: { file, lang } },
+      ...gen,
+    } as ScriptCompilationResult;
   }
 
   /**

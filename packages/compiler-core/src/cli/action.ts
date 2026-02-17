@@ -122,7 +122,9 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
       assetFile: undefined,
     };
 
-    if (filePath.endsWith('.vue')) {
+    const ext = path.extname(filePath);
+
+    if (ext === '.vue') {
       const unit = await compiler.processSFC(filePath);
 
       if (unit) {
@@ -135,7 +137,7 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
 
         result.compilationUnit = unit;
       }
-    } else if (/.(js|ts)$/.test(filePath)) {
+    } else if (ext === '.js' || ext === '.ts') {
       // todo
     } else {
       const { file } = await compiler.processAsset(filePath);

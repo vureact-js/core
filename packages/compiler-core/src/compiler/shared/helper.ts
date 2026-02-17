@@ -10,11 +10,13 @@ import {
   CacheKey,
   CacheList,
   CacheMeta,
-  CompiledResult,
+  CompilationResult,
   CompilerOptions,
-  CopiedAssetCacheMeta,
+  FileCacheMeta,
   FileMeta,
   LoadedCache,
+  ScriptCompilationResult,
+  SFCCompilationResult,
   Vue2ReactCacheMeta,
 } from './types';
 
@@ -143,7 +145,7 @@ export class Helper {
   /**
    * 格式化代码
    */
-  protected async formatCode({ code, fileInfo }: CompiledResult): Promise<string> {
+  protected async formatCode({ code, fileInfo }: CompilationResult): Promise<string> {
     const { format } = this.compilerOpts;
 
     if (!format?.enabled) return code;
@@ -152,7 +154,11 @@ export class Helper {
       return simpleFormat(code);
     }
 
-    return await formatWithPrettier(code, fileInfo.jsx.lang, format?.prettierOptions);
+    const { lang } =
+      (fileInfo as SFCCompilationResult['fileInfo'])?.jsx ??
+      (fileInfo as ScriptCompilationResult['fileInfo'])?.script;
+
+    return await formatWithPrettier(code, lang, format?.prettierOptions);
   }
 
   /**
@@ -205,8 +211,16 @@ export class Helper {
    * @param key 缓存键
    */
   protected async loadCache(key: CacheKey.MAIN): Promise<LoadedCache<Vue2ReactCacheMeta>>;
-  protected async loadCache(key: CacheKey.ASSET): Promise<LoadedCache<CopiedAssetCacheMeta>>;
-  protected async loadCache(key: CacheKey): Promise<LoadedCache> {
+
+  protected async loadCache(
+    key: CacheKey.SCRIPT | CacheKey.ASSET,
+  ): Promise<LoadedCache<FileCacheMeta>>;
+
+  protected async loadCache(
+    key: CacheKey.MAIN | CacheKey.SCRIPT | CacheKey.ASSET,
+  ): Promise<LoadedCache<Vue2ReactCacheMeta | FileCacheMeta>>;
+
+  protected async loadCache(key: CacheKey) {
     const cacheFile = this.getCachePath();
     const defaultData = this.createCacheData(key);
 
@@ -234,6 +248,7 @@ export class Helper {
       target: [],
       source: {
         [CacheKey.MAIN]: [],
+        [CacheKey.SCRIPT]: [],
         [CacheKey.ASSET]: [],
       },
     };

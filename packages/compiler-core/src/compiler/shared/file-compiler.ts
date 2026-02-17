@@ -7,10 +7,13 @@ import { BaseCompiler } from './base-compiler';
 import {
   CacheKey,
   CacheMeta,
-  CompilationUnit,
   CompilerOptions,
-  CopiedAssetCacheMeta,
+  FileCacheMeta,
   LoadedCache,
+  ScriptCompilationResult,
+  ScriptUnit,
+  SFCCompilationResult,
+  SFCUnit,
   Vue2ReactCacheMeta,
 } from './types';
 
@@ -44,8 +47,11 @@ import {
  * // 执行完整编译
  * await compiler.execute();
  *
- * // 处理单个文件（用于监听模式）
- * const result = await compiler.processSFC('/path/to/Component.vue');
+ * // 处理单个 Vue 文件
+ * const vueResult = await compiler.processSFC('/path/to/Component.vue');
+ *
+ * // 处理单个 Script 文件
+ * const scriptResult = await compiler.processSFC('/path/to/foo.ts');
  *
  * // 处理单个资源文件
  * const assetMeta = await compiler.processAsset('/path/to/image.png');
@@ -85,6 +91,9 @@ export class FileCompiler extends BaseCompiler {
     // 1. Vue文件处理管线
     await this.sfcPipeline();
 
+    // 2. Script 文件处理管线
+    await this.scriptPipeline();
+
     // 3. 资源拷贝处理管线 (剩余无需处理的文件)
     await this.assetPipeline();
 
@@ -96,19 +105,32 @@ export class FileCompiler extends BaseCompiler {
     }
   }
 
-  /**
-   * 编译核心：负责“检查 -> 编译 -> 写入 -> 记录”的完整生命周期
-   */
   private async sfcPipeline() {
+    await this.corePipeline(CacheKey.MAIN);
+  }
+
+  private async scriptPipeline() {
+    await this.corePipeline(CacheKey.SCRIPT);
+  }
+
+  private async corePipeline(key: CacheKey.MAIN | CacheKey.SCRIPT) {
     const inputPath = this.getInputPath();
-    const files = this.scanFiles(inputPath, (p) => p.endsWith('.vue'));
+
+    const files = this.scanFiles(inputPath, (p) => {
+      const ext = path.extname(p);
+      if (key === CacheKey.MAIN) return ext === '.vue';
+      if (key === CacheKey.SCRIPT) return ext === '.js' || ext === '.ts';
+      return false;
+    });
+
+    if (!files.length) return;
     const absFiles = new Set(files.map((f) => this.getAbsPath(f)));
 
     // 加载一次缓存供批量对比
-    const cache = await this.loadCache(CacheKey.MAIN);
+    const cache = await this.loadCache(key);
 
-    await this.cleanupOldOutput(CacheKey.MAIN, (c) => !absFiles.has(c.file));
-    await Promise.all(files.map(async (f) => this.processSFC(f, cache)));
+    await this.cleanupOldOutput(key, (c) => !absFiles.has(c.file));
+    await Promise.all(files.map(async (f) => this.processFile(key, f, cache)));
   }
 
   /**
@@ -116,10 +138,43 @@ export class FileCompiler extends BaseCompiler {
    * @param filePath Absolute path
    * @param existingCache Optional preloaded cache object
    */
-  async processSFC(
+  async processSFC(filePath: string, existingCache?: LoadedCache<Vue2ReactCacheMeta>) {
+    return this.processFile(CacheKey.MAIN, filePath, existingCache);
+  }
+
+  /**
+   * Process a single script file (this method is called directly in CLI Watch mode)
+   * @param filePath Absolute path
+   * @param existingCache Optional preloaded cache object
+   */
+  async processScript(filePath: string, existingCache?: LoadedCache<FileCacheMeta>) {
+    return this.processFile(CacheKey.SCRIPT, filePath, existingCache);
+  }
+
+  /**
+   * Process a single vue or script file (this method is called directly in CLI Watch mode)
+   * @param filePath Absolute path
+   * @param existingCache Optional preloaded cache object
+   */
+  async processFile(
+    key: CacheKey.MAIN,
     filePath: string,
-    existingCache?: LoadedCache<Vue2ReactCacheMeta>,
-  ): Promise<CompilationUnit | undefined> {
+    existingCache?: LoadedCache<Vue2ReactCacheMeta> | undefined,
+  ): Promise<SFCUnit | undefined>;
+
+  async processFile(
+    key: CacheKey.SCRIPT,
+    filePath: string,
+    existingCache?: LoadedCache<FileCacheMeta> | undefined,
+  ): Promise<ScriptUnit | undefined>;
+
+  async processFile(
+    key: CacheKey.MAIN | CacheKey.SCRIPT,
+    filePath: string,
+    existingCache?: LoadedCache<FileCacheMeta> | undefined,
+  ): Promise<SFCUnit | ScriptUnit | undefined>;
+
+  async processFile(key: CacheKey, filePath: string, existingCache?: LoadedCache) {
     const start = performance.now();
     const absPath = this.getAbsPath(filePath);
 
@@ -127,7 +182,7 @@ export class FileCompiler extends BaseCompiler {
     const fileMeta = await this.getFileMeta(absPath);
 
     // 2. 校验缓存
-    const cache = existingCache || (await this.loadCache(CacheKey.MAIN));
+    const cache = existingCache || (await this.loadCache(key));
     const record = cache.target.find((c) => c.file === absPath);
 
     const { shouldCompile, hash } = await this.checkCacheStatus(fileMeta, record, () =>
@@ -141,7 +196,9 @@ export class FileCompiler extends BaseCompiler {
 
     // 3. 编译
     const source = await fs.promises.readFile(absPath, 'utf-8');
-    const unit: CompilationUnit = {
+
+    // 初始化编译单元
+    const initUnit: SFCUnit | ScriptUnit = {
       ...fileMeta,
       file: absPath,
       fileId: '',
@@ -151,50 +208,58 @@ export class FileCompiler extends BaseCompiler {
     };
 
     // 4. 执行流水线
-    const processed = await this.processCompilationUnit(unit);
+    const processed = await this.processCompilationUnit(initUnit, key);
 
     // 5. 产物落地与缓存同步
     if (processed?.output) {
-      await this.writeCompilationUnit(processed);
-      await this.updateCompiledCache(processed);
+      await this.saveCompiledFiles(processed, key);
+      await this.updateCacheIncrementally(processed, key);
     }
 
     // 计算单个编译耗时
     const duration = calcElapsedTime(start);
-    this.printCompileInfo(unit.file, duration);
+    this.printCompileInfo(initUnit.file, duration);
 
     return processed;
   }
 
   /**
-   * 核心逻辑：执行真正的编译逻辑（Vue -> React）
-   * 将 source 转换为 output
+   * 处理编译单元，落地成对应代码和文件
    */
-  private async processCompilationUnit(unit: CompilationUnit): Promise<CompilationUnit> {
+  private async processCompilationUnit(
+    unit: SFCUnit | ScriptUnit,
+    key: CacheKey,
+  ): Promise<SFCUnit | ScriptUnit> {
     try {
-      // 调用 BaseCompiler 的 compile 方法
-      const compileResult = this.compile(unit.source, unit.file);
+      const result = this.compile(unit.source, unit.file);
+      const formattedCode = await this.formatCode(result);
 
-      // 格式化生成的代码 (Helper 类中提供的方法)
-      const formattedCode = await this.formatCode(compileResult);
+      unit.fileId = result.fileId;
 
-      const { jsx, css } = compileResult.fileInfo;
+      if (key === CacheKey.MAIN) {
+        const { jsx, css } = (result as SFCCompilationResult).fileInfo;
 
-      if (css.file) {
-        css.file = this.resolveOutputPath(css.file);
+        if (css.file) {
+          css.file = this.resolveOutputPath(css.file);
+        }
+
+        unit.output = {
+          jsx: {
+            file: jsx.file,
+            code: formattedCode,
+          },
+          css,
+        };
+      } else if (key === CacheKey.SCRIPT) {
+        const { script } = (result as ScriptCompilationResult).fileInfo;
+
+        unit.output = {
+          script: {
+            file: script.file,
+            code: formattedCode,
+          },
+        };
       }
-
-      // 存储文件id
-      unit.fileId = compileResult.fileId;
-
-      // 存储输出结果
-      unit.output = {
-        jsx: {
-          file: jsx.file,
-          code: formattedCode,
-        },
-        css,
-      };
     } catch (err) {
       this.print(kleur.red(`✖ Failed to compile ${this.relativePath(unit.file)}`));
       console.error(err);
@@ -206,31 +271,47 @@ export class FileCompiler extends BaseCompiler {
   /**
    * 将编译产物写入磁盘
    */
-  private async writeCompilationUnit(unit: CompilationUnit) {
-    if (!unit.output) return;
+  private async saveCompiledFiles(unit: SFCUnit | ScriptUnit, key: CacheKey) {
+    const output = unit.output;
+    if (!output) return;
 
-    const { jsx, css } = unit.output;
+    let file = '';
+    let code = '';
 
-    // 1. 写入 JSX/TSX 文件
-    await this.writeFileWithDir(jsx.file, jsx.code);
+    if (key === CacheKey.MAIN) {
+      const { jsx, css } = (output as SFCUnit['output'])!;
+      file = jsx.file;
+      code = jsx.code;
 
-    // 2. 如果有样式产物，写入 CSS 文件
-    if (css.file && css.code) {
-      await this.writeFileWithDir(css.file, css.code);
+      // 如果有样式产物，写入 CSS 文件
+      if (css.file && css.code) {
+        await this.writeFileWithDir(css.file, css.code);
+      }
+    } else {
+      const { script } = (output as ScriptUnit['output'])!;
+      file = script.file;
+      code = script.code;
     }
+
+    await this.writeFileWithDir(file, code);
   }
 
   /**
    * 增量更新缓存记录
    */
-  private async updateCompiledCache(unit: CompilationUnit) {
-    const cache = await this.loadCache(CacheKey.MAIN);
+  private async updateCacheIncrementally(unit: SFCUnit | ScriptUnit, key: CacheKey) {
+    const cache = await this.loadCache(key);
     const meta = { ...unit };
 
     // 缓存不存源码和输出内容
     delete (meta as any).source;
-    delete (meta as any).output.jsx.code;
-    delete (meta as any).output.css.code;
+
+    if (key === CacheKey.MAIN) {
+      delete (meta as any).output.jsx.code;
+      delete (meta as any).output.css.code;
+    } else if (key === CacheKey.SCRIPT) {
+      delete (meta as any).output.script.code;
+    }
 
     this.updateCache(unit.file, meta, cache);
     await this.saveCache(cache);
@@ -241,7 +322,12 @@ export class FileCompiler extends BaseCompiler {
    */
   private async assetPipeline() {
     const inputPath = this.getInputPath();
-    const assetFiles = this.scanFiles(inputPath, (p) => !p.endsWith('.vue'));
+
+    const assetFiles = this.scanFiles(inputPath, (p) => {
+      const ext = path.extname(p);
+      return ext !== '.vue' && ext !== '.js' && ext !== '.ts';
+    });
+
     const absFiles = new Set(assetFiles.map((f) => this.getAbsPath(f)));
 
     // 加载资产缓存
@@ -254,7 +340,7 @@ export class FileCompiler extends BaseCompiler {
     await this.updateAssetCaches(assetFiles, cache);
   }
 
-  private async updateAssetCaches(files: string[], cache: LoadedCache<CopiedAssetCacheMeta>) {
+  private async updateAssetCaches(files: string[], cache: LoadedCache<FileCacheMeta>) {
     for (const file of files) {
       const meta = await this.processAsset(file, cache);
       this.updateCache(file, meta, cache);
@@ -268,11 +354,11 @@ export class FileCompiler extends BaseCompiler {
    */
   async processAsset(
     filePath: string,
-    existingCache?: LoadedCache<CopiedAssetCacheMeta>,
-  ): Promise<CopiedAssetCacheMeta> {
+    existingCache?: LoadedCache<FileCacheMeta>,
+  ): Promise<FileCacheMeta> {
     const absPath = this.getAbsPath(filePath);
 
-    const fileMeta: CopiedAssetCacheMeta = {
+    const fileMeta: FileCacheMeta = {
       file: absPath,
       ...(await this.getFileMeta(absPath)),
     };
@@ -299,9 +385,7 @@ export class FileCompiler extends BaseCompiler {
   }
 
   /**
-   * Atomic/Batch cleanup:
    * Delete the build artifacts and cache corresponding to the specified path.
-   *
    * @param targetPath The path of the source code (file or folder)
    * @param {CacheKey} type The type of cleanup
    */
@@ -323,36 +407,31 @@ export class FileCompiler extends BaseCompiler {
    */
   private async cleanupOldOutput(key: CacheKey, filter: (m: CacheMeta) => boolean) {
     const cache = await this.loadCache(key as any);
-
     if (!cache.target.length) return;
 
     // 查找匹配条目：路径完全相等，或者是该路径下的子文件
     const toRemove = cache.target.filter(filter);
-
     if (!toRemove.length) return;
 
-    const onRemove = async (m: CacheMeta) => {
+    const removeFn = async (m: CacheMeta) => {
       if (key === CacheKey.MAIN) {
         const meta = m as Vue2ReactCacheMeta;
-
         if (!meta?.output) return;
 
+        // 删除对应 jsx / css 文件
         const { jsx, css } = meta.output;
-
-        // 删除 JSX
         this.removeOutputFile(jsx.file);
 
-        // 删除 CSS
         if (css?.file) {
           this.removeOutputFile(css.file);
         }
-      } else if (key === CacheKey.ASSET) {
-        // 删除附属资产
+      } else if (key === CacheKey.SCRIPT || key === CacheKey.ASSET) {
+        // 普通缓存直接删除对应文件
         this.removeOutputFile(m.file, true);
       }
     };
 
-    await Promise.all(toRemove.map(onRemove));
+    await Promise.all(toRemove.map(removeFn));
     await this.saveCache(cache);
   }
 }
