@@ -57,24 +57,32 @@ export function stringToExpr(input: string, lang?: LangType, filename = ''): t.E
 /**
  * 判断当前路径是否处于组件函数或自定义 Hook 的顶层作用域
  * @param path 当前函数的路径
- * @param componentScope 组件的主体(即 `<script setup>` 的等价物 ast.program)
+ * @param rootScope 组件的主体(即 `<script setup>` 的等价物 ast.program)
+ * @param inScriptFile 是否在 script 文件中（更加严格的判断）
  */
-export function atComponentOrHookRoot(path: NodePath<t.Node>, componentScope: t.Node): boolean {
+export function atComponentOrHookRoot(
+  path: NodePath<t.Node>,
+  rootScope: t.Node,
+  inScriptFile = false,
+): boolean {
   const { parentPath, scope } = path;
 
   // 获取当前函数的父级作用域对应的 Block
   const parentBlock = scope.block;
 
-  // 没有父级，说明已是最顶层
-  if (!parentPath) return true;
+  // 在组件文件内且没有父级，说明已是最顶层
+  if (!parentPath) return !inScriptFile;
 
   // 核心判断：父亲必须是组件的主体
   // 如果父级块就是组件的根块，说明这是顶层函数
-  if (parentBlock === componentScope) {
+  if (parentBlock === rootScope) {
+    // 如果是在 script 文件中，且 hook 作用域是在最顶层，则不合规
+    if (inScriptFile) return false;
+
     // 还需要排除一种情况：是否被包裹在 if/for 等非函数块中？
     // 虽然作用域链上父级是组件，但在 AST 树上，它可能被 BlockStatement 包裹
     // 例如： if (true) { const fn = () => {} } -> 这不是顶层
-    if (parentPath.isBlockStatement() && parentPath.node !== componentScope) {
+    if (parentPath.isBlockStatement() && parentPath.node !== rootScope) {
       return false;
     }
     // 还有一种情况，作为参数传递的函数，例如 useEffect(() => { ... })

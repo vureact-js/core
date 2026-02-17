@@ -160,7 +160,7 @@ export class Logger {
       if (i === lineIndex) {
         const prefixLength = 4 + lineNumWidth + 3;
         const maxColumn = Math.max(0, lineContent.length);
-        const pointerColumn = Math.min(column - 1, maxColumn);
+        const pointerColumn = Math.min(column, maxColumn);
         const pointerIndent = ' '.repeat(prefixLength + pointerColumn);
 
         result.push(color(`${pointerIndent}^`));

@@ -1,9 +1,9 @@
 import { createCompilationCtx } from '@compiler/context';
+import { parse } from '@core/parse';
 import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { parse } from '../../';
 
 function testBaseCounter() {
   const __dirname = getDirname(import.meta.url);
@@ -12,11 +12,11 @@ function testBaseCounter() {
   const ctx = createCompilationCtx();
   ctx.init({ filename: './index.vue', source: content });
 
-  console.time('parse duration');
+  console.time('[testBaseCounter]: parse duration');
 
   const ast = parse(content, ctx.data);
 
-  console.timeEnd('parse duration');
+  console.timeEnd('[testBaseCounter]: parse duration');
 
   console.log('\n=============== Compilation context data: ===============\n');
   console.log(ctx.data);
