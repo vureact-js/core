@@ -1,9 +1,9 @@
 import { generate } from '@babel/generator';
 import { createCompilationCtx } from '@compiler/context';
-import { parse } from '@core/parse';
-import { transform } from '@core/transform';
+import { parseSFC } from '@core/parse';
 import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
+import { transform } from '@src/core/transform/sfc';
 import { readFileSync } from 'fs';
 import path from 'path';
 
@@ -17,7 +17,7 @@ function testTemplateRef() {
   console.time('testTemplateRef transform duration');
   console.log();
 
-  const ast = parse(content, ctx.data);
+  const ast = parseSFC(content, ctx.data);
   const result = transform(ast, ctx.data);
 
   console.timeEnd('testTemplateRef transform duration');
