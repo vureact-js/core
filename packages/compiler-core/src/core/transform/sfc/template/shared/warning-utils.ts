@@ -1,4 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
+import { DOLLAR_IDENTIFIERS } from '@consts/other';
 import { logger } from '@shared/logger';
 import { DirectiveNode, InterpolationNode, NodeTypes } from '@vue/compiler-core';
 
@@ -32,18 +33,12 @@ export function warnUnsupportedVueDollarVar(
     loc = node.loc;
   }
 
-  const dollar = ['$attrs', '$slots', '$refs', '$emit', '$props'].find((item) =>
-    value.includes(item),
-  );
+  const dollar = DOLLAR_IDENTIFIERS.find((item) => value.includes(item));
+  if (!dollar) return;
 
-  if (dollar) {
-    logger.error(
-      `Unsupported template variable "${dollar}". Runtime-injected $ variables are intentionally not supported.`,
-      {
-        source,
-        loc,
-        file: filename,
-      },
-    );
-  }
+  logger.error(`Vue runtime ${dollar} is not supported as it cannot be analyzed.`, {
+    source,
+    loc,
+    file: filename,
+  });
 }

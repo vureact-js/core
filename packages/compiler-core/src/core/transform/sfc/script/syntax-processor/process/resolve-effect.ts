@@ -43,7 +43,7 @@ function processWatchEffect(ctx: ICompilationContext, path: NodePath<t.CallExpre
   const { arguments: args } = node;
   const [callback] = args;
 
-  const deps = analyzeDeps(callback! as t.Expression, path);
+  const deps = analyzeDeps(callback! as t.Expression, ctx, path);
   args.push(deps);
 
   return adapter;

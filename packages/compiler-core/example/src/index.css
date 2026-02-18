@@ -1,0 +1,28 @@
+.hello-container {
+  padding: 20px;
+  border: 1px solid #42b883;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  margin: 20px auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  color: #35495e;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #33a06a;
+}

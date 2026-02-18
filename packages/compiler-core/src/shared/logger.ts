@@ -34,7 +34,7 @@ interface PrintOptions {
 
 export class Logger {
   private logs: LogEntry[] = [];
-  private contextLines = 2;
+  private contextLines = 1;
   private tabWidth = 2;
 
   warn(message: any, opts: LogOptions = {}): void {
@@ -97,7 +97,7 @@ export class Logger {
       return '';
     }
 
-    return kleur.gray(`\n\n  at ${locationText}`);
+    return kleur.cyan(`\n\n  at ${locationText}`);
   }
 
   // Build location text with partial metadata support.

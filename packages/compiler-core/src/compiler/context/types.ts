@@ -10,6 +10,8 @@ export interface ICompilationContext {
   imports: Map<string, ImportItem[]>;
   cssVars: string[];
   inputType: FileInputType;
+  /** 函数组件的 prop 参数名 */
+  propField: string;
 
   templateData: {
     lang?: string;

@@ -8,7 +8,7 @@ import {
   resolvePropAsBabelExp,
 } from '@transform/sfc/template/shared/prop-ir-utils';
 import { mergePropsIR } from '@transform/sfc/template/shared/prop-merge-utils';
-import { resolvePropContent } from '@transform/sfc/template/shared/resolve-string-expression';
+import { resolveSpecialExpressions } from '@transform/sfc/template/shared/resolve-string-expression';
 import { PropTypes } from '@transform/sfc/template/shared/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
@@ -28,7 +28,7 @@ export function resolveVOn(
   const captureIndex = modifiers.findIndex((modifier) => modifier === 'capture');
 
   let eventName = `on${camelCase(capitalize(arg.content))}`;
-  let handler = resolvePropContent(exp.content.trim(), ctx);
+  let handler = resolveSpecialExpressions(exp.content.trim(), ctx);
 
   if (captureIndex > -1) {
     eventName = modifiers[captureIndex] ? `${eventName}Capture` : eventName;
@@ -40,7 +40,10 @@ export function resolveVOn(
   if (modifiers.length) {
     originalVueEventName = `${arg.content}.${modifiers.join('.')}`;
   } else {
-    if (!t.isFunction(stringToExpr(handler))) {
+    const expr = stringToExpr(handler);
+
+    // 如果值不是函数表达式也不是标识符，则需要函数包裹
+    if (!t.isFunctionExpression(expr) && !t.isIdentifier(expr)) {
       handler = `() => {${handler}}`;
     }
   }

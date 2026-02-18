@@ -3,7 +3,7 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ADAPTER_HOOKS } from '@consts/adapters-map';
-import { COMP_PROPS_NAME, EMITS_API_VAR_NAME, SLOTS_API_VAR_NAME } from '@consts/other';
+import { MACRO_API_NAMES } from '@consts/other';
 import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
 
@@ -14,12 +14,6 @@ import { logger } from '@shared/logger';
 export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseOptions {
   const inScriptFile = ctx.inputType !== 'sfc';
 
-  const macroVarNames: Record<string, string> = {
-    defineProps: COMP_PROPS_NAME,
-    defineEmits: EMITS_API_VAR_NAME,
-    defineSlots: SLOTS_API_VAR_NAME,
-  };
-
   return {
     CallExpression(path) {
       const { node, parentPath } = path;
@@ -27,10 +21,11 @@ export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseO
       if (!t.isIdentifier(node.callee)) return;
 
       const { name } = node.callee;
-      const macroVarName = macroVarNames[name];
 
       const lintMacros = () => {
-        if (!name.startsWith('define')) return;
+        const target = Object.values(MACRO_API_NAMES).find((v) => v === name);
+        if (!target) return;
+
         if (inScriptFile) {
           addLog('Macro definition outside Vue SFC is not supported.');
           return;
@@ -39,13 +34,8 @@ export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseO
           addLog('Macro definition cannot be nested inside blocks or functions.');
           return;
         }
-        if (parentPath.isVariableDeclarator() && t.isIdentifier(parentPath.node.id)) {
-          const { id } = parentPath.node;
-          if (id.name !== macroVarName) {
-            addLog(`${name} must be assigned to a variable named ${macroVarName}`);
-          }
-        } else {
-          addLog(`${name} used without assignment to ${macroVarName} variable`);
+        if (!parentPath.isVariableDeclarator()) {
+          addLog(`Missing variable for ${target} assignment`);
         }
       };
 

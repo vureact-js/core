@@ -1,7 +1,7 @@
 ﻿import { traverse } from '@babel/core';
 import { Binding, NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
-import { COMP_PROPS_NAME, EMITS_API_VAR_NAME } from '@consts/other';
+import { ICompilationContext } from '@compiler/context/types';
 import { getReactiveStateApis } from '@shared/reactive-utils';
 import { findRootIdentifier, getVariableDeclaratorPath, isRealVariableAccess } from './babel-utils';
 import { getScriptNodeMeta, setScriptNodeMeta } from './metadata-utils';
@@ -16,6 +16,7 @@ const TRACE_MAX_DEPTH = 20;
  */
 export function analyzeDeps(
   node: t.Expression | t.BlockStatement,
+  ctx: ICompilationContext,
   parentPath?: NodePath,
 ): t.ArrayExpression {
   if (!parentPath) {
@@ -29,6 +30,10 @@ export function analyzeDeps(
 
   // 记录已处理的标识符，避免重复处理（例如 a.b.c 已经处理了 a，就不再单独处理 a）
   const processedIdentifiers = new WeakSet<t.Identifier>();
+
+  function addDependency(exp: t.Expression) {
+    deps.set(getDependencyKey(exp), exp);
+  }
 
   traverse(
     node,
@@ -66,18 +71,19 @@ export function analyzeDeps(
     const normalized = normalizeDependencyExpr(depPath, rootName);
     if (!normalized) return;
 
-    // 如果是宏变量（如 $$props, $$emits），直接视为依赖
-    if (isMacroBinding(rootName)) {
-      addDependency(normalized);
-      return;
-    }
-
     // 查找该变量的定义（Binding）
     const binding = scope.getBinding(rootName);
     if (!binding) return;
 
     // 如果变量定义在当前分析的作用域内（局部变量），直接忽略
     if (binding.scope === parentPath?.scope) {
+      return;
+    }
+
+    // 检查是否是 props 相关的表达式（例如 props.a, props.b()）
+    if (rootName === ctx.propField) {
+      // 如果是 props 相关的表达式，直接添加整个表达式作为依赖
+      addDependency(normalized);
       return;
     }
 
@@ -97,10 +103,6 @@ export function analyzeDeps(
       // 而不是当前的局部变量 'count'
       addDependency(sourcedExpression);
     }
-  }
-
-  function addDependency(exp: t.Expression) {
-    deps.set(getDependencyKey(exp), exp);
   }
 
   function normalizeDependencyExpr(
@@ -231,8 +233,6 @@ export function analyzeDeps(
 
     // Case 1: 标识符 (例如 c = state)
     if (t.isIdentifier(exp)) {
-      if (isMacroBinding(exp.name)) return exp; // $$props
-
       const sourceBinding = scope.getBinding(exp.name);
       if (!sourceBinding) return null;
 
@@ -311,10 +311,6 @@ function isNestedMemberObject(
   }
 
   return false;
-}
-
-function isMacroBinding(name: string): boolean {
-  return name === COMP_PROPS_NAME || name === EMITS_API_VAR_NAME;
 }
 
 export function isReactiveBinding(node?: t.Node): boolean {

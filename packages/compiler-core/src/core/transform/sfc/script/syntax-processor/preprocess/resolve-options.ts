@@ -1,6 +1,7 @@
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { MACRO_API_NAMES } from '@consts/other';
 import { logger } from '@shared/logger';
 import { isCalleeNamed } from '../../shared/babel-utils';
 
@@ -12,7 +13,7 @@ export function resolveOptions(ctx: ICompilationContext): TraverseOptions {
     CallExpression(path) {
       const { node } = path;
 
-      if (!isCalleeNamed(node, 'defineOptions')) {
+      if (!isCalleeNamed(node, MACRO_API_NAMES.options)) {
         return;
       }
 

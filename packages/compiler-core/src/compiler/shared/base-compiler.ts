@@ -1,5 +1,4 @@
 import { GeneratorOptions } from '@babel/generator';
-import { logger } from '@shared/logger';
 import { executePlugins } from '@shared/plugin-executor';
 import { generate, GeneratorResult, parse, ReactIRDescriptor, transform } from '@src/core';
 import { version as pkgVersion } from '../../../package.json';
@@ -72,11 +71,6 @@ export class BaseCompiler extends Helper {
 
       return result;
     } finally {
-      if (logging?.enabled !== false && logger.getLogs().length) {
-        logger.printAll(logging);
-        logger.clear();
-      }
-
       // 编译结束后清理上下文
       ctx.clear();
     }

@@ -11,7 +11,7 @@ import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import type { PropsIR } from '../syntax-processor/process/props';
 import type { SlotPropsIR } from '../syntax-processor/process/props/resolve-v-slot-prop';
 import type { ElementNodeIR } from '../syntax-processor/process/resolve-element-node';
-import { resolvePropContent, resolveStringExpr } from './resolve-string-expression';
+import { resolveSpecialExpressions, resolveStringExpr } from './resolve-string-expression';
 import { isSimpleStyle } from './style-utils';
 import { BabelExp, PropTypes } from './types';
 
@@ -220,6 +220,6 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
 
   setNameIdentifier(nameExp, name);
 
-  const normalizedValue = resolvePropContent(valueContent, ctx);
+  const normalizedValue = resolveSpecialExpressions(valueContent, ctx);
   setValueExpression(value.babelExp, normalizedValue, value.isStringLiteral);
 }

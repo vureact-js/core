@@ -236,13 +236,13 @@ export type LoadedCache<T = CacheMeta> = {
 export type CacheMeta = Vue2ReactCacheMeta | FileCacheMeta;
 
 export enum CacheKey {
-  MAIN = 'vue > react',
+  SFC = 'sfc',
   SCRIPT = 'script',
   ASSET = 'copied',
 }
 
 export interface CacheList {
-  [CacheKey.MAIN]: Vue2ReactCacheMeta[];
+  [CacheKey.SFC]: Vue2ReactCacheMeta[];
   [CacheKey.SCRIPT]: FileCacheMeta[];
   [CacheKey.ASSET]: FileCacheMeta[];
 }

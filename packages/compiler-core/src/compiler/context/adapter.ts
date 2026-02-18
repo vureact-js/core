@@ -1,3 +1,4 @@
+import path from 'path';
 import { CompilationContext, createCompilationCtx } from './creator';
 import { FileInputType, ICompilationContext } from './types';
 
@@ -9,7 +10,7 @@ export interface CompilationInput extends Partial<ICompilationContext> {
 export class CompilationAdapter {
   static createContext(input: CompilationInput): CompilationContext {
     const ctx = createCompilationCtx();
-    const inputType = this.detectInputType(input.source, input.filename);
+    const inputType = CompilationAdapter.detectInputType(input.source, input.filename);
 
     if (inputType.startsWith('script')) {
       // 初始化script-only的上下文，无需模板和style上下文数据
@@ -25,12 +26,9 @@ export class CompilationAdapter {
   }
 
   static detectInputType(source: string, filename: string): FileInputType {
-    if (source.trimStart().startsWith('<template>')) {
-      return 'sfc';
-    }
-    if (filename.endsWith('js')) {
-      return 'script-js';
-    }
-    return 'script-ts';
+    const ext = path.extname(filename);
+    if (ext === '.vue') return 'sfc';
+    if (ext === '.ts') return 'script-ts';
+    return 'script-js';
   }
 }

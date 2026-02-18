@@ -1,9 +1,8 @@
 import * as t from '@babel/types';
 import { ICompilationContext, SlotNodesContext } from '@compiler/context/types';
-import { COMP_PROPS_NAME } from '@consts/other';
 import { logger } from '@shared/logger';
-import { TemplateBlockIR, TemplateChildNodeIR } from '@src/core/transform/sfc/template';
 import { stringValueToTSType } from '@src/core/transform/sfc/script/shared/babel-utils';
+import { TemplateBlockIR, TemplateChildNodeIR } from '@src/core/transform/sfc/template';
 import { createInterpolationNodeIR } from '@src/core/transform/sfc/template/shared/node-ir-utils';
 import { warnUnsupportedVueDollarVar } from '@src/core/transform/sfc/template/shared/warning-utils';
 import { NodeTypes, SimpleExpressionNode, ElementNode as VueElementNode } from '@vue/compiler-core';
@@ -21,7 +20,7 @@ export function resolveSlotOutletNode(
 
   templateData.slots[slotContext.name] = slotContext;
 
-  const interpolationIR = resolveSlotReplacement(parentIR, slotContext);
+  const interpolationIR = resolveSlotReplacement(parentIR, slotContext, ctx);
 
   if (!parentIR) {
     childrenIR.push(interpolationIR);
@@ -92,8 +91,9 @@ function resolveSlotProps(node: VueElementNode, ctx: ICompilationContext): SlotN
 function resolveSlotReplacement(
   parentIR: ElementNodeIR | null,
   slotContext: SlotNodesContext,
+  ctx: ICompilationContext,
 ): TemplateChildNodeIR {
-  let expression = `${COMP_PROPS_NAME}.${slotContext.name}`;
+  let expression = `${ctx.propField}.${slotContext.name}`;
 
   if (slotContext.isScope) {
     const stringifiedKeyValues = Object.entries(slotContext.props)

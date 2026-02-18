@@ -1,4 +1,5 @@
 import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
+import { logger } from '@shared/logger';
 import { normalizePath, PathFilter } from '@shared/path';
 import { formatHHMMSS } from '@utils/date';
 import { genHashByXXH } from '@utils/hash';
@@ -39,9 +40,15 @@ export class Helper {
   }
 
   protected print(...message: any[]) {
-    const time = formatHHMMSS();
+    if (this.compilerOpts.watch) {
+      const time = formatHHMMSS();
+      // eslint-disable-next-line no-console
+      console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
+      return;
+    }
+
     // eslint-disable-next-line no-console
-    console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
+    console.info(...message);
   }
 
   /**
@@ -210,14 +217,14 @@ export class Helper {
    * 加载指定文件的缓存内容
    * @param key 缓存键
    */
-  protected async loadCache(key: CacheKey.MAIN): Promise<LoadedCache<Vue2ReactCacheMeta>>;
+  protected async loadCache(key: CacheKey.SFC): Promise<LoadedCache<Vue2ReactCacheMeta>>;
 
   protected async loadCache(
     key: CacheKey.SCRIPT | CacheKey.ASSET,
   ): Promise<LoadedCache<FileCacheMeta>>;
 
   protected async loadCache(
-    key: CacheKey.MAIN | CacheKey.SCRIPT | CacheKey.ASSET,
+    key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.ASSET,
   ): Promise<LoadedCache<Vue2ReactCacheMeta | FileCacheMeta>>;
 
   protected async loadCache(key: CacheKey) {
@@ -247,7 +254,7 @@ export class Helper {
       key,
       target: [],
       source: {
-        [CacheKey.MAIN]: [],
+        [CacheKey.SFC]: [],
         [CacheKey.SCRIPT]: [],
         [CacheKey.ASSET]: [],
       },
@@ -342,10 +349,18 @@ export class Helper {
   }
 
   protected printCompileInfo(file: string, duration: string) {
+    const { logging, watch } = this.compilerOpts;
+
     this.print(
       kleur.green('Compiled'),
-      kleur.dim(normalizePath(this.relativePath(file))),
-      kleur.grey(`(${duration})`),
+      kleur.gray(normalizePath(this.relativePath(file))),
+      watch ? kleur.dim(`(${duration})`) : '',
     );
+
+    // 打印日志消息
+    if (logging?.enabled !== false && logger.getLogs().length) {
+      logger.printAll(logging);
+      logger.clear();
+    }
   }
 }

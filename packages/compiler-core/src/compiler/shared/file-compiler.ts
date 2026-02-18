@@ -57,7 +57,7 @@ import {
  * const assetMeta = await compiler.processAsset('/path/to/image.png');
  *
  * // 清理指定路径的输出文件
- * await compiler.removeOutputPath('/path/to/old-component.vue', CacheKey.MAIN);
+ * await compiler.removeOutputPath('/path/to/old-component.vue', CacheKey.SFC);
  * ```
  *
  * @remarks
@@ -86,7 +86,7 @@ export class FileCompiler extends BaseCompiler {
    */
   async execute() {
     // eslint-disable-next-line no-console
-    console.info('\n\n', `${kleur.bold('vureact')} v${this.version}`, '\n');
+    console.info('\n\n', kleur.yellow(`${kleur.bold('vureact')} v${this.version}`), '\n');
 
     // 1. Vue文件处理管线
     await this.sfcPipeline();
@@ -106,19 +106,19 @@ export class FileCompiler extends BaseCompiler {
   }
 
   private async sfcPipeline() {
-    await this.corePipeline(CacheKey.MAIN);
+    await this.corePipeline(CacheKey.SFC);
   }
 
   private async scriptPipeline() {
     await this.corePipeline(CacheKey.SCRIPT);
   }
 
-  private async corePipeline(key: CacheKey.MAIN | CacheKey.SCRIPT) {
+  private async corePipeline(key: CacheKey.SFC | CacheKey.SCRIPT) {
     const inputPath = this.getInputPath();
 
     const files = this.scanFiles(inputPath, (p) => {
       const ext = path.extname(p);
-      if (key === CacheKey.MAIN) return ext === '.vue';
+      if (key === CacheKey.SFC) return ext === '.vue';
       if (key === CacheKey.SCRIPT) return ext === '.js' || ext === '.ts';
       return false;
     });
@@ -139,7 +139,7 @@ export class FileCompiler extends BaseCompiler {
    * @param existingCache Optional preloaded cache object
    */
   async processSFC(filePath: string, existingCache?: LoadedCache<Vue2ReactCacheMeta>) {
-    return this.processFile(CacheKey.MAIN, filePath, existingCache);
+    return this.processFile(CacheKey.SFC, filePath, existingCache);
   }
 
   /**
@@ -157,7 +157,7 @@ export class FileCompiler extends BaseCompiler {
    * @param existingCache Optional preloaded cache object
    */
   async processFile(
-    key: CacheKey.MAIN,
+    key: CacheKey.SFC,
     filePath: string,
     existingCache?: LoadedCache<Vue2ReactCacheMeta> | undefined,
   ): Promise<SFCUnit | undefined>;
@@ -169,7 +169,7 @@ export class FileCompiler extends BaseCompiler {
   ): Promise<ScriptUnit | undefined>;
 
   async processFile(
-    key: CacheKey.MAIN | CacheKey.SCRIPT,
+    key: CacheKey.SFC | CacheKey.SCRIPT,
     filePath: string,
     existingCache?: LoadedCache<FileCacheMeta> | undefined,
   ): Promise<SFCUnit | ScriptUnit | undefined>;
@@ -196,6 +196,8 @@ export class FileCompiler extends BaseCompiler {
 
     // 3. 编译
     const source = await fs.promises.readFile(absPath, 'utf-8');
+
+    if (!source.trim()) return;
 
     // 初始化编译单元
     const initUnit: SFCUnit | ScriptUnit = {
@@ -236,7 +238,7 @@ export class FileCompiler extends BaseCompiler {
 
       unit.fileId = result.fileId;
 
-      if (key === CacheKey.MAIN) {
+      if (key === CacheKey.SFC) {
         const { jsx, css } = (result as SFCCompilationResult).fileInfo;
 
         if (css.file) {
@@ -278,7 +280,7 @@ export class FileCompiler extends BaseCompiler {
     let file = '';
     let code = '';
 
-    if (key === CacheKey.MAIN) {
+    if (key === CacheKey.SFC) {
       const { jsx, css } = (output as SFCUnit['output'])!;
       file = jsx.file;
       code = jsx.code;
@@ -306,7 +308,7 @@ export class FileCompiler extends BaseCompiler {
     // 缓存不存源码和输出内容
     delete (meta as any).source;
 
-    if (key === CacheKey.MAIN) {
+    if (key === CacheKey.SFC) {
       delete (meta as any).output.jsx.code;
       delete (meta as any).output.css.code;
     } else if (key === CacheKey.SCRIPT) {
@@ -379,7 +381,7 @@ export class FileCompiler extends BaseCompiler {
     await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.promises.copyFile(absPath, outputPath);
 
-    this.print(kleur.blue('Copied'), kleur.dim(normalizePath(this.relativePath(absPath))));
+    this.print(kleur.blue('Copied Asset'), kleur.dim(normalizePath(this.relativePath(absPath))));
 
     return fileMeta;
   }
@@ -414,7 +416,7 @@ export class FileCompiler extends BaseCompiler {
     if (!toRemove.length) return;
 
     const removeFn = async (m: CacheMeta) => {
-      if (key === CacheKey.MAIN) {
+      if (key === CacheKey.SFC) {
         const meta = m as Vue2ReactCacheMeta;
         if (!meta?.output) return;
 

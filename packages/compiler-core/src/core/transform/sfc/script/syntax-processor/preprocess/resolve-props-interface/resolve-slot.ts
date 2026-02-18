@@ -109,8 +109,10 @@ export function resolveTemplateSlotIface(ctx: ICompilationContext) {
     tsMembers.push(tsNode);
   }
 
-  recordReactNode(ctx);
-  slotTypes.push(t.tsTypeLiteral(tsMembers));
+  if (tsMembers.length) {
+    recordReactNode(ctx);
+    slotTypes.push(t.tsTypeLiteral(tsMembers));
+  }
 }
 
 function recordReactNode(ctx: ICompilationContext) {

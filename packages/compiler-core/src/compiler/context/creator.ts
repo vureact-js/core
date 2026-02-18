@@ -33,6 +33,7 @@ export class CompilationContext {
       imports: new Map(),
       cssVars: [],
       inputType: 'sfc',
+      propField: '$props',
 
       templateData: {
         slots: {},

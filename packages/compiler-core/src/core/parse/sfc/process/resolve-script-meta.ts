@@ -42,11 +42,16 @@ function collectReactiveBindings(node: t.VariableDeclarator, ctx: ICompilationCo
   // 不是响应式API调用，直接返回
   if (!reactiveStateApis.has(source)) return;
 
-  const idName = (node.id as t.Identifier).name;
+  const varName = (node.id as t.Identifier).name;
   const value = init.arguments[0]! as t.Expression;
 
-  reactiveBindings[idName] = {
-    name: idName,
+  if (source === 'defineProps') {
+    // 使用 props 宏的变量名
+    ctx.propField = varName;
+  }
+
+  reactiveBindings[varName] = {
+    name: varName,
     value,
     source,
     reactiveType: getReactiveType(source),

@@ -1,6 +1,5 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { COMP_PROPS_NAME } from '@consts/other';
 import { ScriptBlockIR } from '@src/core/transform/sfc/script';
 import { ScriptBuildState } from '..';
 import { buildComponentName } from '../../utils/build-component-name';
@@ -25,16 +24,13 @@ export function buildComponentFunctionProcessor(
   const localStatements = resolveLocalStatements(nodeIR);
   localStatements.push(jsxReturnStatement);
 
-  const propsIdentifier = t.identifier(COMP_PROPS_NAME);
   const componentFunction = t.functionExpression(
     functionIdentifier,
-    [propsIdentifier],
+    [],
     t.blockStatement(localStatements),
   );
 
-  attachPropsTypeAnnotation(nodeIR, ctx, propsIdentifier);
-
-  state.componentFunction = componentFunction;
+  state.componentFunction = resolvePropParam(componentFunction, ctx);
 }
 
 function resolveLocalStatements(nodeIR: ScriptBlockIR): t.Statement[] {
@@ -59,22 +55,20 @@ function resolveLocalStatements(nodeIR: ScriptBlockIR): t.Statement[] {
   return [];
 }
 
-function attachPropsTypeAnnotation(
-  nodeIR: ScriptBlockIR,
-  ctx: ICompilationContext,
-  propsIdentifier: t.Identifier,
-) {
-  const { scriptData } = ctx;
+function resolvePropParam(fn: t.FunctionExpression, ctx: ICompilationContext) {
+  const { propField, scriptData } = ctx;
+  const { propsTSIface } = scriptData;
 
-  if (!scriptData.lang.startsWith('ts')) {
-    return;
+  if (!scriptData.lang.startsWith('ts') || !propsTSIface.name) {
+    return fn;
   }
 
-  const { name, propsTypes, emitTypes, slotTypes } = scriptData.propsTSIface;
-  const hasProps = propsTypes.length > 0 && emitTypes.length > 0 && slotTypes.length > 0;
-  const typeIdentifier = t.identifier(hasProps ? name : 'any');
+  const propsIdentifier = t.identifier(propField);
+  const typeIdentifier = t.identifier(propsTSIface.name);
 
   propsIdentifier.typeAnnotation = t.tsTypeAnnotation(t.tsTypeReference(typeIdentifier));
 
-  void nodeIR;
+  fn.params.push(propsIdentifier);
+
+  return fn;
 }

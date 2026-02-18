@@ -15,12 +15,14 @@ import { resolveDefineSlotsIface } from './resolve-slot';
  * 处理和收集 defineProps、defineEmits 、defineSlots 的 TS 类型注释
  */
 export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
+  if (ctx.inputType !== 'sfc') return {};
+
   const isTS = ctx.scriptData.lang.startsWith('ts');
 
   return {
     CallExpression(path) {
       const { node, parentPath } = path;
-      const calleeName = (node.callee as t.Identifier).name;
+      const name = (node.callee as t.Identifier).name;
 
       if (
         !isCalleeNamed(node, MACRO_API_NAMES.props) ||
@@ -45,11 +47,11 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
       }
 
       if (isTS) {
-        if (calleeName === 'defineProps') {
+        if (name === MACRO_API_NAMES.props) {
           resolveDefinePropsIface(path, ctx);
-        } else if (calleeName === 'defineEmits') {
+        } else if (name === MACRO_API_NAMES.emits) {
           resolveDefineEmitsIface(path, ctx);
-        } else if (calleeName === 'defineSlots') {
+        } else if (name === MACRO_API_NAMES.slots) {
           resolveDefineSlotsIface(path, ctx);
         }
       }
@@ -65,13 +67,16 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
 export function resolveCompIProps(ctx: ICompilationContext, ast: BabelParseResult) {
   const { propsTSIface, lang } = ctx.scriptData;
   const { propsTypes, emitTypes, slotTypes } = propsTSIface;
+  const tsTypes = [...propsTypes, ...emitTypes, ...slotTypes];
 
-  if (!lang.startsWith('ts')) return;
+  if (ctx.inputType !== 'sfc' || !lang.startsWith('ts') || !tsTypes.length) {
+    return;
+  }
 
   const n = ctx.compName || 'Comp';
   const ns = `I${camelCase(capitalize(n))}Props`;
 
-  const typeNode = t.tsIntersectionType([...propsTypes, ...emitTypes, ...slotTypes]);
+  const typeNode = t.tsIntersectionType(tsTypes);
   const typeAliasDecl = t.tsTypeAliasDeclaration(t.identifier(ns), null, typeNode);
   const exportDecl = t.exportNamedDeclaration(typeAliasDecl);
 

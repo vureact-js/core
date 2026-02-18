@@ -11,6 +11,7 @@ import {
   lintRules,
   resolveAsyncComponent,
   resolveCompIProps,
+  resolveEmitCalls,
   resolveEmitsTopLevelTypes,
   resolveOptions,
   resolvePropsIface,
@@ -48,6 +49,7 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         resolveSlotsTopLevelTypes,
         resolvePropsIface,
         resolveAsyncComponent,
+        resolveEmitCalls,
       ],
     },
 
