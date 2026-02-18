@@ -2,10 +2,11 @@ import { ParseResult as BabelParseResult } from '@babel/parser';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { COMP_PROPS_NAME, EMITS_API_VAR_NAME, SLOTS_API_VAR_NAME } from '@consts/other';
+import { MACRO_API_NAMES } from '@consts/other';
+import { scriptBlockIR } from '@transform/sfc/script';
+import { isCalleeNamed } from '@transform/sfc/script/shared/babel-utils';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
-import { scriptBlockIR } from '../../..';
 import { resolveDefineEmitsIface } from './resolve-emits';
 import { resolveDefinePropsIface } from './resolve-props';
 import { resolveDefineSlotsIface } from './resolve-slot';
@@ -15,21 +16,19 @@ import { resolveDefineSlotsIface } from './resolve-slot';
  */
 export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
   const isTS = ctx.scriptData.lang.startsWith('ts');
-  const macroVarNames: Record<string, string> = {
-    defineProps: COMP_PROPS_NAME,
-    defineEmits: EMITS_API_VAR_NAME,
-    defineSlots: SLOTS_API_VAR_NAME,
-  };
 
   return {
     CallExpression(path) {
       const { node, parentPath } = path;
       const calleeName = (node.callee as t.Identifier).name;
-      const macroVarName = macroVarNames[calleeName];
 
-      if (!macroVarName) return;
-
-      const { source } = ctx.scriptData;
+      if (
+        !isCalleeNamed(node, MACRO_API_NAMES.props) ||
+        !isCalleeNamed(node, MACRO_API_NAMES.emits) ||
+        !isCalleeNamed(node, MACRO_API_NAMES.slots)
+      ) {
+        return;
+      }
 
       const removePath = () => {
         // 移除 api
