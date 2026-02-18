@@ -49,7 +49,12 @@ export interface SlotNodesContext {
 }
 
 export interface ReactiveBindinds {
-  [name: string]: { name: string; value: t.Expression; reactiveType: ReactiveTypes };
+  [name: string]: {
+    name: string;
+    value: t.Expression;
+    source: string;
+    reactiveType: ReactiveTypes;
+  };
 }
 
 export interface RefBindings {

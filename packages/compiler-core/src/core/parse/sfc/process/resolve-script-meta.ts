@@ -37,9 +37,10 @@ function collectReactiveBindings(node: t.VariableDeclarator, ctx: ICompilationCo
 
   const init = node.init! as t.CallExpression;
   const callee = init.callee as t.Identifier;
+  const source = callee.name;
 
   // 不是响应式API调用，直接返回
-  if (!reactiveStateApis.has(callee.name)) return;
+  if (!reactiveStateApis.has(source)) return;
 
   const idName = (node.id as t.Identifier).name;
   const value = init.arguments[0]! as t.Expression;
@@ -47,7 +48,8 @@ function collectReactiveBindings(node: t.VariableDeclarator, ctx: ICompilationCo
   reactiveBindings[idName] = {
     name: idName,
     value,
-    reactiveType: getReactiveType(callee.name),
+    source,
+    reactiveType: getReactiveType(source),
   };
 }
 
