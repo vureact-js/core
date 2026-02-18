@@ -1,14 +1,15 @@
+import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { strCodeTypes } from '@shared/string-code-types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
+import { stringToExpr } from '@shared/babel-utils';
+import { TemplateBlockIR } from '@transform/sfc/template';
 import {
   createPropsIR,
   findSameProp,
   resolvePropAsBabelExp,
-} from '@src/core/transform/sfc/template/shared/prop-ir-utils';
-import { mergePropsIR } from '@src/core/transform/sfc/template/shared/prop-merge-utils';
-import { resolvePropContent } from '@src/core/transform/sfc/template/shared/resolve-string-expression';
-import { PropTypes } from '@src/core/transform/sfc/template/shared/types';
+} from '@transform/sfc/template/shared/prop-ir-utils';
+import { mergePropsIR } from '@transform/sfc/template/shared/prop-merge-utils';
+import { resolvePropContent } from '@transform/sfc/template/shared/resolve-string-expression';
+import { PropTypes } from '@transform/sfc/template/shared/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
@@ -39,10 +40,8 @@ export function resolveVOn(
   if (modifiers.length) {
     originalVueEventName = `${arg.content}.${modifiers.join('.')}`;
   } else {
-    const isCall = /\(*\)$/;
-
-    if (isCall.test(handler) || !strCodeTypes.isSimpleExpression(handler)) {
-      handler = `() => ${handler}`;
+    if (!t.isFunction(stringToExpr(handler))) {
+      handler = `() => {${handler}}`;
     }
   }
 
