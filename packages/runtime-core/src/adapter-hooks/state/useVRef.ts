@@ -21,7 +21,7 @@ export function wrapRef<T>(target: T): WrapRef<T> {
 
 /**
  * @private
- * Unwraps the `value` property from `useRefState`.
+ * Unwraps the `value` property from `useVRef`.
  */
 export function unwrapRef<T extends WrapRef<any>>(ref: T): UnwrapRef<T> {
   if (isRef(ref) && isRoot(ref)) {
@@ -37,13 +37,13 @@ export function unwrapRef<T extends WrapRef<any>>(ref: T): UnwrapRef<T> {
  *
  * @example
  *
- * const countRef = useRefState(1);
+ * const countRef = useVRef(1);
  * countRef.value++; // Triggers updates for subscribed components
  *
  * @param initialValue - The initial value for the reference state.
  * @returns A `RefState<T>` object representing the reactive state.
  */
-export function useRefState<T>(initialValue: T): RefState<T> {
+export function useVRef<T>(initialValue: T): RefState<T> {
   return createStateRef(initialValue);
 }
 
@@ -52,14 +52,14 @@ export function useRefState<T>(initialValue: T): RefState<T> {
  *
  * @example
  *
- * const countRef = useShallowRefState({ count: 1 });
+ * const countRef = useShallowVRef({ count: 1 });
  * countRef.value.count++; // Does not trigger component updates
  * countRef.value = { count: 3 } // Replacing the entire object will trigger updates
  *
  * @param initialValue - The initial value to be stored in the shallow ref state.
  * @returns A `RefState<T>` object that holds the shallow reactive state.
  */
-export function useShallowRefState<T>(initialValue: T): RefState<T> {
+export function useShallowVRef<T>(initialValue: T): RefState<T> {
   return createStateRef(initialValue, true);
 }
 
