@@ -30,7 +30,7 @@ export async function resolveAction(root: string, options: CliOptions) {
   console.info();
   spinner.succeed(kleur.bold(kleur.green(`Compilation successfully in ${duration}.`)));
 
-  // 2. 进入监听模式
+  // 2. 如果是 watch 模式，进入监听模式
   if (finalConfig.watch) {
     setupWatcher(compiler, finalConfig, spinner);
 
@@ -70,7 +70,7 @@ function mergeCliConfig(
   return {
     root: projectRoot,
     input: options.input || userConfig.input,
-    watch: options.watch ?? userConfig.watch,
+    watch: options.watch || userConfig.watch,
     recursive: options.recursive ?? userConfig.recursive,
 
     exclude: options.exclude
@@ -101,6 +101,12 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
     ignoreInitial: true, // 初始扫描已由 compiler.execute 完成
   });
 
+  const processors = {
+    '.vue': (p: string) => compiler.processSFC(p),
+    '.js': (p: string) => compiler.processScript(p),
+    '.ts': (p: string) => compiler.processScript(p),
+  };
+
   watcher.on('all', async (event, filePath) => {
     switch (event) {
       case 'add':
@@ -114,12 +120,6 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
         break;
     }
   });
-
-  const processors = {
-    '.vue': compiler.processSFC,
-    '.js': compiler.processScript,
-    '.ts': compiler.processScript,
-  };
 
   const onRecompile = async (event: 'add' | 'change', filePath: string) => {
     const ext = path.extname(filePath);

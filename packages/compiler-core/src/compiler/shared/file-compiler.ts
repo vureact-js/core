@@ -48,13 +48,13 @@ import {
  * await compiler.execute();
  *
  * // 处理单个 Vue 文件
- * const vueResult = await compiler.processSFC('/path/to/Component.vue');
+ * await compiler.processSFC('/path/to/Component.vue');
  *
  * // 处理单个 Script 文件
- * const scriptResult = await compiler.processSFC('/path/to/foo.ts');
+ * await compiler.processScript('/path/to/foo.ts');
  *
  * // 处理单个资源文件
- * const assetMeta = await compiler.processAsset('/path/to/image.png');
+ * await compiler.processAsset('/path/to/image.png');
  *
  * // 清理指定路径的输出文件
  * await compiler.removeOutputPath('/path/to/old-component.vue', CacheKey.SFC);

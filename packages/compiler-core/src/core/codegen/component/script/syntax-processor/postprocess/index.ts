@@ -1,1 +1,1 @@
-export { buildProgramNodeProcessor } from './build-program-node';
+export { buildProgramNode } from './build-program-node';

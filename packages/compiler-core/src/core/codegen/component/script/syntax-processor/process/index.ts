@@ -1,2 +1,2 @@
-export { buildComponentFunctionProcessor } from './build-component-function';
-export { buildProgramPreambleProcessor } from './build-program-preamble';
+export { buildComponent } from './build-component-function';
+export { buildProgramPreamble } from './build-program-preamble';

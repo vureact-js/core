@@ -2,9 +2,14 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { PACKAGE_NAME } from '@consts/other';
+import { REACT_API_MAP } from '@consts/react-api-map';
+import { recordImport } from '@transform/shared';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
 export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions {
+  // 补上 memo 默认导入
+  recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.memo);
+
   let inserted = false;
 
   return {

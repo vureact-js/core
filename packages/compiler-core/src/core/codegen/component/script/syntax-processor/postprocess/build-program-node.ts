@@ -1,24 +1,26 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ScriptBlockIR } from '@src/core/transform/sfc/script';
+import { ScriptBlockIR } from '@transform/sfc/script';
 import { ScriptBuildState } from '..';
 
-export function buildProgramNodeProcessor(
+export function buildProgramNode(
   nodeIR: ScriptBlockIR | null,
   ctx: ICompilationContext,
   state: ScriptBuildState,
 ) {
   const statements: t.Statement[] = [...state.preambleStatements];
 
-  if (!state.componentFunction) {
+  if (!state.component) {
     state.result = t.program(statements, undefined, 'module');
     return;
   }
 
+  statements.push(state.component);
+
   if (state.expose) {
-    statements.push(t.exportDefaultDeclaration(state.componentFunction));
-  } else {
-    statements.push(t.expressionStatement(state.componentFunction));
+    const [declarator] = state.component.declarations;
+    const { name } = declarator!.id as t.Identifier;
+    statements.push(t.exportDefaultDeclaration(t.identifier(name)));
   }
 
   state.result = t.program(statements, undefined, 'module');

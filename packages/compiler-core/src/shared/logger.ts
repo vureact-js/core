@@ -34,7 +34,7 @@ interface PrintOptions {
 
 export class Logger {
   private logs: LogEntry[] = [];
-  private contextLines = 1;
+  private contextLines = 2;
   private tabWidth = 2;
 
   warn(message: any, opts: LogOptions = {}): void {
@@ -79,7 +79,7 @@ export class Logger {
   // Render the header line and optional location block.
   private formatHeader(log: LogEntry): string {
     const label = log.level.toUpperCase();
-    const level = this.levelColor(log.level)(`${kleur.bold('[vureact]')} ${label}:`);
+    const level = this.levelColor(log.level)(`${kleur.bold('[vureact]')} ${kleur.bgRed(label)}:`);
 
     if (log.level === 'info') {
       return `${level} ${log.message}\n`;
@@ -163,7 +163,7 @@ export class Logger {
         const pointerColumn = Math.min(column, maxColumn);
         const pointerIndent = ' '.repeat(prefixLength + pointerColumn);
 
-        result.push(color(`${pointerIndent}^`));
+        result.push(kleur.bold(color(`${pointerIndent}^`)));
       }
     }
 

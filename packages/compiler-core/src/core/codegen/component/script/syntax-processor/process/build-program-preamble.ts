@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ScriptBlockIR } from '@src/core/transform/sfc/script';
+import { ScriptBlockIR } from '@transform/sfc/script';
 import { ScriptBuildState } from '..';
 
-export function buildProgramPreambleProcessor(
+export function buildProgramPreamble(
   nodeIR: ScriptBlockIR | null,
   ctx: ICompilationContext,
   state: ScriptBuildState,

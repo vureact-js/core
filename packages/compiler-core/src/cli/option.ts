@@ -19,8 +19,5 @@ export function resolveOptions(command: Command): Command {
       .option('--formatter <type>', 'Choose formatter: "prettier" or "builtin"', {
         default: 'prettier',
       })
-
-      // 模式切换
-      .option('-w, --watch', 'Watch mode: compile on file changes')
   );
 }

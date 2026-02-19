@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ScriptBlockIR } from '@src/core/transform/sfc/script';
+import { ScriptBlockIR } from '@transform/sfc/script';
 import { JSXChild } from '../../jsx/types';
-import { buildProgramNodeProcessor } from './postprocess';
-import { buildComponentFunctionProcessor, buildProgramPreambleProcessor } from './process';
+import { buildProgramNode } from './postprocess';
+import { buildComponent, buildProgramPreamble } from './process';
 
 interface ProcessorOptions {
   preprocess: ScriptProcessor[];
@@ -15,7 +15,7 @@ export interface ScriptBuildState {
   jsx: JSXChild | null;
   expose: boolean;
   preambleStatements: t.Statement[];
-  componentFunction: t.FunctionExpression | null;
+  component: t.VariableDeclaration | null;
   result: t.Program | null;
 }
 
@@ -35,14 +35,14 @@ export function buildScriptSyntax(
     jsx,
     expose,
     preambleStatements: [],
-    componentFunction: null,
+    component: null,
     result: null,
   };
 
   scriptSyntaxProcessor(nodeIR, ctx, state, {
     preprocess: [],
-    process: [buildProgramPreambleProcessor, buildComponentFunctionProcessor],
-    postprocess: [buildProgramNodeProcessor],
+    process: [buildProgramPreamble, buildComponent],
+    postprocess: [buildProgramNode],
   });
 
   return state.result || t.program([], undefined, 'module');

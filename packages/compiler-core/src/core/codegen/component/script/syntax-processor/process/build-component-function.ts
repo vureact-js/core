@@ -1,74 +1,98 @@
+import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ScriptBlockIR } from '@src/core/transform/sfc/script';
+import { REACT_API_MAP } from '@consts/react-api-map';
+import { ScriptBlockIR } from '@transform/sfc/script';
+import { camelCase } from '@utils/camelCase';
+import { capitalize } from '@utils/capitalize';
+import { genHashByXXH } from '@utils/hash';
+import { basename } from 'path';
 import { ScriptBuildState } from '..';
-import { buildComponentName } from '../../utils/build-component-name';
 
-export function buildComponentFunctionProcessor(
+export function buildComponent(
   nodeIR: ScriptBlockIR | null,
   ctx: ICompilationContext,
   state: ScriptBuildState,
 ) {
-  const functionIdentifier = t.identifier(buildComponentName(ctx));
-  const jsxReturnStatement = t.returnStatement((state.jsx || t.nullLiteral()) as t.Expression);
+  const jsxStatement = t.returnStatement((state.jsx || t.nullLiteral()) as t.Expression);
 
-  if (!nodeIR) {
-    state.componentFunction = t.functionExpression(
-      functionIdentifier,
-      [],
-      t.blockStatement([jsxReturnStatement]),
-    );
-    return;
-  }
+  const component = !nodeIR
+    ? resolveComponent(jsxStatement, ctx)
+    : resolveMemoComponent(nodeIR.statement.local, jsxStatement, ctx);
 
-  const localStatements = resolveLocalStatements(nodeIR);
-  localStatements.push(jsxReturnStatement);
+  state.component = component;
+}
 
-  const componentFunction = t.functionExpression(
-    functionIdentifier,
-    [],
-    t.blockStatement(localStatements),
+function resolveComponent(jsxStmt: t.ReturnStatement, ctx: ICompilationContext) {
+  return t.variableDeclaration('const', [
+    t.variableDeclarator(
+      resolveComponentName(ctx),
+      t.arrowFunctionExpression([], t.blockStatement([jsxStmt])),
+    ),
+  ]);
+}
+
+function resolveMemoComponent(
+  local: ParseResult<t.File> | null,
+  jsxStmt: t.ReturnStatement,
+  ctx: ICompilationContext,
+): t.VariableDeclaration {
+  const name = resolveComponentName(ctx);
+  const param = resolveParam(ctx);
+
+  const component = t.arrowFunctionExpression(
+    !param ? [] : [param],
+    t.blockStatement(resolveStatements(local, jsxStmt)),
   );
 
-  state.componentFunction = resolvePropParam(componentFunction, ctx);
+  const memoCall = t.callExpression(t.identifier(REACT_API_MAP.memo), [component]);
+
+  return t.variableDeclaration('const', [t.variableDeclarator(name, memoCall)]);
 }
 
-function resolveLocalStatements(nodeIR: ScriptBlockIR): t.Statement[] {
-  const localNodeIR = nodeIR.statement.local as unknown;
+function resolveComponentName(ctx: ICompilationContext): t.Identifier {
+  const { filename, compName } = ctx as ICompilationContext;
 
-  if (!localNodeIR) {
-    return [];
-  }
+  const name = !compName
+    ? basename(filename).split('.')[0] || `C${genHashByXXH(filename)}`
+    : compName;
 
-  if (Array.isArray(localNodeIR)) {
-    return [...(localNodeIR as t.Statement[])];
-  }
-
-  if (typeof localNodeIR === 'object' && 'program' in (localNodeIR as object)) {
-    const program = (localNodeIR as t.File).program;
-
-    if (program?.body?.length) {
-      return [...program.body];
-    }
-  }
-
-  return [];
+  return t.identifier(capitalize(camelCase(name)));
 }
 
-function resolvePropParam(fn: t.FunctionExpression, ctx: ICompilationContext) {
+function resolveParam(ctx: ICompilationContext): t.Identifier | undefined {
   const { propField, scriptData } = ctx;
   const { propsTSIface } = scriptData;
 
-  if (!scriptData.lang.startsWith('ts') || !propsTSIface.name) {
-    return fn;
-  }
+  if (!propsTSIface.name) return;
 
   const propsIdentifier = t.identifier(propField);
-  const typeIdentifier = t.identifier(propsTSIface.name);
 
+  if (!scriptData.lang.startsWith('ts') && propsTSIface.name) {
+    return propsIdentifier;
+  }
+
+  const typeIdentifier = t.identifier(propsTSIface.name);
   propsIdentifier.typeAnnotation = t.tsTypeAnnotation(t.tsTypeReference(typeIdentifier));
 
-  fn.params.push(propsIdentifier);
+  return propsIdentifier;
+}
 
-  return fn;
+function resolveStatements(
+  local: ParseResult<t.File> | null,
+  jsx: t.ReturnStatement,
+): t.Statement[] {
+  const stmts: t.Statement[] = [jsx];
+
+  if (!local) return stmts;
+
+  if (typeof local === 'object' && 'program' in (local as object)) {
+    const program = (local as t.File).program;
+
+    if (program?.body?.length) {
+      return [...program.body, jsx];
+    }
+  }
+
+  return stmts;
 }
