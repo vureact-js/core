@@ -150,24 +150,10 @@ export interface CompilerOptions {
   /**
    * Execute after file are added or recompiled in `watch` mode.
    *
-   * @param type Add or modify file
-   * @param result Options
+   * @param event Add or modify file
+   * @param unit Current sfc or script file compilation unit
    */
-  onChange?: (
-    type: 'add' | 'change',
-    result: {
-      /**
-       * The compilation result of the current file.
-       *
-       * Note that the contents of the `source` and `code` fields have been cleared.
-       */
-      compilationUnit?: CompilationUnit;
-      /**
-       * The path of the asset file.
-       */
-      assetFile?: string;
-    },
-  ) => Promise<void | undefined>;
+  onChange?: (event: 'add' | 'change', unit: SFCUnit | ScriptUnit) => Promise<void | undefined>;
 }
 
 export interface PluginRegister<T> {
