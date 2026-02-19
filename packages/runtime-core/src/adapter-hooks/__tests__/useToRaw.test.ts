@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { useReactive, useShallowReactive } from '../state/useReactive';
 import { useReadonly } from '../state/useReadonly';
-import { useRefState, useShallowRefState } from '../state/useRefState';
 import { useToRaw } from '../state/useToRaw';
+import { useShallowVRef, useVRef } from '../state/useVRef';
 
 describe('useToRaw Advanced Test Suites', () => {
   // 1. 验证 useShallowReactive
@@ -17,11 +17,11 @@ describe('useToRaw Advanced Test Suites', () => {
     expect(raw).not.toBe(proxyRef.current);
   });
 
-  // 2. 验证 useRefState
+  // 2. 验证 useVRef
   // 注意：useRefState 返回的是包装对象 { value: T } 的 Proxy
-  it('should return the raw container object from useRefState', () => {
+  it('should return the raw container object from useVRef', () => {
     const source = { count: 1 };
-    const { result: refRef } = renderHook(() => useRefState(source));
+    const { result: refRef } = renderHook(() => useVRef(source));
 
     const rawContainer = useToRaw(refRef.current);
 
@@ -30,10 +30,10 @@ describe('useToRaw Advanced Test Suites', () => {
     expect(rawContainer?.value).not.toBe(source); // 因为 value 被深度代理了
   });
 
-  // 3. 验证 useShallowRefState
-  it('should return the raw container from useShallowRefState', () => {
+  // 3. 验证 useShallowVRef
+  it('should return the raw container from useShallowVRef', () => {
     const source = { count: 1 };
-    const { result: sRefRef } = renderHook(() => useShallowRefState(source));
+    const { result: sRefRef } = renderHook(() => useShallowVRef(source));
 
     const rawContainer = useToRaw(sRefRef.current);
 

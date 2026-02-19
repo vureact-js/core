@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { useReactive } from '../state/useReactive';
 import { useReadonly, useShallowReadonly } from '../state/useReadonly';
-import { useRefState } from '../state/useRefState';
+import { useVRef } from '../state/useVRef';
 
 describe('useReadonly Advanced Test Suites', () => {
   it('should sync with the source proxy automatically', async () => {
@@ -42,8 +42,8 @@ describe('useReadonly Advanced Test Suites', () => {
     expect(readonlyState.current.nested.val).toBe('new');
   });
 
-  it('should unwrap useRefState, eliminating the need to access via .value', async () => {
-    const { result: source } = renderHook(() => useRefState(1));
+  it('should unwrap useVRef, eliminating the need to access via .value', async () => {
+    const { result: source } = renderHook(() => useVRef(1));
 
     // 使用 useReadonly 解包 .value
     const { result: readonlyState } = renderHook(() => useReadonly(source.current));

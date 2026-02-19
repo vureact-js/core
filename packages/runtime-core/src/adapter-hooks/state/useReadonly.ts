@@ -3,7 +3,7 @@ import { Snapshot } from 'valtio/vanilla';
 import { useProxySubscribe } from '../shared/hooks';
 import { isProxy, isRef } from '../shared/proxy';
 import { freezeObject } from '../shared/utils';
-import { UnwrapRef, unwrapRef, WrapRef } from './useRefState';
+import { UnwrapRef, unwrapRef, WrapRef } from './useVRef';
 
 export type ReadonlySnapshot<T> =
   T extends WrapRef<any> ? ReadonlyType<UnwrapRef<T>> : ReadonlyType<T>;

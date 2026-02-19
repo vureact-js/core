@@ -2,7 +2,7 @@ import { ref } from 'valtio/vanilla';
 import { IS_REACTIVE_PROXY, IS_ROOT, RAW_TARGET } from '../shared/consts';
 import { createProxy, isProxy } from '../shared/proxy';
 import { isPrimitive } from '../shared/utils';
-import { UnwrapRef, unwrapRef, WrapRef } from './useRefState';
+import { UnwrapRef, unwrapRef, WrapRef } from './useVRef';
 
 export type ReactiveState<T> = T extends WrapRef<any> ? UnwrapRef<T> : T;
 
