@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useProxySubscribe } from '../shared/hooks';
 import { isProxy } from '../shared/proxy';
-import { toPropertyRefState, ToRefValueState } from './useToRefState';
+import { toPropertyRefState, ToRefValueState } from './useToVRef';
 
 export type ToRefStates<T> = {
   [K in keyof T]: ToRefValueState<T[K]>;
@@ -20,7 +20,7 @@ export type ToRefStates<T> = {
  *
  * @example
  * const state = reactive({ count: 0, name: 'foo' });
- * const refs = useToRefStates(state);
+ * const refs = useToVRefs(state);
  * // refs.count is a ref linked to state.count
  *
  *
@@ -28,9 +28,9 @@ export type ToRefStates<T> = {
  * @returns An object or array of refs corresponding to each property of the input object.
  *
  */
-export function useToRefStates<T extends object>(object: T): ToRefStates<T> {
+export function useToVRefs<T extends object>(object: T): ToRefStates<T> {
   if (process.env.NODE_ENV !== 'production' && !isProxy(object)) {
-    console.warn('useToRefStates() expects a reactive object.');
+    console.warn('useToVRefs() expects a reactive object.');
   }
 
   // 订阅变更：确保当原始 object 的属性发生变化时，当前组件会重新渲染

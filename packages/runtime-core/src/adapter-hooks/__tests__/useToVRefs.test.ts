@@ -1,13 +1,13 @@
 import { act, renderHook } from '@testing-library/react';
 import { useReactive } from '../state/useReactive';
-import { useToRefStates } from '../state/useToRefStates';
+import { useToVRefs } from '../state/useToVRefs';
 
-describe('useToRefStates Advanced Test Suites', () => {
+describe('useToVRefs Advanced Test Suites', () => {
   // 1. 基础功能：对象解构与双向绑定
   it('converts a reactive object into a plain object of refs', async () => {
     const { result } = renderHook(() => {
       const state = useReactive({ foo: 1, bar: 'hello' });
-      const refs = useToRefStates(state);
+      const refs = useToVRefs(state);
       return { state, refs };
     });
 
@@ -33,7 +33,7 @@ describe('useToRefStates Advanced Test Suites', () => {
   it('handles reactive arrays correctly', async () => {
     const { result } = renderHook(() => {
       const list = useReactive([1, 2, 3]);
-      const refs = useToRefStates(list);
+      const refs = useToVRefs(list);
       return { list, refs };
     });
 
@@ -56,7 +56,7 @@ describe('useToRefStates Advanced Test Suites', () => {
     const { result, rerender } = renderHook(() => {
       renderCount++;
       const state = useReactive({ count: 0 });
-      const refs = useToRefStates(state);
+      const refs = useToVRefs(state);
       return { state, refs };
     });
 
@@ -74,15 +74,15 @@ describe('useToRefStates Advanced Test Suites', () => {
   });
 
   // 4. 组件订阅能力
-  // useToRefStates 内部调用了 useProxySubscribe，这意味着即使不读取 .value，
+  // useToVRefs 内部调用了 useProxySubscribe，这意味着即使不读取 .value，
   // 仅仅解构这一行为也应该让组件订阅 state 的变化。
   it('triggers re-render when source properties change', async () => {
     let renderCount = 0;
     const { result } = renderHook(() => {
       renderCount++;
       const state = useReactive({ a: 1 });
-      // 仅仅调用转换，模拟 const { a } = useToRefStates(state)
-      const refs = useToRefStates(state);
+      // 仅仅调用转换，模拟 const { a } = useToVRefs(state)
+      const refs = useToVRefs(state);
       return { state, refs };
     });
 
@@ -106,9 +106,9 @@ describe('useToRefStates Advanced Test Suites', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'development';
 
-    renderHook(() => useToRefStates({ a: 1 } as any));
+    renderHook(() => useToVRefs({ a: 1 } as any));
 
-    expect(consoleSpy).toHaveBeenCalledWith('useToRefStates() expects a reactive object.');
+    expect(consoleSpy).toHaveBeenCalledWith('useToVRefs() expects a reactive object.');
 
     consoleSpy.mockRestore();
     process.env.NODE_ENV = originalEnv;
@@ -120,7 +120,7 @@ describe('useToRefStates Advanced Test Suites', () => {
       const state = useReactive({
         user: { name: 'John', age: 30 },
       });
-      const refs = useToRefStates(state);
+      const refs = useToVRefs(state);
       return { state, refs };
     });
 
