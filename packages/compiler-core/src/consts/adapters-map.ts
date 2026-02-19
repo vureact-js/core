@@ -14,12 +14,12 @@ export const ADAPTER_HOOKS = {
    * 具体由对应适配 api 完全模拟实现
    */
   simple: {
-    ref: 'useRefState',
+    ref: 'useVRef',
     reactive: 'useReactive',
     computed: 'useComputed',
     readonly: 'useReadonly',
-    toRef: 'useToRefState',
-    toRefs: 'useToRefStates',
+    toRef: 'useToVRef',
+    toRefs: 'useToVRefs',
     toRaw: 'useToRaw',
     isRef: 'isRef',
     isProxy: 'isProxy',
