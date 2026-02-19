@@ -1,4 +1,4 @@
-import { CacheKey, CompilationUnit, CompilerOptions, VuReact } from '@compiler/index';
+import { CacheKey, CompilerOptions, VuReact } from '@compiler/index';
 import { PathFilter } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import { formatHHMMSS } from '@utils/date';
@@ -33,6 +33,7 @@ export async function resolveAction(root: string, options: CliOptions) {
   // 2. 进入监听模式
   if (finalConfig.watch) {
     setupWatcher(compiler, finalConfig, spinner);
+
     console.info(
       kleur.dim(`\n${formatHHMMSS()}`),
       kleur.bold(kleur.magenta('[hrm]')),
@@ -104,9 +105,7 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
     switch (event) {
       case 'add':
       case 'change':
-        spinner.start('Recompiling...');
         await onRecompile(event, filePath);
-        spinner.stop();
         break;
 
       case 'unlink':
@@ -116,57 +115,56 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions, spinner: Ora) 
     }
   });
 
-  const onRecompile = async (event: 'add' | 'change', filePath: string) => {
-    const result: { compilationUnit?: CompilationUnit; assetFile?: string } = {
-      compilationUnit: undefined,
-      assetFile: undefined,
-    };
+  const processors = {
+    '.vue': compiler.processSFC,
+    '.js': compiler.processScript,
+    '.ts': compiler.processScript,
+  };
 
+  const onRecompile = async (event: 'add' | 'change', filePath: string) => {
     const ext = path.extname(filePath);
 
-    if (ext === '.vue') {
-      const unit = await compiler.processSFC(filePath);
+    if (ext in processors) {
+      const fn = processors[ext as keyof typeof processors];
+      spinner.start('Recompiling...');
 
-      if (unit) {
-        unit.source = '';
+      const unit = await fn(filePath);
+      if (unit) await config.onChange?.(event, unit);
 
-        if (unit.output) {
-          unit.output.css.code = '';
-          unit.output.jsx.code = '';
-        }
-
-        result.compilationUnit = unit;
-      }
-    } else if (ext === '.js' || ext === '.ts') {
-      // todo
-    } else {
-      const { file } = await compiler.processAsset(filePath);
-      result.assetFile = file;
+      spinner.stop();
+      return;
     }
 
-    // 执行 onChange
-    await config.onChange?.(event, result);
+    // 仅复制
+    await compiler.processAsset(filePath);
   };
 
   const onRemoveFile = async (type: 'unlink' | 'unlinkDir', filePath: string) => {
-    const removeOutputPath = (type: CacheKey) => {
-      return compiler.removeOutputPath(filePath, type);
-    };
+    const ext = path.extname(filePath);
+    const remove = (type: CacheKey) => compiler.removeOutputPath(filePath, type);
 
     // 单个文件删除
     if (type === 'unlink') {
-      if (filePath.endsWith('.vue')) {
-        // 删除 Vue 文件对应的编译产物
-        await removeOutputPath(CacheKey.MAIN);
-      } else {
-        // 删除对应附属资产
-        await removeOutputPath(CacheKey.ASSET);
+      if (ext === '.vue') {
+        await remove(CacheKey.SFC);
+        return;
       }
-    } else if (type === 'unlinkDir') {
-      // 文件夹删除：尝试同时清理 Vue 产物和 资产产物
-      // 这里不需要判断 isVue，因为文件夹本身不带后缀
-      await removeOutputPath(CacheKey.MAIN);
-      await removeOutputPath(CacheKey.ASSET);
+
+      if (ext === '.js' || ext === '.ts') {
+        await remove(CacheKey.SCRIPT);
+        return;
+      }
+
+      await remove(CacheKey.ASSET);
+      return;
+    }
+
+    // 文件夹删除：尝试同时清理 Vue 产物和 资产产物
+    // 这里不需要判断 isVue，因为文件夹本身不带后缀
+    if (type === 'unlinkDir') {
+      await remove(CacheKey.SFC);
+      await remove(CacheKey.SCRIPT);
+      await remove(CacheKey.ASSET);
     }
   };
 }
