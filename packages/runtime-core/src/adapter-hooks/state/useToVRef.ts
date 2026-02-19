@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useProxySubscribe } from '../shared/hooks';
 import { isProxy, isRef, markAsRefState } from '../shared/proxy';
-import { RefState, WrapRef, useRefState } from './useRefState';
+import { RefState, WrapRef, useVRef } from './useVRef';
 
 export type ToRefState<T> =
   | ToRefValueState<T>
@@ -37,7 +37,7 @@ export type ToRefPropertyState<T, K extends keyof T> = T extends object
  *   bar: 2
  * })
  *
- * const fooRef = useToRefState(state, 'foo')
+ * const fooRef = useToVRef(state, 'foo')
  *
  * // mutating the ref updates the original
  * fooRef.value++
@@ -52,22 +52,22 @@ export type ToRefPropertyState<T, K extends keyof T> = T extends object
  * @param defaultValue - (Optional) The default value for the property ref.
  * @returns A reactive reference state corresponding to the input pattern.
  */
-export function useToRefState<T>(value: T): ToRefValueState<T>;
+export function useToVRef<T>(value: T): ToRefValueState<T>;
 
-export function useToRefState<T>(value: () => T): Readonly<RefState<T>>;
+export function useToVRef<T>(value: () => T): Readonly<RefState<T>>;
 
-export function useToRefState<T extends object, K extends keyof T>(
+export function useToVRef<T extends object, K extends keyof T>(
   object: T,
   key: K,
 ): ToRefPropertyState<T, K>;
 
-export function useToRefState<T extends object, K extends keyof T>(
+export function useToVRef<T extends object, K extends keyof T>(
   object: T,
   key: K,
   defaultValue: T[K],
 ): ToRefPropertyState<T, K>;
 
-export function useToRefState<T, K extends keyof T>(
+export function useToVRef<T, K extends keyof T>(
   value: T | (() => T),
   key?: K,
   defaultValue?: T[K],
@@ -102,7 +102,7 @@ export function useToRefState<T, K extends keyof T>(
     return value as ToRefValueState<T>;
   }
 
-  return useRefState(value as T);
+  return useVRef(value as T);
 }
 
 // 将对象的某个属性关联到 Ref 的 .value 上
