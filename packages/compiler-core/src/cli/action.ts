@@ -1,7 +1,6 @@
 import { CacheKey, CompilerOptions, VuReact } from '@compiler/index';
 import { PathFilter } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
-import { formatHHMMSS } from '@utils/date';
 import chokidar from 'chokidar';
 import { existsSync } from 'fs';
 import kleur from 'kleur';
@@ -35,7 +34,7 @@ export async function resolveAction(root: string, options: CliOptions) {
     setupWatcher(compiler, finalConfig, spinner);
 
     console.info(
-      kleur.dim(`\n${formatHHMMSS()}`),
+      kleur.dim(`\n${new Date().toLocaleTimeString()}`),
       kleur.bold(kleur.magenta('[hrm]')),
       kleur.gray(`Watching...\n`),
     );
