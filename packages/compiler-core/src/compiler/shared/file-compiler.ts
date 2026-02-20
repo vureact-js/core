@@ -97,6 +97,9 @@ export class FileCompiler extends BaseCompiler {
     // 3. 资源拷贝处理管线 (剩余无需处理的文件)
     await this.assetPipeline();
 
+    // 4. 在所有文件编译完成后，初始化并执行项目生成逻辑
+    await this.genProject();
+
     await this.options.onSuccess?.();
 
     if (this.skippedCount) {
@@ -320,25 +323,51 @@ export class FileCompiler extends BaseCompiler {
   }
 
   /**
-   * 拷贝源项目 src 中所包含的其他附属文件资源（非 .vue 文件）
+   * 拷贝源项目中所包含的其他附属文件资源（非 .vue 和已处理过的 .ts/.js 文件）
    */
   private async assetPipeline() {
+    const rootPath = this.getProjectRoot();
     const inputPath = this.getInputPath();
 
-    const assetFiles = this.scanFiles(inputPath, (p) => {
-      const ext = path.extname(p);
-      return ext !== '.vue' && ext !== '.js' && ext !== '.ts';
+    // 排除与编译器生成的冲突文件
+    const templateExclusions = [
+      'package.json',
+      'tsconfig.json',
+      'vite.config.ts',
+      'index.html',
+      'README.md',
+      'README.zh.md',
+    ];
+
+    const assetFiles = this.scanFiles(rootPath, (p) => {
+      const filename = path.basename(p);
+      const ext = path.extname(p).toLowerCase();
+      const relativeToRoot = path.relative(rootPath, p);
+
+      // 规则 A: 排除模板冲突文件 (仅限根目录的同名文件)
+      if (!relativeToRoot.includes(path.sep) && templateExclusions.includes(filename)) {
+        return false;
+      }
+
+      // 规则 B: Vue 文件全网封杀，绝对不作为 Asset 拷贝
+      if (ext === '.vue') return false;
+
+      // 规则 C: 智能区分源码与配置文件
+      const isInsideSrc = p.startsWith(inputPath + path.sep);
+      if (isInsideSrc && ['.js', '.ts', '.jsx', '.tsx'].includes(ext)) {
+        // 在 src 里面的 ts/js 归 ScriptPipeline 管，这里不拷贝
+        return false;
+      }
+      // 如果是根目录下的 ts/js (如 tailwind.config.js)，会绕过上面的 if，作为 Asset 被安全拷贝
+
+      return true;
     });
 
+    // 执行拷贝逻辑
     const absFiles = new Set(assetFiles.map((f) => this.getAbsPath(f)));
-
-    // 加载资产缓存
     const cache = await this.loadCache(CacheKey.ASSET);
 
-    // 清理缓存中已删除的资产及其输出文件
     await this.cleanupOldOutput(CacheKey.ASSET, (u) => !absFiles.has(u.file));
-
-    // 更新缓存
     await this.updateAssetCaches(assetFiles, cache);
   }
 

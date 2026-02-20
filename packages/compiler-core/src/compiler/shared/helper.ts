@@ -6,6 +6,7 @@ import { genHashByXXH } from '@utils/hash';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
+import { ProjectGenerator } from './project-generator';
 import {
   CacheCheckResult,
   CacheKey,
@@ -118,21 +119,19 @@ export class Helper {
   protected shouldSkipPath(filePath: string): boolean {
     const baseName = path.basename(filePath);
 
-    // 检查基础名称排除
-    const defaultExcludes = ['node_modules', 'dist', 'build', '.git'];
+    // 精确列出要跳过的系统目录，移除 baseName.startsWith('.')
+    const defaultExcludes = ['node_modules', 'dist', 'build', '.git', '.DS_Store'];
 
-    if (defaultExcludes.includes(baseName) || baseName.startsWith('.')) {
+    if (defaultExcludes.includes(baseName)) {
       return true;
     }
 
-    // 检查是否为输出目录
+    // 检查是否为输出目录 (.vureact)
     const absoluteWorkspace = path.resolve(this.getProjectRoot(), this.workspaceDir);
-
     if (filePath.startsWith(absoluteWorkspace)) {
       return true;
     }
 
-    // 使用路径过滤器检查 glob 模式
     return this.pathFilter.shouldExclude(filePath);
   }
 
@@ -362,5 +361,13 @@ export class Helper {
       logger.printAll(logging);
       logger.clear();
     }
+  }
+
+  /**
+   * 在所有文件编译完成后，初始化并执行项目生成逻辑
+   */
+  protected async genProject() {
+    const generator = new ProjectGenerator(this.getOuputPath());
+    await generator.generate();
   }
 }
