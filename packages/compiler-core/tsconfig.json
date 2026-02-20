@@ -19,5 +19,6 @@
       "@plugins/*": ["src/plugins/*"]
     }
   },
-  "include": ["src", "**/__tests__", "**/__tests__/**/*"]
+  "include": ["src", "**/__tests__", "**/__tests__/**/*"],
+  "exclude": ["src/templates"]
 }
