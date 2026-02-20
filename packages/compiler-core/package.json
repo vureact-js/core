@@ -17,7 +17,8 @@
   },
   "files": [
     "bin",
-    "lib"
+    "lib",
+    "src/templates"
   ],
   "keywords": [
     "vue",
