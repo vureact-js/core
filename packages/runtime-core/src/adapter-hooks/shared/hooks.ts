@@ -1,5 +1,4 @@
-import { DependencyList, EffectCallback, useEffect, useRef, useSyncExternalStore } from 'react';
-import isEqual from 'react-fast-compare';
+import { useSyncExternalStore } from 'react';
 import { Snapshot, getVersion, snapshot, subscribe } from 'valtio/vanilla';
 import { getValtioProxyTarget } from './proxy';
 
@@ -28,33 +27,4 @@ export function useProxySubscribe<T extends object>(
       ? () => (isValtioProxy ? snapshot(valtioTarget as object) : (target as Snapshot<T>))
       : getSnapshot,
   ) as any;
-}
-
-/** @private */
-export function useDeepEffect(fn: EffectCallback, deps: DependencyList) {
-  const lastDeps = useRef<DependencyList>([]);
-
-  if (!lastDeps.current || !isEqual(lastDeps.current, deps)) {
-    lastDeps.current = deps;
-  }
-
-  useEffect(() => {
-    const cleanup = fn();
-    return () => {
-      if (typeof cleanup === 'function') {
-        cleanup();
-      }
-    };
-  }, lastDeps.current);
-}
-
-/** @private */
-export function useIsFirstMount(): boolean {
-  const isFirstMount = useRef(true);
-
-  useEffect(() => {
-    isFirstMount.current = false;
-  }, []);
-
-  return isFirstMount.current;
 }
