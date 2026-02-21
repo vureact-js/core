@@ -3,7 +3,7 @@ export * from './Reactive';
 export * from './Readonly';
 export * from './ToRaw';
 export * from './toVRef';
-export * from './Updated';
 export * from './VRef';
 export * from './Watch';
 export * from './WatchEffect';
+
