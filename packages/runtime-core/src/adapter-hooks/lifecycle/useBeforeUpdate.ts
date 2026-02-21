@@ -15,5 +15,5 @@ export function useBeforeUpdate(fn: EffectCallback, deps?: DependencyList): void
     }
 
     return executeEffect(fn);
-  }, deps);
+  }, deps || []);
 }

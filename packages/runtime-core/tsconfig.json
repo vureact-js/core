@@ -3,10 +3,10 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "rootDir": "src",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"]
-  },
-  "paths": {
-    "@src/*": ["src/*"]
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "paths": {
+      "@src/*": ["src/*"]
+    }
   },
   "include": ["src", "**/__tests__", "**/__tests__/**/*"]
 }

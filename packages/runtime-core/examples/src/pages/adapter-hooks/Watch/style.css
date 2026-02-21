@@ -1,0 +1,62 @@
+.p-example-container {
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin: 20px auto;
+  max-width: 450px;
+  padding: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.p-example-container h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.p-example-container .card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.p-example-container .highlight {
+  color: #0ea5e9;
+  font-weight: 700;
+}
+
+.p-example-container .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+/* 按钮样式：透明背景，仅边框 */
+.p-example-container button {
+  background: transparent;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.25s ease;
+}
+
+/* Hover 样式：无背景色，仅边框和文字变蓝 */
+.p-example-container button:hover {
+  background: transparent;
+  border-color: #0ea5e9;
+  color: #0ea5e9;
+  transform: translateY(-1px);
+}
+
+.p-example-container p {
+  margin: 6px 0;
+  font-size: 14px;
+  line-height: 1.6;
+}

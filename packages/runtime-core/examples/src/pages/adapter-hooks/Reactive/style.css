@@ -1,0 +1,12 @@
+.h-example-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 20px auto;
+
+  button {
+    margin-right: 12px;
+  }
+}

@@ -43,7 +43,7 @@ export class BaseCompiler extends Helper {
   }
 
   compile(source: string, filename: string): CompilationResult {
-    const { plugins, logging } = this.options;
+    const { plugins } = this.options;
 
     const fileId = this.genHash(filename);
     const genOptions = this.prepareGenerateOptions(filename);

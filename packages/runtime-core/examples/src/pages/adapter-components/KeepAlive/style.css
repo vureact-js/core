@@ -1,0 +1,46 @@
+.b-example-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.keep-alive-card {
+  border: 2px solid #42b983; /* Vue 风格绿 */
+  padding: 15px;
+  border-radius: 8px;
+  background: #f8fffb;
+  margin-top: 15px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tabs button.active {
+  background-color: #42b983;
+  color: white;
+  border-color: #33a06f;
+}
+
+.log-window {
+  background: #2c3e50;
+  color: #42b983;
+  padding: 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  height: 200px;
+  overflow-y: auto;
+}
+
+input {
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 200px;
+}

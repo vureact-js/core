@@ -21,7 +21,7 @@ import {
 } from './preprocess';
 import {
   resolveArrowFnDeps,
-  resolveEffect,
+  resolveComplexAdapter,
   resolveProvide,
   resolveSimpleAdapter,
   resolveUnanalyzedArrow,
@@ -58,7 +58,7 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         resolveSimpleAdapter,
         resolveArrowFnDeps,
         resolveUnanalyzedArrow,
-        resolveEffect,
+        resolveComplexAdapter,
         resolveTemplateRef,
         resolveProvide,
       ],

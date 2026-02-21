@@ -15,5 +15,5 @@ export function useUpdated(fn: EffectCallback, deps?: DependencyList): void {
     }
 
     return executeEffect(fn);
-  }, deps);
+  }, deps || []);
 }

@@ -1,0 +1,58 @@
+.m-example-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  margin: 20px auto;
+  max-width: 450px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.m-example-container h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+
+.m-example-container .card {
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.m-example-container .highlight {
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.m-example-container .button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+/* 按钮样式：透明背景，仅边框 */
+.m-example-container button {
+  background: transparent;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  color: #475569;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 6px 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover 样式：保持透明背景，仅改变边框和文字颜色 */
+.m-example-container button:hover {
+  background: transparent;
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.m-example-container p {
+  margin: 4px 0;
+  font-size: 14px;
+}

@@ -1,8 +1,7 @@
+// core/packages/runtime-core/jest.config.cjs
 module.exports = {
   displayName: 'runtime-core',
-
   preset: 'ts-jest',
-
   testEnvironment: 'jsdom',
 
   transform: {
@@ -11,7 +10,15 @@ module.exports = {
 
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
 
-  transformIgnorePatterns: ['/node_modules/'],
+  // 强制使用相同版本的react和react-dom
+  moduleNameMapper: {
+    '^react$': require.resolve('react'),
+    '^react-dom$': require.resolve('react-dom'),
+    '^react-dom/client$': require.resolve('react-dom/client'),
+  },
+
+  // 确保不忽略react相关模块
+  transformIgnorePatterns: ['/node_modules/(?!(react|react-dom|@testing-library)/)'],
 
   testMatch: ['<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx)'],
 

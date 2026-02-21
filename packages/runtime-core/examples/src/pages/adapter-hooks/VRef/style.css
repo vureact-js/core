@@ -1,0 +1,51 @@
+/* 容器类名按字母 K 开头排序 */
+.k-example-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: sans-serif;
+  margin: 20px auto;
+  max-width: 450px;
+  padding: 20px;
+}
+
+.k-example-container .button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.k-example-container .card {
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 10px;
+  padding: 15px;
+}
+
+.k-example-container .highlight {
+  color: #2563eb;
+  font-weight: bold;
+}
+
+.k-example-container .hint {
+  color: #94a3b8;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.k-example-container button {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: all 0.2s;
+}
+
+.k-example-container button:hover {
+  border-color: #94a3b8;
+}
+
+.k-example-container h3 {
+  margin-top: 0;
+  color: #1e293b;
+}

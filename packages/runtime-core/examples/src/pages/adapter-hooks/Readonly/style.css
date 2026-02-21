@@ -1,0 +1,62 @@
+/* 容器类名按字母 L 开头排序 */
+.l-example-container {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-family: sans-serif;
+  margin: 20px auto;
+  max-width: 450px;
+  padding: 20px;
+}
+
+.l-example-container .card {
+  background: #f8fafc;
+  border-radius: 8px;
+  margin-top: 10px;
+  padding: 15px;
+}
+
+.l-example-container .highlight {
+  color: #2563eb;
+  font-weight: bold;
+}
+
+.l-example-container .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* 按钮样式：无背景色，仅边框 */
+.l-example-container button {
+  background: transparent; /* 强制背景透明 */
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: all 0.2s;
+  color: #475569;
+}
+
+/* Hover 样式：无背景色，仅边框和文字变色 */
+.l-example-container button:hover {
+  background: transparent;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.l-example-container button.error-btn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.l-example-container h3 {
+  margin-top: 0;
+  color: #1e293b;
+}
+
+.l-example-container p {
+  margin: 8px 0;
+  color: #334155;
+}

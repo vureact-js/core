@@ -4,6 +4,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["node", "vite/client"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -21,5 +22,5 @@
     },
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
-  "include": ["src"]
+  "include": ["src", "vite.config.ts"]
 }

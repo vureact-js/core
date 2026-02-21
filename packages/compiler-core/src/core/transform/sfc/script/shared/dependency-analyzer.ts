@@ -15,12 +15,23 @@ const TRACE_MAX_DEPTH = 20;
  * @param parentPath 当前节点的路径，用于确定作用域边界
  */
 export function analyzeDeps(
-  node: t.Expression | t.BlockStatement,
+  node: t.ArrowFunctionExpression | t.FunctionExpression | t.Identifier,
   ctx: ICompilationContext,
   parentPath?: NodePath,
 ): t.ArrayExpression {
   if (!parentPath) {
     return t.arrayExpression([]);
+  }
+
+  // 如果不是有效的函数表达式，不分析依赖
+  if (!t.isArrowFunctionExpression(node) && !t.isFunctionExpression(node)) {
+    const deps: t.Expression[] = [];
+    // 标识符直接作为依赖
+    if (t.isIdentifier(node)) {
+      deps.push(node);
+    }
+
+    return t.arrayExpression(deps);
   }
 
   const reactiveStateApis = getReactiveStateApis();
@@ -36,7 +47,7 @@ export function analyzeDeps(
   }
 
   traverse(
-    node,
+    node.body,
     {
       'MemberExpression|OptionalMemberExpression'(memberPath) {
         const path = memberPath as NodePath<t.MemberExpression | t.OptionalMemberExpression>;

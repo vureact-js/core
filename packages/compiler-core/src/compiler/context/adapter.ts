@@ -10,9 +10,9 @@ export interface CompilationInput extends Partial<ICompilationContext> {
 export class CompilationAdapter {
   static createContext(input: CompilationInput): CompilationContext {
     const ctx = createCompilationCtx();
-    const inputType = CompilationAdapter.detectInputType(input.source, input.filename);
+    const inputType = CompilationAdapter.detectInputType(input.filename);
 
-    if (inputType.startsWith('script')) {
+    if (inputType.startsWith('script-')) {
       // 初始化script-only的上下文，无需模板和style上下文数据
       ctx.data.inputType = inputType;
       ctx.data.templateData = {} as any;
@@ -25,7 +25,7 @@ export class CompilationAdapter {
     return ctx;
   }
 
-  static detectInputType(source: string, filename: string): FileInputType {
+  static detectInputType(filename: string): FileInputType {
     const ext = path.extname(filename);
     if (ext === '.vue') return 'sfc';
     if (ext === '.ts') return 'script-ts';

@@ -1,6 +1,7 @@
-import { type DependencyList, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { type DependencyList, useCallback, useRef } from 'react';
 import { executeEffect } from '../shared/executeEffect';
 import type { Destructor, EffectCallback, FlushTiming, OnCleanup } from '../shared/types';
+import { useFlushEffect } from './shared';
 import type { WatchStopHandle } from './useWatch';
 
 export interface WatchEffectOptions {
@@ -81,38 +82,8 @@ export function handleEffect(
 
       return runCleanup;
     },
-    effectDeps,
+    effectDeps as DependencyList,
   );
 
   return onStop;
-}
-
-function resolveFlushEffectHook(flush: FlushTiming): 'effect' | 'layout' {
-  return flush === 'post' ? 'effect' : 'layout';
-}
-
-function useFlushEffect(
-  flush: FlushTiming,
-  effectFn: () => Destructor,
-  deps?: DependencyList,
-): void {
-  const hookType = resolveFlushEffectHook(flush);
-
-  useLayoutEffect(() => {
-    if (hookType !== 'layout') {
-      return;
-    }
-
-    return effectFn();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-
-  useEffect(() => {
-    if (hookType !== 'effect') {
-      return;
-    }
-
-    return effectFn();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
 }

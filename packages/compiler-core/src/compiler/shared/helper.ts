@@ -1,7 +1,6 @@
 import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { logger } from '@shared/logger';
 import { normalizePath, PathFilter } from '@shared/path';
-import { formatHHMMSS } from '@utils/date';
 import { genHashByXXH } from '@utils/hash';
 import fs from 'fs';
 import kleur from 'kleur';
@@ -42,7 +41,7 @@ export class Helper {
 
   protected print(...message: any[]) {
     if (this.compilerOpts.watch) {
-      const time = formatHHMMSS();
+      const time = new Date().toLocaleTimeString();
       // eslint-disable-next-line no-console
       console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
       return;

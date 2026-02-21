@@ -25,7 +25,7 @@ export function resolveArrowFnDeps(ctx: ICompilationContext, ast: ParseResult): 
         return;
       }
 
-      const deps = analyzeDeps(node.body, ctx, path);
+      const deps = analyzeDeps(node, ctx, path);
       if (!deps.elements.length) return;
 
       const newNode = createUseCallback(node, deps);

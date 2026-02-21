@@ -32,10 +32,8 @@ export const ADAPTER_HOOKS = {
     lifecycle: {
       onBeforeMount: 'useBeforeMount',
       onBeforeUnMount: 'useBeforeUnMount',
-      onBeforeUpdate: 'useBeforeUpdate',
       onMounted: 'useMounted',
       onUnmounted: 'useUnmounted',
-      onUpdated: 'useUpdated',
     },
     useActived: 'useActived',
     useDeactivated: 'useDeactivated',
@@ -50,6 +48,10 @@ export const ADAPTER_HOOKS = {
       watchEffect: 'useWatchEffect',
       watchPostEffect: 'useWatchPostEffect',
       watchSyncEffect: 'useWatchSyncEffect',
+    },
+    lifecycle: {
+      onBeforeUpdate: 'useBeforeUpdate',
+      onUpdated: 'useUpdated',
     },
   },
 } as const;

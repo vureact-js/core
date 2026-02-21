@@ -15,8 +15,6 @@ import { resolveDefineSlotsIface } from './resolve-slot';
  * 处理和收集 defineProps、defineEmits 、defineSlots 的 TS 类型注释
  */
 export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
-  if (ctx.inputType !== 'sfc') return {};
-
   const isTS = ctx.scriptData.lang.startsWith('ts');
 
   return {
@@ -25,8 +23,8 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
       const name = (node.callee as t.Identifier).name;
 
       if (
-        !isCalleeNamed(node, MACRO_API_NAMES.props) ||
-        !isCalleeNamed(node, MACRO_API_NAMES.emits) ||
+        !isCalleeNamed(node, MACRO_API_NAMES.props) &&
+        !isCalleeNamed(node, MACRO_API_NAMES.emits) &&
         !isCalleeNamed(node, MACRO_API_NAMES.slots)
       ) {
         return;

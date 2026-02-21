@@ -1,0 +1,41 @@
+.c-example-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.async-card {
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 15px;
+  border-radius: 4px;
+  color: #166534;
+}
+
+.loading-spinner {
+  color: #666;
+  font-style: italic;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.log-panel {
+  margin-top: 15px;
+  padding: 10px;
+  background: #1e1e1e;
+  color: #00ff00;
+  font-family: monospace;
+  font-size: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}

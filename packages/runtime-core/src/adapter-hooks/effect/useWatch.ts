@@ -1,15 +1,9 @@
+import { type DependencyList, RefObject, useCallback, useRef } from 'react';
 import isEqual from 'react-fast-compare';
-import {
-  type DependencyList,
-  type MutableRefObject,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-} from 'react';
-import { useUnmounted } from '../lifecycle/useUnmounted';
 import { executeEffect } from '../shared/executeEffect';
 import type { Destructor, FlushTiming, OnCleanup } from '../shared/types';
+import { unwrapRef } from '../state/useVRef';
+import { useFlushEffect } from './shared';
 
 export type WatchSource<T = any> = T | (() => T);
 
@@ -74,8 +68,6 @@ export function useWatch<T>(
     runCleanup();
   }, [runCleanup]);
 
-  useUnmounted(onStop);
-
   const watchDeps: DependencyList = [
     ...resolvedSource.deps,
     options?.immediate,
@@ -126,13 +118,7 @@ export function useWatch<T>(
         return;
       }
 
-      runAndRegisterCleanup(
-        callbackRef.current,
-        nextValue,
-        previousValue,
-        cleanupRef,
-        runCleanup,
-      );
+      runAndRegisterCleanup(callbackRef.current, nextValue, previousValue, cleanupRef, runCleanup);
 
       currentValueRef.current = nextValue;
 
@@ -151,7 +137,7 @@ function runAndRegisterCleanup<T>(
   callback: WatchCallback<T, T>,
   value: T,
   oldValue: T | undefined,
-  cleanupRef: MutableRefObject<Destructor>,
+  cleanupRef: RefObject<Destructor>,
   runCleanup: () => void,
 ) {
   runCleanup();
@@ -168,7 +154,7 @@ function runAndRegisterCleanup<T>(
 
 function resolveWatchDeps<T>(source: WatchSource<T>): ResolvedWatchSource<T> {
   if (typeof source === 'function') {
-    const value = (source as () => T)();
+    const value = unwrapRef<any>((source as () => T)()) as T;
     return {
       value,
       deps: [value],
@@ -177,16 +163,18 @@ function resolveWatchDeps<T>(source: WatchSource<T>): ResolvedWatchSource<T> {
   }
 
   if (Array.isArray(source)) {
+    const value = source.map(unwrapRef) as T;
     return {
-      value: source as T,
-      deps: source as unknown as DependencyList,
+      value,
+      deps: value as DependencyList,
       isMultiSource: true,
     };
   }
 
+  const value = unwrapRef(source as any) as T;
   return {
-    value: source,
-    deps: [source],
+    value,
+    deps: [value],
     isMultiSource: false,
   };
 }
@@ -318,20 +306,12 @@ function isEqualByDepthInternal(
   return true;
 }
 
-function hasSeenPair(
-  a: object,
-  b: object,
-  seenPairs: WeakMap<object, WeakSet<object>>,
-): boolean {
+function hasSeenPair(a: object, b: object, seenPairs: WeakMap<object, WeakSet<object>>): boolean {
   const seenSet = seenPairs.get(a);
   return !!seenSet?.has(b);
 }
 
-function markSeenPair(
-  a: object,
-  b: object,
-  seenPairs: WeakMap<object, WeakSet<object>>,
-): void {
+function markSeenPair(a: object, b: object, seenPairs: WeakMap<object, WeakSet<object>>): void {
   let seenSet = seenPairs.get(a);
 
   if (!seenSet) {
@@ -340,49 +320,4 @@ function markSeenPair(
   }
 
   seenSet.add(b);
-}
-
-function resolveFlushEffectHook(flush: FlushTiming): 'effect' | 'layout' {
-  return flush === 'post' ? 'effect' : 'layout';
-}
-
-function useFlushEffect(flush: FlushTiming, effectFn: () => Destructor, deps: DependencyList): void {
-  const hookType = resolveFlushEffectHook(flush);
-
-  useLayoutEffect(() => {
-    if (hookType !== 'layout') {
-      return;
-    }
-
-    return effectFn();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-
-  useEffect(() => {
-    if (hookType !== 'effect') {
-      return;
-    }
-
-    return effectFn();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
-}
-
-export function createWatchStopHandle(onStopped?: () => void) {
-  const stoppedRef = useRef(false);
-
-  const onStop = useCallback(() => {
-    if (stoppedRef.current) {
-      return;
-    }
-
-    stoppedRef.current = true;
-    onStopped?.();
-  }, [onStopped]);
-
-  return {
-    stop: stoppedRef.current,
-    stoppedRef,
-    onStop,
-  };
 }

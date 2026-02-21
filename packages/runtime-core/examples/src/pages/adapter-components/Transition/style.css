@@ -1,0 +1,154 @@
+/* 基础容器样式 */
+.e-example-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+.component-boundary {
+  margin-top: 20px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdfdfd;
+  border: 1px solid #eee;
+}
+
+.box {
+  width: 200px;
+  padding: 20px;
+  background: #42b883;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+}
+
+/* 1. Fade 过渡效果 */
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0; /* 初始过渡外观 */
+}
+.fade-enter-active {
+  opacity: 1; /* 激活时的过渡外观 */
+  transition: opacity 0.5s ease;
+}
+.fade-leave-active {
+  opacity: 0; /* 离开时的过渡外观 */
+  transition: opacity 0.5s ease;
+}
+
+/* 2. Slide + Mode 过渡效果 */
+/* 初始过渡外观 */
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+/* 激活时的过渡外观 */
+.slide-fade-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.3s ease-out;
+}
+/* 离开时的过渡外观 */
+.slide-fade-leave-active {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.v-btn {
+  padding: 10px 30px;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+}
+.v-btn.on {
+  background: #42b883;
+}
+.v-btn.off {
+  background: #35495e;
+}
+
+.animate__animated {
+  animation-duration: 0.8s;
+}
+
+/* 3. 模拟 Animate.css 类 */
+.animate__tada {
+  animation: tada 0.8s;
+}
+.animate__bounceOut {
+  animation: tada 0.8s reverse;
+}
+
+@keyframes tada {
+  from {
+    transform: scale3d(1, 1, 1);
+  }
+  10%,
+  20% {
+    transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg);
+  }
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+  }
+  40%,
+  60%,
+  80% {
+    transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+  }
+  to {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.status-bar {
+  background: #eee;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #35495e;
+}
+
+.hook-box {
+  padding: 20px;
+  background: #fff;
+  border: 2px solid #42b883;
+  color: #42b883;
+  font-weight: bold;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.bounce-enter-from,
+.bounce-leave-to {
+  transform: scale(0);
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.5s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

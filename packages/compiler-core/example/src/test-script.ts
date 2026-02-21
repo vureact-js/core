@@ -25,7 +25,7 @@ function increment() {
 // 测试 watchEffect
 import { watchEffect } from 'vue';
 
-watchEffect(() => {
+watchEffect(function () {
   console.log('Count changed:', count.value);
 });
 
