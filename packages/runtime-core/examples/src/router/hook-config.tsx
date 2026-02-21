@@ -12,7 +12,6 @@ import {
   ToRawBasic,
   ToVRefBasic,
   ToVRefsBasic,
-  UpdatedBasic,
   VRefBasic,
   VRefObject,
   WatchAdvanced,
@@ -80,10 +79,6 @@ export const routeConfigForHooks = {
         { path: 'basic', element: <WatchEffectBasic /> },
         { path: 'flush', element: <WatchEffectFlush /> },
       ],
-    },
-    {
-      path: 'useUpdated',
-      children: [{ path: 'basic', element: <UpdatedBasic /> }],
     },
   ],
 } as RouteObject;
