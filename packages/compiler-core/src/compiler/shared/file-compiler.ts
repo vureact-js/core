@@ -97,9 +97,6 @@ export class FileCompiler extends BaseCompiler {
     // 3. 资源拷贝处理管线 (剩余无需处理的文件)
     await this.assetPipeline();
 
-    // 4. 在所有文件编译完成后，初始化并执行项目生成逻辑
-    await this.genProject();
-
     await this.options.onSuccess?.();
 
     if (this.skippedCount) {
