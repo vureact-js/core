@@ -5,7 +5,6 @@ import { genHashByXXH } from '@utils/hash';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
-import { ProjectGenerator } from './project-generator';
 import {
   CacheCheckResult,
   CacheKey,
@@ -360,13 +359,5 @@ export class Helper {
       logger.printAll(logging);
       logger.clear();
     }
-  }
-
-  /**
-   * 在所有文件编译完成后，初始化并执行项目生成逻辑
-   */
-  protected async genProject() {
-    const generator = new ProjectGenerator(this.getOuputPath());
-    await generator.generate();
   }
 }
