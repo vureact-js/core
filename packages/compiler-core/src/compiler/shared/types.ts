@@ -32,6 +32,38 @@ export interface CompilerOptions {
      * @default 'dist'
      */
     outDir?: string;
+
+    /**
+     * Whether to automatically call Vite to initialize a standard
+     * React project environment before compilation.
+     * @default false
+     */
+    bootstrapVite?:
+      | boolean
+      | {
+          /**
+           * @default 'react-ts'
+           */
+          template: 'react-ts' | 'react';
+        };
+
+    /**
+     * Specify asset files that do not need to be copied.
+     * They can be filenames or paths, using fuzzy matching.
+     * @default
+     * [
+     *  'package.json',
+     *  'package-lock.json',
+     *  'pnpm-lock.yaml',
+     *  'index.html',
+     *  'tsconfig.',
+     *  'vite.config.',
+     *  'eslint.config.',
+     *  'readme.',
+     *  'vue.',
+     * ]
+     */
+    ignoreAssets?: string[];
   };
 
   /**

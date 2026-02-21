@@ -2,6 +2,7 @@ import { normalizePath } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import fs from 'fs';
 import kleur from 'kleur';
+import ora from 'ora';
 import path from 'path';
 import { BaseCompiler } from './base-compiler';
 import {
@@ -40,7 +41,7 @@ import {
  *   watch: true,
  *   output: {
  *    workspace: '.vureact',
- *    outDir: 'dist'
+ *    outDir: 'react-app'
  *   },
  * });
  *
@@ -71,6 +72,7 @@ import {
  */
 export class FileCompiler extends BaseCompiler {
   private skippedCount = 0;
+  spinner = ora();
 
   /**
    * 创建文件系统编译器实例
@@ -88,6 +90,13 @@ export class FileCompiler extends BaseCompiler {
     // eslint-disable-next-line no-console
     console.info('\n\n', kleur.yellow(`${kleur.bold('vureact')} v${this.version}`), '\n');
 
+    // 0. 环境初始化管线：如果开启了 bootstrapVite 且环境不存在，则创建
+    if (this.options.output?.bootstrapVite) {
+      await this.bootstrapViteEnvironment();
+    }
+
+    this.spinner.start('Compiling...');
+
     // 1. Vue文件处理管线
     await this.sfcPipeline();
 
@@ -103,6 +112,85 @@ export class FileCompiler extends BaseCompiler {
       console.info(kleur.green('✔'), kleur.gray(`Skipped ${this.skippedCount} unchanged file(s)`));
       this.skippedCount = 0;
     }
+  }
+
+  /**
+   * 利用 Vite 官方脚手架创建标准 React 环境
+   */
+  private async bootstrapViteEnvironment() {
+    const workspaceDir = this.getWorkspaceDir();
+    const targetDir = this.getOuputPath();
+    const pkgPath = path.join(targetDir, 'package.json');
+
+    // 如果 package.json 已存在，说明环境初始化过了
+    // 直接 return，避免覆盖用户的自定义配置，同时也保护增量编译的输出产物
+    if (fs.existsSync(pkgPath)) {
+      return;
+    }
+
+    this.spinner.start('Bootstrapping Vite React environment...');
+    await fs.promises.mkdir(workspaceDir, { recursive: true });
+
+    try {
+      this.resolveViteCreateApp();
+    } catch (err) {
+      this.spinner.stop();
+      this.print(kleur.red('✖ Failed to bootstrap Vite environment. Please check npm/network.'));
+      console.error(err);
+      return;
+    }
+
+    // 1. 清除 Vite 默认生成的 src 占位文件，给 Vureact 的产物腾挪空间
+    // const srcPath = path.join(targetDir, 'src');
+    // if (fs.existsSync(srcPath)) {
+    //   await fs.promises.rm(srcPath, { recursive: true, force: true });
+    //   await fs.promises.mkdir(srcPath);
+    // }
+
+    // 2. 深度合并 package.json
+    const rootPkgPath = path.join(this.getProjectRoot(), 'package.json');
+    const vitePkg = JSON.parse(await fs.promises.readFile(pkgPath, 'utf-8'));
+
+    // 智能剔除原项目中的 Vue 强绑定包，避免带到 React 环境
+    const removeVuePackages = (deps: Record<string, any>) => {
+      for (const name in deps) {
+        if (name.includes('vue') || name.includes('pinia') || name.includes('vite')) {
+          delete deps[name];
+        }
+      }
+    };
+
+    // 继承业务依赖，并注入 React 运行时必需的组件
+    const mergeDeps = (o1: Record<string, any>, o2: Record<string, any>, isDev = false) => {
+      const obj = {
+        ...o1,
+        ...o2,
+      };
+      if (!isDev) obj['@vureact-runtime'] = '^1.0.0';
+      return obj;
+    };
+
+    // 读取原 package.json
+    let rootPkg: Record<string, any> = {};
+    if (fs.existsSync(rootPkgPath)) {
+      rootPkg = JSON.parse(await fs.promises.readFile(rootPkgPath, 'utf-8'));
+    }
+
+    // 执行合并写入
+
+    const newDeps = mergeDeps(rootPkg.dependencies, vitePkg.dependencies);
+    const newDevDeps = mergeDeps(rootPkg.devDependencies, vitePkg.devDependencies, true);
+
+    removeVuePackages(newDeps);
+    removeVuePackages(newDevDeps);
+
+    vitePkg.dependencies = newDeps;
+    vitePkg.devDependencies = newDevDeps;
+
+    await fs.promises.writeFile(pkgPath, JSON.stringify(vitePkg, null, 2), 'utf-8');
+
+    this.spinner.succeed('Standard Vite React environment initialized.');
+    console.info();
   }
 
   private async sfcPipeline() {
@@ -325,33 +413,32 @@ export class FileCompiler extends BaseCompiler {
   private async assetPipeline() {
     const rootPath = this.getProjectRoot();
     const inputPath = this.getInputPath();
-
-    // 排除与编译器生成的冲突文件
-    const templateExclusions = [
-      'package.json',
-      'tsconfig.json',
-      'vite.config.ts',
-      'index.html',
-      'README.md',
-      'README.zh.md',
-    ];
+    const exclusions = this.getIgnoreAssets();
 
     const assetFiles = this.scanFiles(rootPath, (p) => {
-      const filename = path.basename(p);
-      const ext = path.extname(p).toLowerCase();
-      const relativeToRoot = path.relative(rootPath, p);
+      // 默认跳过跟项目无关的路径
+      if (this.shouldSkipPath(p)) return false;
 
-      // 规则 A: 排除模板冲突文件 (仅限根目录的同名文件)
-      if (!relativeToRoot.includes(path.sep) && templateExclusions.includes(filename)) {
+      const relativeToRoot = normalizePath(this.relativePath(p));
+      const filename = path.basename(p).toLowerCase();
+      const ext = path.extname(p).toLowerCase();
+
+      if (!this.options.output?.ignoreAssets) {
+        // 规则 A: 排除模板冲突文件 (仅限根目录的同名文件)
+        if (!relativeToRoot.includes(path.sep) && exclusions.has(filename)) {
+          return false;
+        }
+      } else if (exclusions.has(relativeToRoot) || exclusions.has(filename)) {
+        // 规则 B: 如果指定了 ignoreAssets 则由用户控制
         return false;
       }
 
-      // 规则 B: Vue 文件全网封杀，绝对不作为 Asset 拷贝
+      // 规则 C: Vue 文件全网封杀，绝对不作为 Asset 拷贝
       if (ext === '.vue') return false;
 
-      // 规则 C: 智能区分源码与配置文件
+      // 规则 D: 智能区分源码与配置文件
       const isInsideSrc = p.startsWith(inputPath + path.sep);
-      if (isInsideSrc && ['.js', '.ts', '.jsx', '.tsx'].includes(ext)) {
+      if (isInsideSrc && (ext === '.js' || ext === '.ts')) {
         // 在 src 里面的 ts/js 归 ScriptPipeline 管，这里不拷贝
         return false;
       }

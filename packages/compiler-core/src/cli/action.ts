@@ -4,7 +4,7 @@ import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import chokidar from 'chokidar';
 import { existsSync } from 'fs';
 import kleur from 'kleur';
-import ora, { Ora } from 'ora';
+import { Ora } from 'ora';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { CliOptions } from './types';
@@ -18,20 +18,17 @@ export async function resolveAction(root: string, options: CliOptions) {
   const finalConfig = mergeCliConfig(projectRoot, options, userConfig);
 
   const compiler = new VuReact(finalConfig);
-  const spinner = ora();
 
   // 1. 首次全量运行
-  spinner.start('Compiling...');
-
   await compiler.execute();
   const duration = calcElapsedTime(start);
 
   console.info();
-  spinner.succeed(kleur.bold(kleur.green(`Compilation successfully in ${duration}.`)));
+  compiler.spinner.succeed(kleur.bold(kleur.green(`Compilation successfully in ${duration}.`)));
 
   // 2. 如果是 watch 模式，进入监听模式
   if (finalConfig.watch) {
-    setupWatcher(compiler, finalConfig, spinner);
+    setupWatcher(compiler, finalConfig, compiler.spinner);
 
     console.info(
       kleur.dim(`\n${new Date().toLocaleTimeString()}`),
@@ -67,9 +64,9 @@ function mergeCliConfig(
   userConfig: CompilerOptions,
 ): CompilerOptions {
   return {
+    ...userConfig,
     root: projectRoot,
     input: options.input || userConfig.input,
-    watch: options.watch || userConfig.watch,
     recursive: options.recursive ?? userConfig.recursive,
 
     exclude: options.exclude
@@ -79,8 +76,10 @@ function mergeCliConfig(
       : userConfig.exclude,
 
     output: {
+      ...userConfig.output,
       workspace: options.workspace || userConfig.output?.workspace,
       outDir: options.outDir || userConfig.output?.outDir,
+      bootstrapVite: options.bootstrapVite || userConfig.output?.bootstrapVite,
     },
 
     format: {

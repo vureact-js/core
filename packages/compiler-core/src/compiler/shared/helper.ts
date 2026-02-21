@@ -2,6 +2,7 @@ import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { logger } from '@shared/logger';
 import { normalizePath, PathFilter } from '@shared/path';
 import { genHashByXXH } from '@utils/hash';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
@@ -24,6 +25,7 @@ export class Helper {
   private compilerOpts: CompilerOptions;
   private pathFilter: PathFilter;
   private workspaceDir = '.vureact';
+  private outDir = 'react-app';
 
   constructor(opts: CompilerOptions) {
     this.compilerOpts = opts;
@@ -36,18 +38,6 @@ export class Helper {
     const excludePatterns = PathFilter.withDefaults(opts.exclude || []);
 
     this.pathFilter = new PathFilter(excludePatterns);
-  }
-
-  protected print(...message: any[]) {
-    if (this.compilerOpts.watch) {
-      const time = new Date().toLocaleTimeString();
-      // eslint-disable-next-line no-console
-      console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
-      return;
-    }
-
-    // eslint-disable-next-line no-console
-    console.info(...message);
   }
 
   /**
@@ -70,9 +60,16 @@ export class Helper {
    * 获取输出文件的路径
    */
   protected getOuputPath(): string {
+    return path.resolve(this.getWorkspaceDir(), this.getOutDirName());
+  }
+
+  private getOutDirName() {
     const { output } = this.compilerOpts;
-    const outDir = output?.outDir || 'dist';
-    return path.resolve(this.getProjectRoot(), this.workspaceDir, outDir);
+    return output?.outDir || this.outDir;
+  }
+
+  protected getWorkspaceDir(): string {
+    return path.resolve(this.getProjectRoot(), this.workspaceDir);
   }
 
   /**
@@ -81,6 +78,26 @@ export class Helper {
   protected getSourcePath(outputPath: string): string {
     const relativePath = path.relative(this.getOuputPath(), outputPath);
     return path.resolve(this.getProjectRoot(), relativePath);
+  }
+
+  protected getIgnoreAssets(): Set<string> {
+    const { output } = this.compilerOpts;
+
+    if (output?.ignoreAssets) {
+      return new Set(output.ignoreAssets.map(normalizePath));
+    }
+
+    return new Set([
+      'package.json',
+      'package-lock.json',
+      'pnpm-lock.yaml',
+      'index.html',
+      'tsconfig.',
+      'vite.config.',
+      'eslint.config.',
+      'readme.',
+      'vue.',
+    ]);
   }
 
   /**
@@ -125,7 +142,7 @@ export class Helper {
     }
 
     // 检查是否为输出目录 (.vureact)
-    const absoluteWorkspace = path.resolve(this.getProjectRoot(), this.workspaceDir);
+    const absoluteWorkspace = this.getWorkspaceDir();
     if (filePath.startsWith(absoluteWorkspace)) {
       return true;
     }
@@ -134,7 +151,7 @@ export class Helper {
   }
 
   /**
-   * 自动根据项目结构推导 dist 目录下的对应位置
+   * 自动根据项目结构推导 react-app 目录下的对应位置
    */
   protected resolveOutputPath(filePath: string, extname?: string): string {
     const newRelativePath = extname
@@ -345,6 +362,21 @@ export class Helper {
     }
   }
 
+  protected resolveViteCreateApp() {
+    const { output } = this.compilerOpts;
+    const config = output?.bootstrapVite;
+    const template = typeof config === 'object' ? config.template : 'react-ts';
+    const outDirName = this.getOutDirName();
+
+    // 执行 vite 创建命令，使用 --template xxx 跳过交互式选择
+    const cmd = `npm create vite@latest ${outDirName} -- --template ${template}`;
+
+    execSync(cmd, {
+      cwd: this.getWorkspaceDir(),
+      stdio: 'ignore', // 隐藏 create-vite 内部的输出日志，保持终端整洁
+    });
+  }
+
   protected printCompileInfo(file: string, duration: string) {
     const { logging, watch } = this.compilerOpts;
 
@@ -359,5 +391,17 @@ export class Helper {
       logger.printAll(logging);
       logger.clear();
     }
+  }
+
+  protected print(...message: any[]) {
+    if (this.compilerOpts.watch) {
+      const time = new Date().toLocaleTimeString();
+      // eslint-disable-next-line no-console
+      console.info(kleur.dim(time), kleur.cyan(kleur.bold('[vureact]')), ...message);
+      return;
+    }
+
+    // eslint-disable-next-line no-console
+    console.info(...message);
   }
 }

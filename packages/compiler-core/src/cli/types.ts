@@ -5,12 +5,16 @@ export interface CliOptions extends Omit<
   'output' | 'format' | 'generate' | 'logging' | 'onSuccess' | 'onChange'
 > {
   /**
+   * @default false
+   */
+  bootstrapVite?: boolean;
+  /**
    * @default '.vureact'
    */
   workspace?: string;
 
   /**
-   * @default 'dist'
+   * @default 'react-app'
    */
   outDir?: string;
 
