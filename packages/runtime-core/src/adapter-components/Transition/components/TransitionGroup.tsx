@@ -1,7 +1,6 @@
 import {
   Children,
   HTMLAttributes,
-  HTMLElementType,
   memo,
   PropsWithChildren,
   ReactElement,
@@ -11,28 +10,28 @@ import {
   useRef,
 } from 'react';
 import { TransitionGroup as ReactTransitionGroup } from 'react-transition-group';
-import { BaseTransitionProps, useTransitionConfig } from '../hooks/useTransitionConfig';
-import BaseTransition, { TransitionProps, TransitionState } from './BaseTransition';
+import { CommonTransitionProps, useTransitionConfig } from '../hooks/useTransitionConfig';
+import BaseTransition, { BaseTransitionProps, TransitionState } from './BaseTransition';
 
-export interface TransitionGroupProps extends Omit<BaseTransitionProps, 'mode'> {
+export interface TransitionGroupProps extends Omit<CommonTransitionProps, 'mode'> {
   /**
-   * By default, it will render a div as the container,
-   * which can be customized using this prop.
+   * 如果未定义，不会生成额外容器。
    */
-  tag?: HTMLElementType | null;
+  tag?: string;
   /**
-   * Used to add HTML attributes to the DOM container
-   */
-  htmlProps?: HTMLAttributes<HTMLElement>;
-  /**
-   * Used to customize the CSS class names applied during the transition.
-   * For example: `moveClass="xxx"`
+   * 用于自定义过渡期间被应用的 CSS class。
+   * 仅用于重排位移动画，不影响 enter/leave 过渡类名。
    */
   moveClass?: string;
+  /**
+   * 用于为DOM容器添加HTML属性
+   */
+  htmlProps?: HTMLAttributes<HTMLElement>;
 }
 
 /**
  * React adapter for Vue's built-in component `<transition-group>`.
+ * @see https://vureact-runtime.vercel.app/guide/components/transition-group
  */
 export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupProps>) => {
   const { children, htmlProps, tag = null, ...transitionProps } = props;
@@ -93,7 +92,7 @@ export const TransitionGroup = memo((props: PropsWithChildren<TransitionGroupPro
       return (
         <BaseTransition
           key={key}
-          {...(transitionConfig as TransitionProps)}
+          {...(transitionConfig as BaseTransitionProps)}
           __USE_THE_CONFIGURED_PROPS
           onStateChange={handleStateChange}
         >

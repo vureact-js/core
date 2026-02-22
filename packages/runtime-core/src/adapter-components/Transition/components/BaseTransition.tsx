@@ -13,12 +13,12 @@ import {
 import { CSSTransition } from 'react-transition-group';
 import { CSSTransitionProps } from 'react-transition-group/CSSTransition';
 import {
-  BaseTransitionProps,
+  CommonTransitionProps,
   TransitionConfig,
   useTransitionConfig,
 } from '../hooks/useTransitionConfig';
 
-export interface TransitionProps extends BaseTransitionProps {
+export interface BaseTransitionProps extends CommonTransitionProps {
   show?: boolean;
   in?: boolean;
   __USE_THE_CONFIGURED_PROPS?: boolean;
@@ -29,7 +29,7 @@ export type TransitionState = 'idle' | 'entering' | 'leaving';
 
 export default memo(BaseTransition);
 
-function BaseTransition(props: PropsWithChildren<TransitionProps>) {
+function BaseTransition(props: PropsWithChildren<BaseTransitionProps>) {
   const {
     children,
     show,

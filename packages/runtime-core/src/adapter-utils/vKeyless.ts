@@ -8,6 +8,8 @@ type Object = Record<string, any>;
 /**
  * vKeyless - Runtime helper for Vue `v-bind={...}` directive in React JSX
  *
+ * @see https://vureact-runtime.vercel.app/guide/utils/v-keyless
+ *
  * @param obj - object to bind
  * @returns Object that can be spread as JSX props
  *

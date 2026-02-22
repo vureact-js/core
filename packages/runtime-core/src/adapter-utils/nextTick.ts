@@ -1,5 +1,6 @@
 /**
  * React adapter for Vue's nextTick.
+ * @see https://vureact-runtime.vercel.app/guide/utils/next-tick
  */
 export function nextTick<T, R>(this: T, fn?: (this: T) => R | Promise<R>): Promise<R> {
   return new Promise((resolve) => {

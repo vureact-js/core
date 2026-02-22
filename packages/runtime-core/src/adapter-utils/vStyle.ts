@@ -5,17 +5,16 @@ export type VStyleItem = string | Record<string, any> | VStyleItem[] | null | un
 /**
  * vStyle - Runtime helper for the Vue `v-bind:style` directive in React JSX.
  *
- * @description
+ * @see https://vureact-runtime.vercel.app/guide/utils/v-style
  *
- * 1. Flattens arrays (supports multi-level nesting)
- * 2. Parses string-based styles into objects
- * 3. Deep-merges all styles (later ones override earlier ones)
+ * @remark
+ * - Flattens arrays (supports multi-level nesting)
+ * - Parses string-based styles into objects
+ * - Deep-merges all styles (later ones override earlier ones)
  *
  * @param {VStyleItem} target - The primary style source
  * @param {Array<VStyleItem>} mergeItems - Additional style sources to merge
  * @returns A React-compatible style object
- *
- * @see https://vureact-runtime.vercel.app/en/utils/vStyle
  */
 
 export function vStyle(target: VStyleItem, ...mergeItems: VStyleItem[]): object {

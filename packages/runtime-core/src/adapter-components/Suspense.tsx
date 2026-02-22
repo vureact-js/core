@@ -20,6 +20,7 @@ export interface SuspenseProps {
 
 /**
  * React adapter for Vue's built-in component `<suspense>`.
+ * @see https://vureact-runtime.vercel.app/guide/components/suspense
  */
 export const Suspense = memo((props: SuspenseProps) => {
   const {

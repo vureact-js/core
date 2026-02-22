@@ -30,6 +30,7 @@ type ResolvedWatchSource<T> = {
 
 /**
  * React adapter for Vue's watch API (manual dependencies mode).
+ * @see https://vureact-runtime.vercel.app/guide/hooks/watch
  */
 export function useWatch<T>(
   source: WatchSource<T>,

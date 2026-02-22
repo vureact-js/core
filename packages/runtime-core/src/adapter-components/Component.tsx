@@ -12,13 +12,15 @@ import { getReactType } from './utils';
 
 export interface ComponentProps extends Record<string, any> {
   /**
-   * Dynamic render target.
+   * 动态渲染目标。
+   * 支持原生标签名、组件类型、ReactElement。
    */
   is: string | ComponentType<any> | ReactElement;
 }
 
 /**
  * React adapter for Vue's built-in component `<component>`.
+ * @see https://vureact-runtime.vercel.app/guide/components/dynamic-components
  */
 export const Component = memo(
   ({ is, children, ...otherProps }: PropsWithChildren<ComponentProps>): ReactNode => {

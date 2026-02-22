@@ -3,6 +3,8 @@ export type ClsInputValue = string | Record<string, any> | ClsInputValue[];
 /**
  * vCls - Runtime helper for Vue v-bind:class directive in React JSX
  *
+ * @see https://vureact-runtime.vercel.app/guide/utils/v-cls
+ *
  * @param {ClsInputValue} value - Supports string, object, array, and mixed types
  * @param {ClsInputValue} mergeItem - Supplementary items to be merged (optional)
  * @returns Final class name string with space-separated, deduplicated, and trimmed values
@@ -14,8 +16,6 @@ export type ClsInputValue = string | Record<string, any> | ClsInputValue[];
  * vCls('base', { active: isActive })                       // "base active" or "base"
  * vCls({ foo: true }, 'bar')                               // "foo bar"
  * vCls(['a', 'b'], ['c', { d: true }])                     // "a b c d"
- *
- * @see https://vureact-runtime.vercel.app/en/utils/vCls
  */
 export function vCls(value: ClsInputValue, mergeItem?: ClsInputValue): string {
   const baseResult = processInput(value);

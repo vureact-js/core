@@ -21,6 +21,8 @@ export interface WritableComputedOptions<T> {
 /**
  * Creates a computed reference that automatically tracks reactive dependencies.
  *
+ * @see https://vureact-runtime.vercel.app/guide/hooks/computed
+ *
  * @example
  *
  * // Read-only computed ref

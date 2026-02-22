@@ -65,10 +65,8 @@ function mergeCliConfig(
 ): CompilerOptions {
   return {
     ...userConfig,
+    ...options,
     root: projectRoot,
-    input: options.input || userConfig.input,
-    recursive: options.recursive ?? userConfig.recursive,
-
     exclude: options.exclude
       ? Array.isArray(options.exclude)
         ? options.exclude

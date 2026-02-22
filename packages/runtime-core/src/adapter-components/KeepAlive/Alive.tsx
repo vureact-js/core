@@ -16,8 +16,17 @@ import { useDeactivated } from './hooks/useDeactivated';
 import { matchPattern } from './utils';
 
 interface KeepAliveProps {
+  /**
+   * 指定允许被缓存的组件匹配规则。
+   */
   include?: MatchPattern;
+  /**
+   * 指定禁止被缓存的组件匹配规则。
+   */
   exclude?: MatchPattern;
+  /**
+   * 最大缓存实例数。
+   */
   max?: number | string;
 }
 
@@ -61,6 +70,7 @@ function touchCacheEntry(
 
 /**
  * React adapter for Vue's built-in component `<keep-alive>`.
+ * @see https://vureact-runtime.vercel.app/guide/components/keep-alive
  */
 export const KeepAlive = memo((props: PropsWithChildren<KeepAliveProps>) => {
   const { include, exclude, max = 10, children } = props;

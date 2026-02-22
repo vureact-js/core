@@ -2,11 +2,36 @@ import { useCallback, useMemo } from 'react';
 import { CSSTransitionClassNames } from 'react-transition-group/CSSTransition';
 import { TransitionActions } from 'react-transition-group/Transition';
 
-export interface BaseTransitionProps {
+export interface CommonTransitionProps {
+  /**
+   * 控制离开/进入过渡的时序。
+   * 默认情况下是同时的。
+   */
+  mode?: 'in-out' | 'out-in';
+  /**
+   * 用于自动生成过渡 CSS class 名。
+   * 例如 `name: 'fade'` 将自动扩展为 `.fade-enter`、
+   * `.fade-enter-active` 等。
+   */
   name?: string;
+  /**
+   * 是否应用 CSS 过渡 class。
+   * 默认：true
+   */
   css?: boolean;
+  /**
+   * 是否对初始渲染使用过渡。
+   * 默认：false
+   */
   appear?: boolean;
+  /**
+   * 显式指定过渡的持续时间。
+   */
   duration?: number | { enter: number; leave: number };
+
+  /**
+   * 用于自定义过渡 class 的 prop。
+   */
   enterFromClass?: string;
   enterActiveClass?: string;
   enterToClass?: string;
@@ -16,6 +41,10 @@ export interface BaseTransitionProps {
   leaveFromClass?: string;
   leaveActiveClass?: string;
   leaveToClass?: string;
+
+  /**
+   * 事件钩子
+   */
   onBeforeEnter?: (el: HTMLElement) => void;
   onEnter?: (el: HTMLElement, done: () => void) => void;
   onAfterEnter?: (el: HTMLElement) => void;
@@ -45,7 +74,7 @@ const defaultDuration = 500;
 const diff = 10;
 
 export const getActualDuration = (
-  duration: BaseTransitionProps['duration'],
+  duration: CommonTransitionProps['duration'],
   type: 'enter' | 'leave',
 ) => {
   if (typeof duration === 'number') {
@@ -57,7 +86,7 @@ export const getActualDuration = (
   return Math.max(0, value - diff);
 };
 
-export function useTransitionConfig(props: BaseTransitionProps): TransitionConfig {
+export function useTransitionConfig(props: CommonTransitionProps): TransitionConfig {
   const {
     name = '',
     css = true,

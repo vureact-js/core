@@ -16,6 +16,8 @@ export type ReadonlyType<T> = Readonly<T> | Snapshot<T>;
  * If the target is not a reactive proxy, it deeply freezes the object to prevent mutations.
  * If the target is a reactive proxy, it returns a readonly version of the proxy.
  *
+ * @see https://vureact-runtime.vercel.app/guide/hooks/readonly
+ *
  * @example
  *
  * const stateProxy = useReactive({ a: 1 });

@@ -3,21 +3,22 @@ import { createPortal } from 'react-dom';
 
 export interface TeleportProps {
   /**
-   * Target container selector or element.
+   * 目标容器选择器或目标元素。
    */
   to: string | HTMLElement;
   /**
-   * Render in-place when true.
+   * true 时禁用传送并原地渲染。
    */
   disabled?: boolean;
   /**
-   * Delay rendering until mounted.
+   * true 时延迟到挂载后再执行传送。
    */
   defer?: boolean;
 }
 
 /**
  * React adapter for Vue's built-in component `<teleport>`.
+ * @see https://vureact-runtime.vercel.app/guide/components/teleport
  */
 export const Teleport = memo((props: PropsWithChildren<TeleportProps>) => {
   const { to, disabled, defer, children } = props;

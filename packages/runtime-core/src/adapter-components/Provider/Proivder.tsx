@@ -3,20 +3,11 @@ import { ContextKey, contextRegistry } from './registry';
 
 export interface ProviderProps<T, K = ContextKey> extends PropsWithChildren {
   /**
-   * Unique identifier for the context.
-   * Used by `useInject` hook to retrieve this value.
-   *
-   * @example "user", "theme", "settings"
+   * 上下文唯一标识。
    */
   name: K;
-
   /**
-   * The value to provide to all descendant components.
-   * Can be any JavaScript value including objects, arrays, or functions.
-   *
-   * @example { id: 1, name: "John" }
-   * @example "dark"
-   * @example () => fetchUser()
+   * 提供给后代组件的值。
    */
   value: T;
 }
@@ -26,6 +17,8 @@ export interface ProviderProps<T, K = ContextKey> extends PropsWithChildren {
  *
  * 该组件会根据传入的名称创建或获取对应的 React 上下文，
  * 并通过 `useInject` 钩子将值提供给所有子组件使用。
+ *
+ * @see https://vureact-runtime.vercel.app/guide/components/provider
  *
  * @param props - 组件属性
  * @param props.name - 上下文的唯一标识
@@ -40,8 +33,8 @@ export interface ProviderProps<T, K = ContextKey> extends PropsWithChildren {
  * <Provider name="theme" value="dark">
  *   <ChildComponent />
  * </Provider>
- * 
- * // 在子组件内接收 
+ *
+ * // 在子组件内接收
  * // value -> 'dark'
  * const value = useInject<string>('theme')
  * ```

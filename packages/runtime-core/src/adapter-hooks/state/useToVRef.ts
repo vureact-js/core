@@ -30,6 +30,8 @@ export type ToRefPropertyState<T, K extends keyof T> = T extends object
  * - **Proxy or Plain Value**: If a proxy or a plain value is provided, returns it as a ref state.
  *    - Subscribes to changes if the value is a proxy.
  *
+ * @see https://vureact-runtime.vercel.app/guide/hooks/to-v-ref
+ *
  * @example
  *
  * const state = useReactive({

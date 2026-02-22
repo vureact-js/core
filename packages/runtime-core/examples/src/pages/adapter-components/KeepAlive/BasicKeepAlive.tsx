@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeepAlive } from '../../../../../src';
+import { Component, KeepAlive } from '../../../../../src';
 
 const Counter = ({ name }: { name: string }) => {
   const [count, setCount] = useState(0);
@@ -31,7 +31,8 @@ export const BasicKeepAlive = () => {
       </div>
 
       <KeepAlive>
-        {view === 'A' ? <Counter key="A" name="A" /> : <Counter key="B" name="B" />}
+        {/* key 确保节点能够被动态切换 */}
+        <Component is={Counter} key={view} name={view} />
       </KeepAlive>
     </div>
   );

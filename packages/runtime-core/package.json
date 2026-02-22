@@ -7,7 +7,7 @@
   "types": "./dist/types/runtime-core.d.ts",
   "author": "Ryan John",
   "license": "MIT",
-  "description": "React adapter for Vue 3's built-in components, reactive APIs, partial template v-directive value processing utilities, as well as basic and commonly used Vue Router adaptations.",
+  "description": "React adapter for Vue 3's built-in components, reactive APIs, and template directive utilities. Bring Vue's developer experience to React applications.",
   "keywords": [
     "react",
     "vureact-runtime",

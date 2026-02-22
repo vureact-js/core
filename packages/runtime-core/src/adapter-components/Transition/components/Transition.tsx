@@ -1,7 +1,7 @@
 import { Children, memo, PropsWithChildren, ReactElement, useMemo } from 'react';
 import { TransitionGroup as ReactTransitionGroup, SwitchTransition } from 'react-transition-group';
 import { useTransitionConfig } from '../hooks/useTransitionConfig';
-import BaseTransition, { TransitionProps as BaseTransitionProps } from './BaseTransition';
+import BaseTransition, { BaseTransitionProps } from './BaseTransition';
 
 export interface TransitionProps extends PropsWithChildren<BaseTransitionProps> {
   mode?: 'in-out' | 'out-in';
@@ -9,6 +9,7 @@ export interface TransitionProps extends PropsWithChildren<BaseTransitionProps> 
 
 /**
  * React adapter for Vue's built-in component `<transition>`.
+ * @see https://vureact-runtime.vercel.app/guide/components/transition
  */
 export const Transition = memo((props: TransitionProps) => {
   const { mode, children, ...rest } = props;

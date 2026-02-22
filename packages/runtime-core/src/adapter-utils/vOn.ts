@@ -29,6 +29,8 @@ export function vOn<E = any>(event: string, handler: any, fullEventObj?: boolean
 /**
  * vOn - Runtime helper for Vue v-on directive in React JSX
  *
+ * @see https://vureact-runtime.vercel.app/guide/utils/v-on
+ *
  * @param event event name, allowing chaining with modifiers.
  * @param handler event handler.
  * @param fullEventObj return event name with handler.
