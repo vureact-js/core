@@ -48,6 +48,8 @@ The reactive implementation in this library is developed based on the mature [va
 
 ## Quick Start
 
+For more detailed tutorials, please visit [vureact-runtime](https://vureact-runtime.vercel.app/en).
+
 ### Installation
 
 ```bash
@@ -90,6 +92,14 @@ function Counter(props: { value: number; onIncrement: () => any }) {
   );
 }
 ```
+
+## 🔗 Links
+
+- [GitHub Repository](https://github.com/vureact-js/core)
+- [npm Package](https://www.npmjs.com/package/@vureact/runtime-core)
+- [Documentation](https://vureact-runtime.vercel.app/en)
+- [Issue Tracker](https://github.com/vureact-js/core/issues)
+- [Contributing Guidelines](../../CONTRIBUTING.md)
 
 ### Dependencies
 

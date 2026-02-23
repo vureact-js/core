@@ -8,9 +8,9 @@
 
 `@vureact/runtime-core` 是 Vue 3 与 React 之间的桥梁，让 React 开发者无需脱离 React 技术生态，就能直接复用 Vue 优秀的内置组件（KeepAlive、Transition、Teleport）、响应式 API 以及模板指令范式。
 
-本库使用 [Valtio](https://github.com/pmndrs/valtio) 作为响应式引擎，提供高性能的 Proxy-based 响应式系统
+本库使用 [Valtio](https://github.com/pmndrs/valtio) 作为响应式引擎，提供高性能的 Proxy-based 响应式系统。
 
-## 解决了什么问题？
+## 说明
 
 ### 1. **组件复用性**
 
@@ -49,6 +49,8 @@
 ## 快速上手
 
 ### 安装
+
+更多详细教程请访问 [vureact-runtime](https://vureact-runtime.vercel.app)。
 
 ```bash
 npm i @vureact/runtime-core
@@ -90,6 +92,14 @@ function Counter(props: { value: number; onIncrement: () => any }) {
   );
 }
 ```
+
+## 🔗 链接
+
+- [GitHub 仓库](https://github.com/vureact-js/core)
+- [npm 包](https://www.npmjs.com/package/@vureact/runtime-core)
+- [文档](https://vureact-runtime.vercel.app)
+- [问题跟踪](https://github.com/vureact-js/core/issues)
+- [贡献指南](../../CONTRIBUTING.zh.md)
 
 ## 第三方依赖库
 
