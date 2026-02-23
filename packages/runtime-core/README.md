@@ -98,3 +98,7 @@ function Counter(props: { value: number; onIncrement: () => any }) {
 - [react-fast-compare](https://github.com/FormidableLabs/react-fast-compare)
 - [react-transition-group](https://github.com/reactjs/react-transition-group#readme)
 - [valtio](https://github.com/pmndrs/valtio)
+
+## 📄 License
+
+MIT © [Ryan John](./LICENSE)
