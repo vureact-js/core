@@ -1,0 +1,33 @@
+# This file defines who is responsible for reviewing changes to different parts of the codebase
+
+# Each line is a pattern followed by one or more GitHub usernames or team names
+
+# Core maintainers
+
+- @vureact-js/maintainers
+
+# Compiler-core package
+
+/packages/compiler-core/ @vureact-js/compiler-maintainers
+
+# Runtime-core package
+
+/packages/runtime-core/ @vureact-js/runtime-maintainers
+
+# Documentation
+
+README.md @vureact-js/docs-maintainers
+README.zh.md @vureact-js/docs-maintainers
+CONTRIBUTING.md @vureact-js/docs-maintainers
+CONTRIBUTING.zh.md @vureact-js/docs-maintainers
+
+# Configuration files
+
+package.json @vureact-js/maintainers
+pnpm-workspace.yaml @vureact-js/maintainers
+tsconfig*.json @vureact-js/maintainers
+*.config.\* @vureact-js/maintainers
+
+# GitHub workflows
+
+/.github/ @vureact-js/maintainers
