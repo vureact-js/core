@@ -1,6 +1,6 @@
 import { ArrayExpression } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_COMPS } from '@consts/adapters-map';
+import { ADAPTER_COMPS, ADAPTER_ROUTER_COMPS } from '@consts/adapters-map';
 import { PACKAGE_NAME } from '@consts/other';
 import { TemplateBlockIR, TemplateChildNodeIR } from '@src/core/transform/sfc/template';
 import { BabelExp, NodeTypes } from '@src/core/transform/sfc/template/shared/types';
@@ -120,5 +120,11 @@ function resolveBuiltInComponentImport(
   if (node.tag in ADAPTER_COMPS) {
     node.isBuiltIn = true;
     recordImport(ctx, PACKAGE_NAME.runtime, node.tag);
+    return;
+  }
+
+  if (node.tag in ADAPTER_ROUTER_COMPS) {
+    node.isBuiltIn = true;
+    recordImport(ctx, PACKAGE_NAME.router, node.tag);
   }
 }

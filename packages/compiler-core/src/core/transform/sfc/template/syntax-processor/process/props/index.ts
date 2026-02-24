@@ -10,6 +10,6 @@ export { resolveVIf } from './resolve-v-if';
 export { resolveVMemo } from './resolve-v-memo';
 export { resolveVModel } from './resolve-v-model';
 export { resolveVOn } from './resolve-v-on';
-export { type SlotPropsIR, resolveVSlotProp } from './resolve-v-slot-prop';
 export { resolveVShow } from './resolve-v-show';
+export { resolveVSlotProp, type SlotPropsIR } from './resolve-v-slot-prop';
 export { resolveVText } from './resolve-v-text';

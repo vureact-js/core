@@ -1,5 +1,4 @@
 export { resolveTemplateRef } from '../process/resolve-template-ref';
-export { lintRules } from './lint-rules';
 export { resolveAsyncComponent } from './resolve-async-component';
 export { resolveEmitCalls } from './resolve-emit-calls';
 export { resolveOptions } from './resolve-options';

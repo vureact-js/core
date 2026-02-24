@@ -22,16 +22,16 @@ export function resolveVSlotProp(
   _ir: TemplateBlockIR,
   ctx: ICompilationContext,
 ): SlotPropsIR {
-  const arg = node.arg as SimpleExpressionNode;
-  const exp = node.exp as SimpleExpressionNode;
+  const arg = node.arg as SimpleExpressionNode | undefined;
+  const exp = node.exp as SimpleExpressionNode | undefined;
 
   const isScoped = exp !== undefined;
-  const name = arg.content === 'default' ? 'children' : arg.content;
+  const name = !arg || arg.content === 'default' ? 'children' : arg.content;
 
   const content = !isScoped ? [] : undefined;
   const callback = isScoped
     ? {
-        arg: exp?.content ? `(${exp?.content})` : '()',
+        arg: exp?.content?.trim() ?? '',
         exp: [],
       }
     : undefined;
@@ -42,7 +42,7 @@ export function resolveVSlotProp(
     type: PropTypes.SLOT,
     name,
     rawName: node.rawName ?? 'default',
-    isStatic: arg.isStatic,
+    isStatic: arg?.isStatic ?? true,
     isScoped,
     content,
     callback,

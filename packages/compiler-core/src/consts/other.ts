@@ -1,7 +1,8 @@
 export const PACKAGE_NAME = {
   react: 'react',
   runtime: '@vureact/runtime-core',
-};
+  router: '@vureact/router',
+} as const;
 
 /** 导入 style 模块所有使用的别名 */
 export const STYLE_MODULE_NAME = '$style';
@@ -12,9 +13,6 @@ export const MACRO_API_NAMES = {
   emits: 'defineEmits',
   slots: 'defineSlots',
   options: 'defineOptions',
-  expose: 'defineExpose',
-  model: 'defineModel',
-  withDefaults: 'withDefaults',
 };
 
 /** Vue3 最常用、最核心的 $ 标识符 */

@@ -1,6 +1,7 @@
 import { parseExpression } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { logger } from '@shared/logger';
 import { TemplateChildNodeIR } from '@src/core/transform/sfc/template';
 import { SlotPropsIR } from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXChild } from '../../types';
@@ -34,7 +35,7 @@ export function buildSlotProp(
 
   const slotValue = nodeIR.isScoped
     ? t.arrowFunctionExpression(
-        [t.identifier(nodeIR.callback!.arg)],
+        buildSlotCallbackParams(nodeIR, ctx),
         convertJsxChildToExpression(jsxChild),
       )
     : jsxChild;
@@ -61,4 +62,31 @@ function convertSlotValueToExpression(nodeIR: t.ArrowFunctionExpression | JSXChi
   }
 
   return convertJsxChildToExpression(nodeIR);
+}
+
+function buildSlotCallbackParams(
+  nodeIR: SlotPropsIR,
+  ctx: ICompilationContext,
+): (t.Identifier | t.Pattern | t.RestElement)[] {
+  const rawArg = nodeIR.callback?.arg?.trim();
+  if (!rawArg) {
+    return [];
+  }
+
+  const source = rawArg.startsWith('(') ? `${rawArg} => null` : `(${rawArg}) => null`;
+
+  try {
+    const expression = parseExpression(source);
+    if (!t.isArrowFunctionExpression(expression)) {
+      return [];
+    }
+
+    return expression.params as (t.Identifier | t.Pattern | t.RestElement)[];
+  } catch {
+    logger.warn(`Failed to parse slot params "${rawArg}". Falling back to no-arg slot function.`, {
+      file: ctx.filename,
+    });
+
+    return [];
+  }
 }

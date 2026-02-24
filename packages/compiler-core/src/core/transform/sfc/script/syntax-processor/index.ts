@@ -8,7 +8,6 @@ import {
   resolveStaticHoisting,
 } from './postprocess';
 import {
-  lintRules,
   resolveAsyncComponent,
   resolveCompIProps,
   resolveEmitCalls,
@@ -20,6 +19,7 @@ import {
   resolveTemplateSlotIface,
 } from './preprocess';
 import {
+  lintRules,
   resolveArrowFnDeps,
   resolveComplexAdapter,
   resolveProvide,
@@ -43,7 +43,6 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
   vueSyntaxProcessor(ast, ctx, {
     preprocess: {
       applyBabel: [
-        lintRules,
         resolveOptions,
         resolveEmitsTopLevelTypes,
         resolveSlotsTopLevelTypes,
@@ -61,6 +60,7 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         resolveComplexAdapter,
         resolveTemplateRef,
         resolveProvide,
+        lintRules,
       ],
       excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],
     },

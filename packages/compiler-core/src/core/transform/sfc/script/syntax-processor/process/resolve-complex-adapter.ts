@@ -22,11 +22,13 @@ export function resolveComplexAdapter(ctx: ICompilationContext): TraverseOptions
 }
 
 function resolveEffect(path: NodePath<t.CallExpression>, ctx: ICompilationContext) {
-  resolveOnlyDeps(path, ctx, ADAPTER_HOOKS.complex.watchEffect);
+  const { standard } = ADAPTER_HOOKS.complex;
+  resolveOnlyDeps(path, ctx, standard.watchEffect);
 }
 
 function resolveLifecycle(path: NodePath<t.CallExpression>, ctx: ICompilationContext) {
-  resolveOnlyDeps(path, ctx, ADAPTER_HOOKS.complex.lifecycle);
+  const { standard } = ADAPTER_HOOKS.complex;
+  resolveOnlyDeps(path, ctx, standard.lifecycle);
 }
 
 function resolveOnlyDeps(

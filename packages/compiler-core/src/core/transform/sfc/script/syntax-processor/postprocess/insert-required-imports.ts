@@ -7,20 +7,33 @@ import { recordImport } from '@transform/shared';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
 export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions {
-  // 补上 memo 默认导入
+  // 总是确保 React.memo 导入
   recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.memo);
 
   let inserted = false;
 
   return {
+    // 增加 Program.exit 兜底注入 required imports（处理无 ImportDeclaration 的 SFC）
+    Program: {
+      exit(path) {
+        if (inserted) return;
+
+        const required = createRequiredImports(ctx);
+        if (!required.length) return;
+
+        path.unshiftContainer('body', required);
+        inserted = true;
+      },
+    },
+
     ImportDeclaration(path) {
       const { node } = path;
       const required = createRequiredImports(ctx);
       const module = node.source.value.toLowerCase();
-      const isVue = module === 'vue';
+      const isVueLike = module === 'vue' || module === 'vue-router';
 
       if (!inserted) {
-        if (isVue) {
+        if (isVueLike) {
           path.replaceWithMultiple(required);
         } else if (module === 'react') {
           path.insertAfter(required);
@@ -31,7 +44,7 @@ export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions
         inserted = true;
       }
 
-      if (isVue && required.length && !path.removed) {
+      if (isVueLike && !path.removed) {
         path.remove();
         return;
       }

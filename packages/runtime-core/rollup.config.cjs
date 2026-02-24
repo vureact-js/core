@@ -28,8 +28,8 @@ const manualChunks = (id) => {
   if (id.includes('adapter-utils')) return 'adapter-utils-shared';
 };
 
-const outputItem = (type = 'cjs', format = 'cjs') => ({
-  dir: `dist/${type}`,
+const outputItem = (type = 'js', format = 'cjs') => ({
+  dir: `dist/${type === 'js' ? 'cjs' : 'esm'}`,
   format,
   entryFileNames: `[name].${type}`, // 保持分包目录结构
   chunkFileNames: `chunks/[name]-[hash].${type}`, // 公共代码提取到 chunks 目录
@@ -54,7 +54,7 @@ export default [
   {
     input: entries,
 
-    output: [outputItem('cjs'), outputItem('mjs', 'es')],
+    output: [outputItem(), outputItem('esm.js', 'es')],
 
     external,
 

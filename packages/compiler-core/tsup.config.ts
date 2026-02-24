@@ -44,7 +44,7 @@ export default defineConfig({
   },
 
   onSuccess: async () => {
-    const cliFiles = ['lib/cli.mjs', 'lib/cli.cjs'];
+    const cliFiles = ['lib/cli.esm.js', 'lib/cli.js'];
 
     cliFiles.forEach((file) => {
       if (fs.existsSync(file)) {
@@ -61,7 +61,7 @@ export default defineConfig({
 
   outExtension({ format }) {
     return {
-      js: format === 'esm' ? '.mjs' : '.cjs',
+      js: format === 'esm' ? '.esm.js' : '.js',
     };
   },
 });
