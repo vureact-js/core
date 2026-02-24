@@ -79,7 +79,9 @@ export class Logger {
   // Render the header line and optional location block.
   private formatHeader(log: LogEntry): string {
     const label = log.level.toUpperCase();
-    const level = this.levelColor(log.level)(`${kleur.bold('[vureact]')} ${kleur.bgRed(label)}:`);
+    const level = this.levelColor(log.level)(
+      `${kleur.bold('[vureact]')} ${kleur.bgRed(kleur.black(label))}:`,
+    );
 
     if (log.level === 'info') {
       return `${level} ${log.message}\n`;
