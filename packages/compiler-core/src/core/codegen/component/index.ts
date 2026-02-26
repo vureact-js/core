@@ -108,7 +108,16 @@ export function generateComponent(
 ): GeneratorResult {
   const jsx = buildJSX(ir.template, ctx);
   const ast = buildScript(ir.script, ctx, jsx);
-  const { code } = babelGenerator(ast, options);
+
+  const { code } = babelGenerator(ast, {
+    // 配置 jsesc 避免 Unicode 转义
+    jsescOption: {
+      minimal: true, // 只转义必要的字符
+      quotes: 'single', // 使用单引号
+    },
+    minified: true,
+    ...options,
+  });
 
   const result: GeneratorResult = {
     ast,

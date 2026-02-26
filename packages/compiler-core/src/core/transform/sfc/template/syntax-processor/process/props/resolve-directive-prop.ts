@@ -1,4 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
+import { ADAPTER_ROUTER_COMPS } from '@consts/adapters-map';
 import { TemplateBlockIR } from '@src/core/transform/sfc/template';
 import {
   isVBind,
@@ -14,6 +15,7 @@ import {
 import { DirectiveNode, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { resolveDynamicAttributeProp } from './resolve-dynamic-attribute-prop';
+import { resolveRouterLinkVSlotProp } from './resolve-router-link-v-slot-prop';
 import { resolveVFor } from './resolve-v-for';
 import { resolveVHtml } from './resolve-v-html';
 import { resolveVIf } from './resolve-v-if';
@@ -99,6 +101,9 @@ export function resolveDirectiveProp(
       return resolveVOn(node, ir, ctx, nodeIR);
     }
     if (isVSlot(rawName)) {
+      if (nodeIR.tag === ADAPTER_ROUTER_COMPS.RouterLink) {
+        resolveRouterLinkVSlotProp(node, nodeIR,ctx);
+      }
       return true;
     }
   }

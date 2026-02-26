@@ -48,8 +48,12 @@ export function resolveSimpleAdapter(ctx: ICompilationContext): TraverseOptions 
       // 由于对应的适配 hook 在用法/功能/语义上完全模拟，因此直接替换函数调用名即可
       replaceCallName(node, adapter);
 
-      const pkg = routerAdapter ? PACKAGE_NAME.router : PACKAGE_NAME.runtime;
-      recordImport(ctx, pkg, adapter);
+      if (routerAdapter) {
+        if (!ctx.route) ctx.route = true;
+        recordImport(ctx, PACKAGE_NAME.router, adapter);
+      } else {
+        recordImport(ctx, PACKAGE_NAME.runtime, adapter);
+      }
     },
   };
 }

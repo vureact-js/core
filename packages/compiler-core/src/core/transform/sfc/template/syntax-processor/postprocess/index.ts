@@ -1,1 +1,1 @@
-export { resolveBuiltInComponentRules } from './resolve-built-in-component-rules';
+export { resolveComponentRules } from './resolve-component-rules';

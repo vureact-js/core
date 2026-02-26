@@ -20,6 +20,12 @@ export interface CompilerOptions {
    */
   input?: string;
 
+  /**
+   * Whether to enable build cache and reuse the previous cache results
+   * @default true
+   */
+  cache?: boolean;
+
   output?: {
     /**
      * Output the name of the root directory corresponding to the file's location.
@@ -36,7 +42,7 @@ export interface CompilerOptions {
     /**
      * Whether to automatically call Vite to initialize a standard
      * React project environment before compilation.
-     * @default false
+     * @default true
      */
     bootstrapVite?:
       | boolean

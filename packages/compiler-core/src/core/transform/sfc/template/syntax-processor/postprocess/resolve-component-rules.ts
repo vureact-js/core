@@ -7,7 +7,7 @@ import { ElementNodeIR } from '../process';
 import { resolveRouterLinkRules } from './resolve-router-link-rules';
 import { resolveTransitionRules } from './resolve-transition-rules';
 
-export function resolveBuiltInComponentRules(
+export function resolveComponentRules(
   _node: VueRootNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
@@ -29,12 +29,13 @@ function resolveElementChildrenRules(
     const nodeIR = child as ElementNodeIR;
 
     if (parentIR?.isBuiltIn) {
+      // 校验 Transition 子节点
       if (parentIR.tag == ADAPTER_COMPS.Transition) {
         resolveTransitionRules(nodeIR, parentIR, ir, ctx);
       }
     }
 
-    if (nodeIR.isBuiltIn) {
+    if (nodeIR.isRoute) {
       if (nodeIR.tag === ADAPTER_ROUTER_COMPS.RouterLink) {
         resolveRouterLinkRules(nodeIR, ctx);
       }

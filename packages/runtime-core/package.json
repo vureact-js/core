@@ -2,8 +2,8 @@
   "name": "@vureact/runtime-core",
   "version": "1.0.0",
   "type": "module",
-  "main": "./dist/cjs/runtime-core.cjs",
-  "module": "./dist/esm/runtime-core.mjs",
+  "main": "./dist/cjs/runtime-core.js",
+  "module": "./dist/esm/runtime-core.esm.js",
   "types": "./dist/types/runtime-core.d.ts",
   "author": "Ryan John",
   "license": "MIT",
@@ -19,23 +19,23 @@
   "exports": {
     ".": {
       "types": "./dist/types/runtime-core.d.ts",
-      "import": "./dist/esm/runtime-core.mjs",
-      "require": "./dist/cjs/runtime-core.cjs"
+      "import": "./dist/esm/runtime-core.esm.js",
+      "require": "./dist/cjs/runtime-core.js"
     },
     "./adapter-components": {
       "types": "./dist/types/adapter-components.d.ts",
-      "import": "./dist/esm/adapter-components.mjs",
-      "require": "./dist/cjs/adapter-components.cjs"
+      "import": "./dist/esm/adapter-components.esm.js",
+      "require": "./dist/cjs/adapter-components.js"
     },
     "./adapter-hooks": {
       "types": "./dist/types/adapter-hooks.d.ts",
-      "import": "./dist/esm/adapter-hooks.mjs",
-      "require": "./dist/cjs/adapter-hooks.cjs"
+      "import": "./dist/esm/adapter-hooks.esm.js",
+      "require": "./dist/cjs/adapter-hooks.js"
     },
     "./adapter-utils": {
       "types": "./dist/types/adapter-utils.d.ts",
-      "import": "./dist/esm/adapter-utils.mjs",
-      "require": "./dist/cjs/adapter-utils.cjs"
+      "import": "./dist/esm/adapter-utils.esm.js",
+      "require": "./dist/cjs/adapter-utils.js"
     }
   },
   "files": [

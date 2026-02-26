@@ -16,62 +16,56 @@ import { resolveTextNode } from './resolve-text-node';
 
 export function resolveTemplateChildren(
   node: VueRootNode,
-  ir: TemplateBlockIR,
+  nodeIR: TemplateBlockIR,
   ctx: ICompilationContext,
 ) {
-  resolveChildNodes(node, ir, ctx, null, ir.children);
+  resolveChildNodes(node, nodeIR, ctx, null, nodeIR.children);
 }
 
 export function resolveChildNodes(
   node: VueParentNode,
-  ir: TemplateBlockIR,
+  nodeIR: TemplateBlockIR,
   ctx: ICompilationContext,
   parentIR: ElementNodeIR | null,
   childrenIR: TemplateChildNodeIR[],
 ) {
-  for (const childNode of node.children) {
-    if (childNode.type === VueNodeTypes.ELEMENT) {
-      if (isSlotOutlet(childNode)) {
-        resolveSlotOutletNode(childNode, ir, ctx, parentIR, childrenIR);
+  for (const child of node.children) {
+    if (child.type === VueNodeTypes.ELEMENT) {
+      if (isSlotOutlet(child)) {
+        resolveSlotOutletNode(child, nodeIR, ctx, parentIR, childrenIR);
         continue;
       }
 
-      if (isTemplateVSlotNode(childNode)) {
+      if (isTemplateVSlotNode(child)) {
         if (parentIR) {
-          resolveTemplateVSlotNode(childNode, ir, ctx, parentIR);
+          resolveTemplateVSlotNode(child, nodeIR, ctx, parentIR);
         }
         continue;
       }
 
-      const elementIR = resolveElementNode(
-        childNode,
-        ir,
-        ctx,
-        parentIR,
-        childrenIR as ElementNodeIR[],
-      );
+      const elementIR = resolveElementNode(child, nodeIR, ctx, childrenIR as ElementNodeIR[]);
 
       childrenIR.push(elementIR);
 
-      if (childNode.children.length) {
-        resolveChildNodes(childNode, ir, ctx, elementIR, elementIR.children);
+      if (child.children.length) {
+        resolveChildNodes(child, nodeIR, ctx, elementIR, elementIR.children);
       }
 
       continue;
     }
 
-    if (childNode.type === VueNodeTypes.INTERPOLATION) {
-      resolveInterpolationNode(childNode, ir, ctx, childrenIR);
+    if (child.type === VueNodeTypes.INTERPOLATION) {
+      resolveInterpolationNode(child, nodeIR, ctx, childrenIR);
       continue;
     }
 
-    if (childNode.type === VueNodeTypes.TEXT) {
-      resolveTextNode(childNode, ir, ctx, childrenIR);
+    if (child.type === VueNodeTypes.TEXT) {
+      resolveTextNode(child, nodeIR, ctx, childrenIR);
       continue;
     }
 
-    if (childNode.type === VueNodeTypes.COMMENT) {
-      resolveCommentNode(childNode, ir, ctx, childrenIR);
+    if (child.type === VueNodeTypes.COMMENT) {
+      resolveCommentNode(child, nodeIR, ctx, childrenIR);
     }
   }
 }

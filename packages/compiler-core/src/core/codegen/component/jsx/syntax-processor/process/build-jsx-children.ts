@@ -13,10 +13,10 @@ export function buildJsxChildrenProcessor(
 }
 
 export function buildJsxChildren(
-  nodeIR: TemplateChildNodeIR[],
+  children: TemplateChildNodeIR[],
   ctx: ICompilationContext,
 ): JSXChild[] {
-  return nodeIR
+  return children
     .map((childNodeIR) => buildJsxNode(childNodeIR, ctx))
     .filter((childNodeIR): childNodeIR is JSXChild => !!childNodeIR);
 }

@@ -1,7 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { RootNode as VueRootNode } from '@vue/compiler-core';
 import { TemplateBlockIR } from '..';
-import { resolveBuiltInComponentRules } from './postprocess';
+import { resolveComponentRules } from './postprocess';
 import { resolveStyleModuleReference, resolveStyleScopeAttribute } from './preprocess';
 import { resolveTemplateChildren } from './process';
 
@@ -21,7 +21,7 @@ export function processVueTemplateSyntax(
   templateSyntaxProcessor(node, ir, ctx, {
     preprocess: [resolveStyleScopeAttribute, resolveStyleModuleReference],
     process: [resolveTemplateChildren],
-    postprocess: [resolveBuiltInComponentRules],
+    postprocess: [resolveComponentRules],
   });
 }
 

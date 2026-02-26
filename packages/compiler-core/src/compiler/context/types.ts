@@ -12,6 +12,8 @@ export interface ICompilationContext {
   inputType: FileInputType;
   /** 函数组件的 prop 参数名 */
   propField: string;
+  /** 是否使用了路由 */
+  route?: boolean;
 
   templateData: {
     lang?: string;

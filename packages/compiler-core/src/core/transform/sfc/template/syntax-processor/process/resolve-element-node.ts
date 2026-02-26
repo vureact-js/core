@@ -17,6 +17,7 @@ export interface ElementNodeIR extends BaseElementNodeIR {
   meta: Partial<ElementNodeIRMeta>;
   conditionIsHandled: boolean;
   isBuiltIn?: boolean;
+  isRoute?: boolean;
 }
 
 export interface BaseElementNodeIR {
@@ -72,10 +73,9 @@ export function resolveElementNode(
   node: VueElementNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
-  parentIR: ElementNodeIR | null,
   siblingNodesIR: ElementNodeIR[],
 ): ElementNodeIR {
-  const isComponent = resolveIsComponent(node);
+  const isComponent = getIsComponent(node);
   const tag = isComponent ? capitalize(camelCase(node.tag)) : node.tag;
 
   const nodeIR = createElementNodeIR({
@@ -85,10 +85,20 @@ export function resolveElementNode(
     loc: node.loc,
   });
 
-  resolveBuiltInComponentImport(nodeIR, ir, ctx);
-  resolveProps(node, ir, ctx, nodeIR, siblingNodesIR);
+  // 记录 Vue 内置组件
+  if (tag in ADAPTER_COMPS) {
+    nodeIR.isBuiltIn = true;
+    recordImport(ctx, PACKAGE_NAME.runtime, tag);
+  }
 
-  void parentIR;
+  // 记录 Vue Router 组件
+  if (tag in ADAPTER_ROUTER_COMPS) {
+    if (!ctx.route) ctx.route = true;
+    nodeIR.isRoute = true;
+    recordImport(ctx, PACKAGE_NAME.router, tag);
+  }
+
+  resolveProps(node, ir, ctx, nodeIR, siblingNodesIR);
 
   return nodeIR;
 }
@@ -104,27 +114,9 @@ export function createElementNodeIR(options: BaseElementNodeIR): ElementNodeIR {
   };
 }
 
-function resolveIsComponent(node: VueElementNode): boolean {
+function getIsComponent(node: VueElementNode): boolean {
   if (node.tagType !== ElementTypes.COMPONENT) {
     return camelCase(node.tag) !== node.tag;
   }
-
   return node.tagType === ElementTypes.COMPONENT;
-}
-
-function resolveBuiltInComponentImport(
-  node: ElementNodeIR,
-  _ir: TemplateBlockIR,
-  ctx: ICompilationContext,
-) {
-  if (node.tag in ADAPTER_COMPS) {
-    node.isBuiltIn = true;
-    recordImport(ctx, PACKAGE_NAME.runtime, node.tag);
-    return;
-  }
-
-  if (node.tag in ADAPTER_ROUTER_COMPS) {
-    node.isBuiltIn = true;
-    recordImport(ctx, PACKAGE_NAME.router, node.tag);
-  }
 }

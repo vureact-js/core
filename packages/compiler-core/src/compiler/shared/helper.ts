@@ -43,7 +43,7 @@ export class Helper {
   /**
    * 获取用户的项目根目录
    */
-  protected getProjectRoot(): string {
+  getProjectRoot(): string {
     const { root } = this.compilerOpts;
     return root || process.cwd();
   }
@@ -51,36 +51,44 @@ export class Helper {
   /**
    * 获取输入文件的路径
    */
-  protected getInputPath(): string {
+  getInputPath(): string {
     const { input } = this.compilerOpts;
     return path.resolve(this.getProjectRoot(), input || 'src');
   }
 
   /**
+   * 检查 input 路径是否是单个文件
+   */
+  isSingleFile(): boolean {
+    const inputPath = this.getInputPath();
+    return fs.existsSync(inputPath) && fs.statSync(inputPath).isFile();
+  }
+
+  /**
    * 获取输出文件的路径
    */
-  protected getOuputPath(): string {
+  getOuputPath(): string {
     return path.resolve(this.getWorkspaceDir(), this.getOutDirName());
   }
 
-  private getOutDirName() {
+  getOutDirName() {
     const { output } = this.compilerOpts;
     return output?.outDir || this.outDir;
   }
 
-  protected getWorkspaceDir(): string {
+  getWorkspaceDir(): string {
     return path.resolve(this.getProjectRoot(), this.workspaceDir);
   }
 
   /**
    * 根据相对输出路径反推源文件路径
    */
-  protected getSourcePath(outputPath: string): string {
+  getSourcePath(outputPath: string): string {
     const relativePath = path.relative(this.getOuputPath(), outputPath);
     return path.resolve(this.getProjectRoot(), relativePath);
   }
 
-  protected getIgnoreAssets(): Set<string> {
+  getIgnoreAssets(): Set<string> {
     const { output } = this.compilerOpts;
 
     if (output?.ignoreAssets) {
@@ -100,10 +108,14 @@ export class Helper {
     ]);
   }
 
+  getIsCache(): boolean {
+    return this.compilerOpts.cache ?? true;
+  }
+
   /**
    * 返回文件相对工作区的路径
    */
-  protected relativePath(filePath: string): string {
+  relativePath(filePath: string): string {
     return path.relative(this.getProjectRoot(), filePath);
   }
 
@@ -113,7 +125,7 @@ export class Helper {
    * @param ext 文件拓展名
    * @returns 返回文件的相对路径，不包含当前工作区路径
    */
-  protected replaceVueFileExt(filePath: string, ext: string): string {
+  replaceVueFileExt(filePath: string, ext: string): string {
     const relativePath = this.relativePath(filePath);
 
     // 替换扩展名，同时处理多个可能的扩展名情况
@@ -131,7 +143,7 @@ export class Helper {
   /**
    * 判断是否应该跳过不需要进行文件搜索的路径
    */
-  protected shouldSkipPath(filePath: string): boolean {
+  shouldSkipPath(filePath: string): boolean {
     const baseName = path.basename(filePath);
 
     // 精确列出要跳过的系统目录，移除 baseName.startsWith('.')
@@ -153,7 +165,7 @@ export class Helper {
   /**
    * 自动根据项目结构推导 react-app 目录下的对应位置
    */
-  protected resolveOutputPath(filePath: string, extname?: string): string {
+  resolveOutputPath(filePath: string, extname?: string): string {
     const newRelativePath = extname
       ? this.replaceVueFileExt(filePath, `.${extname}`)
       : this.relativePath(filePath);
@@ -166,7 +178,7 @@ export class Helper {
   /**
    * 格式化代码
    */
-  protected async formatCode({ code, fileInfo }: CompilationResult): Promise<string> {
+  async formatCode({ code, fileInfo }: CompilationResult): Promise<string> {
     const { format } = this.compilerOpts;
 
     if (!format?.enabled) return code;
@@ -188,7 +200,7 @@ export class Helper {
    * @param cached  缓存中的旧数据
    * @param getSource 获取文件内容的函数（仅在元数据不一致时才调用，避免多余 I/O）
    */
-  protected async checkCacheStatus(
+  async checkCacheStatus(
     current: FileMeta,
     cached: CacheMeta | undefined,
     getSource: () => Promise<string>,
@@ -215,14 +227,14 @@ export class Helper {
   /**
    * 对比相同两个文件的基础元数据
    */
-  protected compareFileMeta(a: FileMeta, b: FileMeta): boolean {
+  compareFileMeta(a: FileMeta, b: FileMeta): boolean {
     return a.fileSize === b.fileSize && a.mtime === b.mtime;
   }
 
   /**
    * 统一的写文件方法，包含自动创建目录
    */
-  protected async writeFileWithDir(filePath: string, content: string) {
+  async writeFileWithDir(filePath: string, content: string) {
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
     await fs.promises.writeFile(filePath, content, 'utf-8');
   }
@@ -231,17 +243,15 @@ export class Helper {
    * 加载指定文件的缓存内容
    * @param key 缓存键
    */
-  protected async loadCache(key: CacheKey.SFC): Promise<LoadedCache<Vue2ReactCacheMeta>>;
+  async loadCache(key: CacheKey.SFC): Promise<LoadedCache<Vue2ReactCacheMeta>>;
 
-  protected async loadCache(
-    key: CacheKey.SCRIPT | CacheKey.ASSET,
-  ): Promise<LoadedCache<FileCacheMeta>>;
+  async loadCache(key: CacheKey.SCRIPT | CacheKey.ASSET): Promise<LoadedCache<FileCacheMeta>>;
 
-  protected async loadCache(
+  async loadCache(
     key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.ASSET,
   ): Promise<LoadedCache<Vue2ReactCacheMeta | FileCacheMeta>>;
 
-  protected async loadCache(key: CacheKey) {
+  async loadCache(key: CacheKey) {
     const cacheFile = this.getCachePath();
     const defaultData = this.createCacheData(key);
 
@@ -263,7 +273,7 @@ export class Helper {
     }
   }
 
-  protected createCacheData(key: CacheKey): LoadedCache {
+  createCacheData(key: CacheKey): LoadedCache {
     return {
       key,
       target: [],
@@ -278,18 +288,22 @@ export class Helper {
   /**
    * 获取缓存文件路径
    */
-  protected getCachePath(): string {
+  getCachePath(): string {
     const filename = '_metadata';
     return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
   }
 
-  protected async saveCache(data: LoadedCache) {
+  async saveCache(data?: LoadedCache) {
+    if (!this.getIsCache() || !data) {
+      return;
+    }
+
     const { key, source, target } = data;
     source[key] = target as any[];
     await this.writeFileWithDir(this.getCachePath(), JSON.stringify(source));
   }
 
-  protected genHash(content: string) {
+  genHash(content: string) {
     return genHashByXXH(content);
   }
 
@@ -298,7 +312,7 @@ export class Helper {
    * @param dir 目标目录
    * @param filter 筛选指定的文件后缀名
    */
-  protected scanFiles(dir: string, filter: (file: string) => boolean): string[] {
+  scanFiles(dir: string, filter: (file: string) => boolean): string[] {
     const results: string[] = [];
 
     if (!fs.existsSync(dir)) {
@@ -330,11 +344,11 @@ export class Helper {
     return results;
   }
 
-  protected getAbsPath(filePath: string): string {
+  getAbsPath(filePath: string): string {
     return path.isAbsolute(filePath) ? filePath : path.resolve(this.getProjectRoot(), filePath);
   }
 
-  protected async getFileMeta(filePath: string): Promise<FileMeta> {
+  async getFileMeta(filePath: string): Promise<FileMeta> {
     const stats = await fs.promises.stat(filePath);
     return {
       fileSize: stats.size,
@@ -342,16 +356,14 @@ export class Helper {
     };
   }
 
-  protected async removeOutputFile(filePath: string, resolveOutputPath?: boolean) {
+  async removeOutputFile(filePath: string, resolveOutputPath?: boolean) {
     const path = resolveOutputPath ? this.resolveOutputPath(filePath) : filePath;
 
     if (!fs.existsSync(path)) return;
     await fs.promises.unlink(path);
-
-    this.print(kleur.yellow('Removed'), kleur.cyan(normalizePath(this.relativePath(path))));
   }
 
-  protected updateCache(targetFile: string, newData: any, cache: LoadedCache) {
+  updateCache(targetFile: string, newData: any, cache: LoadedCache) {
     const index = cache.target.findIndex((c) => c.file === targetFile);
 
     // 更新缓存单元
@@ -362,7 +374,7 @@ export class Helper {
     }
   }
 
-  protected resolveViteCreateApp() {
+  resolveViteCreateApp() {
     const { output } = this.compilerOpts;
     const config = output?.bootstrapVite;
     const template = typeof config === 'object' ? config.template : 'react-ts';
@@ -377,23 +389,44 @@ export class Helper {
     });
   }
 
-  protected printCompileInfo(file: string, duration: string) {
-    const { logging, watch } = this.compilerOpts;
-
-    this.print(
-      kleur.green('Compiled'),
-      kleur.gray(normalizePath(this.relativePath(file))),
-      watch ? kleur.dim(`(${duration})`) : '',
-    );
-
-    // 打印日志消息
-    if (logging?.enabled !== false && logger.getLogs().length) {
-      logger.printAll(logging);
-      logger.clear();
+  /**
+   * 获取需要排除编译的文件
+   */
+  getExcludes() {
+    if (!this.compilerOpts.exclude?.length) {
+      return PathFilter.withDefaults();
     }
+    return this.compilerOpts.exclude;
   }
 
-  protected print(...message: any[]) {
+  /**
+   * 打印 core 模块执行过程中收集的日志
+   */
+  printCoreLogs() {
+    const hasLogs = logger.getLogs().length > 0;
+    if (!hasLogs) return;
+
+    if (this.compilerOpts.logging) {
+      const { enabled, ...options } = this.compilerOpts.logging;
+      if (enabled ?? true) {
+        logger.printAll(options);
+      }
+    } else {
+      logger.printAll();
+    }
+
+    logger.clear();
+  }
+
+  printCompileInfo(file: string, duration: string) {
+    this.print(
+      kleur.green('Compiled'),
+      kleur.dim(normalizePath(this.relativePath(file))),
+      kleur.gray(`(${duration})`),
+    );
+  }
+
+  print(...message: any[]) {
     if (this.compilerOpts.watch) {
       const time = new Date().toLocaleTimeString();
       // eslint-disable-next-line no-console

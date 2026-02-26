@@ -1,18 +1,18 @@
 {
   "name": "@vureact/compiler-core",
   "version": "1.0.0",
-  "description": "This is a next-generation compiler framework that compiles Vue 3 syntax into runnable React 18+ code.",
+  "description": "Next Vue to React compiler, compiles Vue 3 syntax into runnable React 18+ code.",
   "author": "Ryan John",
   "license": "MIT",
   "type": "module",
-  "main": "./lib/compiler-core.cjs",
-  "module": "./lib/compiler-core.mjs",
+  "main": "./lib/compiler-core.js",
+  "module": "./lib/compiler-core.esm.js",
   "types": "./lib/compiler-core.d.ts",
   "exports": {
     ".": {
       "types": "./lib/compiler-core.d.ts",
-      "import": "./lib/compiler-core.mjs",
-      "require": "./lib/compiler-core.cjs"
+      "import": "./lib/compiler-core.esm.js",
+      "require": "./lib/compiler-core.js"
     }
   },
   "files": [
@@ -25,14 +25,15 @@
     "react",
     "vureact",
     "vue-to-react",
-    "vue-to-jsx",
-    "react-vue-like",
     "compiler",
     "transformer",
+    "vue3",
+    "react18",
+    "migration",
+    "incremental",
     "typescript",
     "jsx",
-    "tsx",
-    "esm"
+    "sfc"
   ],
   "homepage": "https://vureact.vercel.app/en",
   "repository": {

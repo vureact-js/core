@@ -17,6 +17,10 @@ export interface SlotPropsIR {
   };
 }
 
+/**
+ * 不能在 processRangeDirectives 里单独使用，
+ * 要在 resolveTemplateVSlotNode 里调用
+ */
 export function resolveVSlotProp(
   node: DirectiveNode,
   _ir: TemplateBlockIR,
