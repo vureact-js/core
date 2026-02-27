@@ -13,4 +13,7 @@ export const REACTIVE_TYPE_MAP = {
   inject: 'reactive',
   defineProps: 'reactive',
   defineEmits: 'reactive',
+  useRoute: 'reactive',
+  useRouter: 'reactive',
+  useLink: 'reactive',
 } as const;

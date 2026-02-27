@@ -8,31 +8,53 @@ export const ADAPTER_COMPS = {
   TransitionGroup: 'TransitionGroup',
 } as const;
 
-export interface ADAPTER_API {
+export const ADAPTER_UTILS_MAP = {
+  dir: 'dir',
+  dirCls: 'dir.cls',
+  dirKeyless: 'dir.keyless',
+  dirOn: 'dir.on',
+  dirStyle: 'dir.style',
+  nextTick: 'nextTick',
+} as const;
+
+export const ADAPTER_ROUTER_COMPS = {
+  RouterLink: 'RouterLink',
+  RouterView: 'RouterView',
+} as const;
+
+/**
+ * 编译器API适配规则
+ */
+export interface CompilerAdapterRules {
   /**
-   * 这类 api 在适配时百分百确定仅需替换调用名，无需其他处理。
-   * 具体由对应适配 api 完全模拟实现
+   * 仅需替换调用名的简单适配
    */
-  simple: {
-    /**
-     * 正常/通用的 API。其返回值没有此副作用：被作为依赖收集的目标
-     */
-    standard: Record<string, any>;
-    /**
-     * 调用其 API 且返回值需要被作为依赖收集目标的
-     */
-    reactive: Record<string, any>;
-  };
+  renameOnly: ApiBehavior;
 
   /**
-   * 这类 api 不仅替换调用名，还需例如收集依赖，并增加新参数项等。
+   * 需要额外处理（如收集依赖、添加参数等）的复杂适配
    */
-  complex: ADAPTER_API['simple'];
+  transform: ApiBehavior;
 }
 
-export const ADAPTER_HOOKS: ADAPTER_API = {
-  simple: {
-    standard: {
+/**
+ * API调用行为分类
+ */
+export type ApiBehavior = {
+  /**
+   * 纯API：调用无副作用，返回值不参与依赖收集
+   */
+  pure: Record<string, any>;
+
+  /**
+   * 有副作用的API：调用有副作用，返回值需要作为依赖收集目标
+   */
+  effectful: Record<string, any>;
+};
+
+export const ADAPTER_HOOKS: CompilerAdapterRules = {
+  renameOnly: {
+    pure: {
       useActived: 'useActived',
       useDeactivated: 'useDeactivated',
       onBeforeMount: 'useBeforeMount',
@@ -41,7 +63,7 @@ export const ADAPTER_HOOKS: ADAPTER_API = {
       onUnmounted: 'useUnmounted',
     },
 
-    reactive: {
+    effectful: {
       ref: 'useVRef',
       reactive: 'useReactive',
       computed: 'useComputed',
@@ -60,8 +82,8 @@ export const ADAPTER_HOOKS: ADAPTER_API = {
     },
   },
 
-  complex: {
-    standard: {
+  transform: {
+    pure: {
       useTemplateRef: 'useRef',
       watchEffect: {
         watchEffect: 'useWatchEffect',
@@ -74,42 +96,28 @@ export const ADAPTER_HOOKS: ADAPTER_API = {
       },
     },
 
-    reactive: {},
+    effectful: {},
   },
 } as const;
 
-export const ADAPTER_UTILS_MAP = {
-  dir: 'dir',
-  dirCls: 'dir.cls',
-  dirKeyless: 'dir.keyless',
-  dirOn: 'dir.on',
-  dirStyle: 'dir.style',
-  nextTick: 'nextTick',
-} as const;
-
-export const ADAPTER_ROUTER_COMPS = {
-  RouterLink: 'RouterLink',
-  RouterView: 'RouterView',
-} as const;
-
-export const ADAPTER_ROUTER_APIS: ADAPTER_API = {
-  simple: {
-    standard: {
+export const ADAPTER_ROUTER_APIS: CompilerAdapterRules = {
+  renameOnly: {
+    pure: {
       createRouter: 'createRouter',
       onBeforeRouteLeave: 'useBeforeRouteLeave',
       onBeforeRouteUpdate: 'useBeforeRouteUpdate',
       onBeforeRouteEnter: 'useBeforeRouteEnter',
     },
 
-    reactive: {
+    effectful: {
       useRoute: 'useRoute',
       useRouter: 'useRouter',
       useLink: 'useLink',
     },
   },
 
-  complex: {
-    standard: {},
-    reactive: {},
+  transform: {
+    pure: {},
+    effectful: {},
   },
 } as const;

@@ -21,9 +21,9 @@ import {
 import {
   lintRules,
   resolveArrowFnDeps,
-  resolveComplexAdapter,
   resolveProvide,
-  resolveSimpleAdapter,
+  resolveRenameOnlyAdapter,
+  resolveTransformAdapter,
   resolveUnanalyzedArrow,
 } from './process';
 
@@ -54,10 +54,10 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
 
     process: {
       applyBabel: [
-        resolveSimpleAdapter,
+        resolveRenameOnlyAdapter,
         resolveArrowFnDeps,
         resolveUnanalyzedArrow,
-        resolveComplexAdapter,
+        resolveTransformAdapter,
         resolveTemplateRef,
         resolveProvide,
         lintRules,

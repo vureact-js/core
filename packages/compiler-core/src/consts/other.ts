@@ -36,3 +36,6 @@ export const DOLLAR_IDENTIFIERS = [
   '$pinia',
   '$event',
 ];
+
+/** Vue 相关的包主名称 */
+export const VUE_PACKAGES = ['vue', 'vite', 'pinia', 'nuxt'];

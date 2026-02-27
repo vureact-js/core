@@ -1,3 +1,4 @@
+import { VUE_PACKAGES } from '@consts/other';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import kleur from 'kleur';
@@ -87,7 +88,8 @@ export class ViteBootstrapper {
     // 智能剔除原项目中的 Vue 强绑定包，避免带到 React 环境
     const removeVuePackages = (deps: Record<string, any>) => {
       for (const name in deps) {
-        if (name.includes('vue') || name.includes('pinia') || name.includes('vite')) {
+        const isVueLike = VUE_PACKAGES.some((n) => name.includes(n));
+        if (isVueLike) {
           delete deps[name];
         }
       }

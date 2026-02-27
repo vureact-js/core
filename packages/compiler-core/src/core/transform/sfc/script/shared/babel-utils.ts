@@ -202,6 +202,14 @@ export function replaceCallName(callExp: t.CallExpression, identifierName: strin
   }
 }
 
+export function replaceIdName(id: t.Node | null | undefined, newName: string) {
+  if (!t.isIdentifier(id)) return;
+  id.name = newName;
+  if (id.loc) {
+    id.loc.identifierName = newName;
+  }
+}
+
 /**
  * 将对象解析为 ts 类型签名
  *
