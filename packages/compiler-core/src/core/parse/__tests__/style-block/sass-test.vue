@@ -1,0 +1,58 @@
+<template></template>
+
+<style lang="scss">
+$primary-color: #1890ff;
+$padding-base: 12px;
+
+.container {
+  padding: $padding-base;
+  background-color: lighten($primary-color, 40%);
+
+  .title {
+    color: $primary-color;
+    font-size: 24px;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .content {
+    margin-top: $padding-base;
+    border: 1px solid darken($primary-color, 10%);
+    border-radius: 4px;
+    padding: $padding-base / 2;
+  }
+
+  @mixin button-variant($bg-color) {
+    background-color: $bg-color;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: $padding-base / 2 $padding-base;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background-color: darken($bg-color, 10%);
+    }
+  }
+
+  .button-group {
+    display: flex;
+    gap: 8px;
+    margin-top: $padding-base;
+
+    .btn {
+      &-primary {
+        @include button-variant($primary-color);
+      }
+      
+      &-secondary {
+        @include button-variant(lighten($primary-color, 30%));
+        color: darken($primary-color, 20%);
+        border: 1px solid darken($primary-color, 10%);
+      }
+    }
+  }
+}
+</style>

@@ -14,6 +14,8 @@ export interface ICompilationContext {
   propField: string;
   /** 是否使用了路由 */
   route?: boolean;
+  /** 是否将 Less / Sass 样式语言处理为 CSS */
+  preprocessStyles?: boolean;
 
   templateData: {
     lang?: string;

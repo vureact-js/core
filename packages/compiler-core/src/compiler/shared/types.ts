@@ -103,6 +103,12 @@ export interface CompilerOptions {
   watch?: boolean;
 
   /**
+   * Whether to process Less/Sass style languages into CSS
+   * @default true
+   */
+  preprocessStyles?: boolean;
+
+  /**
    * Can be used to add plugins and customize the output results of
    * the parse/transform/codegen/compiled stages respectively.
    *

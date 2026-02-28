@@ -37,6 +37,8 @@ export default defineConfig({
     'cac',
     'ora',
     'chokidar',
+    'less',
+    'sass',
   ],
 
   banner: {

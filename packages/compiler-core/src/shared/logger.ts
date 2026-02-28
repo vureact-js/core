@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import kleur from 'kleur';
 import { normalizePath, relativePath } from './path';
 
@@ -79,8 +78,11 @@ export class Logger {
   // Render the header line and optional location block.
   private formatHeader(log: LogEntry): string {
     const label = log.level.toUpperCase();
+    const bg =
+      log.level === 'error' ? kleur.bgRed : log.level === 'warning' ? kleur.bgYellow : kleur.bgBlue;
+
     const level = this.levelColor(log.level)(
-      `${kleur.bold('[vureact]')} ${kleur.bgRed(kleur.black(label))}:`,
+      `${kleur.bold('[vureact]')} ${bg(kleur.black(label))}:`,
     );
 
     if (log.level === 'info') {

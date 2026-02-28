@@ -1,6 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { STYLE_MODULE_NAME } from '@consts/other';
 import { processScopedWithPostCss } from '@plugins/postcss';
+import { resolveLessSass } from '@plugins/resolve-less-sass';
 import { logger } from '@shared/logger';
 import { SFCDescriptor } from '@vue/compiler-sfc';
 import { basename } from 'path';
@@ -11,44 +12,73 @@ export function resolveStyles(
   ctx: ICompilationContext,
   result: ParseResult,
 ) {
-  const [style, ...more] = descriptor.styles;
-
+  const [style, ...blocks] = descriptor.styles;
   if (!style) return null;
 
-  if (more.length) {
+  const { lang = 'css', content } = style;
+  const { fileId, filename, styleData, preprocessStyles } = ctx;
+
+  // 不支持多个 style 块
+  if (blocks.length) {
     logger.warn(
       'Multiple style blocks detected. Only the first one is supported. Please merge the remaining styles manually.',
-      { file: ctx.filename },
+      { file: filename },
     );
   }
 
-  if (style.content.includes('@import')) {
+  // 对使用了 @import 语法进行警告
+  if (content.includes('@import')) {
     logger.warn(
       'Detected @import in scoped style. Imported styles remain global. Consider inlining them to preserve scoping.',
-      { file: ctx.filename },
+      { file: filename },
     );
   }
 
-  const { fileId, filename, styleData } = ctx;
+  // 预处理样式
+  const source = resolveLessSass(content, {
+    lang,
+    filename,
+    enabled: preprocessStyles,
+  });
 
-  let fileExt = `.${style.lang || 'css'}`;
+  const disablePreprocessing = lang !== 'css' && !preprocessStyles;
 
+  // 如果开启样式预处理，则统一使用 css 文件后缀，否则使用对应语言文件
+  let ext = disablePreprocessing ? `.${lang}` : '.css';
+
+  // 处理 css module
   if (style.module) {
-    fileExt = `-${fileId}.module${fileExt}`;
+    ext = `-${fileId}.module${ext}`;
     styleData.moduleName = typeof style.module === 'boolean' ? STYLE_MODULE_NAME : style.module;
   } else {
-    fileExt = `-${fileId}${fileExt}`;
+    ext = `-${fileId}${ext}`;
   }
 
+  // 处理 scoped
   if (style.scoped) {
-    const result = processScopedWithPostCss(style.content, fileId);
+    // 不处理非 css 语言
+    if (disablePreprocessing) {
+      logger.warn(
+        'Scoped styles are only supported for CSS. Preprocessing is disabled, so scoped styles will not be applied.',
+        { file: filename },
+      );
+      return;
+    }
+
+    // 使用 postcss 为每个选择器加上 id 值
+    const result = processScopedWithPostCss(source, fileId);
     style.content = result.css.trim();
     styleData.scopeId = result.scopeId;
+  } else {
+    // 非 scoped 样式也需要更新编译后的内容
+    style.content = source;
   }
 
-  const filePath = filename.replace(/\.vue$/i, fileExt);
+  // 生成文件路径
+  const filePath = filename.replace(/\.vue$/i, ext);
   const bNs = basename(filePath);
 
+  // 将 css 文件名小写
   styleData.filePath = filePath.replace(bNs, bNs.toLowerCase());
 
   result.style = {

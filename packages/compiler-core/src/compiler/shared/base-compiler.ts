@@ -43,7 +43,7 @@ export class BaseCompiler extends Helper {
   }
 
   compile(source: string, filename: string): CompilationResult {
-    const { plugins } = this.options;
+    const { plugins, preprocessStyles = true } = this.options;
 
     const fileId = this.genHash(filename);
     const genOptions = this.prepareGenerateOptions(filename);
@@ -51,6 +51,7 @@ export class BaseCompiler extends Helper {
       fileId,
       filename,
       source,
+      preprocessStyles,
     });
 
     try {

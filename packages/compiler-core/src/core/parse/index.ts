@@ -25,4 +25,3 @@ export function parse(
   const parser = ctx.inputType === 'sfc' ? parseSFC : parseOnlyScript;
   return parser(source, ctx, options);
 }
-
