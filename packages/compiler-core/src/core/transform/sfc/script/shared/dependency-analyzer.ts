@@ -15,7 +15,7 @@ const TRACE_MAX_DEPTH = 20;
  * @param parentPath 当前节点的路径，用于确定作用域边界
  */
 export function analyzeDeps(
-  node: t.ArrowFunctionExpression | t.FunctionExpression | t.Identifier,
+  node: t.Node,
   ctx: ICompilationContext,
   parentPath?: NodePath,
 ): t.ArrayExpression {
@@ -23,16 +23,13 @@ export function analyzeDeps(
     return t.arrayExpression([]);
   }
 
-  // 如果不是有效的函数表达式，不分析依赖
-  if (!t.isArrowFunctionExpression(node) && !t.isFunctionExpression(node)) {
-    const deps: t.Expression[] = [];
-    // 标识符直接作为依赖
-    if (t.isIdentifier(node)) {
-      deps.push(node);
-    }
+  const isFnExpr = t.isArrowFunctionExpression(node) || t.isFunctionExpression(node);
 
-    return t.arrayExpression(deps);
-  }
+  // 确定分析目标：函数表达式则分析其函数体，否则分析节点本身
+  const analyzeTarget = isFnExpr ? node.body : node;
+
+  // 确定局部绑定边界：函数表达式则以函数节点为边界，否则以分析目标为边界
+  const bindingLocalBoundary = isFnExpr ? node : analyzeTarget;
 
   const reactiveStateApis = getReactiveStateApis();
 
@@ -46,22 +43,28 @@ export function analyzeDeps(
     deps.set(getDependencyKey(exp), exp);
   }
 
+  // 对分析目标进行遍历
   traverse(
-    node.body,
+    analyzeTarget,
     {
       'MemberExpression|OptionalMemberExpression'(memberPath) {
         const path = memberPath as NodePath<t.MemberExpression | t.OptionalMemberExpression>;
 
+        // 如果是嵌套成员表达式的对象部分（如 a.b.c 中的 a.b），则跳过，避免重复处理
         if (isNestedMemberObject(path)) return;
 
+        // 获取成员表达式的根标识符（如 a.b.c 中的 a）
         const rootId = findRootIdentifier(path.node);
         if (!rootId) return;
 
+        // 尝试将该成员表达式添加为依赖
         tryAddDependency(path, rootId.name, path.scope);
+        // 标记该根标识符已处理，防止后续 Identifier 访问器重复处理
         processedIdentifiers.add(rootId);
       },
 
       Identifier(idPath) {
+        // 跳过已处理的标识符或非真实变量访问
         if (processedIdentifiers.has(idPath.node) || !isRealVariableAccess(idPath)) {
           return;
         }
@@ -69,6 +72,7 @@ export function analyzeDeps(
         tryAddDependency(idPath, idPath.node.name, idPath.scope);
       },
     },
+    // 确定作用域范围
     parentPath.scope,
   );
 
@@ -86,20 +90,19 @@ export function analyzeDeps(
     const binding = scope.getBinding(rootName);
     if (!binding) return;
 
-    // 如果变量定义在当前分析的作用域内（局部变量），直接忽略
-    if (binding.scope === parentPath?.scope) {
-      return;
-    }
+    const isLocalBinding = isBindingDeclaredInsideBoundary(binding, bindingLocalBoundary);
 
     // 检查是否是 props 相关的表达式（例如 props.a, props.b()）
     if (rootName === ctx.propField) {
       // 如果是 props 相关的表达式，直接添加整个表达式作为依赖
-      addDependency(normalized);
+      if (!isLocalBinding) {
+        addDependency(normalized);
+      }
       return;
     }
 
     //  判断该绑定是否是“合法的依赖源”（来自导入、响应式 API 声明等）
-    const directEligible = isEligibleBindingSource(binding, false);
+    const directEligible = !isLocalBinding && isEligibleBindingSource(binding);
 
     if (directEligible) {
       addDependency(normalized);
@@ -116,14 +119,26 @@ export function analyzeDeps(
     }
   }
 
+  /**
+   * 规范化依赖表达式：
+   * 1. 对于标识符，直接返回标识符节点
+   * 2. 对于成员表达式，检查是否为有效的依赖表达式：
+   *    - 如果是有效的静态成员链（如 state.count），则克隆整个表达式
+   *    - 否则只返回根标识符（如对于动态属性访问 obj[prop]，只返回 obj）
+   * 3. 其他类型表达式返回 null
+   */
   function normalizeDependencyExpr(
     path: NodePath<t.Expression | t.Identifier>,
     rootName: string,
   ): t.Expression | null {
+    // 处理标识符：直接返回标识符节点
     if (t.isIdentifier(path.node)) {
       return t.identifier(path.node.name);
     }
 
+    // 处理成员表达式：
+    // 1. 如果是有效的响应式依赖表达式（静态成员链），克隆整个表达式
+    // 2. 否则只返回根标识符（例如动态属性访问只返回对象本身）
     if (t.isMemberExpression(path.node) || t.isOptionalMemberExpression(path.node)) {
       if (isReactValidDependencyExpr(path.node)) {
         return t.cloneNode(path.node, true);
@@ -135,6 +150,12 @@ export function analyzeDeps(
     return null;
   }
 
+  /**
+   * 判断是否为有效的响应式依赖表达式：
+   * 1. 标识符是有效的（如 refVar）
+   * 2. 成员表达式必须是静态成员链（所有属性访问都是静态的，最终对象是标识符）
+   *    例如 state.count、props.value 有效，obj[prop]、obj[getKey()] 无效
+   */
   function isReactValidDependencyExpr(node: t.Expression): boolean {
     if (t.isIdentifier(node)) {
       return true;
@@ -147,14 +168,21 @@ export function analyzeDeps(
     return false;
   }
 
+  /**
+   * 检查是否为静态成员链：从当前节点开始向上遍历对象部分
+   * 要求所有层级的属性访问都是静态的（非计算属性或计算属性为字面量）
+   * 最终的对象部分必须是标识符
+   */
   function isStaticMemberChain(node: t.MemberExpression | t.OptionalMemberExpression): boolean {
     let current: t.Expression | t.Super = node;
 
     while (t.isMemberExpression(current) || t.isOptionalMemberExpression(current)) {
+      // 非计算属性时，属性必须是标识符（例如 obj.prop）
       if (!current.computed && !t.isIdentifier(current.property)) {
         return false;
       }
 
+      // 计算属性时，属性必须是字符串或数字字面量（例如 obj["prop"] 或 obj[0]）
       if (
         current.computed &&
         !t.isStringLiteral(current.property) &&
@@ -166,7 +194,26 @@ export function analyzeDeps(
       current = current.object;
     }
 
+    // 最终的对象部分必须是标识符（例如 state 或 props）
     return t.isIdentifier(current);
+  }
+
+  /**
+   * “局部绑定”判定从“同 scope”改为“是否声明在当前分析边界内”。
+   */
+  function isBindingDeclaredInsideBoundary(binding: Binding, boundary: t.Node): boolean {
+    let current: NodePath<t.Node> | null = binding.path as NodePath<t.Node>;
+
+    // 用当前绑定路径的上级父路径节点和边界节点做对比
+    while (current) {
+      if (current.node === boundary) {
+        return true;
+      }
+
+      current = current.parentPath as NodePath<t.Node> | null;
+    }
+
+    return false;
   }
 
   /**
@@ -175,36 +222,45 @@ export function analyzeDeps(
    * 2. 是否是 reactive/ref 等 API 声明的
    * 3. 是否是函数声明
    */
-  function isEligibleBindingSource(binding: Binding, allowSameScope: boolean): boolean {
+  function isEligibleBindingSource(binding: Binding): boolean {
     if (binding.kind === 'param') {
-      return false;
-    }
-
-    if (!allowSameScope && binding.scope === parentPath?.scope) {
       return false;
     }
 
     const bindingPath = binding.path;
     const declaratorPath = getVariableDeclaratorPath(bindingPath);
 
+    // 判断是否为导入绑定（import 语句引入的变量）
     const isImportBinding =
       bindingPath.isImportSpecifier() ||
       bindingPath.isImportDefaultSpecifier() ||
       bindingPath.isImportNamespaceSpecifier();
 
+    // 判断是否为响应式变量绑定
     const isReactiveVarBinding = !!declaratorPath && isReactiveBinding(declaratorPath.node);
     const nodeInit = declaratorPath?.node.init;
 
+    // 判断是否为响应式 API 调用绑定（如 ref(), reactive() 等）
     const isReactiveApiCallVarBinding =
       !!declaratorPath &&
       t.isCallExpression(nodeInit) &&
       t.isIdentifier(nodeInit.callee) &&
       reactiveStateApis.has(nodeInit.callee.name);
 
-    const isFunctionBinding = !!declaratorPath && t.isArrowFunctionExpression(nodeInit);
+    // 判断是否为函数绑定（函数声明或函数表达式）
+    const isFunctionBinding =
+      bindingPath.isFunctionDeclaration() ||
+      (!!declaratorPath &&
+        !!nodeInit &&
+        (t.isArrowFunctionExpression(nodeInit) || t.isFunctionExpression(nodeInit)));
 
-    if (isFunctionBinding) {
-      // 如果是函数被收集为依赖，则尝试将对方标记为 “未分析依赖”
+    // 如果当前绑定是函数表达式/箭头函数，则将其标记为“未分析依赖”
+    // 这样在后续分析中会重新分析该函数的依赖
+    if (
+      declaratorPath &&
+      nodeInit &&
+      (t.isArrowFunctionExpression(nodeInit) || t.isFunctionExpression(nodeInit))
+    ) {
       markAsAnalyzed(nodeInit, false);
     }
 
@@ -248,7 +304,7 @@ export function analyzeDeps(
       if (!sourceBinding) return null;
 
       // 如果源头已经是合格的（例如 import 的 state），直接返回该表达式
-      if (isEligibleBindingSource(sourceBinding, true)) {
+      if (isEligibleBindingSource(sourceBinding)) {
         return exp;
       }
       // 否则继续向上递归
@@ -263,7 +319,7 @@ export function analyzeDeps(
       const sourceBinding = scope.getBinding(root.name);
       if (!sourceBinding) return null;
 
-      if (isEligibleBindingSource(sourceBinding, true)) {
+      if (isEligibleBindingSource(sourceBinding)) {
         // 【重点】这里返回完整的成员表达式 exp (state.count)
         // 而不仅仅是 root (state)
         // 需要 clone 一份，因为 AST 节点不能多处复用
@@ -288,26 +344,35 @@ export function analyzeDeps(
   return t.arrayExpression(Array.from(deps.values()));
 }
 
+/**
+ * 获取依赖键名
+ */
 function getDependencyKey(exp: t.Expression): string {
   if (t.isIdentifier(exp)) {
+    // 标识符：直接返回其名称作为依赖键
     return exp.name;
   }
 
   if (t.isMemberExpression(exp) || t.isOptionalMemberExpression(exp)) {
+    // 成员表达式或可选链表达式：递归构建对象部分的键，并拼接属性访问部分
     const objectKey = getDependencyKey(exp.object as t.Expression);
     const opt = exp.optional ? '?' : '';
 
+    // 情况1：非计算属性且属性为标识符（例如 obj.prop）
     if (!exp.computed && t.isIdentifier(exp.property)) {
       return `${objectKey}${opt}.${exp.property.name}`;
     }
 
+    // 情况2：计算属性且属性为字符串或数字字面量（例如 obj["prop"] 或 obj[0]）
     if (t.isStringLiteral(exp.property) || t.isNumericLiteral(exp.property)) {
       return `${objectKey}${opt}[${JSON.stringify(exp.property.value)}]`;
     }
 
+    // 情况3：其他计算属性（例如 obj[someVar]），使用通配符表示
     return `${objectKey}${opt}[*]`;
   }
 
+  // 其他类型的表达式：返回其节点类型作为键
   return exp.type;
 }
 
@@ -317,6 +382,7 @@ function isNestedMemberObject(
   const parent = path.parentPath;
   if (!parent) return false;
 
+  // 判断当前成员表达式是否作为另一个成员表达式的 object 部分（即嵌套成员表达式的内层）
   if (parent.isMemberExpression() || parent.isOptionalMemberExpression()) {
     return parent.node.object === path.node;
   }

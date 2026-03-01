@@ -115,8 +115,12 @@ export function resolveTemplateSlotIface(ctx: ICompilationContext) {
   }
 }
 
+// 记录需要导入 React.ReactNode
 function recordReactNode(ctx: ICompilationContext) {
-  // 记录需要导入 React.ReactNode
+  // 非 ts 环境不导入
+  if (!ctx.scriptData.lang.startsWith('ts')) {
+    return;
+  }
   recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.ReactNode);
 }
 

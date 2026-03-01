@@ -7,3 +7,10 @@ export function createUseCallback(body: t.Expression, deps?: t.ArrayExpression):
     deps ?? t.arrayExpression([]),
   ]);
 }
+
+export function createUseMemo(body: t.Expression, deps?: t.ArrayExpression): t.CallExpression {
+  return t.callExpression(t.identifier(REACT_API_MAP.useMemo), [
+    t.arrowFunctionExpression([], body),
+    deps ?? t.arrayExpression([]),
+  ]);
+}

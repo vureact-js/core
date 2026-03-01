@@ -1,9 +1,9 @@
+import { PACKAGE_NAME } from '@consts/other';
 import fs from 'fs';
-import { Helper } from '../helper';
+import { FileCompiler } from '.';
 import {
   CacheKey,
   CacheMeta,
-  CompilerOptions,
   FileCacheMeta,
   LoadedCache,
   ScriptUnit,
@@ -14,9 +14,15 @@ import { CacheManager } from './cache-manager';
 import { CompilationUnitProcessor } from './compilation-unit';
 
 export class FileProcessor {
+  private pkgs = {
+    router: {
+      name: PACKAGE_NAME.router,
+      version: '^1.0.0',
+    },
+  };
+
   constructor(
-    private helper: Helper,
-    private options: CompilerOptions,
+    private fileCompiler: FileCompiler,
     private compilationUnitProcessor: CompilationUnitProcessor,
     private cacheManager: CacheManager,
   ) {}
@@ -63,20 +69,21 @@ export class FileProcessor {
   ): Promise<SFCUnit | ScriptUnit | undefined>;
 
   async processFile(key: CacheKey, filePath: string, existingCache?: LoadedCache) {
-    const absPath = this.helper.getAbsPath(filePath);
+    const absPath = this.fileCompiler.getAbsPath(filePath);
 
     // 1. 获取最新元数据
-    const fileMeta = await this.helper.getFileMeta(absPath);
+    const fileMeta = await this.fileCompiler.getFileMeta(absPath);
 
     // 2. 校验缓存
 
     const cache =
-      (this.helper.getIsCache() ? existingCache : undefined) || (await this.helper.loadCache(key));
+      (this.fileCompiler.getIsCache() ? existingCache : undefined) ||
+      (await this.fileCompiler.loadCache(key));
 
     // 查找缓存记录
     const record = cache?.target.find((c: CacheMeta) => c.file === absPath);
 
-    const { shouldCompile, hash } = await this.helper.checkCacheStatus(fileMeta, record, () =>
+    const { shouldCompile, hash } = await this.fileCompiler.checkCacheStatus(fileMeta, record, () =>
       fs.promises.readFile(absPath, 'utf-8'),
     );
 
@@ -93,19 +100,36 @@ export class FileProcessor {
       file: absPath,
       fileId: '',
       source,
-      hash: hash || this.helper.genHash(source),
+      hash: hash || this.fileCompiler.genHash(source),
       output: null,
     };
 
     // 4. 执行流水线
-    const processed = await this.compilationUnitProcessor.process(initUnit, key);
+    const processed = await this.compilationUnitProcessor.resolve(initUnit, key);
 
     // 5. 产物落地与缓存同步
     if (processed?.output) {
       await this.compilationUnitProcessor.saveCompiledFiles(processed, key);
+
+      if (processed.hasRoute) {
+        // 对 package.json 注入路由依赖项
+        await this.injectVuReactRouteDep();
+      }
+
       await this.cacheManager.updateCacheIncrementally(processed, key);
     }
 
     return processed;
+  }
+
+  private async injectVuReactRouteDep() {
+    const pkgPath = this.fileCompiler.getOutputPkgPath();
+    const pkg = await this.fileCompiler.resolvePackageFile(pkgPath);
+
+    // 注入依赖
+    const { router } = this.pkgs;
+    pkg['dependencies'][router.name] = router.version;
+
+    await fs.promises.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8');
   }
 }

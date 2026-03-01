@@ -1,16 +1,16 @@
-import { Helper } from '../helper';
+import { FileCompiler } from '.';
 import { CacheKey, ScriptUnit, SFCUnit } from '../types';
 
 export class CacheManager {
-  constructor(private helper: Helper) {}
+  constructor(private fileCompiler: FileCompiler) {}
 
   /**
    * 增量更新缓存记录
    */
   async updateCacheIncrementally(unit: SFCUnit | ScriptUnit, key: CacheKey) {
-    if (!this.helper.getIsCache()) return;
+    if (!this.fileCompiler.getIsCache()) return;
 
-    const cache = await this.helper.loadCache(key);
+    const cache = await this.fileCompiler.loadCache(key);
     const meta = { ...unit };
 
     // 缓存不存源码和输出内容
@@ -24,7 +24,7 @@ export class CacheManager {
     }
 
     this.updateCache(unit.file, meta, cache);
-    await this.helper.saveCache(cache);
+    await this.fileCompiler.saveCache(cache);
   }
 
   /**

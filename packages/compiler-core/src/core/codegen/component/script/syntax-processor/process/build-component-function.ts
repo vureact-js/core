@@ -10,15 +10,20 @@ import { basename } from 'path';
 import { ScriptBuildState } from '..';
 
 export function buildComponent(
-  nodeIR: ScriptBlockIR | null,
+  scriptIR: ScriptBlockIR | null,
   ctx: ICompilationContext,
   state: ScriptBuildState,
 ) {
+  const { scriptData } = ctx;
+
+  // 有脚本代码或 props 都采用 memo 策略
+  const shouldMemo = scriptIR !== null || scriptData.propsTSIface.name !== '';
+
   const jsxStatement = t.returnStatement((state.jsx || t.nullLiteral()) as t.Expression);
 
-  const component = !nodeIR
+  const component = !shouldMemo
     ? resolveComponent(jsxStatement, ctx)
-    : resolveMemoComponent(nodeIR.statement.local, jsxStatement, ctx);
+    : resolveMemoComponent(scriptIR!.statement.local, jsxStatement, ctx);
 
   state.component = component;
 }
@@ -63,15 +68,21 @@ function resolveComponentName(ctx: ICompilationContext): t.Identifier {
 function resolveParam(ctx: ICompilationContext): t.Identifier | undefined {
   const { propField, scriptData } = ctx;
   const { propsTSIface } = scriptData;
-
-  if (!propsTSIface.name) return;
-
   const propsIdentifier = t.identifier(propField);
 
-  if (!scriptData.lang.startsWith('ts') && propsTSIface.name) {
+  const getHasProps = (list: any[]) => Object.keys(list).length > 0;
+
+  const hasProps =
+    getHasProps(propsTSIface.propsTypes) ||
+    getHasProps(propsTSIface.emitTypes) ||
+    getHasProps(propsTSIface.slotTypes);
+
+  // 有 props 但是 js 环境，直接返回参数名
+  if (scriptData.lang.startsWith('js') && hasProps) {
     return propsIdentifier;
   }
 
+  // 参数设置类型注解
   const typeIdentifier = t.identifier(propsTSIface.name);
   propsIdentifier.typeAnnotation = t.tsTypeAnnotation(t.tsTypeReference(typeIdentifier));
 

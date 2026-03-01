@@ -206,8 +206,7 @@ export interface PluginRegister<T> {
 
 export type CompilationResult = SFCCompilationResult | ScriptCompilationResult;
 
-export interface SFCCompilationResult extends GeneratorResult {
-  fileId: string;
+export interface SFCCompilationResult extends BaseCompilationResult {
   fileInfo: {
     jsx: {
       file: string;
@@ -221,14 +220,18 @@ export interface SFCCompilationResult extends GeneratorResult {
   };
 }
 
-export interface ScriptCompilationResult extends GeneratorResult {
-  fileId: string;
+export interface ScriptCompilationResult extends BaseCompilationResult {
   fileInfo: {
     script: {
       file: string;
       lang: string;
     };
   };
+}
+
+export interface BaseCompilationResult extends GeneratorResult {
+  fileId: string;
+  hasRoute?: boolean;
 }
 
 export interface ScriptUnit extends CompilationUnit {
@@ -255,6 +258,7 @@ export interface CompilationUnit extends FileMeta {
   file: string; // 原始文件路径
   fileId: string; // 文件id
   source: string; // 源代码
+  hasRoute?: boolean; // 是否使用了路由，后续作为是否注入路由包的依据
 }
 
 export type LoadedCache<T = CacheMeta> = {

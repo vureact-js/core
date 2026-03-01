@@ -119,14 +119,11 @@ export function checkPropIsDynamicKey(ctx: ICompilationContext, node: DirectiveN
   }
 
   if (isKeyStatic === false) {
-    logger.warn(
-      'Failed to analyze dynamic prop. Falling back to source content; please use an explicit prop.',
-      {
-        source,
-        loc: node.arg?.loc,
-        file: filename,
-      },
-    );
+    logger.warn('Avoid using dynamic slot names, as they generate complex JSX prop expressions.', {
+      source,
+      loc: node.arg?.loc,
+      file: filename,
+    });
   }
 }
 

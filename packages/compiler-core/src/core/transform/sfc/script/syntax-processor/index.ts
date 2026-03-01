@@ -21,6 +21,7 @@ import {
 import {
   lintRules,
   resolveArrowFnDeps,
+  resolveExprMemo,
   resolveProvide,
   resolveRenameOnlyAdapter,
   resolveTransformAdapter,
@@ -60,6 +61,7 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         resolveTransformAdapter,
         resolveTemplateRef,
         resolveProvide,
+        resolveExprMemo,
         lintRules,
       ],
       excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],

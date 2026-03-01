@@ -1,15 +1,15 @@
 import path from 'path';
-import { Helper } from '../helper';
+import { FileCompiler } from '.';
 import { CacheKey, CacheMeta, Vue2ReactCacheMeta } from '../types';
 
 export class CleanupManager {
-  constructor(private helper: Helper) {}
+  constructor(private fileCompiler: FileCompiler) {}
 
   /**
    * Delete the build artifacts and cache corresponding to the specified path.
    */
   async removeOutputPath(targetPath: string, type: CacheKey) {
-    const absPath = this.helper.getAbsPath(targetPath);
+    const absPath = this.fileCompiler.getAbsPath(targetPath);
     await this.cleanupOldOutput(
       type,
       (u) =>
@@ -25,7 +25,7 @@ export class CleanupManager {
    * Delete the build artifacts or asset files and cache corresponding to the specified path.
    */
   async cleanupOldOutput(key: CacheKey, filter: (m: CacheMeta) => boolean) {
-    const cache = await this.helper.loadCache(key as any);
+    const cache = await this.fileCompiler.loadCache(key as any);
     if (!cache.target.length) return;
 
     // 查找匹配条目：路径完全相等，或者是该路径下的子文件
@@ -39,18 +39,18 @@ export class CleanupManager {
 
         // 删除对应 jsx / css 文件
         const { jsx, css } = meta.output;
-        await this.helper.removeOutputFile(jsx.file);
+        await this.fileCompiler.removeOutputFile(jsx.file);
 
         if (css?.file) {
-          await this.helper.removeOutputFile(css.file);
+          await this.fileCompiler.removeOutputFile(css.file);
         }
       } else if (key === CacheKey.SCRIPT || key === CacheKey.ASSET) {
         // 普通缓存直接删除对应文件
-        await this.helper.removeOutputFile(m.file, true);
+        await this.fileCompiler.removeOutputFile(m.file, true);
       }
     };
 
     await Promise.all(toRemove.map(removeFn));
-    await this.helper.saveCache(cache);
+    await this.fileCompiler.saveCache(cache);
   }
 }

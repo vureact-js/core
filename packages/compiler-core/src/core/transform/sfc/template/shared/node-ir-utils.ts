@@ -1,5 +1,5 @@
 import { Expression } from '@babel/types';
-import { TemplateChildNodeIR } from '@src/core/transform/sfc/template';
+import { TemplateChildNodeIR } from '@transform/sfc/template';
 import { isVSlot as isCompilerVSlot, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { NodeTypes } from './types';
 
@@ -14,7 +14,13 @@ export interface FragmentNodeIR {
   children: TemplateChildNodeIR[];
 }
 
-export function createInterpolationNodeIR(content: string): BaseSimpleNodeIR {
+export interface InterpNodeIR extends BaseSimpleNodeIR {
+  meta?: {
+    slotWithDefault?: TemplateChildNodeIR[];
+  };
+}
+
+export function createInterpolationNodeIR(content: string): InterpNodeIR {
   return {
     type: NodeTypes.JSX_INTERPOLATION,
     content,

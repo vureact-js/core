@@ -65,7 +65,7 @@ export class Helper {
   }
 
   /**
-   * 获取输出文件的路径
+   * 获取输出文件的路径。如：'[root]/.vureact/dist/'
    */
   getOuputPath(): string {
     return path.resolve(this.getWorkspaceDir(), this.getOutDirName());
@@ -110,6 +110,20 @@ export class Helper {
 
   getIsCache(): boolean {
     return this.compilerOpts.cache ?? true;
+  }
+
+  /**
+   * 返回原始目录下的 package.json 路径
+   */
+  getRootPkgPath(): string {
+    return path.join(this.getProjectRoot(), 'package.json');
+  }
+
+  /**
+   * 返回 output 的 package.json 路径
+   */
+  getOutputPkgPath(): string {
+    return path.join(this.getOuputPath(), 'package.json');
   }
 
   /**
@@ -436,5 +450,20 @@ export class Helper {
 
     // eslint-disable-next-line no-console
     console.info(...message);
+  }
+
+  /**
+   * 读取 package.json 文件内容，并处理成对象返回
+   */
+  async resolvePackageFile(path: string): Promise<Record<string, any>> {
+    try {
+      if (!fs.existsSync(path)) {
+        return {};
+      }
+      return JSON.parse(await fs.promises.readFile(path, 'utf-8'));
+    } catch (error) {
+      console.error(error);
+      return {};
+    }
   }
 }

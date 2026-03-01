@@ -3,5 +3,6 @@ export const REACT_API_MAP = {
   memo: 'memo',
   useRef: 'useRef',
   useCallback: 'useCallback',
+  useMemo: 'useMemo',
   ReactNode: 'ReactNode',
 } as const;

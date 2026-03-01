@@ -7,20 +7,20 @@ import { transform } from '@src/core/transform/sfc';
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 
-function testAnalyzeFnDeps() {
+function testWithUseMemo() {
   const __dirname = getDirname(import.meta.url);
-  const content = readFileSync(path.resolve(__dirname, './index.vue'), 'utf-8');
+  const content = readFileSync(path.resolve(__dirname, './with-use-memo.vue'), 'utf-8');
 
   const ctx = createCompilationCtx();
   ctx.init({ filename: './index.vue', source: content });
 
-  console.time('testAnalyzeFnDeps transform duration');
+  console.time('testWithUseMemo transform duration');
   console.log();
 
   const ast = parseSFC(content, ctx.data);
   const result = transform(ast, ctx.data);
 
-  console.timeEnd('testAnalyzeFnDeps transform duration');
+  console.timeEnd('testWithUseMemo transform duration');
   console.log();
 
   const { code } = generate(result.script?.statement.local!);
@@ -30,4 +30,4 @@ function testAnalyzeFnDeps() {
   logger.printAll();
 }
 
-testAnalyzeFnDeps();
+testWithUseMemo();

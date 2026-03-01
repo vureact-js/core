@@ -1,12 +1,6 @@
 import path from 'path';
-import { Helper } from '../helper';
-import {
-  CacheKey,
-  CompilerOptions,
-  FileCacheMeta,
-  LoadedCache,
-  Vue2ReactCacheMeta,
-} from '../types';
+import { FileCompiler } from '.';
+import { CacheKey, FileCacheMeta, LoadedCache, Vue2ReactCacheMeta } from '../types';
 import { CleanupManager } from './cleanup-manager';
 import { FileProcessor } from './file-processor';
 
@@ -15,11 +9,10 @@ export class PipelineManager {
   private cleanupManager: CleanupManager;
 
   constructor(
-    private helper: Helper,
-    private options: CompilerOptions,
+    private fileCompiler: FileCompiler,
     private fileProcessor: FileProcessor,
   ) {
-    this.cleanupManager = new CleanupManager(helper);
+    this.cleanupManager = new CleanupManager(fileCompiler);
   }
 
   /**
@@ -40,9 +33,9 @@ export class PipelineManager {
    * 核心编译管线
    */
   private async runCorePipeline(key: CacheKey.SFC | CacheKey.SCRIPT): Promise<number> {
-    const inputPath = this.helper.getInputPath();
+    const inputPath = this.fileCompiler.getInputPath();
 
-    const files = this.helper.scanFiles(inputPath, (p) => {
+    const files = this.fileCompiler.scanFiles(inputPath, (p) => {
       const ext = path.extname(p);
       if (key === CacheKey.SFC) return ext === '.vue';
       if (key === CacheKey.SCRIPT) return ext === '.js' || ext === '.ts';
@@ -52,8 +45,8 @@ export class PipelineManager {
     if (!files.length) return 0;
 
     // 加载缓存
-    const cache = await this.helper.loadCache(key);
-    const absFiles = new Set(files.map((f) => this.helper.getAbsPath(f)));
+    const cache = await this.fileCompiler.loadCache(key);
+    const absFiles = new Set(files.map((f) => this.fileCompiler.getAbsPath(f)));
 
     // 清理旧输出文件
     await this.cleanupManager.cleanupOldOutput(key, (c: any) => !absFiles.has(c.file));

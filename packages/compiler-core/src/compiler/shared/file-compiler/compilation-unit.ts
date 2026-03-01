@@ -1,65 +1,76 @@
 import kleur from 'kleur';
-import { Helper } from '../helper';
+import { FileCompiler } from '.';
 import {
   CacheKey,
-  CompilerOptions,
+  CompilationResult,
   ScriptCompilationResult,
   ScriptUnit,
   SFCCompilationResult,
   SFCUnit,
 } from '../types';
+
 export class CompilationUnitProcessor {
-  constructor(
-    private helper: Helper,
-    private options: CompilerOptions,
-  ) {}
+  constructor(private fileCompiler: FileCompiler) {}
 
   /**
    * 处理编译单元，落地成对应代码和文件
    */
-  async process(unit: SFCUnit | ScriptUnit, key: CacheKey): Promise<SFCUnit | ScriptUnit> {
+  async resolve(unit: SFCUnit | ScriptUnit, key: CacheKey): Promise<SFCUnit | ScriptUnit> {
     try {
-      // 调用编译器的 compile 方法
-      // 注意：这里假设 helper 实际上是 BaseCompiler 实例
-      const compiler = this.helper as any;
-      const result = compiler.compile(unit.source, unit.file);
-      const formattedCode = await this.helper.formatCode(result);
+      // 调用核心编译方法
+      const result = this.fileCompiler.compile(unit.source, unit.file);
 
-      unit.fileId = result.fileId;
+      // 格式化代码
+      result.code = await this.fileCompiler.formatCode(result);
 
-      if (key === CacheKey.SFC) {
-        const { jsx, css } = (result as SFCCompilationResult).fileInfo;
-
-        if (css.file) {
-          css.file = this.helper.resolveOutputPath(css.file);
-        }
-
-        unit.output = {
-          jsx: {
-            file: jsx.file,
-            code: formattedCode,
-          },
-          css,
-        };
-      } else if (key === CacheKey.SCRIPT) {
-        const { script } = (result as ScriptCompilationResult).fileInfo;
-
-        unit.output = {
-          script: {
-            file: script.file,
-            code: formattedCode,
-          },
-        };
-      }
+      // 处理编译结果
+      this.resolveResult(result, unit, key);
     } catch (err) {
       console.info(
         kleur.red(`✖`),
-        `Failed to compile ${this.helper.relativePath(unit.file)}\n`,
+        `Failed to compile ${this.fileCompiler.relativePath(unit.file)}\n`,
         err,
       );
     }
 
     return unit;
+  }
+
+  // 处理编译结果
+  private resolveResult(result: CompilationResult, unit: SFCUnit | ScriptUnit, key: CacheKey) {
+    const { fileId, code, hasRoute } = result;
+
+    unit.fileId = fileId; // 文件 id
+    unit.hasRoute = hasRoute; // 是否使用了路由，用于后续注入 @vureact/router 的依据
+
+    // 处理 SFC/Script 文件信息
+    if (key === CacheKey.SFC) {
+      const component = result as SFCCompilationResult;
+      const { jsx, css } = component.fileInfo;
+
+      // 如果有 css 文件则添加对应输出路径
+      if (css.file) {
+        css.file = this.fileCompiler.resolveOutputPath(css.file);
+      }
+
+      unit.output = {
+        // 添加 jsx 文件信息
+        jsx: {
+          file: jsx.file,
+          code,
+        },
+        css, // 添加 css 文件信息
+      };
+    } else if (key === CacheKey.SCRIPT) {
+      const { script } = (result as ScriptCompilationResult).fileInfo;
+      // script 仅需处理一项
+      unit.output = {
+        script: {
+          file: script.file,
+          code,
+        },
+      };
+    }
   }
 
   /**
@@ -79,7 +90,7 @@ export class CompilationUnitProcessor {
 
       // 如果有样式产物，写入 CSS 文件
       if (css.file && css.code) {
-        await this.helper.writeFileWithDir(css.file, css.code);
+        await this.fileCompiler.writeFileWithDir(css.file, css.code);
       }
     } else {
       const { script } = (output as ScriptUnit['output'])!;
@@ -87,6 +98,6 @@ export class CompilationUnitProcessor {
       code = script.code;
     }
 
-    await this.helper.writeFileWithDir(file, code);
+    await this.fileCompiler.writeFileWithDir(file, code);
   }
 }

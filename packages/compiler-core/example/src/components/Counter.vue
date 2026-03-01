@@ -20,6 +20,8 @@ const increment = () => {
   count.value++;
 };
 
+const route = useRoute();
+
 onMounted(() => {
   console.log('组件已挂载！');
 });

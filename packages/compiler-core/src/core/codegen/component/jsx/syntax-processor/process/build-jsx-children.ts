@@ -16,7 +16,13 @@ export function buildJsxChildren(
   children: TemplateChildNodeIR[],
   ctx: ICompilationContext,
 ): JSXChild[] {
-  return children
-    .map((childNodeIR) => buildJsxNode(childNodeIR, ctx))
-    .filter((childNodeIR): childNodeIR is JSXChild => !!childNodeIR);
+  const result: JSXChild[] = [];
+
+  for (const childIR of children) {
+    const jsxNode = buildJsxNode(childIR, ctx);
+    if (!jsxNode) continue;
+    result.push(jsxNode);
+  }
+
+  return result;
 }

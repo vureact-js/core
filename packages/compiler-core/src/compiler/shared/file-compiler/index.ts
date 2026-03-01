@@ -101,21 +101,13 @@ export class FileCompiler extends BaseCompiler {
     // 创建基础的管理器
     this.cacheManager = new CacheManager(this);
     this.cleanupManager = new CleanupManager(this);
-    this.compilationUnitProcessor = new CompilationUnitProcessor(this, this.options);
+    this.compilationUnitProcessor = new CompilationUnitProcessor(this);
 
     // 创建依赖其他管理器的管理器
-    this.fileProcessor = new FileProcessor(
-      this,
-      this.options,
-      this.compilationUnitProcessor,
-      this.cacheManager,
-    );
-
-    this.pipelineManager = new PipelineManager(this, this.options, this.fileProcessor);
-
-    this.assetManager = new AssetManager(this, this.options, this.cleanupManager);
-
+    this.fileProcessor = new FileProcessor(this, this.compilationUnitProcessor, this.cacheManager);
     this.viteBootstrapper = new ViteBootstrapper(this, this.options);
+    this.pipelineManager = new PipelineManager(this, this.fileProcessor);
+    this.assetManager = new AssetManager(this, this.cleanupManager);
   }
 
   /**
@@ -153,8 +145,7 @@ export class FileCompiler extends BaseCompiler {
       const endTime = calcElapsedTime(startTime);
 
       this.printCoreLogs();
-      this.spinner.succeed(`Build completed in ${endTime}`);
-      this.showCompileStats(sfcCount, scriptCount, assetCount);
+      this.showCompileStats(endTime, sfcCount, scriptCount, assetCount);
     } catch (error) {
       this.spinner.stop();
       const endTime = calcElapsedTime(startTime);
@@ -230,21 +221,22 @@ export class FileCompiler extends BaseCompiler {
     this.skippedCount = 0;
   }
 
-  private showCompileStats(sfcCount: number, scriptCount: number, assetCount: number): void {
+  private showCompileStats(
+    endTime: string,
+    sfcCount: number,
+    scriptCount: number,
+    assetCount: number,
+  ): void {
+    const dir = normalizePath(this.relativePath(this.getOuputPath()));
+    this.spinner.succeed(`Build completed in ${endTime}`);
+    console.info(`  Output directory: ${kleur.dim(dir)}`);
+
     this.skippedCount += this.pipelineManager.getSkippedCount();
     this.pipelineManager.resetSkippedCount();
 
-    const dir = normalizePath(this.relativePath(this.getOuputPath()));
-    this.spinner.succeed(`Build artifacts have been output to (${kleur.dim(dir)})`);
-
     if (this.skippedCount) {
-      console.info(
-        '\n',
-        kleur.blue('[INFO]'),
-        kleur.dim(`Skipped ${this.skippedCount} unchanged file(s)`),
-      );
+      console.info(kleur.dim(`Skipped ${this.skippedCount} unchanged file(s)`));
       this.resetSkippedCount();
-      return;
     }
 
     // 显示编译统计
@@ -254,7 +246,7 @@ export class FileCompiler extends BaseCompiler {
       if (scriptCount) stats.push(`${scriptCount} script(s)`);
       if (assetCount) stats.push(`${assetCount} asset(s)`);
 
-      console.info('\n', kleur.blue('[INFO]'), kleur.dim(`Processed ${stats.join(', ')}`));
+      console.info(kleur.gray(`Processed ${stats.join(', ')}`));
     }
   }
 }

@@ -8,5 +8,6 @@ export function resolveTextNode(
   _ctx: unknown,
   childrenIR: TemplateChildNodeIR[],
 ) {
-  childrenIR.push(createTextNodeIR(node.content));
+  const textIR = createTextNodeIR(node.content.trim());
+  childrenIR.push(textIR);
 }

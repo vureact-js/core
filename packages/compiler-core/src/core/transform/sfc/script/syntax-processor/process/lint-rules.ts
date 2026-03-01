@@ -36,14 +36,14 @@ export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseO
 
         if (inScriptFile) {
           addLog(
-            `The ${macro} macro can only be used inside Vue SFC <script> blocks, not in separate script files.`,
+            `The ${macro} can only be used inside Vue SFC <script> blocks, not in separate script files.`,
           );
           return;
         }
 
         if (!atComponentOrHookRoot(path, ast.program)) {
           addLog(
-            `The ${macro} macro must be defined at the top level of the component, not inside blocks or functions.`,
+            `The ${macro} must be defined at the top level of the component, not inside blocks or functions.`,
           );
           return;
         }
@@ -59,9 +59,10 @@ export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseO
       const lintHooks = () => {
         if (!callName.startsWith('use')) return;
 
+        // 现在 callName 已经是替换后的 hook 名了，不是原 API 名
         if (!atComponentOrHookRoot(path, ast.program, inScriptFile)) {
           addLog(
-            `The ${callName} API will be converted to a React hook and must be called at the top level, not inside loops, conditions, or nested functions.`,
+            `The ${callName} hook must be called at the top level, not inside loops, conditions, or nested functions.`,
           );
         }
       };

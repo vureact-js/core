@@ -6,6 +6,7 @@ import { CompilationAdapter } from '../context/adapter';
 import { ICompilationContext } from '../context/types';
 import { Helper } from './helper';
 import {
+  BaseCompilationResult,
   CompilationResult,
   CompilerOptions,
   ScriptCompilationResult,
@@ -34,7 +35,7 @@ import {
  */
 export class BaseCompiler extends Helper {
   version = pkgVersion;
-  protected options: CompilerOptions;
+  options: CompilerOptions;
   private createContext = CompilationAdapter.createContext;
 
   constructor(options: CompilerOptions = {}) {
@@ -86,12 +87,18 @@ export class BaseCompiler extends Helper {
     ctxData: ICompilationContext,
   ): CompilationResult {
     const { fileId, filename, scriptData, styleData } = ctxData;
+
+    const base: BaseCompilationResult = {
+      fileId,
+      hasRoute: ctxData.route,
+      ...gen,
+    };
+
     const { lang } = scriptData;
     const file = this.resolveOutputPath(filename, lang);
 
     if (ctxData.inputType === 'sfc') {
       return {
-        fileId,
         fileInfo: {
           jsx: {
             file: `${file}x`, // 'xxx.ts' + 'x' => 'xxx.tsx'
@@ -103,15 +110,14 @@ export class BaseCompiler extends Helper {
             code: ir?.style,
           },
         },
-        ...gen,
+        ...base,
       } as SFCCompilationResult;
     }
 
     // script file
     return {
-      fileId,
       fileInfo: { script: { file, lang } },
-      ...gen,
+      ...base,
     } as ScriptCompilationResult;
   }
 

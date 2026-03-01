@@ -1,14 +1,13 @@
 import { normalizePath } from '@shared/path';
 import fs from 'fs';
 import path from 'path';
-import { Helper } from '../helper';
-import { CacheKey, CompilerOptions, FileCacheMeta, LoadedCache } from '../types';
+import { FileCompiler } from '.';
+import { CacheKey, FileCacheMeta, LoadedCache } from '../types';
 import { CleanupManager } from './cleanup-manager';
 
 export class AssetManager {
   constructor(
-    private helper: Helper,
-    private options: CompilerOptions,
+    private fileCompiler: FileCompiler,
     private cleanupManager: CleanupManager,
   ) {}
 
@@ -16,19 +15,19 @@ export class AssetManager {
    * 运行资源文件处理管线
    */
   async runAssetPipeline(): Promise<number> {
-    const rootPath = this.helper.getProjectRoot();
-    const inputPath = this.helper.getInputPath();
-    const exclusions = this.helper.getIgnoreAssets();
+    const rootPath = this.fileCompiler.getProjectRoot();
+    const inputPath = this.fileCompiler.getInputPath();
+    const exclusions = this.fileCompiler.getIgnoreAssets();
 
-    const assetFiles = this.helper.scanFiles(rootPath, (p) => {
+    const assetFiles = this.fileCompiler.scanFiles(rootPath, (p) => {
       // 默认跳过跟项目无关的路径
-      if (this.helper.shouldSkipPath(p)) return false;
+      if (this.fileCompiler.shouldSkipPath(p)) return false;
 
-      const relativeToRoot = normalizePath(this.helper.relativePath(p));
+      const relativeToRoot = normalizePath(this.fileCompiler.relativePath(p));
       const filename = path.basename(p).toLowerCase();
       const ext = path.extname(p).toLowerCase();
 
-      if (!this.options.output?.ignoreAssets) {
+      if (!this.fileCompiler.options.output?.ignoreAssets) {
         // 规则 A: 排除模板冲突文件 (仅限根目录的同名文件)
         if (!relativeToRoot.includes(path.sep) && exclusions.has(filename)) {
           return false;
@@ -53,8 +52,8 @@ export class AssetManager {
     });
 
     // 执行拷贝逻辑
-    const absFiles = new Set(assetFiles.map((f) => this.helper.getAbsPath(f)));
-    const cache = await this.helper.loadCache(CacheKey.ASSET);
+    const absFiles = new Set(assetFiles.map((f) => this.fileCompiler.getAbsPath(f)));
+    const cache = await this.fileCompiler.loadCache(CacheKey.ASSET);
 
     await this.cleanupManager.cleanupOldOutput(CacheKey.ASSET, (u) => !absFiles.has(u.file));
     await this.updateAssetCaches(assetFiles, cache);
@@ -71,7 +70,7 @@ export class AssetManager {
       this.updateCache(file, meta, cache);
     }
 
-    await this.helper.saveCache(cache);
+    await this.fileCompiler.saveCache(cache);
   }
 
   /**
@@ -81,28 +80,28 @@ export class AssetManager {
     filePath: string,
     existingCache?: LoadedCache<FileCacheMeta>,
   ): Promise<FileCacheMeta> {
-    const absPath = this.helper.getAbsPath(filePath);
+    const absPath = this.fileCompiler.getAbsPath(filePath);
 
     const fileMeta: FileCacheMeta = {
       file: absPath,
-      ...(await this.helper.getFileMeta(absPath)),
+      ...(await this.fileCompiler.getFileMeta(absPath)),
     };
 
     // 加载缓存
     const cache =
-      (this.helper.getIsCache() ? existingCache : undefined) ||
-      (await this.helper.loadCache(CacheKey.ASSET));
+      (this.fileCompiler.getIsCache() ? existingCache : undefined) ||
+      (await this.fileCompiler.loadCache(CacheKey.ASSET));
 
     // 查找缓存记录
     const record = cache.target.find((f) => f.file === absPath);
 
     // 如果元数据（大小、时间）未变，跳过拷贝
-    if (record && this.helper.compareFileMeta(record, fileMeta)) {
+    if (record && this.fileCompiler.compareFileMeta(record, fileMeta)) {
       return fileMeta;
     }
 
     // 计算输出路径并执行拷贝
-    const outputPath = this.helper.resolveOutputPath(absPath);
+    const outputPath = this.fileCompiler.resolveOutputPath(absPath);
 
     await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.promises.copyFile(absPath, outputPath);
