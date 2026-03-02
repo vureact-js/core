@@ -1,6 +1,6 @@
 {
   "name": "@vureact/runtime-core",
-  "version": "1.0.0",
+  "version": "1.0.0-beta",
   "type": "module",
   "main": "./dist/cjs/runtime-core.js",
   "module": "./dist/esm/runtime-core.esm.js",

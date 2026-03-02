@@ -7,7 +7,7 @@ import { dts } from 'rollup-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 const banner = `/**
- * @vureact/runtime-core v1.0.0
+ * @vureact/runtime-core v1.0.0-beta
  * (c) 2025-present Ruihong Zhong (Ryan John)
  * @license MIT
  */
