@@ -101,14 +101,6 @@ function Counter(props: { value: number; onIncrement: () => any }) {
 - [Issue Tracker](https://github.com/vureact-js/core/issues)
 - [Contributing Guidelines](../../CONTRIBUTING.md)
 
-### Dependencies
-
-- [freeze-mutate](https://github.com/eram/freeze-mutate#readme)
-- [klona](https://github.com/lukeed/klona#readme)
-- [react-fast-compare](https://github.com/FormidableLabs/react-fast-compare)
-- [react-transition-group](https://github.com/reactjs/react-transition-group#readme)
-- [valtio](https://github.com/pmndrs/valtio)
-
 ## 📄 License
 
 MIT © [Ryan John](./LICENSE)
