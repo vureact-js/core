@@ -25,7 +25,7 @@ function testAnalyzeFnDeps() {
 
   const { code } = generate(result.script?.statement.local!);
 
-  writeFileSync(path.resolve(__dirname, './preview.tsx'), code, 'utf-8');
+  writeFileSync(path.resolve(__dirname, './previews/index.tsx'), code, 'utf-8');
 
   logger.printAll();
 }

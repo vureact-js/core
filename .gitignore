@@ -6,7 +6,9 @@ coverage/
 *.log
 .DS_Store
 bundles-size.html
-packages/compiler-core/**/__tests__/**/*preview.jsx
-packages/compiler-core/**/__tests__/**/*preview.tsx
+**/__tests__/**/preview/
+**/__tests__/**/previews/
+**/__tests__/**/*preview.jsx
+**/__tests__/**/*preview.tsx
 packages/compiler-core/example/.vureact
 package-lock.json

@@ -1,37 +1,48 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 
-const foo = ref(0);
-const state = reactive({ foo: 'bar', bar: { c: 1 } });
+const fooRef = ref(0);
+const reactiveState = reactive({ foo: 'bar', bar: { c: 1 } });
 
 // obj 应被优化成 useMemo 调用
-const obj = {
+const memoizedObj = {
   title: 'test',
-  bar: foo.value,
+  bar: fooRef.value,
   add: () => {
-    state.bar.c++;
+    reactiveState.bar.c++;
   },
 };
 
 // 应忽略处理
-const obj2 = {
+const staticObj = {
   foo: 1,
   state: { bar: { c: 1 } },
 };
 
-// 应被优化，且 obj.bar 也应被作为依赖收集
-const obj3 = {
+const reactiveList = [fooRef.value, 1, 2];
+const staticList = [1, 2, 3];
+const mixedList = [
+  { name: reactiveState.foo, age: fooRef.value },
+  { name: 'A', age: 20 },
+];
+
+// 应被优化
+const nestedObj = {
   a: {
     b: {
-      c: foo.value,
+      c: reactiveList[0], // list[0] 是响应式的，应被收集
       d: () => {
-        return obj.bar;
+        return memoizedObj.bar; // 应被收集
       },
     },
+    e: mixedList, // 引用整个数组，但数组中包含有响应式值，应被收集
   },
 };
 
-const list = [foo.value, 1, 2];
-const list2 = [1, 2, 3];
-const list3 = [{ name: state.foo, age: foo.value }];
+const computeFn = () => {
+  memoizedObj.add();
+  return nestedObj.a.b.d();
+};
+
+const formattedValue = memoizedObj.bar.toFixed(2);
 </script>

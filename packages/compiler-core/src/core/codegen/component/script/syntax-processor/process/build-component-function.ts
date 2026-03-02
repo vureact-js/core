@@ -2,6 +2,7 @@ import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { REACT_API_MAP } from '@consts/react-api-map';
+import { logger } from '@src/shared/logger';
 import { ScriptBlockIR } from '@transform/sfc/script';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
@@ -58,11 +59,22 @@ function resolveMemoComponent(
 function resolveComponentName(ctx: ICompilationContext): t.Identifier {
   const { filename, compName } = ctx as ICompilationContext;
 
-  const name = !compName
-    ? basename(filename).split('.')[0] || `C${genHashByXXH(filename)}`
-    : compName;
+  let name = compName;
 
-  return t.identifier(capitalize(camelCase(name)));
+  if (!name) {
+    // 没有设置组件名则回退到文件名/随机名
+    name = basename(filename).split('.')[0] || `FC${genHashByXXH(filename)}`;
+  }
+
+  name = capitalize(camelCase(name));
+
+  if (!compName) {
+    logger.warn('Missing component name, it falls back to the filename. ' + name, {
+      file: filename,
+    });
+  }
+
+  return t.identifier(name);
 }
 
 function resolveParam(ctx: ICompilationContext): t.Identifier | undefined {

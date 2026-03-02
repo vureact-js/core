@@ -5,6 +5,7 @@ import { ICompilationContext } from '@compiler/context/types';
 import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { analyzeDeps } from '../../shared/dependency-analyzer';
 import { createUseMemo } from '../../shared/hook-creator';
+import { setScriptNodeMeta } from '../../shared/metadata-utils';
 
 /**
  * 处理顶层表达式，根据值表达式内部是否有依赖，
@@ -53,6 +54,9 @@ export function resolveExprMemo(ctx: ICompilationContext, ast: ParseResult): Tra
 
       // 替换节点的 init 为 useMemo 调用
       initPath.replaceWith(useMemoCall);
+
+      // 标记该变量为间接响应式，供后续依赖分析溯源使用
+      setScriptNodeMeta(node, { is_reactive: true, reactive_type: 'indirect' });
     },
   };
 }

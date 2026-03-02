@@ -140,8 +140,10 @@ export function analyzeDeps(
     // 1. 如果是有效的响应式依赖表达式（静态成员链），克隆整个表达式
     // 2. 否则只返回根标识符（例如动态属性访问只返回对象本身）
     if (t.isMemberExpression(path.node) || t.isOptionalMemberExpression(path.node)) {
-      if (isReactValidDependencyExpr(path.node)) {
-        return t.cloneNode(path.node, true);
+      const normalizedExp = normalizeMemberForCallSite(path, path.node);
+
+      if (isReactValidDependencyExpr(normalizedExp)) {
+        return t.cloneNode(normalizedExp, true);
       }
 
       return t.identifier(rootName);
@@ -217,6 +219,37 @@ export function analyzeDeps(
   }
 
   /**
+   * 对成员调用场景做归一化：
+   * 例如 obj.bar.toFixed() 的依赖应为 obj.bar，而不是 obj.bar.toFixed，
+   * 否则可能出现依赖值稳定但结果变化的情况。
+   */
+  function normalizeMemberForCallSite(
+    path: NodePath<t.Expression | t.Identifier>,
+    node: t.MemberExpression | t.OptionalMemberExpression,
+  ): t.Expression {
+    const parent = path.parentPath;
+
+    // 检查当前成员表达式是否直接作为调用表达式的 callee（例如 obj.foo() 中的 obj.foo）
+    const isDirectCallee =
+      !!parent &&
+      ((parent.isCallExpression() && parent.node.callee === node) ||
+        (parent.isOptionalCallExpression() && parent.node.callee === node));
+
+    // 如果不是直接作为调用表达式的 callee，则返回原始节点（无需归一化）
+    if (!isDirectCallee) {
+      return node;
+    }
+
+    // 确保成员表达式的 object 部分是一个有效的表达式节点
+    if (!t.isExpression(node.object)) {
+      return node;
+    }
+
+    // 对于调用场景，返回 object 部分作为依赖（例如 obj.foo() 的依赖应为 obj，而不是 obj.foo）
+    return node.object;
+  }
+
+  /**
    * 判断绑定是否合格：
    * 1. 是否是 import 进来的
    * 2. 是否是 reactive/ref 等 API 声明的
@@ -247,6 +280,9 @@ export function analyzeDeps(
       t.isIdentifier(nodeInit.callee) &&
       reactiveStateApis.has(nodeInit.callee.name);
 
+    const isHookCallVarBinding =
+      !!declaratorPath && t.isCallExpression(nodeInit) && isHookLikeCallee(nodeInit.callee);
+
     // 判断是否为函数绑定（函数声明或函数表达式）
     const isFunctionBinding =
       bindingPath.isFunctionDeclaration() ||
@@ -265,8 +301,35 @@ export function analyzeDeps(
     }
 
     return (
-      isImportBinding || isReactiveVarBinding || isReactiveApiCallVarBinding || isFunctionBinding
+      isImportBinding ||
+      isReactiveVarBinding ||
+      isReactiveApiCallVarBinding ||
+      isHookCallVarBinding ||
+      isFunctionBinding
     );
+  }
+
+  /**
+   * 判断调用表达式是否为 Hook 类型的调用
+   * Hook 通常以 'use' 开头，如 useState、useEffect 等
+   * 支持两种形式：
+   * 1. 直接调用：useState()
+   * 2. 成员调用：React.useState()
+   */
+  function isHookLikeCallee(callee: t.CallExpression['callee']): boolean {
+    // 情况1：直接标识符调用，检查是否以 'use' 开头
+    if (t.isIdentifier(callee)) {
+      return callee.name.startsWith('use');
+    }
+
+    // 情况2：成员表达式调用（如 React.useState）
+    // 要求：非计算属性且属性为标识符，同时属性名以 'use' 开头
+    if (t.isMemberExpression(callee) && !callee.computed && t.isIdentifier(callee.property)) {
+      return callee.property.name.startsWith('use');
+    }
+
+    // 其他情况均不视为 Hook 调用
+    return false;
   }
 
   // 递归溯源：检查变量的初始值是否来源于响应式对象
@@ -330,17 +393,72 @@ export function analyzeDeps(
       // 例如: const a = state; const b = a.count;
       const sourcedRoot = traceBindingSource(sourceBinding, seen, depth - 1);
       if (sourcedRoot) {
-        // 构造新的表达式: sourcedRoot + .count
-        // 这一步比较复杂，简化处理可以只支持直接引用，或者暂不支持深层重构
-        // 为了安全起见，如果通过 MemberExpression 溯源成功，
-        // 我们往往认为整个表达式就是源。
-        return t.cloneNode(exp);
+        const rebuilt = rebuildMemberWithNewRoot(exp, sourcedRoot);
+        if (rebuilt) {
+          return rebuilt;
+        }
+
+        return t.cloneNode(sourcedRoot, true);
       }
     }
 
     return null;
   }
 
+  /**
+   * 将成员表达式的根标识符替换为新根表达式：
+   * a.b.c + state.foo => state.foo.b.c
+   */
+  function rebuildMemberWithNewRoot(
+    node: t.MemberExpression | t.OptionalMemberExpression,
+    nextRoot: t.Expression,
+  ): t.Expression | null {
+    // 替换成员表达式的根对象部分：
+    // 1. 如果当前节点的object是标识符，直接用新根节点替换
+    // 2. 如果当前节点的object是成员表达式，递归替换其根对象
+    const replacedObject = (() => {
+      // 标识符情况：直接克隆新根节点作为替换对象
+      if (t.isIdentifier(node.object)) {
+        return t.cloneNode(nextRoot, true);
+      }
+
+      // 嵌套成员表达式情况：递归替换其根对象
+      if (t.isMemberExpression(node.object) || t.isOptionalMemberExpression(node.object)) {
+        return rebuildMemberWithNewRoot(node.object, nextRoot);
+      }
+
+      // 其他类型表达式不支持替换
+      return null;
+    })();
+
+    // 如果替换对象失败，返回null
+    if (!replacedObject) {
+      return null;
+    }
+
+    // 克隆当前节点的属性部分（保持原属性不变）
+    const property = t.cloneNode(node.property, true);
+
+    // 根据节点类型重建成员表达式：
+    // 1. 普通成员表达式：使用替换后的对象和原属性构建新节点
+    // 2. 可选链表达式：额外保留optional标记
+    if (t.isMemberExpression(node)) {
+      return t.memberExpression(
+        replacedObject,
+        property as t.Expression | t.Identifier,
+        node.computed,
+      );
+    }
+
+    return t.optionalMemberExpression(
+      replacedObject,
+      property as t.Expression | t.Identifier,
+      node.computed,
+      node.optional,
+    );
+  }
+
+  // 将收集到的依赖转换为数组表达式并返回
   return t.arrayExpression(Array.from(deps.values()));
 }
 
