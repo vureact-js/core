@@ -1,5 +1,7 @@
 # VuReact Core
 
+简体中文 | [English](./README.md)
+
 **下一代 Vue 3 -> React 智能编译工具链**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

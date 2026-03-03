@@ -1,12 +1,14 @@
 # @vureact/runtime-core
 
+English | [简体中文](./README.zh.md)
+
 **React Adaptation Layer for Vue 3 Built-in Components / React Hooks / Template Directive Toolset**
 
 A comprehensive React adaptation layer that empowers React applications with the powerful features of Vue 3. Leverage built-in components, reactive hooks, and template directive tools to bring Vue-style development experience to your React projects.
 
 ## What is it?
 
-`@vureact/runtime-core` serves as a bridge between Vue 3 and React, enabling React developers to directly reuse Vue's well-proven built-in components (KeepAlive, Transition, Teleport), reactive APIs, and template directive paradigms without leaving the React technical ecosystem.
+It's serves as a bridge between Vue 3 and React, enabling React developers to directly reuse Vue's well-proven built-in components (KeepAlive, Transition, Teleport), reactive APIs, and template directive paradigms without leaving the React technical ecosystem.
 
 The reactive implementation in this library is developed based on the mature [valtio](https://github.com/pmndrs/valtio) library from the React community.
 

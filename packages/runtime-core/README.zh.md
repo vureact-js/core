@@ -1,12 +1,14 @@
 # @vureact/runtime-core
 
+简体中文 | [English](./README.md)
+
 **Vue 3 内置组件 / React 钩子 / 模板指令工具集 的 React 适配层**
 
 一套全面的 React 适配层，将 Vue 3 的强大特性赋能至 React 应用中。通过内置组件、响应式钩子和模板指令工具，让你的 React 项目拥有 Vue 风格的开发体验。
 
 ## 简介
 
-`@vureact/runtime-core` 是 Vue 3 与 React 之间的桥梁，让 React 开发者无需脱离 React 技术生态，就能直接复用 Vue 优秀的内置组件（KeepAlive、Transition、Teleport）、响应式 API 以及模板指令范式。
+这是 Vue 3 与 React 之间的桥梁，让 React 开发者无需脱离 React 技术生态，就能直接复用 Vue 优秀的内置组件（KeepAlive、Transition、Teleport）、响应式 API 以及模板指令范式。
 
 本库使用 [Valtio](https://github.com/pmndrs/valtio) 作为响应式引擎，提供高性能的 Proxy-based 响应式系统。
 

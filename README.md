@@ -1,5 +1,7 @@
 # VuReact Core
 
+English | [简体中文](./README.zh.md)
+
 **Next-Generation Intelligent Vue 3 → React Compilation Toolchain**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
