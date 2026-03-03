@@ -3,7 +3,7 @@ export type ClsInputValue = string | Record<string, any> | ClsInputValue[];
 /**
  * vCls - Runtime helper for Vue v-bind:class directive in React JSX
  *
- * @see https://vureact-runtime.vercel.app/guide/utils/v-cls
+ * @see https://runtime.vureact.top/guide/utils/v-cls.html
  *
  * @param {ClsInputValue} value - Supports string, object, array, and mixed types
  * @param {ClsInputValue} mergeItem - Supplementary items to be merged (optional)

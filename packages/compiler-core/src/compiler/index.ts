@@ -2,7 +2,7 @@ import { FileCompiler } from './shared/file-compiler';
 
 /**
  * Next Vue to React compiler, compiles Vue 3 syntax into runnable React 18+ code.
- * @see https://vureact.vercel.app
+ * @see https://vureact.top
  */
 export class VuReact extends FileCompiler {}
 

@@ -10,7 +10,7 @@ export interface WatchEffectOptions {
 
 /**
  * Vue-like watchEffect adapter with manual React dependency control.
- * @see https://vureact-runtime.vercel.app/guide/hooks/watch-effect
+ * @see https://runtime.vureact.top/guide/hooks/watch-effect.html
  */
 export function useWatchEffect(
   fn: EffectCallback,

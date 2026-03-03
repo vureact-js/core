@@ -29,7 +29,7 @@ export function vOn<E = any>(event: string, handler: any, fullEventObj?: boolean
 /**
  * vOn - Runtime helper for Vue v-on directive in React JSX
  *
- * @see https://vureact-runtime.vercel.app/guide/utils/v-on
+ * @see https://runtime.vureact.top/guide/utils/v-on.html
  *
  * @param event event name, allowing chaining with modifiers.
  * @param handler event handler.
@@ -42,8 +42,6 @@ export function vOn<E = any>(event: string, handler: any, fullEventObj?: boolean
  * <div onClick={vOn('click.once', count++)} />
  * <div onMouseDown={vOn('mousedown.right', e => {})} />
  * <div onKeyDown={vOn('keydown.enter', e => {})} />
- *
- * @see https://vureact-runtime.vercel.app/en/utils/vOn
  */
 export function vOn<E = any>(
   event: string,

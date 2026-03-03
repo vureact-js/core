@@ -28,11 +28,11 @@ class AdapterUtil {
 }
 
 /**
- * @see https://vureact-runtime.vercel.app/guide/utils/adapter-utils
+ * @see https://runtime.vureact.top/guide/utils/adapter-utils.html
  */
 export const adapterUtils = new AdapterUtil();
 
 /**
- * @see https://vureact-runtime.vercel.app/guide/utils/adapter-utils
+ * @see https://runtime.vureact.top/guide/utils/adapter-utils.html
  */
 export const dir = adapterUtils;

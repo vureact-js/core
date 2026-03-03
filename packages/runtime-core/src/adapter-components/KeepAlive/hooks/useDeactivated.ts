@@ -3,7 +3,7 @@ import { useInnerKeepAliveKey, useKeepAliveLifeContext } from '../context';
 
 /**
  * React adapter for Vue's KeepAlive useDeactivated hook.
- * @see https://vureact-runtime.vercel.app/guide/components/keep-alive
+ * @see https://runtime.vureact.top/guide/components/keep-alive.html
  */
 export function useDeactivated(fn: () => void) {
   const key = useInnerKeepAliveKey();

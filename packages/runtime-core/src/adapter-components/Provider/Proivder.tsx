@@ -18,7 +18,7 @@ export interface ProviderProps<T, K = ContextKey> extends PropsWithChildren {
  * 该组件会根据传入的名称创建或获取对应的 React 上下文，
  * 并通过 `useInject` 钩子将值提供给所有子组件使用。
  *
- * @see https://vureact-runtime.vercel.app/guide/components/provider
+ * @see https://runtime.vureact.top/guide/components/provider.html
  *
  * @param props - 组件属性
  * @param props.name - 上下文的唯一标识

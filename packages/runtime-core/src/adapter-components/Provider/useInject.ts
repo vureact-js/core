@@ -13,8 +13,8 @@ const factoryCache = new Map<ContextKey, FactoryCache>();
 /**
  * 支持将简单值和工厂函数作为默认值，并具备智能缓存机制。
  *
- * @see https://vureact-runtime.vercel.app/guide/components/provider
- * 
+ * @see https://runtime.vureact.top/guide/components/provider.html
+ *
  * @param name - 上下文标识键名
  * @param defaultValue - 可选的默认值或工厂函数
  * @param treatDefaultAsFactory - 是否将 defaultValue 视作工厂函数

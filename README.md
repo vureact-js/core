@@ -77,7 +77,7 @@ We follow the principle that **controllability is more important than full cover
 
 For detailed usage guides and API documentation, please visit the official VuReact website:
 
-👉 [https://vureact.vercel.app](https://vureact.vercel.app/en)
+👉 [https://vureact.top](https://vureact.top/en)
 
 ---
 
@@ -289,15 +289,15 @@ my-project/
 
 - **Runtime Adapter Package**
   Provides React-compatible implementations of Vue core APIs.
-  [https://vureact-runtime.vercel.app](https://vureact-runtime.vercel.app/en/)
+  [https://runtime.vureact.top](https://runtime.vureact.top/en/)
 
 - **Router Adapter Package**
   Supports Vue Router → React Router transformation.
-  [https://router-vureact.vercel.app](https://router-vureact.vercel.app/en/)
+  [https://router.vureact.top](https://router.vureact.top/en/)
 
 - **Full Documentation**
   Detailed usage guides and API references.
-  [https://vureact.vercel.app](https://vureact.vercel.app/en/)
+  [https://vureact.top](https://vureact.top/en)
 
 ---
 
@@ -345,18 +345,5 @@ Your sponsorship directly supports maintenance, feature development, and documen
 Platform: [afdian](https://afdian.com/a/vureact-js/plan)
 
 ---
-
-**VuReact — Validating the feasibility of full Vue-to-React compilation through innovative compilation architecture and runtime adaptation, achieving unprecedented transformation depth and engineering completeness.**
-
-**VuReact — Validating the feasibility of full Vue-to-React compilation through innovative compilation architecture and runtime adaptation, achieving unprecedented transformation depth and engineering completeness.**
-
-VuReact’s continued development depends on community support.
-Your sponsorship directly supports maintenance, feature development, and documentation improvements, helping push the technical boundaries of Vue-to-React compilation.
-
-Platform: [afdian](https://afdian.com/a/vureact-js/plan)
-
----
-
-**VuReact — Validating the feasibility of full Vue-to-React compilation through innovative compilation architecture and runtime adaptation, achieving unprecedented transformation depth and engineering completeness.**
 
 **VuReact — Validating the feasibility of full Vue-to-React compilation through innovative compilation architecture and runtime adaptation, achieving unprecedented transformation depth and engineering completeness.**

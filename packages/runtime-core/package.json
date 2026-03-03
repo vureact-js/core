@@ -41,7 +41,7 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://vureact-runtime.vercel.app/en",
+  "homepage": "https://runtime.vureact.top/en",
   "repository": {
     "type": "git",
     "url": "https://github.com/vureact-js/core.git",

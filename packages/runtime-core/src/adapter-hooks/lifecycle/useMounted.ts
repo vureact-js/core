@@ -4,7 +4,7 @@ import type { EffectCallback } from '../shared/types';
 
 /**
  * Vue-like onMounted.
- * @see https://vureact-runtime.vercel.app/guide/hooks/mounted
+ * @see https://runtime.vureact.top/guide/hooks/mounted.html
  */
 export function useMounted(fn: EffectCallback): void {
   useEffect(() => executeEffect(fn), []);

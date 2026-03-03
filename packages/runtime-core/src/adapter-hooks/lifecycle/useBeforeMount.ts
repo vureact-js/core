@@ -4,7 +4,7 @@ import type { EffectCallback } from '../shared/types';
 
 /**
  * Vue-like onBeforeMount (React approximation with useLayoutEffect).
- * @see https://vureact-runtime.vercel.app/guide/hooks/before-mount
+ * @see https://runtime.vureact.top/guide/hooks/before-mount.html
  */
 export function useBeforeMount(fn: EffectCallback): void {
   useLayoutEffect(() => executeEffect(fn), []);

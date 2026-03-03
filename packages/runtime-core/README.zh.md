@@ -50,7 +50,7 @@
 
 ### 安装
 
-更多详细教程请访问 [vureact-runtime](https://vureact-runtime.vercel.app)。
+更多详细教程请访问 [https://runtime.vureact.top](https://runtime.vureact.top)。
 
 ```bash
 npm i @vureact/runtime-core
@@ -97,7 +97,7 @@ function Counter(props: { value: number; onIncrement: () => any }) {
 
 - [GitHub 仓库](https://github.com/vureact-js/core)
 - [npm 包](https://www.npmjs.com/package/@vureact/runtime-core)
-- [文档](https://vureact-runtime.vercel.app)
+- [文档](https://runtime.vureact.top)
 - [问题跟踪](https://github.com/vureact-js/core/issues)
 - [贡献指南](../../CONTRIBUTING.zh.md)
 

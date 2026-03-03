@@ -18,7 +18,7 @@ export interface TeleportProps {
 
 /**
  * React adapter for Vue's built-in component `<teleport>`.
- * @see https://vureact-runtime.vercel.app/guide/components/teleport
+ * @see https://runtime.vureact.top/guide/components/teleport.html
  */
 export const Teleport = memo((props: PropsWithChildren<TeleportProps>) => {
   const { to, disabled, defer, children } = props;

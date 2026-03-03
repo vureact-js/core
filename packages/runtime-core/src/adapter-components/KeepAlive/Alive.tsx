@@ -70,7 +70,7 @@ function touchCacheEntry(
 
 /**
  * React adapter for Vue's built-in component `<keep-alive>`.
- * @see https://vureact-runtime.vercel.app/guide/components/keep-alive
+ * @see https://runtime.vureact.top/guide/components/keep-alive
  */
 export const KeepAlive = memo((props: PropsWithChildren<KeepAliveProps>) => {
   const { include, exclude, max = 10, children } = props;

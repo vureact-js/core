@@ -18,7 +18,7 @@ export type ToRefStates<T> = {
  *
  * For arrays, only numeric indices are converted to refs; non-index properties like 'length' are ignored.
  *
- * @see https://vureact-runtime.vercel.app/guide/hooks/to-v-refs
+ * @see https://runtime.vureact.top/guide/hooks/to-v-refs.html
  *
  * @example
  * const state = reactive({ count: 0, name: 'foo' });

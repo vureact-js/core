@@ -8,7 +8,7 @@ import { isPrimitive } from '../shared/utils';
  * If the provided `target` is not a proxy or is a primitive, attempts to access its raw target via the `RAW_TARGET` symbol.
  * Otherwise, returns the raw target if present, or the original target.
  *
- * @see https://vureact-runtime.vercel.app/guide/hooks/to-raw
+ * @see https://runtime.vureact.top/guide/hooks/to-raw.html
  *
  * @example
  *

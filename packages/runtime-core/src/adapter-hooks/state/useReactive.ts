@@ -9,7 +9,7 @@ export type ReactiveState<T> = T extends WrapRef<any> ? UnwrapRef<T> : T;
 /**
  * Creates a reactive proxy of the given target object, enabling reactivity tracking.
  *
- * @see https://vureact-runtime.vercel.app/guide/hooks/reactive
+ * @see https://runtime.vureact.top/guide/hooks/reactive.html
  *
  * @example
  *

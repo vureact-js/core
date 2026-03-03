@@ -8,15 +8,13 @@ type Object = Record<string, any>;
 /**
  * vKeyless - Runtime helper for Vue `v-bind={...}` directive in React JSX
  *
- * @see https://vureact-runtime.vercel.app/guide/utils/v-keyless
+ * @see https://runtime.vureact.top/guide/utils/v-keyless.html
  *
  * @param obj - object to bind
  * @returns Object that can be spread as JSX props
  *
  * @example
  * <div {...vKeyless({ id: 'foo', class: { active: true }, onClick: handler })} />
- *
- * @see https://vureact-runtime.vercel.app/en/utils/vKeyless
  */
 export function vKeyless(obj: Object): Object {
   const props: Object = {};

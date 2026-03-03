@@ -9,7 +9,7 @@ export interface TransitionProps extends PropsWithChildren<BaseTransitionProps> 
 
 /**
  * React adapter for Vue's built-in component `<transition>`.
- * @see https://vureact-runtime.vercel.app/guide/components/transition
+ * @see https://runtime.vureact.top/guide/components/transition.html
  */
 export const Transition = memo((props: TransitionProps) => {
   const { mode, children, ...rest } = props;

@@ -4,7 +4,7 @@ import type { EffectCallback } from '../shared/types';
 
 /**
  * Vue-like onUpdated (skip first mount).
- * @see https://vureact-runtime.vercel.app/guide/hooks/updated
+ * @see https://runtime.vureact.top/guide/hooks/updated.html
  */
 export function useUpdated(fn: EffectCallback, deps?: DependencyList): void {
   const isFirstMount = useRef(true);

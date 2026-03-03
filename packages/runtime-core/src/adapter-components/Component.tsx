@@ -20,7 +20,7 @@ export interface ComponentProps extends Record<string, any> {
 
 /**
  * React adapter for Vue's built-in component `<component>`.
- * @see https://vureact-runtime.vercel.app/guide/components/dynamic-components
+ * @see https://runtime.vureact.top/guide/components/dynamic-components.html
  */
 export const Component = memo(
   ({ is, children, ...otherProps }: PropsWithChildren<ComponentProps>): ReactNode => {
