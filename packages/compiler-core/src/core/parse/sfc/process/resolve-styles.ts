@@ -4,7 +4,6 @@ import { processScopedWithPostCss } from '@plugins/postcss';
 import { resolveLessSass } from '@plugins/resolve-less-sass';
 import { logger } from '@shared/logger';
 import { SFCDescriptor } from '@vue/compiler-sfc';
-import { basename } from 'path';
 import { ParseResult } from '..';
 
 export function resolveStyles(
@@ -76,10 +75,7 @@ export function resolveStyles(
 
   // 生成文件路径
   const filePath = filename.replace(/\.vue$/i, ext);
-  const bNs = basename(filePath);
-
-  // 将 css 文件名小写
-  styleData.filePath = filePath.replace(bNs, bNs.toLowerCase());
+  styleData.filePath = filePath;
 
   result.style = {
     ast: undefined,
