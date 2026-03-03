@@ -10,7 +10,7 @@ export function replaceVueSuffix(ctx: ICompilationContext, node: StringLiteral) 
   if (!node.value.endsWith('.vue')) return;
 
   const { scriptData } = ctx;
-  const jsxFile = `"${node.value.replace(/.vue$/, `.${scriptData.lang}x`)}"`;
+  const jsxFile = node.value.replace(/.vue$/, `.${scriptData.lang}x`);
 
   node.value = jsxFile;
   node.extra = { rawValue: jsxFile, raw: jsxFile };

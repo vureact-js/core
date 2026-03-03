@@ -5,7 +5,7 @@ import { PACKAGE_NAME } from '@consts/other';
 import { REACT_API_MAP } from '@consts/react-api-map';
 import { logger } from '@shared/logger';
 import { recordImport } from '@transform/shared';
-import { scriptBlockIR } from '../..';
+import { getScriptIR } from '../..';
 import { isCalleeNamed } from '../../shared/babel-utils';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
@@ -21,7 +21,7 @@ export function resolveAsyncComponent(ctx: ICompilationContext): TraverseOptions
       const [arg] = node.arguments;
 
       checkIsUnsupported(ctx, arg);
-      pushToGlobalScope(path);
+      pushToGlobalScope(path, ctx);
       recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.lazy);
     },
   };
@@ -49,14 +49,14 @@ function checkIsUnsupported(
 function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
   const { scriptData, filename } = ctx;
 
-  const warnIsNotImport = (node?: t.Node | null) => {
-    if (!node || !t.isImport(node)) {
+  const warnIsNotImport = (target?: t.Node | null) => {
+    if (!target || !t.isImport(target)) {
       logger.error(
         `Only ES module dynamic imports are supported. You must use and return import('...').`,
         {
           source: scriptData.source,
           file: filename,
-          loc: node?.loc || {},
+          loc: target?.loc || {},
         },
       );
     }
@@ -80,7 +80,7 @@ function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
   if (t.isCallExpression(node)) {
     warnIsNotImport(node.callee);
 
-    // 替换 import('xx.vue') -> import('xx.jsx')
+    // import('xx.vue') -> import('xx.jsx')
     if (t.isStringLiteral(node.arguments[0])) {
       replaceVueSuffix(ctx, node.arguments[0]);
     }
@@ -88,15 +88,13 @@ function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
     return;
   }
 
-  // 其他类型的表达式一律不支持
   warnIsNotImport(node);
 }
 
 function warnMultipleOptionsUsed(ctx: ICompilationContext, node: t.Node) {
   const { scriptData, filename } = ctx;
   logger.warn(
-    'Only the loader option is supported. ' +
-      'Other options may be implemented manually based on your needs.',
+    'Only the loader option is supported. Other options may be implemented manually based on your needs.',
     {
       source: scriptData.source,
       file: filename,
@@ -105,14 +103,14 @@ function warnMultipleOptionsUsed(ctx: ICompilationContext, node: t.Node) {
   );
 }
 
-function pushToGlobalScope(path: NodePath<t.CallExpression>) {
+function pushToGlobalScope(path: NodePath<t.CallExpression>, ctx: ICompilationContext) {
   const { node } = path;
   const callee = node.callee as t.Identifier;
 
   callee.name = REACT_API_MAP.lazy;
   callee.loc!.identifierName = REACT_API_MAP.lazy;
 
-  // 移除 defineAsyncComponent 的泛型参数，不兼容 React.lazy
+  // remove defineAsyncComponent<T> generic params
   if (node.typeParameters) {
     node.typeParameters = undefined;
   }
@@ -139,6 +137,6 @@ function pushToGlobalScope(path: NodePath<t.CallExpression>) {
     path.remove();
   }
 
-  const { statement } = scriptBlockIR;
-  statement.global.push(fullNode as t.Statement);
+  const scriptIR = getScriptIR(ctx);
+  scriptIR.statement.global.push(fullNode as t.Statement);
 }

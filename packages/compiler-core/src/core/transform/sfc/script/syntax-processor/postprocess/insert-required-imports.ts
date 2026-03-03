@@ -28,7 +28,7 @@ export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions
     ImportDeclaration(path) {
       const { node } = path;
       const moduleName = node.source.value.toLowerCase();
-      const isVueLike = VUE_PACKAGES.some((n) => moduleName.includes(n));
+      const isVueLike = isVueEcosystemPackage(moduleName);
 
       // 首先尝试合并已存在的 import
       mergeImports(node, ctx);
@@ -71,6 +71,28 @@ export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions
       replaceVueSuffix(ctx, node.source);
     },
   };
+}
+
+function isVueEcosystemPackage(moduleName: string): boolean {
+  // Only bare package imports should be considered ecosystem package imports.
+  // Relative/absolute file imports like "./Comp.vue" must be preserved.
+  if (
+    moduleName.startsWith('.') ||
+    moduleName.startsWith('/') ||
+    moduleName.startsWith('file:')
+  ) {
+    return false;
+  }
+
+  if (moduleName.startsWith('@vue/')) {
+    return true;
+  }
+
+  if (moduleName === 'vue-router' || moduleName.startsWith('vue-router/')) {
+    return true;
+  }
+
+  return VUE_PACKAGES.some((name) => moduleName === name || moduleName.startsWith(`${name}/`));
 }
 
 function mergeImports(currentNode: t.ImportDeclaration, ctx: ICompilationContext) {

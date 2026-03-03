@@ -1,0 +1,22 @@
+{
+  "name": "compiler-core-example-messy-vue-sfc",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "vr:watch": "vureact watch",
+    "vr:build": "vureact build"
+  },
+  "dependencies": {
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9",
+    "vue-tsc": "^3.1.1"
+  }
+}

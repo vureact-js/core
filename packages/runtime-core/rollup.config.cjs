@@ -5,10 +5,11 @@ import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import { dts } from 'rollup-plugin-dts';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { author, version } from './package.json';
 
 const banner = `/**
- * @vureact/runtime-core v1.0.0-beta
- * (c) 2025-present Ruihong Zhong (Ryan John)
+ * @vureact/runtime-core v${version}
+ * (c) 2025-present ${author}
  * @license MIT
  */
 `;

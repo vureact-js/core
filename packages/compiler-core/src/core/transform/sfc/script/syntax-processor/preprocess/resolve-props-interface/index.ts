@@ -3,7 +3,7 @@ import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { MACRO_API_NAMES } from '@consts/other';
-import { scriptBlockIR } from '@transform/sfc/script';
+import { getScriptIR } from '@transform/sfc/script';
 import { isCalleeNamed } from '@transform/sfc/script/shared/babel-utils';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
@@ -12,7 +12,7 @@ import { resolveDefinePropsIface } from './resolve-props';
 import { resolveDefineSlotsIface } from './resolve-slot';
 
 /**
- * 处理和收集 defineProps、defineEmits 、defineSlots 的 TS 类型注释
+ * Handle defineProps/defineEmits/defineSlots TypeScript declarations.
  */
 export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
   const isTS = ctx.scriptData.lang.startsWith('ts');
@@ -31,7 +31,6 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
       }
 
       const removePath = () => {
-        // 移除 api
         if (parentPath.isVariableDeclaration() || parentPath.isVariableDeclarator()) {
           parentPath.remove();
         } else {
@@ -44,7 +43,12 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
         return;
       }
 
-      if (isTS) {
+      if (!isTS) {
+        const {
+          scriptData: { propsTSIface },
+        } = ctx;
+        propsTSIface.hasPropsInJsEnv = true;
+      } else {
         if (name === MACRO_API_NAMES.props) {
           resolveDefinePropsIface(path, ctx);
         } else if (name === MACRO_API_NAMES.emits) {
@@ -60,7 +64,7 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
 }
 
 /**
- * 生成组件 props TS 接口 （不经过 babel traverse）
+ * Build component props TS interface node (without babel traverse).
  */
 export function resolveCompIProps(ctx: ICompilationContext, ast: BabelParseResult) {
   const { propsTSIface, lang } = ctx.scriptData;
@@ -79,5 +83,9 @@ export function resolveCompIProps(ctx: ICompilationContext, ast: BabelParseResul
   const exportDecl = t.exportNamedDeclaration(typeAliasDecl);
 
   propsTSIface.name = ns;
-  scriptBlockIR.exports.push(exportDecl);
+
+  const scriptIR = getScriptIR(ctx);
+  scriptIR.exports.push(exportDecl);
+
+  void ast;
 }

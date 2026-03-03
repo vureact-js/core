@@ -228,8 +228,11 @@ export class FileCompiler extends BaseCompiler {
     assetCount: number,
   ): void {
     const dir = normalizePath(this.relativePath(this.getOuputPath()));
+
     this.spinner.succeed(`Build completed in ${endTime}`);
-    console.info(`  Output directory: ${kleur.dim(dir)}`);
+
+    console.info(` Output directory: ${kleur.dim(dir)}`);
+    console.info();
 
     this.skippedCount += this.pipelineManager.getSkippedCount();
     this.pipelineManager.resetSkippedCount();
@@ -248,5 +251,7 @@ export class FileCompiler extends BaseCompiler {
 
       console.info(kleur.gray(`Processed ${stats.join(', ')}`));
     }
+
+    console.info();
   }
 }

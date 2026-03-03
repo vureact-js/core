@@ -67,6 +67,7 @@ export interface CompilerOptions {
      *  'eslint.config.',
      *  'readme.',
      *  'vue.',
+     *  'vureact.config.js',
      * ]
      */
     ignoreAssets?: string[];

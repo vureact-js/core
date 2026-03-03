@@ -91,6 +91,9 @@ export class ViteBootstrapper {
 
     // 继承业务依赖，并注入 React 运行时必需的组件
     const resolveDeps = (root: Record<string, any>, vite: Record<string, any>, isDev = false) => {
+      // 先移除 Vue like 包再合并，防止误删 react 环境的包
+      removeVuePackages(root);
+
       const deps = {
         ...root,
         ...vite,
@@ -114,10 +117,6 @@ export class ViteBootstrapper {
     // 执行依赖合并
     const newDeps = resolveDeps(rootPkg.dependencies, vitePkg.dependencies);
     const newDevDeps = resolveDeps(rootPkg.devDependencies, vitePkg.devDependencies, true);
-
-    // 移除 Vue like 包
-    removeVuePackages(newDeps);
-    removeVuePackages(newDevDeps);
 
     // 更新 package.json
     vitePkg.dependencies = newDeps;

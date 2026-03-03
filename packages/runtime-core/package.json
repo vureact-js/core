@@ -1,11 +1,11 @@
 {
   "name": "@vureact/runtime-core",
-  "version": "1.0.0-beta",
+  "version": "1.0.1",
   "type": "module",
   "main": "./dist/cjs/runtime-core.js",
   "module": "./dist/esm/runtime-core.esm.js",
   "types": "./dist/types/runtime-core.d.ts",
-  "author": "Ryan John",
+  "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "description": "React adapter for Vue 3's built-in components, reactive APIs, and template directive utilities. Bring Vue's developer experience to React applications.",
   "keywords": [
@@ -41,11 +41,11 @@
   "files": [
     "dist"
   ],
-  "homepage": "https://runtime.vureact.top/en",
+  "homepage": "https://runtime.vureact.top",
   "repository": {
     "type": "git",
     "url": "https://github.com/vureact-js/core.git",
-    "directory": "tree/master/packages/runtime-core"
+    "directory": "packages/runtime-core"
   },
   "bugs": {
     "url": "https://github.com/vureact-js/core/issues"

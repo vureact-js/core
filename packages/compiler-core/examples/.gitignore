@@ -1,0 +1,9 @@
+# Ignore build artifacts and dependencies in examples
+node_modules/
+.vureact/
+dist/
+*.log
+.DS_Store
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

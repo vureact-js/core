@@ -2,38 +2,36 @@ import { ParseResult } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { scriptBlockIR } from '../..';
+import { getScriptIR } from '../..';
 import { isSimpleLiteral, isVariableDeclTopLevel } from '../../shared/babel-utils';
 import { getScriptNodeMeta } from '../../shared/metadata-utils';
 
 /**
- * 解决不属于组件内的语句，将其静态提升至组件外部
+ * Hoist static statements out of component function for SFC scripts.
  */
 export function resolveStaticHoisting(ctx: ICompilationContext): TraverseOptions {
+  const scriptIR = getScriptIR(ctx);
+
   if (ctx.inputType !== 'sfc') {
-    return {
-      // script 文件的代码不用提升
-    };
+    return {};
   }
 
   return {
     'ImportDeclaration|ExportDeclaration'(path) {
       if (t.isImportDeclaration(path.node)) {
-        scriptBlockIR.imports.push(path.node);
+        scriptIR.imports.push(path.node);
       } else if (t.isExportDeclaration(path.node)) {
-        scriptBlockIR.exports.push(path.node);
+        scriptIR.exports.push(path.node);
       }
 
       path.remove();
     },
 
-    // 处理顶级类型声明
     'TSInterfaceDeclaration|TSTypeAliasDeclaration|TSEnumDeclaration|TSModuleDeclaration|TSModuleDeclaration'(
       path,
     ) {
-      // 确保是顶级声明（父节点是 Program）
       if (t.isProgram(path.parent)) {
-        scriptBlockIR.tsTypes.push(path.node as t.TypeScript);
+        scriptIR.tsTypes.push(path.node as t.TypeScript);
         path.remove();
       }
     },
@@ -41,30 +39,25 @@ export function resolveStaticHoisting(ctx: ICompilationContext): TraverseOptions
     VariableDeclarator(path) {
       const { node } = path;
 
-      // 跳过非顶级变量声明、初始值非简单字面量、被标记了元数据的节点
       if (!isVariableDeclTopLevel(path) || !isSimpleLiteral(node.init) || getScriptNodeMeta(node)) {
         return;
       }
 
-      // 查找声明根节点，如果存在才收集
       const declarationPath = path.findParent((p) => p.isVariableDeclaration());
       if (!declarationPath) return;
 
-      scriptBlockIR.statement.global.push(declarationPath.node);
-
-      // 移除完整节点
+      scriptIR.statement.global.push(declarationPath.node);
       declarationPath.remove();
     },
   };
 }
 
 /**
- * 收集静态提升后的剩余语句，这些语句应放在组件内使用
+ * Collect remaining local statements after static hoisting.
  */
 export function collectLocalStatements(ctx: ICompilationContext, ast: ParseResult) {
-  // script 文件的代码不用做切割收集
   if (ctx.inputType !== 'sfc') return;
 
-  const { statement } = scriptBlockIR;
-  statement.local = ast;
+  const scriptIR = getScriptIR(ctx);
+  scriptIR.statement.local = ast;
 }

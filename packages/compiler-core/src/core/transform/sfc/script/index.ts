@@ -4,44 +4,57 @@ import { ICompilationContext } from '@compiler/context/types';
 import { processVueSyntax } from './syntax-processor';
 
 export interface ScriptBlockIR {
-  /** 转换后完整的 ast，没有经过切割 */
+  /** Transformed full script AST (used for script-only input). */
   scriptAST?: BabelParseResult;
   imports: t.ImportDeclaration[];
   exports: t.ExportDeclaration[];
   tsTypes: t.TypeScript[];
-  /** 存放可执行 js 语句 */
+  /** Executable statements extracted from script block. */
   statement: {
-    /**
-     * 位于组件函数外的 script 语句
-     */
+    /** Statements hoisted outside component function. */
     global: t.Node[];
-    /**
-     * 位于组件函数内的 script 语句
-     */
+    /** Statements kept inside component function. */
     local: BabelParseResult<t.File> | null;
   };
 }
 
-export const scriptBlockIR = createScriptIR();
+const SCRIPT_IR_KEY = '__vureact_script_block_ir';
 
 export function resolveScript(
   ast: BabelParseResult | undefined,
   ctx: ICompilationContext,
 ): ScriptBlockIR {
+  const scriptIR = createScriptIR();
+
+  //  每次创建新的 ir，防止不同编译间的数据共享
+  setScriptIR(ctx, scriptIR);
+
   if (!ast) {
-    // 没有 script 内容的情况下，自动添加占位注释以确保转换流程正常运行
-    const comments = '// No script';
-    ast = babelParse(comments);
+    // Keep pipeline stable for SFCs without script.
+    ast = babelParse('// No script');
   }
 
   processVueSyntax(ast, ctx);
 
   if (ctx.inputType !== 'sfc') {
-    // 处理纯 script 文件则接收整颗 ast
-    scriptBlockIR.scriptAST = ast;
+    scriptIR.scriptAST = ast;
   }
 
-  return scriptBlockIR;
+  return scriptIR;
+}
+
+export function getScriptIR(ctx: ICompilationContext): ScriptBlockIR {
+  const ir = (ctx.scriptData as any)[SCRIPT_IR_KEY] as ScriptBlockIR | undefined;
+
+  if (!ir) {
+    throw new Error('Script IR is not initialized for current compilation context');
+  }
+
+  return ir;
+}
+
+function setScriptIR(ctx: ICompilationContext, ir: ScriptBlockIR): void {
+  (ctx.scriptData as any)[SCRIPT_IR_KEY] = ir;
 }
 
 function createScriptIR(): ScriptBlockIR {

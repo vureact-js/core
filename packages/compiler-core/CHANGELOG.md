@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0-beta] - 2026-03-03
+## [1.0.0] - 2026-03-03
 
-### 🚩 里程碑版本：VuReact 1.0.0-beta —— “心灵控制”
+### 🚩 里程碑版本：VuReact 1.0.0 —— “心灵控制”
 
 这是 VuReact 的第一个先行版本，代号"心灵控制"。此版本标志着 Vue 到 React 编译从概念验证走向工程实践的重要里程碑。
 

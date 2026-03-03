@@ -1,8 +1,8 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.0.0-beta",
+  "version": "1.0.0",
   "description": "Next Vue to React compiler, compiles Vue 3 syntax into runnable React 18+ code.",
-  "author": "Ryan John",
+  "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
   "main": "./lib/compiler-core.js",
@@ -17,8 +17,7 @@
   },
   "files": [
     "bin",
-    "lib",
-    "src/templates"
+    "lib"
   ],
   "keywords": [
     "vue",
@@ -35,11 +34,11 @@
     "jsx",
     "sfc"
   ],
-  "homepage": "https://vureact.top/en",
+  "homepage": "https://vureact.top",
   "repository": {
     "type": "git",
     "url": "https://github.com/vureact-js/core.git",
-    "directory": "tree/master/packages/compiler-core"
+    "directory": "packages/compiler-core"
   },
   "bugs": {
     "url": "https://github.com/vureact-js/core/issues"

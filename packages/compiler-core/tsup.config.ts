@@ -1,9 +1,10 @@
 import fs from 'fs';
 import { defineConfig } from 'tsup';
+import { author, version } from './package.json';
 
 const licenseBanner = `/**
- * @vureact/compiler-core v1.0.0-beta
- * (c) 2025-present Ruihong Zhong (Ryan John)
+ * @vureact/compiler-core v${version}
+ * (c) 2025-present ${author}
  * @license MIT
  */
 `;

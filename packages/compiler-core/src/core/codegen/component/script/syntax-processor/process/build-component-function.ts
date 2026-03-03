@@ -15,10 +15,17 @@ export function buildComponent(
   ctx: ICompilationContext,
   state: ScriptBuildState,
 ) {
-  const { scriptData } = ctx;
+  const {
+    scriptData: { propsTSIface },
+  } = ctx;
+
+  const hasProps =
+    getHasProps(propsTSIface.propsTypes) ||
+    getHasProps(propsTSIface.emitTypes) ||
+    getHasProps(propsTSIface.slotTypes);
 
   // 有脚本代码或 props 都采用 memo 策略
-  const shouldMemo = scriptIR !== null || scriptData.propsTSIface.name !== '';
+  const shouldMemo = scriptIR !== null || hasProps;
 
   const jsxStatement = t.returnStatement((state.jsx || t.nullLiteral()) as t.Expression);
 
@@ -82,16 +89,15 @@ function resolveParam(ctx: ICompilationContext): t.Identifier | undefined {
   const { propsTSIface } = scriptData;
   const propsIdentifier = t.identifier(propField);
 
-  const getHasProps = (list: any[]) => Object.keys(list).length > 0;
-
-  const hasProps =
-    getHasProps(propsTSIface.propsTypes) ||
-    getHasProps(propsTSIface.emitTypes) ||
-    getHasProps(propsTSIface.slotTypes);
-
   // 有 props 但是 js 环境，直接返回参数名
-  if (scriptData.lang.startsWith('js') && hasProps) {
-    return propsIdentifier;
+  if (scriptData.lang.startsWith('js')) {
+    // 即使没有收集 props 类型，但只要疑似有 props 则返回 props 参数名
+    if (propsTSIface.hasPropsInJsEnv) {
+      return propsIdentifier;
+    }
+
+    // 没有 props 返回 undefined
+    return;
   }
 
   // 参数设置类型注解
@@ -118,4 +124,8 @@ function resolveStatements(
   }
 
   return stmts;
+}
+
+function getHasProps(list: any[]): boolean {
+  return Object.keys(list).length > 0;
 }

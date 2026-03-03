@@ -81,6 +81,11 @@ export interface IPropsContext {
   name: string;
 
   /**
+   * 标记为疑似有 props 但是在 js 环境下
+   */
+  hasPropsInJsEnv?: boolean;
+
+  /**
    * 用于记录源码中对应 API 的 ts 类型
    *
    * 1.推导出的属性元数据，如 (defineProps(['foo', 'bar']))
