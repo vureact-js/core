@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-03-04
+
+### Fixed
+
+- 修复 VUE_PACKAGES 常量配置，添加 `@vureact/compiler-core` 到排除列表，避免将其带到 React 项目中
+
+---
+
+## [1.0.1] - 2026-03-04
+
+### Added
+
+- chore: bump version to 1.0.1
+
+### Fixed
+
+- 修复生产环境CLI入口文件引用错误
+
+### Docs
+
+- add comprehensive JSDoc comments to core compiler classes
+- update CHANGELOG with detailed 1.0.0 release notes
+
 ---
 
 ## [1.0.0] - 2026-03-03

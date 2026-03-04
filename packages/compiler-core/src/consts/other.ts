@@ -38,4 +38,11 @@ export const DOLLAR_IDENTIFIERS = [
 ];
 
 /** Vue 相关的包主名称 */
-export const VUE_PACKAGES = ['vue', 'vite', 'pinia', 'nuxt'];
+export const VUE_PACKAGES = [
+  'vue',
+  'vite',
+  'pinia',
+  'nuxt',
+  // 不需要带到 React 项目中
+  '@vureact/compiler-core',
+];
