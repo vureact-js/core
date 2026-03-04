@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-03-04
+
+### Fiexd
+
+- 修复只有当 Vue 组件有 props 时，编译后的 TSX 组件才返回组件函数参数
+- 修复 Vue 模板编译到 JSX 时，文本中的特殊字符没有被正确处理
+
+---
+
 ## [1.0.2] - 2026-03-04
 
 ### Fixed

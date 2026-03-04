@@ -1,12 +1,13 @@
 <template>
-  <main class='shell'>
-    <h1>Vite Vue3 Standard Example</h1>
+  <main class="shell">
+    <h1>VuReact -> Vite Vue3 Standard Example</h1>
     <CounterPanel />
     <SlotPanel />
   </main>
 </template>
 
-<script setup>
+<script setup lang="ts">
+// @ts-nocheck
 // @vr-name: ViteStandardApp
 import CounterPanel from './components/CounterPanel.vue';
 import SlotPanel from './components/SlotPanel.vue';

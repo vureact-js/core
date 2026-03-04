@@ -100,6 +100,12 @@ function resolveParam(ctx: ICompilationContext): t.Identifier | undefined {
     return;
   }
 
+  // TypeScript 环境：只有在有有效的 props 类型名称时才返回参数
+  if (!propsTSIface.name) {
+    // 没有 props 类型名称，返回 undefined
+    return;
+  }
+
   // 参数设置类型注解
   const typeIdentifier = t.identifier(propsTSIface.name);
   propsIdentifier.typeAnnotation = t.tsTypeAnnotation(t.tsTypeReference(typeIdentifier));
@@ -127,5 +133,5 @@ function resolveStatements(
 }
 
 function getHasProps(list: any[]): boolean {
-  return Object.keys(list).length > 0;
+  return list.length > 0;
 }
