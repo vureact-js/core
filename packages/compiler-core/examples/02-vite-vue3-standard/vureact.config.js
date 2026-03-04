@@ -4,10 +4,8 @@ export default defineConfig({
   input: 'src',
   exclude: [
     'src/main.ts',
-    '**/src/main.ts',
     'src/shared/**',
-    '**/src/shared/**',
-    // , 'src/App.vue'
+    // ,'src/App.vue'
   ],
   output: {
     workspace: '.vureact',

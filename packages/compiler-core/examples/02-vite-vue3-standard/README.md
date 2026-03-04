@@ -33,7 +33,7 @@ npm run vr:watch
 cd .vureact/react-app/
 
 # 安装依赖
-pnpm install
+npm install
 ```
 
 ### Step 2
@@ -42,5 +42,5 @@ pnpm install
 
 ```bash
 # 运行 react 应用
-pnpm run dev
+npm run dev
 ```

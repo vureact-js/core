@@ -1,8 +1,13 @@
 <template>
   <main class="shell">
-    <h1>VuReact -> Vite Vue3 Standard Example</h1>
+    <SlotPanel title="VuReact -> Vite + React">
+      <template #logo>
+        <div>
+          <img class="logo" src="/public/vureact.webp" />
+        </div>
+      </template>
+    </SlotPanel>
     <CounterPanel />
-    <SlotPanel />
   </main>
 </template>
 
@@ -11,4 +16,5 @@
 // @vr-name: ViteStandardApp
 import CounterPanel from './components/CounterPanel.vue';
 import SlotPanel from './components/SlotPanel.vue';
+import './styles/app.css';
 </script>

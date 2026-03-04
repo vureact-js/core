@@ -1,11 +1,12 @@
-﻿:root {
-  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+﻿#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
 }
 
 body {
-  margin: 0;
-  background: #f3f4f6;
+  background: #30343d;
 }
 
 .shell {
@@ -17,8 +18,29 @@ body {
 }
 
 .card {
-  background: #fff;
+  background: #fafafa;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
   padding: 16px;
+  color: #666;
+}
+
+@keyframes epsilon-psi-scan {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px rgba(138, 43, 226, 0.4));
+  }
+  15% {
+    filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.8));
+  }
+  20% {
+    filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.6));
+  }
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  transition: opacity 0.3s ease;
+  animation: epsilon-psi-scan 4s cubic-bezier(0.19, 1, 0.22, 1) infinite;
 }

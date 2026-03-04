@@ -278,7 +278,8 @@ function buildSlotPropSignature(
 
   let typeAnnotation: t.TSTypeAnnotation;
 
-  if (rawName === SLOT_DEFAULT_NAME && params.length === 0) {
+  // fix: 如果是默认插槽且没有参数，或者是非作用域插槽（没有参数），则使用 ReactNode 类型
+  if ((rawName === SLOT_DEFAULT_NAME && params.length === 0) || params.length === 0) {
     typeAnnotation = reactNodeType;
   } else {
     const fnType = t.tsFunctionType(null, params, reactNodeType);

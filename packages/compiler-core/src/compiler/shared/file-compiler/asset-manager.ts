@@ -28,8 +28,18 @@ export class AssetManager {
       const ext = path.extname(p).toLowerCase();
 
       if (!this.fileCompiler.options.output?.ignoreAssets) {
-        // 规则 A: 排除模板冲突文件 (仅限根目录的同名文件)
-        if (!relativeToRoot.includes(path.sep) && exclusions.has(filename)) {
+        // 规则 A: 排除预设的冲突文件（适用于所有目录）
+        // fix: 检查完整相对路径或文件名是否匹配预设排除模式
+        const shouldExclude = Array.from(exclusions).some((pattern) => {
+          // 如果模式以点结尾（如 'tsconfig.'），检查文件名是否以该模式开头
+          if (pattern.endsWith('.')) {
+            return filename.startsWith(pattern);
+          }
+          // 否则检查完整相对路径或文件名是否完全匹配
+          return relativeToRoot === pattern || filename === pattern;
+        });
+
+        if (shouldExclude) {
           return false;
         }
       } else if (exclusions.has(relativeToRoot) || exclusions.has(filename)) {
