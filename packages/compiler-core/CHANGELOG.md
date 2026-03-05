@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-03-05
+
+### Fiexd
+
+- 修复当样式预处理启用时，样式文件里导入的 `.less`/`.scss` 文件后缀没有替换成 `.css`
+
+---
+
 ## [1.1.0] - 2026-03-05
 
 ### Added

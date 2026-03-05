@@ -31,6 +31,7 @@ export function resolveLessSass(source: string, options: Options): Result {
     result.code = resolveSassSync(source, filename);
   }
 
+  result.code = resolveImportExtensions(result.code);
   return result;
 }
 
@@ -98,4 +99,12 @@ function resolveSassSync(source: string, filename: string): string {
   // 同步编译 Sass/SCSS
   const result = sass.compileString(source, options);
   return result.css;
+}
+
+// 将潜在的如 @import url('xxx.less') 替换其后缀名为 .css
+function resolveImportExtensions(code: string): string {
+  if (code.includes('.less') || code.includes('.scss') || code.includes('.sass')) {
+    return code.replaceAll(/\.(less|scss|sass)(?=['")])/g, '.css');
+  }
+  return code;
 }
