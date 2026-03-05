@@ -30,15 +30,37 @@ export class PipelineManager {
   }
 
   /**
+   * 运行 Style 编译管线
+   */
+  async runStylePipeline(): Promise<number> {
+    return this.runCorePipeline(CacheKey.STYLE);
+  }
+  /**
    * 核心编译管线
    */
-  private async runCorePipeline(key: CacheKey.SFC | CacheKey.SCRIPT): Promise<number> {
+  private async runCorePipeline(
+    key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.STYLE,
+  ): Promise<number> {
     const inputPath = this.fileCompiler.getInputPath();
+
+    const scriptExtRegex = /\.(js|ts)$/i;
+    const styleExtRegex = /\.(css|less|sass|scss)$/i;
 
     const files = this.fileCompiler.scanFiles(inputPath, (p) => {
       const ext = path.extname(p);
-      if (key === CacheKey.SFC) return ext === '.vue';
-      if (key === CacheKey.SCRIPT) return ext === '.js' || ext === '.ts';
+
+      if (key === CacheKey.SFC) {
+        return ext === '.vue';
+      }
+
+      if (key === CacheKey.SCRIPT) {
+        return scriptExtRegex.test(ext);
+      }
+
+      if (key === CacheKey.STYLE) {
+        return styleExtRegex.test(ext);
+      }
+
       return false;
     });
 

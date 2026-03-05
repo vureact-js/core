@@ -8,24 +8,30 @@ type Options = {
   filename: string;
 };
 
+type Result = { code: string; fileExt: string };
+
 /**
  * 处理 Less / Sass 语言为 CSS（同步版本）
  * 注意：Less 编译是异步的，这里使用同步包装
  */
-export function resolveLessSass(source: string, options: Options): string {
+export function resolveLessSass(source: string, options: Options): Result {
   const { lang, enabled, filename } = options;
+  const result: Result = { code: source, fileExt: '.css' };
 
-  if (!enabled) return source;
+  // 如果开启样式预处理，则统一使用 css 文件后缀，否则使用对应语言文件
+  if (!options.enabled) {
+    result.fileExt = `.${options.lang}`;
+  }
+
+  if (!enabled) return result;
 
   if (lang === 'less') {
-    return resolveLessSync(source, filename);
+    result.code = resolveLessSync(source, filename);
+  } else if (lang === 'scss' || lang === 'sass') {
+    result.code = resolveSassSync(source, filename);
   }
 
-  if (lang === 'scss' || lang === 'sass') {
-    return resolveSassSync(source, filename);
-  }
-
-  return source;
+  return result;
 }
 
 function resolveLessSync(source: string, filename: string): string {

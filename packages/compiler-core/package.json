@@ -1,6 +1,6 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Next Vue to React compiler, compiles Vue 3 syntax into runnable React 18+ code.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",

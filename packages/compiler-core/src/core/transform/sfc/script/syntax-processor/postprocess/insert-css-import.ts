@@ -4,7 +4,10 @@ import { normalizePath } from '@shared/path';
 import { getScriptIR } from '../..';
 
 export function insertCSSImport(ctx: ICompilationContext) {
-  if (ctx.inputType !== 'sfc') return;
+  const { inputType } = ctx;
+
+  // 只有 sfc 文件才需要注入附属 css 产物的 import
+  if (inputType !== 'sfc') return;
 
   const { filePath, moduleName } = ctx.styleData;
   if (!filePath) return;

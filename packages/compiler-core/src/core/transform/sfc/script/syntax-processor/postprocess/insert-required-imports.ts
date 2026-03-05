@@ -1,4 +1,4 @@
-import { TraverseOptions } from '@babel/traverse';
+import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { PACKAGE_NAME, VUE_PACKAGES } from '@consts/other';
@@ -13,6 +13,78 @@ export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions
   // 总是确保 React.memo 导入
   recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.memo);
 
+  // 处理必要的 import 注入
+  function resolveRequiredImport(path: NodePath<t.ImportDeclaration>) {
+    const { node } = path;
+    const moduleName = node.source.value.toLowerCase();
+    const isVueLike = isVueEcosystemPackage(moduleName);
+
+    // 首先尝试合并已存在的 import
+    mergeImports(node, ctx);
+
+    // 检查是否已经处理过相同模块的导入
+    if (processedModules.has(moduleName) && !path.removed) {
+      // 合并到第一个导入声明中，然后移除这个重复的导入
+      path.remove();
+      return;
+    }
+
+    processedModules.add(moduleName);
+
+    // 第一步：只执行一次，确保创建和插入必要的运行时模块
+    if (!hasProcessedImports) {
+      // 创建从上下文收集到的必要模块节点
+      const required = createRequiredImports(ctx);
+
+      if (isVueLike) {
+        // 情况1. 在 Vue 原 import 位置进行替换
+        path.replaceWithMultiple(required);
+      } else if (moduleName === PACKAGE_NAME.react) {
+        // 情况2. react 导入已存在，插入其后位置
+        path.insertAfter(required);
+      } else {
+        // 情况3. 直接插入到第一个 import 节点的前面
+        path.insertBefore(required);
+      }
+
+      hasProcessedImports = true;
+    }
+
+    // 第二步：如果还是 Vue 相关包导入则移除
+    if (isVueLike && !path.removed) {
+      path.remove();
+      return;
+    }
+
+    // 第三步：如果是文件导入，替换 .vue 文件后缀名为 .jsx/.tsx
+    replaceVueSuffix(ctx, node.source);
+  }
+
+  // 处理 import 的 style 文件后缀名统一为 .css
+  // 如 import './demo.less' -> './demo.css'
+  // 前提是开启了样式预处理
+  function resolveStyleFileExt(path: NodePath<t.ImportDeclaration>) {
+    if (!ctx.preprocessStyles) return;
+
+    const { node } = path;
+    if (!node || !node.source || !node.source.value) return;
+
+    const importSource = node.source.value;
+
+    // 只处理相对路径或绝对路径的导入，不处理包导入
+    if (typeof importSource !== 'string') return;
+
+    // 检查是否是样式文件导入
+    const styleExtRegex = /\.(less|sass|scss)$/i;
+    if (!styleExtRegex.test(importSource)) return;
+
+    // 将 .less/.sass/.scss 替换为 .css
+    const newSource = importSource.replace(styleExtRegex, '.css');
+
+    // 更新导入源
+    node.source.value = newSource;
+  }
+
   return {
     // 增加 Program.exit 兜底注入 required imports（处理无 ImportDeclaration 的 SFC）
     Program: {
@@ -26,49 +98,8 @@ export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions
     },
 
     ImportDeclaration(path) {
-      const { node } = path;
-      const moduleName = node.source.value.toLowerCase();
-      const isVueLike = isVueEcosystemPackage(moduleName);
-
-      // 首先尝试合并已存在的 import
-      mergeImports(node, ctx);
-
-      // 检查是否已经处理过相同模块的导入
-      if (processedModules.has(moduleName) && !path.removed) {
-        // 合并到第一个导入声明中，然后移除这个重复的导入
-        path.remove();
-        return;
-      }
-
-      processedModules.add(moduleName);
-
-      // 第一步：只执行一次，确保创建和插入必要的运行时模块
-      if (!hasProcessedImports) {
-        // 创建从上下文收集到的必要模块节点
-        const required = createRequiredImports(ctx);
-
-        if (isVueLike) {
-          // 情况1. 在 Vue 原 import 位置进行替换
-          path.replaceWithMultiple(required);
-        } else if (moduleName === PACKAGE_NAME.react) {
-          // 情况2. react 导入已存在，插入其后位置
-          path.insertAfter(required);
-        } else {
-          // 情况3. 直接插入到第一个 import 节点的前面
-          path.insertBefore(required);
-        }
-
-        hasProcessedImports = true;
-      }
-
-      // 第二步：如果还是 Vue 相关包导入则移除
-      if (isVueLike && !path.removed) {
-        path.remove();
-        return;
-      }
-
-      // 第三步：如果是文件导入，替换 .vue 文件后缀名为 .jsx/.tsx
-      replaceVueSuffix(ctx, node.source);
+      resolveRequiredImport(path);
+      resolveStyleFileExt(path);
     },
   };
 }
@@ -76,11 +107,7 @@ export function insertRequiredImports(ctx: ICompilationContext): TraverseOptions
 function isVueEcosystemPackage(moduleName: string): boolean {
   // Only bare package imports should be considered ecosystem package imports.
   // Relative/absolute file imports like "./Comp.vue" must be preserved.
-  if (
-    moduleName.startsWith('.') ||
-    moduleName.startsWith('/') ||
-    moduleName.startsWith('file:')
-  ) {
+  if (moduleName.startsWith('.') || moduleName.startsWith('/') || moduleName.startsWith('file:')) {
     return false;
   }
 

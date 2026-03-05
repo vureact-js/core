@@ -4,10 +4,12 @@ import { FileCompiler } from '.';
 import {
   CacheKey,
   CacheMeta,
+  CompilationUnit,
   FileCacheMeta,
   LoadedCache,
   ScriptUnit,
   SFCUnit,
+  StyleUnit,
   Vue2ReactCacheMeta,
 } from '../types';
 import { CacheManager } from './cache-manager';
@@ -30,52 +32,71 @@ export class FileProcessor {
   /**
    * Process a single Vue file (this method is called directly in CLI Watch mode)
    */
-  async processSFC(
-    filePath: string,
-    existingCache?: LoadedCache<Vue2ReactCacheMeta>,
-  ): Promise<SFCUnit | undefined> {
+  async processSFC(filePath: string, existingCache?: LoadedCache<Vue2ReactCacheMeta>) {
     return this.processFile(CacheKey.SFC, filePath, existingCache);
   }
 
   /**
    * Process a single script file (this method is called directly in CLI Watch mode)
    */
-  async processScript(
-    filePath: string,
-    existingCache?: LoadedCache<FileCacheMeta>,
-  ): Promise<ScriptUnit | undefined> {
+  async processScript(filePath: string, existingCache?: LoadedCache<FileCacheMeta>) {
     return this.processFile(CacheKey.SCRIPT, filePath, existingCache);
   }
 
   /**
-   * Process a single vue or script file
+   * Process a single style file (this method is called directly in CLI Watch mode)
+   */
+  async processStyle(filePath: string, existingCache?: LoadedCache<FileCacheMeta>) {
+    return this.processFile(CacheKey.STYLE, filePath, existingCache);
+  }
+
+  /**
+   * Process a single vue file
    */
   async processFile(
     key: CacheKey.SFC,
     filePath: string,
-    existingCache?: LoadedCache<Vue2ReactCacheMeta> | undefined,
+    existingCache?: LoadedCache<Vue2ReactCacheMeta>,
   ): Promise<SFCUnit | undefined>;
 
+  /**
+   * Process a single script file
+   */
   async processFile(
     key: CacheKey.SCRIPT,
     filePath: string,
-    existingCache?: LoadedCache<FileCacheMeta> | undefined,
+    existingCache?: LoadedCache<FileCacheMeta>,
   ): Promise<ScriptUnit | undefined>;
 
+  /**
+   * Process a single style file
+   */
   async processFile(
-    key: CacheKey.SFC | CacheKey.SCRIPT,
+    key: CacheKey.STYLE,
     filePath: string,
-    existingCache?: LoadedCache<FileCacheMeta> | undefined,
-  ): Promise<SFCUnit | ScriptUnit | undefined>;
+    existingCache?: LoadedCache<FileCacheMeta>,
+  ): Promise<StyleUnit | undefined>;
 
-  async processFile(key: CacheKey, filePath: string, existingCache?: LoadedCache) {
+  /**
+   * Process a single vue/script/style file
+   */
+  async processFile(
+    key: CacheKey,
+    filePath: string,
+    existingCache?: LoadedCache<FileCacheMeta>,
+  ): Promise<CompilationUnit | undefined>;
+
+  async processFile(
+    key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.STYLE,
+    filePath: string,
+    existingCache?: LoadedCache,
+  ): Promise<CompilationUnit | undefined> {
     const absPath = this.fileCompiler.getAbsPath(filePath);
 
     // 1. 获取最新元数据
     const fileMeta = await this.fileCompiler.getFileMeta(absPath);
 
     // 2. 校验缓存
-
     const cache =
       (this.fileCompiler.getIsCache() ? existingCache : undefined) ||
       (await this.fileCompiler.loadCache(key));
@@ -95,13 +116,14 @@ export class FileProcessor {
     if (!source.trim()) return;
 
     // 初始化编译单元
-    const initUnit: SFCUnit | ScriptUnit = {
+    const initUnit: CompilationUnit = {
       ...fileMeta,
-      file: absPath,
-      fileId: '',
       source,
+      type: key,
+      fileId: '',
+      file: absPath,
+      output: undefined,
       hash: hash || this.fileCompiler.genHash(source),
-      output: null,
     };
 
     // 4. 执行流水线
@@ -111,9 +133,12 @@ export class FileProcessor {
     if (processed?.output) {
       await this.compilationUnitProcessor.saveCompiledFiles(processed, key);
 
-      if (processed.hasRoute) {
-        // 对 package.json 注入路由依赖项
-        await this.injectVuReactRouteDep();
+      // 只有 sfc / script 文件存在时，才需要执行注入逻辑
+      if (key === CacheKey.SFC || key === CacheKey.SCRIPT) {
+        if ((processed as any)?.hasRoute) {
+          // 对 package.json 注入路由依赖项
+          await this.injectVuReactRouteDep();
+        }
       }
 
       await this.cacheManager.updateCacheIncrementally(processed, key);

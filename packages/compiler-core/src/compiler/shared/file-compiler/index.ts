@@ -6,9 +6,13 @@ import ora from 'ora';
 import { BaseCompiler } from '../base-compiler';
 import {
   CacheKey,
+  CompilationUnit,
   CompilerOptions,
   FileCacheMeta,
   LoadedCache,
+  ScriptUnit,
+  SFCUnit,
+  StyleUnit,
   Vue2ReactCacheMeta,
 } from '../types';
 import { AssetManager } from './asset-manager';
@@ -174,7 +178,12 @@ export class FileCompiler extends BaseCompiler {
       const scriptCount = await this.pipelineManager.runScriptPipeline();
       this.spinner.stop();
 
-      // 3. 资源拷贝处理管线 (剩余无需处理的文件)
+      // 3. Style 文件处理管线
+      this.spinner.start('Compiling style files...');
+      const styleCount = await this.pipelineManager.runStylePipeline();
+      this.spinner.stop();
+
+      // 4. 资源拷贝处理管线 (剩余无需处理的文件)
       this.spinner.start('Copying assets...');
       const assetCount = await this.assetManager.runAssetPipeline();
       this.spinner.stop();
@@ -183,7 +192,7 @@ export class FileCompiler extends BaseCompiler {
       const endTime = calcElapsedTime(startTime);
 
       this.printCoreLogs();
-      this.showCompileStats(endTime, sfcCount, scriptCount, assetCount);
+      this.showCompileStats(endTime, sfcCount, scriptCount, styleCount, assetCount);
     } catch (error) {
       this.spinner.stop();
       const endTime = calcElapsedTime(startTime);
@@ -203,7 +212,10 @@ export class FileCompiler extends BaseCompiler {
    * @returns {Promise<SFCUnit | undefined>} 编译单元对象，如果跳过编译则返回 undefined
    * @see {@link FileProcessor.processSFC}
    */
-  async processSFC(filePath: string, existingCache?: LoadedCache<Vue2ReactCacheMeta>) {
+  async processSFC(
+    filePath: string,
+    existingCache?: LoadedCache<Vue2ReactCacheMeta>,
+  ): Promise<SFCUnit | undefined> {
     return this.fileProcessor.processSFC(filePath, existingCache);
   }
 
@@ -219,8 +231,30 @@ export class FileCompiler extends BaseCompiler {
    * @returns {Promise<ScriptUnit | undefined>} 编译单元对象，如果跳过编译则返回 undefined
    * @see {@link FileProcessor.processScript}
    */
-  async processScript(filePath: string, existingCache?: LoadedCache<FileCacheMeta>) {
+  async processScript(
+    filePath: string,
+    existingCache?: LoadedCache<FileCacheMeta>,
+  ): Promise<ScriptUnit | undefined> {
     return this.fileProcessor.processScript(filePath, existingCache);
+  }
+
+  /**
+   * 处理单个 CSS/LESS/SCSS 样式文件
+   *
+   * 此方法主要用于 CLI 的 watch 模式，当检测到文件变更时调用。
+   * 支持增量编译，如果文件未变更则跳过编译。
+   *
+   * @async
+   * @param filePath - style 文件的绝对路径
+   * @param existingCache - 可选的预加载缓存对象，用于增量编译
+   * @returns {Promise<ScriptUnit | undefined>} 编译单元对象，如果跳过编译则返回 undefined
+   * @see {@link FileProcessor.processStyle}
+   */
+  async processStyle(
+    filePath: string,
+    existingCache?: LoadedCache<FileCacheMeta>,
+  ): Promise<StyleUnit | undefined> {
+    return this.fileProcessor.processStyle(filePath, existingCache);
   }
 
   /**
@@ -236,7 +270,11 @@ export class FileCompiler extends BaseCompiler {
    * @returns {Promise<SFCUnit | ScriptUnit | undefined>} 编译单元对象
    * @see {@link FileProcessor.processFile}
    */
-  async processFile(key: CacheKey, filePath: string, existingCache?: LoadedCache) {
+  async processFile(
+    key: CacheKey,
+    filePath: string,
+    existingCache?: LoadedCache,
+  ): Promise<CompilationUnit | undefined> {
     // 类型转换以匹配 FileProcessor 的重载签名
     if (key === CacheKey.SFC) {
       return this.fileProcessor.processFile(key as CacheKey.SFC, filePath, existingCache);
@@ -325,6 +363,7 @@ export class FileCompiler extends BaseCompiler {
     endTime: string,
     sfcCount: number,
     scriptCount: number,
+    styleCount: number,
     assetCount: number,
   ): void {
     const dir = normalizePath(this.relativePath(this.getOuputPath()));
@@ -343,10 +382,11 @@ export class FileCompiler extends BaseCompiler {
     }
 
     // 显示编译统计
-    if (sfcCount || scriptCount || assetCount) {
+    if (sfcCount || scriptCount || styleCount || assetCount) {
       const stats = [];
       if (sfcCount) stats.push(`${sfcCount} SFC(s)`);
       if (scriptCount) stats.push(`${scriptCount} script(s)`);
+      if (styleCount) stats.push(`${styleCount} style(s)`);
       if (assetCount) stats.push(`${assetCount} asset(s)`);
 
       console.info(kleur.gray(`Processed ${stats.join(', ')}`));

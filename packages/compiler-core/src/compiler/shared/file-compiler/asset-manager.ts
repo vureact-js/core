@@ -6,6 +6,9 @@ import { CacheKey, FileCacheMeta, LoadedCache } from '../types';
 import { CleanupManager } from './cleanup-manager';
 
 export class AssetManager {
+  // 需要经过管线编译处理的文件类型
+  pipelineFiles = ['.js', '.ts', '.less', '.scss', '.sass'];
+
   constructor(
     private fileCompiler: FileCompiler,
     private cleanupManager: CleanupManager,
@@ -35,10 +38,17 @@ export class AssetManager {
           if (pattern.endsWith('.')) {
             return filename.startsWith(pattern);
           }
+
+          // 直接检查文件扩展名是否匹配（如直接以 '.ts' 命名的文件，虽然几乎不可能）
+          if (pattern.startsWith('.')) {
+            return ext === pattern;
+          }
+
           // 否则检查完整相对路径或文件名是否完全匹配
           return relativeToRoot === pattern || filename === pattern;
         });
 
+        // 最终验证文件是否排除拷贝
         if (shouldExclude) {
           return false;
         }
@@ -52,12 +62,13 @@ export class AssetManager {
 
       // 规则 D: 智能区分源码与配置文件
       const isInsideSrc = p.startsWith(inputPath + path.sep);
-      if (isInsideSrc && (ext === '.js' || ext === '.ts')) {
-        // 在 src 里面的 ts/js 归 ScriptPipeline 管，这里不拷贝
+
+      // 在 src 里面的 js/less 等 归编译管线处理，这里不拷贝
+      if (isInsideSrc && this.pipelineFiles.includes(ext)) {
         return false;
       }
-      // 如果是根目录下的 ts/js (如 tailwind.config.js)，会绕过上面的 if，作为 Asset 被安全拷贝
 
+      // 如果是根目录下的 js/less 等 (如 tailwind.config.js)，会绕过上面的 if，作为 Asset 被安全拷贝
       return true;
     });
 

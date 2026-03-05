@@ -34,16 +34,13 @@ export function resolveStyles(
   }
 
   // 预处理样式
-  const source = resolveLessSass(content, {
+  const { code, fileExt } = resolveLessSass(content, {
     lang,
     filename,
     enabled: preprocessStyles,
   });
 
-  const disablePreprocessing = lang !== 'css' && !preprocessStyles;
-
-  // 如果开启样式预处理，则统一使用 css 文件后缀，否则使用对应语言文件
-  let ext = disablePreprocessing ? `.${lang}` : '.css';
+  let ext = fileExt;
 
   // 处理 css module
   if (style.module) {
@@ -56,7 +53,7 @@ export function resolveStyles(
   // 处理 scoped
   if (style.scoped) {
     // 不处理非 css 语言
-    if (disablePreprocessing) {
+    if (lang !== 'css' && !preprocessStyles) {
       logger.warn(
         'Scoped styles are only supported for CSS. Preprocessing is disabled, so scoped styles will not be applied.',
         { file: filename },
@@ -65,12 +62,13 @@ export function resolveStyles(
     }
 
     // 使用 postcss 为每个选择器加上 id 值
-    const result = processScopedWithPostCss(source, fileId);
+    const result = processScopedWithPostCss(code, fileId);
+
     style.content = result.css.trim();
     styleData.scopeId = result.scopeId;
   } else {
     // 非 scoped 样式也需要更新编译后的内容
-    style.content = source;
+    style.content = code;
   }
 
   // 生成文件路径

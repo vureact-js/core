@@ -100,6 +100,7 @@ export class Helper {
       'package-lock.json',
       'pnpm-lock.yaml',
       'index.html',
+      'yarn-lock.',
       'tsconfig.',
       'vite.config.',
       'eslint.config.',
@@ -260,10 +261,12 @@ export class Helper {
    */
   async loadCache(key: CacheKey.SFC): Promise<LoadedCache<Vue2ReactCacheMeta>>;
 
-  async loadCache(key: CacheKey.SCRIPT | CacheKey.ASSET): Promise<LoadedCache<FileCacheMeta>>;
+  async loadCache(
+    key: CacheKey.SCRIPT | CacheKey.STYLE | CacheKey.ASSET,
+  ): Promise<LoadedCache<FileCacheMeta>>;
 
   async loadCache(
-    key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.ASSET,
+    key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.STYLE | CacheKey.ASSET,
   ): Promise<LoadedCache<Vue2ReactCacheMeta | FileCacheMeta>>;
 
   async loadCache(key: CacheKey) {
@@ -295,6 +298,7 @@ export class Helper {
       source: {
         [CacheKey.SFC]: [],
         [CacheKey.SCRIPT]: [],
+        [CacheKey.STYLE]: [],
         [CacheKey.ASSET]: [],
       },
     };

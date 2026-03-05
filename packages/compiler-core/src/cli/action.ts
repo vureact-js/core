@@ -116,6 +116,9 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions) {
     '.vue': (p: string) => compiler.processSFC(p),
     '.js': (p: string) => compiler.processScript(p),
     '.ts': (p: string) => compiler.processScript(p),
+    '.less': (p: string) => compiler.processStyle(p),
+    '.sass': (p: string) => compiler.processStyle(p),
+    '.scss': (p: string) => compiler.processStyle(p),
   };
 
   const onRecompile = async (event: 'add' | 'change', filePath: string) => {
@@ -151,6 +154,9 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions) {
   const onRemoveFile = async (type: 'unlink' | 'unlinkDir', filePath: string) => {
     const ext = path.extname(filePath);
 
+    const scriptExtRegex = /\.(js|ts)$/i;
+    const styleExtRegex = /\.(less|sass|scss)$/i;
+
     const removeFile = async (type: CacheKey) => {
       await compiler.removeOutputPath(filePath, type);
       cmpHelper.print(
@@ -166,8 +172,13 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions) {
         return;
       }
 
-      if (ext === '.js' || ext === '.ts') {
+      if (scriptExtRegex.test(ext)) {
         await removeFile(CacheKey.SCRIPT);
+        return;
+      }
+
+      if (styleExtRegex.test(ext)) {
+        await removeFile(CacheKey.STYLE);
         return;
       }
 
@@ -180,6 +191,7 @@ function setupWatcher(compiler: VuReact, config: CompilerOptions) {
     if (type === 'unlinkDir') {
       await removeFile(CacheKey.SFC);
       await removeFile(CacheKey.SCRIPT);
+      await removeFile(CacheKey.STYLE);
       await removeFile(CacheKey.ASSET);
     }
   };

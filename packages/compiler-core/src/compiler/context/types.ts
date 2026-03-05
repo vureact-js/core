@@ -46,7 +46,7 @@ export interface ICompilationContext {
 
 export type ImportItem = { name: string; onDemand: boolean };
 
-export type FileInputType = 'sfc' | 'script-js' | 'script-ts';
+export type FileInputType = 'sfc' | 'script-js' | 'script-ts' | 'style' | 'unknow';
 
 export interface SlotNodesContext {
   name: string;

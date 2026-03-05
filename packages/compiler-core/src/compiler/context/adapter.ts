@@ -12,11 +12,24 @@ export class CompilationAdapter {
     const ctx = createCompilationCtx();
     const inputType = CompilationAdapter.detectInputType(input.filename);
 
-    if (inputType.startsWith('script-')) {
-      // 初始化script-only的上下文，无需模板和style上下文数据
-      ctx.data.inputType = inputType;
+    const initTemplateData = () => {
       ctx.data.templateData = {} as any;
+    };
+    const initScriptData = () => {
+      ctx.data.scriptData = {} as any;
+    };
+    const initStyleData = () => {
       ctx.data.styleData = {} as any;
+    };
+
+    if (inputType.startsWith('script-')) {
+      // 初始化 script-only 的上下文，无需模板和 style 上下文数据
+      initTemplateData();
+      initStyleData();
+    } else if (inputType === 'style') {
+      // 初始化 style-only 的上下文，无需模板和 script 上下文数据
+      initTemplateData();
+      initScriptData();
     }
 
     // 初始化通用数据
@@ -26,9 +39,26 @@ export class CompilationAdapter {
   }
 
   static detectInputType(filename: string): FileInputType {
-    const ext = path.extname(filename);
-    if (ext === '.vue') return 'sfc';
-    if (ext === '.ts') return 'script-ts';
-    return 'script-js';
+    const ext = path.extname(filename).toLowerCase();
+
+    switch (ext) {
+      case '.vue':
+        return 'sfc';
+
+      case '.js':
+        return 'script-js';
+
+      case '.ts':
+        return 'script-ts';
+
+      case '.css':
+      case '.less':
+      case '.sass':
+      case '.scss':
+        return 'style';
+
+      default:
+        return 'unknow';
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { FileCompiler } from '.';
-import { CacheKey, ScriptUnit, SFCUnit } from '../types';
+import { CacheKey, CompilationUnit } from '../types';
 
 export class CacheManager {
   constructor(private fileCompiler: FileCompiler) {}
@@ -7,7 +7,7 @@ export class CacheManager {
   /**
    * 增量更新缓存记录
    */
-  async updateCacheIncrementally(unit: SFCUnit | ScriptUnit, key: CacheKey) {
+  async updateCacheIncrementally(unit: CompilationUnit, key: CacheKey) {
     if (!this.fileCompiler.getIsCache()) return;
 
     const cache = await this.fileCompiler.loadCache(key);

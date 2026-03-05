@@ -198,15 +198,19 @@ export interface CompilerOptions {
    * @param event Add or modify file
    * @param unit Current sfc or script file compilation unit
    */
-  onChange?: (event: 'add' | 'change', unit: SFCUnit | ScriptUnit) => Promise<void | undefined>;
+  onChange?: (event: 'add' | 'change', unit: CompilationUnit) => Promise<void | undefined>;
 }
 
 export interface PluginRegister<T> {
   [name: string]: (result: T, ctx: ICompilationContext) => void;
 }
 
-export type CompilationResult = SFCCompilationResult | ScriptCompilationResult;
+export type CompilationResult =
+  | SFCCompilationResult
+  | ScriptCompilationResult
+  | StyleCompilationResult;
 
+// SFC 编译结果
 export interface SFCCompilationResult extends BaseCompilationResult {
   fileInfo: {
     jsx: {
@@ -221,9 +225,24 @@ export interface SFCCompilationResult extends BaseCompilationResult {
   };
 }
 
+// script 编译结果
 export interface ScriptCompilationResult extends BaseCompilationResult {
   fileInfo: {
     script: {
+      file: string;
+      lang: string;
+    };
+  };
+}
+
+// style 编译结果
+export interface StyleCompilationResult extends Omit<
+  BaseCompilationResult,
+  'hasRoute' | keyof GeneratorResult
+> {
+  code: string;
+  fileInfo: {
+    style: {
       file: string;
       lang: string;
     };
@@ -235,31 +254,49 @@ export interface BaseCompilationResult extends GeneratorResult {
   hasRoute?: boolean;
 }
 
-export interface ScriptUnit extends CompilationUnit {
-  output: {
-    script: OutputItem;
-  } | null;
-}
+export type CompilationUnit = SFCUnit | ScriptUnit | StyleUnit;
 
-export interface SFCUnit extends CompilationUnit {
-  output: {
+// SFC 编译单位
+export interface SFCUnit extends BaseUnit {
+  type: CacheKey.SFC;
+  output?: {
     jsx: OutputItem;
     css: Partial<OutputItem>;
-  } | null;
+  };
+}
+
+// 脚本编译单位
+export interface ScriptUnit extends BaseUnit {
+  type: CacheKey.SCRIPT;
+  output?: {
+    script: OutputItem;
+  };
+}
+
+// 样式编译单位
+export interface StyleUnit extends Omit<BaseUnit, 'hasRoute'> {
+  type: CacheKey.STYLE;
+  output?: {
+    style: OutputItem;
+  };
+}
+
+// 附属资产拷贝单位
+export interface AssetUnit extends Omit<BaseUnit, 'fileId' | 'source' | 'hasRoute'> {
+  type: CacheKey.ASSET;
+}
+
+// 基础通用编译单位
+export interface BaseUnit extends FileMeta {
+  file: string; // 原始文件路径
+  fileId: string; // 文件id
+  source: string; // 源代码
+  hasRoute?: boolean; // 是否使用了路由，后续作为是否注入路由包的依据
 }
 
 interface OutputItem {
   file: string;
   code: string;
-}
-
-export interface AssetUnit extends Omit<CompilationUnit, 'fileId' | 'source'> {}
-
-export interface CompilationUnit extends FileMeta {
-  file: string; // 原始文件路径
-  fileId: string; // 文件id
-  source: string; // 源代码
-  hasRoute?: boolean; // 是否使用了路由，后续作为是否注入路由包的依据
 }
 
 export type LoadedCache<T = CacheMeta> = {
@@ -273,12 +310,14 @@ export type CacheMeta = Vue2ReactCacheMeta | FileCacheMeta;
 export enum CacheKey {
   SFC = 'sfc',
   SCRIPT = 'script',
+  STYLE = 'style',
   ASSET = 'copied',
 }
 
 export interface CacheList {
   [CacheKey.SFC]: Vue2ReactCacheMeta[];
   [CacheKey.SCRIPT]: FileCacheMeta[];
+  [CacheKey.STYLE]: FileCacheMeta[];
   [CacheKey.ASSET]: FileCacheMeta[];
 }
 

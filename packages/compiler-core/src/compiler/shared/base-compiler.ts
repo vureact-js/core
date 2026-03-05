@@ -1,6 +1,14 @@
 import { GeneratorOptions } from '@babel/generator';
+import {
+  generate,
+  GeneratorResult,
+  parse,
+  ParseResult,
+  ReactIRDescriptor,
+  transform,
+} from '@core/index';
+import { parseOnlyStyle } from '@parse/style-only';
 import { executePlugins } from '@shared/plugin-executor';
-import { generate, GeneratorResult, parse, ReactIRDescriptor, transform } from '@src/core';
 import { version as pkgVersion } from '../../../package.json';
 import { CompilationAdapter } from '../context/adapter';
 import { ICompilationContext } from '../context/types';
@@ -11,6 +19,7 @@ import {
   CompilerOptions,
   ScriptCompilationResult,
   SFCCompilationResult,
+  StyleCompilationResult,
 } from './types';
 
 /**
@@ -135,8 +144,7 @@ export class BaseCompiler extends Helper {
    * `;
    *
    * const result = compiler.compile(vueCode, 'MyComponent.vue');
-   * console.log(result.code); // 生成的 React JSX 代码
-   * console.log(result.fileInfo.jsx.file); // 输出文件路径
+   * console.log(result);
    * ```
    *
    * @throws 不会直接抛出异常，错误通过日志系统记录
@@ -147,9 +155,9 @@ export class BaseCompiler extends Helper {
    */
   compile(source: string, filename: string): CompilationResult {
     const { plugins, preprocessStyles = true } = this.options;
-
     const fileId = this.genHash(filename);
-    const genOptions = this.prepareGenerateOptions(filename);
+
+    // 初始化上下文
     const ctx = this.createContext({
       fileId,
       filename,
@@ -157,7 +165,11 @@ export class BaseCompiler extends Helper {
       preprocessStyles,
     });
 
-    try {
+    // 初始化 Babel 代码生成选项
+    const genOptions = this.prepareGenerateOptions(filename);
+
+    // 处理 sfc / script 文件
+    const resolveSFCAndScriptFile = () => {
       const ast = parse(source, ctx.data, { plugins: plugins?.parser });
       const ir = transform(ast, ctx.data, { plugins: plugins?.transformer });
       const gen = generate(ir, ctx.data, {
@@ -165,7 +177,18 @@ export class BaseCompiler extends Helper {
         plugins: plugins?.codegen,
       });
 
-      const result = this.resolveResult(ir, gen, ctx.data);
+      return this.resolveMainResult(ir, gen, ctx.data);
+    };
+
+    // 处理 style 文件
+    const resolveStyleFile = () => {
+      const result = parseOnlyStyle(source, ctx.data, { plugins: plugins?.parser });
+      return this.resolveStyleResult(result, ctx.data);
+    };
+
+    try {
+      const isStyleFile = ctx.data.inputType === 'style';
+      const result = isStyleFile ? resolveStyleFile() : resolveSFCAndScriptFile();
 
       // 执行最终插件
       if (plugins) {
@@ -178,76 +201,6 @@ export class BaseCompiler extends Helper {
       // 编译结束后清理上下文
       ctx.clear();
     }
-  }
-
-  /**
-   * 处理 SFC 和 Script 文件的编译结果
-   *
-   * 根据编译上下文中的输入类型（SFC 或 Script），整理并返回相应的编译结果。
-   * 对于 SFC 文件，返回包含 JSX 和 CSS 信息的完整结果；
-   * 对于 Script 文件，返回仅包含脚本信息的结果。
-   *
-   * 关键处理逻辑：
-   * 1. 构建基础结果：包含文件ID、路由信息和生成的代码
-   * 2. 确定输出路径：根据源文件路径和语言类型生成输出文件路径
-   * 3. 区分文件类型：
-   *    - SFC 文件：生成 .tsx 扩展名，包含样式信息
-   *    - Script 文件：保持原扩展名，不包含样式信息
-   * 4. 样式处理：提取样式文件路径、作用域ID和样式代码
-   *
-   * @private
-   * @param ir - React 中间表示（IR）描述符，包含转换后的组件信息
-   * @param gen - 代码生成结果，包含生成的代码和源码映射
-   * @param ctxData - 编译上下文数据，包含文件信息和编译状态
-   * @returns {CompilationResult} 整理后的编译结果
-   *
-   * @remarks
-   * - 文件扩展名处理：Vue SFC 文件会转换为 .tsx 或 .jsx 文件
-   * - 样式分离：SFC 中的样式会被提取到独立的 CSS 文件中
-   * - 路由检测：自动检测组件是否使用路由，用于依赖注入
-   * - 作用域样式：为 Scoped CSS 生成唯一的作用域ID
-   *
-   * @see {@link SFCCompilationResult} SFC 编译结果类型
-   * @see {@link ScriptCompilationResult} Script 编译结果类型
-   */
-  private resolveResult(
-    ir: ReactIRDescriptor,
-    gen: GeneratorResult,
-    ctxData: ICompilationContext,
-  ): CompilationResult {
-    const { fileId, filename, scriptData, styleData } = ctxData;
-
-    const base: BaseCompilationResult = {
-      fileId,
-      hasRoute: ctxData.route,
-      ...gen,
-    };
-
-    const { lang } = scriptData;
-    const file = this.resolveOutputPath(filename, lang);
-
-    if (ctxData.inputType === 'sfc') {
-      return {
-        fileInfo: {
-          jsx: {
-            file: `${file}x`, // 'xxx.ts' + 'x' => 'xxx.tsx'
-            lang,
-          },
-          css: {
-            file: styleData?.filePath,
-            hash: styleData?.scopeId,
-            code: ir?.style,
-          },
-        },
-        ...base,
-      } as SFCCompilationResult;
-    }
-
-    // script file
-    return {
-      fileInfo: { script: { file, lang } },
-      ...base,
-    } as ScriptCompilationResult;
   }
 
   /**
@@ -315,5 +268,104 @@ export class BaseCompiler extends Helper {
     }
 
     return mergedOptions;
+  }
+
+  /**
+   * 处理 SFC 和 Script 文件的编译结果
+   *
+   * 根据编译上下文中的输入类型（SFC 或 Script），整理并返回相应的编译结果。
+   * 对于 SFC 文件，返回包含 JSX 和 CSS 信息的完整结果；
+   * 对于 Script 文件，返回仅包含脚本信息的结果。
+   *
+   * 关键处理逻辑：
+   * 1. 构建基础结果：包含文件ID、路由信息和生成的代码
+   * 2. 确定输出路径：根据源文件路径和语言类型生成输出文件路径
+   * 3. 区分文件类型：
+   *    - SFC 文件：生成 .tsx 扩展名，包含样式信息
+   *    - Script 文件：保持原扩展名，不包含样式信息
+   * 4. 样式处理：提取样式文件路径、作用域ID和样式代码
+   *
+   * @private
+   * @param ir - React 中间表示（IR）描述符，包含转换后的组件信息
+   * @param gen - 代码生成结果，包含生成的代码和源码映射
+   * @param ctxData - 编译上下文数据，包含文件信息和编译状态
+   * @returns {CompilationResult} 整理后的编译结果
+   *
+   * @remarks
+   * - 文件扩展名处理：Vue SFC 文件会转换为 .tsx 或 .jsx 文件
+   * - 样式分离：SFC 中的样式会被提取到独立的 CSS 文件中
+   * - 路由检测：自动检测组件是否使用路由，用于依赖注入
+   * - 作用域样式：为 Scoped CSS 生成唯一的作用域ID
+   *
+   * @see {@link SFCCompilationResult} SFC 编译结果类型
+   * @see {@link ScriptCompilationResult} Script 编译结果类型
+   */
+  private resolveMainResult(
+    ir: ReactIRDescriptor,
+    gen: GeneratorResult,
+    ctxData: ICompilationContext,
+  ): SFCCompilationResult | ScriptCompilationResult {
+    const { fileId, filename, scriptData, styleData, inputType } = ctxData;
+
+    const base: BaseCompilationResult = {
+      fileId,
+      hasRoute: ctxData.route,
+      ...gen,
+    };
+
+    const { lang } = scriptData;
+
+    // 源路径处理成输出路径
+    const file = this.resolveOutputPath(filename, lang);
+
+    if (inputType === 'sfc') {
+      return {
+        fileInfo: {
+          jsx: {
+            file: `${file}x`, // 'xxx.ts' + 'x' => 'xxx.tsx'
+            lang,
+          },
+          css: {
+            file: styleData?.filePath,
+            hash: styleData?.scopeId,
+            code: ir?.style,
+          },
+        },
+        ...base,
+      } as SFCCompilationResult;
+    }
+
+    // script file
+    return {
+      fileInfo: { script: { file, lang } },
+      ...base,
+    } as ScriptCompilationResult;
+  }
+
+  /**
+   * 处理 Style 文件的编译结果
+   * @param data style 文件解析结果
+   * @param ctxData 上下文数据
+   */
+  private resolveStyleResult(
+    data: ParseResult,
+    ctxData: ICompilationContext,
+  ): StyleCompilationResult {
+    const { fileId, filename } = ctxData;
+    const { lang, content = '' } = data.style!.source!;
+
+    // 源路径处理成输出路径
+    const file = this.resolveOutputPath(filename, lang);
+
+    return {
+      fileId,
+      fileInfo: {
+        style: {
+          file,
+          lang: lang!,
+        },
+      },
+      code: content,
+    };
   }
 }
