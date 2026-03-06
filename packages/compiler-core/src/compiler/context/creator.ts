@@ -37,7 +37,10 @@ export class CompilationContext {
 
       templateData: {
         slots: {},
-        refBindings: {},
+        refBindings: {
+          domRefs: {},
+          componentRefs: {},
+        },
         reactiveBindings: {},
       },
 
@@ -54,6 +57,10 @@ export class CompilationContext {
           propsTypes: [],
           emitTypes: [],
           slotTypes: [],
+        },
+        forwardRef: {
+          enabled: false,
+          refField: 'expose',
         },
         source: '',
       },

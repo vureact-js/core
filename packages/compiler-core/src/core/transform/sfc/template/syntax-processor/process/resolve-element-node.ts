@@ -1,7 +1,6 @@
 import { ArrayExpression } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_COMPS, ADAPTER_ROUTER_COMPS } from '@consts/adapters-map';
-import { PACKAGE_NAME } from '@consts/other';
+import { ADAPTER_RULES } from '@consts/adapters-map';
 import { TemplateBlockIR, TemplateChildNodeIR } from '@src/core/transform/sfc/template';
 import { BabelExp, NodeTypes } from '@src/core/transform/sfc/template/shared/types';
 import { recordImport } from '@transform/shared';
@@ -85,17 +84,21 @@ export function resolveElementNode(
     loc: node.loc,
   });
 
+  // 查找 router 和 runtime-core 的适配器
+  const routerAdapter = ADAPTER_RULES.router[tag];
+  const runtimeAdapter = ADAPTER_RULES.runtime[tag];
+
   // 记录 Vue 内置组件
-  if (tag in ADAPTER_COMPS) {
+  if (runtimeAdapter) {
     nodeIR.isBuiltIn = true;
-    recordImport(ctx, PACKAGE_NAME.runtime, tag);
+    recordImport(ctx, runtimeAdapter.package, runtimeAdapter.target);
   }
 
   // 记录 Vue Router 组件
-  if (tag in ADAPTER_ROUTER_COMPS) {
+  if (routerAdapter) {
     if (!ctx.route) ctx.route = true;
     nodeIR.isRoute = true;
-    recordImport(ctx, PACKAGE_NAME.router, tag);
+    recordImport(ctx, routerAdapter?.package, routerAdapter.target);
   }
 
   resolveProps(node, ir, ctx, nodeIR, siblingNodesIR);

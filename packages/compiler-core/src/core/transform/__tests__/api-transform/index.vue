@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, ref, watch, watchEffect } from 'vue';
+import { computed, onBeforeMount, onUpdated, reactive, ref, watch, watchEffect } from 'vue';
 
 const count = ref(1);
 const state = reactive({ count: 1 });
@@ -11,6 +11,14 @@ reactive;
 reactive({ value: 2 });
 
 watch;
+
+onBeforeMount(() => {
+  console.log('object');
+});
+
+onUpdated(() => {
+  count.value++;
+});
 
 watch(
   () => count,

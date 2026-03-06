@@ -10,7 +10,10 @@ export interface ICompilationContext {
   imports: Map<string, ImportItem[]>;
   cssVars: string[];
   inputType: FileInputType;
-  /** 函数组件的 prop 参数名 */
+  /**
+   * 函数组件的 prop 参数名
+   * @default '$props'
+   */
   propField: string;
   /** 是否使用了路由 */
   route?: boolean;
@@ -22,7 +25,12 @@ export interface ICompilationContext {
     /** 用于描述 `<slot>` / `<slot name="" ...props>` */
     slots: Record<string, SlotNodesContext>;
     /** 收集模板 ref 对应的 script 绑定元数据 */
-    refBindings: RefBindings;
+    refBindings: {
+      /** 普通 html 元素的 ref */
+      domRefs: RefBindings;
+      /** 组件的 ref */
+      componentRefs: RefBindings;
+    };
     /** 收集所有模板中的响应式变量，其来自 script 的绑定元数据 */
     reactiveBindings: ReactiveBindinds;
   };
@@ -33,6 +41,16 @@ export interface ICompilationContext {
     provide: ProvideData;
     propsTSIface: IPropsContext;
     source: string;
+
+    /** 是否需要 forwardRef 包装组件 */
+    forwardRef: {
+      enabled: boolean;
+      /**
+       * forwardRef 函数的第二个参数名
+       * @default 'expose'
+       */
+      refField: string;
+    };
   };
 
   styleData: {

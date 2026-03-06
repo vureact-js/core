@@ -10,7 +10,7 @@ import { logger } from '@shared/logger';
  * 预校验即将转换成 React hook 的 Vue3 API 的使用是否符合 React 规范，
  * 以及宏定义和其他的一些 vureact 规范
  */
-export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseOptions {
+export function resolveLintRules(ctx: ICompilationContext, ast: ParseResult): TraverseOptions {
   const inScriptFile = ctx.inputType !== 'sfc';
 
   return {
@@ -49,9 +49,11 @@ export function lintRules(ctx: ICompilationContext, ast: ParseResult): TraverseO
         }
 
         if (!parentPath.isVariableDeclarator()) {
-          addLog(
-            `The ${macro} macro must be assigned to a variable (e.g., const props = defineProps(...)).`,
-          );
+          if (macro === MACRO_API_NAMES.props || macro === MACRO_API_NAMES.emits) {
+            addLog(
+              `The ${macro} macro must be assigned to a variable (e.g., const props = defineProps(...)).`,
+            );
+          }
         }
       };
 

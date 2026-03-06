@@ -2,6 +2,7 @@
   <p ref="p">hello</p>
   <div ref="div">vureact</div>
   <span :ref="(el) => (spanRef = el)">Abc</span>
+  <Child ref="funck" />
 </template>
 
 <script setup lang="ts">
@@ -17,12 +18,25 @@ import { onMounted, ref, useTemplateRef } from 'vue';
 const pRef = useTemplateRef<HTMLParagraphElement>('p');
 const divRef = useTemplateRef('div');
 const spanRef = ref();
+const funck = ref();
+const count = ref(1);
 
 onMounted(() => {
   const divEl = divRef.value;
+
   if (divEl && pRef.value) {
     divEl.className = 'div';
     pRef.value.style.background = 'red';
   }
 });
+
+spanRef.value?.xxxx;
+
+// 假设在 Child 组件中暴露了 Ref 引用对象 count
+// const count = ref(0);
+// defineExpose({ count })
+// 访问 count 时需要使用 .value 访问
+funck.value?.count.value;
+
+count.value++;
 </script>

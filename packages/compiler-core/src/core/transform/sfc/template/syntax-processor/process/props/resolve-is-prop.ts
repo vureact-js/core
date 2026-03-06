@@ -1,6 +1,6 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_COMPS } from '@consts/adapters-map';
 import { PACKAGE_NAME } from '@consts/other';
+import { VUE_API_MAP } from '@consts/vue-api-map';
 import { strCodeTypes } from '@shared/string-code-types';
 import { TemplateBlockIR } from '@src/core/transform/sfc/template';
 import {
@@ -53,7 +53,7 @@ export function resolveDynamicIsProp(
 
   resolvePropAsBabelExp(propIR, ctx);
 
-  nodeIR.tag = ADAPTER_COMPS.Component;
+  nodeIR.tag = VUE_API_MAP.DynamicComponent;
   nodeIR.isComponent = true;
   nodeIR.props.push(propIR);
 

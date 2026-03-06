@@ -1,7 +1,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_UTILS_MAP } from '@consts/adapters-map';
-import { PACKAGE_NAME, STYLE_MODULE_NAME } from '@consts/other';
+import { ADAPTER_RULES } from '@consts/adapters-map';
+import { STYLE_MODULE_NAME } from '@consts/other';
 import { logger } from '@shared/logger';
 import { strCodeTypes } from '@shared/string-code-types';
 import { recordImport } from '@transform/shared';
@@ -171,19 +171,22 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
       setNameIdentifier(nameExp, nameIdentifier);
     }
 
+    const dir = ADAPTER_RULES.runtime.dir!;
+    recordImport(ctx, dir.package, dir.target);
     setValueExpression(value.babelExp, expression, isStringLiteral);
-    recordImport(ctx, PACKAGE_NAME.runtime, ADAPTER_UTILS_MAP.dir);
   };
 
   if (ir.isKeyLessVBind) {
-    const expression = createRuntimeCall(ADAPTER_UTILS_MAP.dirKeyless, [valueContent]);
+    const dirKeyless = ADAPTER_RULES.runtime.dirKeyless!;
+    const expression = createRuntimeCall(dirKeyless.target, [valueContent]);
     applyRuntimeExpression(expression, false);
     return;
   }
 
   if (isClassAttr(name) && !value.isStringLiteral && !valueContent.startsWith(STYLE_MODULE_NAME)) {
+    const dirCls = ADAPTER_RULES.runtime.dirCls!;
     const arg = mergedItems?.join(',') || wrapSingleQuotes(valueContent);
-    const expression = createRuntimeCall(ADAPTER_UTILS_MAP.dirCls, [arg]);
+    const expression = createRuntimeCall(dirCls.target, [arg]);
 
     applyRuntimeExpression(expression, true, name);
     return;
@@ -193,16 +196,18 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
     isStyleAttr(name) &&
     (!isSimpleStyle(valueContent) || mergedItems?.some((item) => !isSimpleStyle(item)))
   ) {
+    const dirStyle = ADAPTER_RULES.runtime.dirStyle!;
     const arg = mergedItems?.join(',') || valueContent;
-    const expression = createRuntimeCall(ADAPTER_UTILS_MAP.dirStyle, [arg]);
+    const expression = createRuntimeCall(dirStyle.target, [arg]);
 
     applyRuntimeExpression(expression, true, name);
     return;
   }
 
   if (ir.type === PropTypes.EVENT && ir.modifiers?.length) {
+    const dirOn = ADAPTER_RULES.runtime.dirOn!;
     const eventName = wrapSingleQuotes((ir as any).__vOnEvName || name, ir.isStatic);
-    const expression = createRuntimeCall(ADAPTER_UTILS_MAP.dirOn, [eventName, valueContent]);
+    const expression = createRuntimeCall(dirOn.target, [eventName, valueContent]);
 
     applyRuntimeExpression(expression, true, name);
     return;

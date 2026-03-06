@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_COMPS, ADAPTER_ROUTER_COMPS } from '@consts/adapters-map';
+import { VUE_API_MAP } from '@consts/vue-api-map';
 import { TemplateBlockIR, TemplateChildNodeIR } from '@transform/sfc/template';
 import { NodeTypes } from '@transform/sfc/template/shared/types';
 import { RootNode as VueRootNode } from '@vue/compiler-core';
@@ -30,13 +30,13 @@ function resolveElementChildrenRules(
 
     if (parentIR?.isBuiltIn) {
       // 校验 Transition 子节点
-      if (parentIR.tag == ADAPTER_COMPS.Transition) {
+      if (parentIR.tag == VUE_API_MAP.Transition) {
         resolveTransitionRules(nodeIR, parentIR, ir, ctx);
       }
     }
 
     if (nodeIR.isRoute) {
-      if (nodeIR.tag === ADAPTER_ROUTER_COMPS.RouterLink) {
+      if (nodeIR.tag === VUE_API_MAP.RouterLink) {
         resolveRouterLinkRules(nodeIR, ctx);
       }
     }

@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_ROUTER_COMPS } from '@consts/adapters-map';
+import { VUE_API_MAP } from '@consts/vue-api-map';
 import { TemplateBlockIR } from '@src/core/transform/sfc/template';
 import {
   isVBind,
@@ -101,8 +101,8 @@ export function resolveDirectiveProp(
       return resolveVOn(node, ir, ctx, nodeIR);
     }
     if (isVSlot(rawName)) {
-      if (nodeIR.tag === ADAPTER_ROUTER_COMPS.RouterLink) {
-        resolveRouterLinkVSlotProp(node, nodeIR,ctx);
+      if (nodeIR.tag === VUE_API_MAP.RouterLink) {
+        resolveRouterLinkVSlotProp(node, nodeIR, ctx);
       }
       return true;
     }

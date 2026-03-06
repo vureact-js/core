@@ -1,123 +1,320 @@
-export const ADAPTER_COMPS = {
-  KeepAlive: 'KeepAlive',
-  Suspense: 'Suspense',
-  Teleport: 'Teleport',
-  Component: 'Component',
-  Provider: 'Provider', // 实际是 Vue 的 provide 方法，为了命名统一采用 Provide
-  Transition: 'Transition',
-  TransitionGroup: 'TransitionGroup',
-} as const;
+import { PACKAGE_NAME } from './other';
 
-export const ADAPTER_UTILS_MAP = {
-  dir: 'dir',
-  dirCls: 'dir.cls',
-  dirKeyless: 'dir.keyless',
-  dirOn: 'dir.on',
-  dirStyle: 'dir.style',
-  nextTick: 'nextTick',
-} as const;
-
-export const ADAPTER_ROUTER_COMPS = {
-  RouterLink: 'RouterLink',
-  RouterView: 'RouterView',
-} as const;
-
-/**
- * 编译器API适配规则
- */
-export interface CompilerAdapterRules {
+export interface AdapterRule {
   /**
-   * 仅需替换调用名的简单适配
+   * 目标 API 适配名称
    */
-  renameOnly: ApiBehavior;
+  target: string;
 
   /**
-   * 需要额外处理（如收集依赖、添加参数等）的复杂适配
+   * 来自哪个包
    */
-  transform: ApiBehavior;
+  package: string;
+
+  /**
+   * API 的返回值是否可被用于依赖追踪
+   */
+  isTrackable?: boolean;
+
+  /**
+   * 处理类型
+   */
+  type: 'rename' | 'analyzed-deps' | 'none';
 }
 
-/**
- * API调用行为分类
- */
-export type ApiBehavior = {
-  /**
-   * 纯API：调用无副作用，返回值不参与依赖收集
-   */
-  pure: Record<string, any>;
-
-  /**
-   * 有副作用的API：调用有副作用，返回值需要作为依赖收集目标
-   */
-  effectful: Record<string, any>;
+type AdapterRulesMap = {
+  [K in keyof typeof PACKAGE_NAME]: {
+    [P: string]: AdapterRule; // 保持灵活性，但需要运行时验证
+  };
 };
 
-export const ADAPTER_HOOKS: CompilerAdapterRules = {
-  renameOnly: {
-    pure: {
-      useActived: 'useActived',
-      useDeactivated: 'useDeactivated',
-      onBeforeMount: 'useBeforeMount',
-      onBeforeUnMount: 'useBeforeUnMount',
-      onMounted: 'useMounted',
-      onUnmounted: 'useUnmounted',
+// 适配映射规则
+export const ADAPTER_RULES: AdapterRulesMap = {
+  // =============== [React] ===============
+  react: {
+    // =============== Hooks ===============
+    useTemplateRef: {
+      target: 'useRef',
+      package: PACKAGE_NAME.react,
+      type: 'none',
     },
-
-    effectful: {
-      ref: 'useVRef',
-      reactive: 'useReactive',
-      computed: 'useComputed',
-      readonly: 'useReadonly',
-      toRef: 'useToVRef',
-      toRefs: 'useToVRefs',
-      toRaw: 'useToRaw',
-      inject: 'useInject',
-      watch: 'useWatch',
-      shallowRef: 'useShallowRef',
-      shallowReactive: 'useShallowReactive',
-      shallowReadonly: 'useShallowReadonly',
-      isRef: 'isRef',
-      isProxy: 'isProxy',
-      isReactive: 'isReactive',
+    defineExpose: {
+      target: 'useImperativeHandle',
+      package: PACKAGE_NAME.react,
+      type: 'none',
     },
   },
 
-  transform: {
-    pure: {
-      useTemplateRef: 'useRef',
-      watchEffect: {
-        watchEffect: 'useWatchEffect',
-        watchPostEffect: 'useWatchPostEffect',
-        watchSyncEffect: 'useWatchSyncEffect',
-      },
-      lifecycle: {
-        onBeforeUpdate: 'useBeforeUpdate',
-        onUpdated: 'useUpdated',
-      },
+  // ============== [VuReact Runtime Core] ===============
+  runtime: {
+    // =============== Components ===============
+    KeepAlive: {
+      target: 'KeepAlive',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    Suspense: {
+      target: 'Suspense',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    Teleport: {
+      target: 'Teleport',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    Component: {
+      target: 'Component',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    provide: {
+      target: 'Provider',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    Transition: {
+      target: 'Transition',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    TransitionGroup: {
+      target: 'TransitionGroup',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
     },
 
-    effectful: {},
+    // =============== Hooks ===============
+    useActived: {
+      target: 'useActived',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    useDeactivated: {
+      target: 'useDeactivated',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    onBeforeMount: {
+      target: 'useBeforeMount',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    onBeforeUnMount: {
+      target: 'useBeforeUnMount',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    onMounted: {
+      target: 'useMounted',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    onUnmounted: {
+      target: 'useUnmounted',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    onBeforeUpdate: {
+      target: 'useBeforeUpdate',
+      package: PACKAGE_NAME.runtime,
+      type: 'analyzed-deps',
+    },
+    onUpdated: {
+      target: 'useUpdated',
+      package: PACKAGE_NAME.runtime,
+      type: 'analyzed-deps',
+    },
+    ref: {
+      target: 'useVRef',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    reactive: {
+      target: 'useReactive',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    computed: {
+      target: 'useComputed',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    readonly: {
+      target: 'useReadonly',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    toRef: {
+      target: 'useToVRef',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    toRefs: {
+      target: 'useToVRefs',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    toRaw: {
+      target: 'useToRaw',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    inject: {
+      target: 'useInject',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    shallowRef: {
+      target: 'useShallowRef',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    shallowReactive: {
+      target: 'useShallowReactive',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    shallowReadonly: {
+      target: 'useShallowReadonly',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    isRef: {
+      target: 'isRef',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    isProxy: {
+      target: 'isProxy',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    isReactive: {
+      target: 'isReactive',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+      isTrackable: true,
+    },
+    watch: {
+      target: 'useWatch',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    watchEffect: {
+      target: 'useWatchEffect',
+      package: PACKAGE_NAME.runtime,
+      type: 'analyzed-deps',
+    },
+    watchPostEffect: {
+      target: 'useWatchPostEffect',
+      package: PACKAGE_NAME.runtime,
+      type: 'analyzed-deps',
+    },
+    watchSyncEffect: {
+      target: 'useWatchSyncEffect',
+      package: PACKAGE_NAME.runtime,
+      type: 'analyzed-deps',
+    },
+
+    // =============== Directive Utils ===============
+    dir: {
+      target: 'dir',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    dirCls: {
+      target: 'dir.cls',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    dirKeyless: {
+      target: 'dir.keyless',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    dirOn: {
+      target: 'dir.On',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    dirStyle: {
+      target: 'dir.style',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
+    nextTick: {
+      target: 'nextTick',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
   },
-} as const;
 
-export const ADAPTER_ROUTER_APIS: CompilerAdapterRules = {
-  renameOnly: {
-    pure: {
-      createRouter: 'createRouter',
-      onBeforeRouteLeave: 'useBeforeRouteLeave',
-      onBeforeRouteUpdate: 'useBeforeRouteUpdate',
-      onBeforeRouteEnter: 'useBeforeRouteEnter',
+  // =================== [VuReact Router] ===================
+  router: {
+    // =============== Components ===============
+    RouterLink: {
+      target: 'RouterLink',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
+    RouterView: {
+      target: 'RouterView',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
     },
 
-    effectful: {
-      useRoute: 'useRoute',
-      useRouter: 'useRouter',
-      useLink: 'useLink',
+    createRouter: {
+      target: 'createRouter',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
     },
-  },
 
-  transform: {
-    pure: {},
-    effectful: {},
+    // =============== Hooks ===============
+    useRoute: {
+      target: 'useRoute',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+      isTrackable: true,
+    },
+    useRouter: {
+      target: 'useRouter',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+      isTrackable: true,
+    },
+    useLink: {
+      target: 'useLink',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+      isTrackable: true,
+    },
+    onBeforeRouteLeave: {
+      target: 'useBeforeRouteLeave',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
+    onBeforeRouteUpdate: {
+      target: 'useBeforeRouteUpdate',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
+    onBeforeRouteEnter: {
+      target: 'useBeforeRouteEnter',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
   },
 } as const;

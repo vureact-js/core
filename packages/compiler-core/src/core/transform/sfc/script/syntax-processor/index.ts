@@ -8,23 +8,24 @@ import {
   resolveStaticHoisting,
 } from './postprocess';
 import {
-  resolveAsyncComponent,
   resolveCompIProps,
+  resolveDefineAsyncComponent,
+  resolveDefineExpose,
+  resolveDefineOptions,
   resolveEmitCalls,
   resolveEmitsTopLevelTypes,
-  resolveOptions,
   resolvePropsIface,
   resolveSlotsTopLevelTypes,
-  resolveTemplateRef,
   resolveTemplateSlotIface,
 } from './preprocess';
 import {
-  lintRules,
+  resolveAnalysisOnlyAdapter,
   resolveArrowFnDeps,
+  resolveElementRef,
   resolveExprMemo,
+  resolveLintRules,
   resolveProvide,
-  resolveRenameOnlyAdapter,
-  resolveTransformAdapter,
+  resolveRenameAdapter,
   resolveUnanalyzedArrow,
 } from './process';
 
@@ -44,25 +45,26 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
   vueSyntaxProcessor(ast, ctx, {
     preprocess: {
       applyBabel: [
-        resolveOptions,
+        resolvePropsIface,
         resolveEmitsTopLevelTypes,
         resolveSlotsTopLevelTypes,
-        resolvePropsIface,
-        resolveAsyncComponent,
+        resolveDefineOptions,
+        resolveDefineExpose,
+        resolveDefineAsyncComponent,
         resolveEmitCalls,
       ],
     },
 
     process: {
       applyBabel: [
-        resolveRenameOnlyAdapter,
+        resolveElementRef,
+        resolveRenameAdapter,
         resolveArrowFnDeps,
         resolveUnanalyzedArrow,
-        resolveTransformAdapter,
-        resolveTemplateRef,
+        resolveAnalysisOnlyAdapter,
         resolveProvide,
         resolveExprMemo,
-        lintRules,
+        resolveLintRules,
       ],
       excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],
     },

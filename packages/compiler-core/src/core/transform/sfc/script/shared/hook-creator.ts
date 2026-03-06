@@ -14,3 +14,10 @@ export function createUseMemo(body: t.Expression, deps?: t.ArrayExpression): t.C
     deps ?? t.arrayExpression([]),
   ]);
 }
+
+export function createUseImperativeHandle(
+  refId: t.Identifier,
+  init: t.FunctionExpression | t.ArrowFunctionExpression,
+): t.CallExpression {
+  return t.callExpression(t.identifier(REACT_API_MAP.useImperativeHandle), [refId, init]);
+}

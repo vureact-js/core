@@ -13,6 +13,7 @@ export const MACRO_API_NAMES = {
   emits: 'defineEmits',
   slots: 'defineSlots',
   options: 'defineOptions',
+  expose: 'defineExpose',
 };
 
 /** Vue3 最常用、最核心的 $ 标识符 */

@@ -2,6 +2,7 @@ import { traverse } from '@babel/core';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { HTML_TAG_TYPES } from '@consts/html-tag-types';
+import { MACRO_API_NAMES } from '@consts/other';
 import { VUE_API_MAP } from '@consts/vue-api-map';
 import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { getReactiveStateApis, getReactiveType } from '@shared/reactive-utils';
@@ -45,7 +46,7 @@ function collectReactiveBindings(node: t.VariableDeclarator, ctx: ICompilationCo
   const varName = (node.id as t.Identifier).name;
   const value = init.arguments[0]! as t.Expression;
 
-  if (source === 'defineProps') {
+  if (source === MACRO_API_NAMES.props) {
     // 使用 props 宏的变量名
     ctx.propField = varName;
   }
@@ -71,7 +72,7 @@ function collectRefBindings(node: t.VariableDeclarator, ctx: ICompilationContext
   // 由于 Vue useTemplateRef 接收的值限定只能是字符串字面量，因此可以放心断言
   const tag = (init.arguments[0] as t.StringLiteral)?.value;
 
-  refBindings[idName] = {
+  refBindings.domRefs[idName] = {
     tag,
     htmlType: HTML_TAG_TYPES[tag] || 'HTMLElement',
     name: idName,

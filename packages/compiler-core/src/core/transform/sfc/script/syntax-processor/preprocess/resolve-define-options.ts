@@ -8,7 +8,7 @@ import { isCalleeNamed } from '../../shared/babel-utils';
 /**
  * 处理 defineOptions
  */
-export function resolveOptions(ctx: ICompilationContext): TraverseOptions {
+export function resolveDefineOptions(ctx: ICompilationContext): TraverseOptions {
   return {
     CallExpression(path) {
       const { node } = path;

@@ -3,18 +3,19 @@ import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { PACKAGE_NAME } from '@consts/other';
 import { REACT_API_MAP } from '@consts/react-api-map';
+import { VUE_API_MAP } from '@consts/vue-api-map';
 import { logger } from '@shared/logger';
 import { recordImport } from '@transform/shared';
 import { getScriptIR } from '../..';
 import { isCalleeNamed } from '../../shared/babel-utils';
 import { replaceVueSuffix } from '../../shared/replace-vue-suffix';
 
-export function resolveAsyncComponent(ctx: ICompilationContext): TraverseOptions {
+export function resolveDefineAsyncComponent(ctx: ICompilationContext): TraverseOptions {
   return {
     CallExpression(path) {
       const { node } = path;
 
-      if (!isCalleeNamed(node, 'defineAsyncComponent')) {
+      if (!isCalleeNamed(node, VUE_API_MAP.defineAsyncComponent)) {
         return;
       }
 
@@ -22,6 +23,7 @@ export function resolveAsyncComponent(ctx: ICompilationContext): TraverseOptions
 
       checkIsUnsupported(ctx, arg);
       pushToGlobalScope(path, ctx);
+
       recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.lazy);
     },
   };

@@ -2,7 +2,9 @@ export const REACT_API_MAP = {
   lazy: 'lazy',
   memo: 'memo',
   useRef: 'useRef',
-  useCallback: 'useCallback',
   useMemo: 'useMemo',
   ReactNode: 'ReactNode',
+  forwardRef: 'forwardRef',
+  useCallback: 'useCallback',
+  useImperativeHandle: 'useImperativeHandle',
 } as const;

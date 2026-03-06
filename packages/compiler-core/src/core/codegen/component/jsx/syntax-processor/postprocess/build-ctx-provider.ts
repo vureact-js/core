@@ -1,6 +1,7 @@
 import * as t from '@babel/types';
 import { ICompilationContext, ProvideData } from '@compiler/context/types';
-import { ADAPTER_COMPS } from '@consts/adapters-map';
+import { ADAPTER_RULES } from '@consts/adapters-map';
+import { VUE_API_MAP } from '@consts/vue-api-map';
 import { JSXChild } from '../../types';
 import { createJsxElement } from '../../utils/jsx-element-utils';
 import { buildJsxExpressionNode } from '../process';
@@ -30,5 +31,6 @@ export function buildCtxProviderNode(
 
   void ctx;
 
-  return createJsxElement(ADAPTER_COMPS.Provider, [keyProp, valueProp], childNodes);
+  const adpater = ADAPTER_RULES.runtime[VUE_API_MAP.provide]!;
+  return createJsxElement(adpater.target, [keyProp, valueProp], childNodes);
 }
