@@ -11,9 +11,6 @@ English | [简体中文](./README.zh.md)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
-[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
 ---
 

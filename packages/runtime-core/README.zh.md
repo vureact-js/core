@@ -4,6 +4,11 @@
 
 **Vue 3 内置组件 / React 钩子 / 模板指令工具集 的 React 适配层**
 
+[![npm version](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://vureact.top/)
+[![npm downloads](https://img.shields.io/npm/dm/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+
 一套全面的 React 适配层，将 Vue 3 的强大特性赋能至 React 应用中。通过内置组件、响应式钩子和模板指令工具，让你的 React 项目拥有 Vue 风格的开发体验。
 
 ## 简介

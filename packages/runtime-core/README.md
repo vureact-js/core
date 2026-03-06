@@ -4,6 +4,11 @@ English | [简体中文](./README.zh.md)
 
 **React Adaptation Layer for Vue 3 Built-in Components / React Hooks / Template Directive Toolset**
 
+[![npm version](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://vureact.top/)
+[![npm downloads](https://img.shields.io/npm/dm/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+
 A comprehensive React adaptation layer that empowers React applications with the powerful features of Vue 3. Leverage built-in components, reactive hooks, and template directive tools to bring Vue-style development experience to your React projects.
 
 ## What is it?

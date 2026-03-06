@@ -1,5 +1,9 @@
 # @vureact/compiler-core
 
+[![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
+[![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## What is VuReact?
 
 [VuReact](http://vureact.top) (pronounced /vjuːˈriːækt/) is an intelligent compilation toolchain for Vue 3 → React migration.

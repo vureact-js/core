@@ -1,5 +1,9 @@
 # @vureact/compiler-core
 
+[![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
+[![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## 什么是 VuReact？
 
 [VuReact](http://vureact.top)（发音 `/vjuːˈriːækt/`）是一个面向 Vue 3 → React 的智能编译工具链。
