@@ -1,4 +1,4 @@
-import { generate } from '@babel/generator';
+﻿import { generate } from '@babel/generator';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext, ProvideData } from '@compiler/context/types';
@@ -10,19 +10,22 @@ import { isCalleeNamed } from '../../shared/babel-utils';
 type ArgumentType = t.Expression | t.SpreadElement | t.ArgumentPlaceholder;
 
 /**
- * 将 provide 转换成 AST 描述结构，记录到编译上下文，
+ * 将 provide 转换成 AST 描述结构，并记录到编译上下文，
  * 在生成阶段根据 AST 生成对应结构的 CtxProvider 适配组件
  */
 export function resolveProvide(ctx: ICompilationContext): TraverseOptions {
-  // 仅处理 SFC 文件
-  if (ctx.inputType !== 'sfc') return {};
+  // 仅跳过纯样式文件，脚本输入也允许处理 provide
+  if (ctx.inputType === 'style') return {};
 
   return {
     CallExpression(path) {
       const { node } = path;
 
-      // 检查是否为 provide 调用
-      if (!isCalleeNamed(node, VUE_API_MAP.provide)) return;
+      // 检查是否为 provide 调用（兼容已被重命名为 Provider 的场景）
+      const providerTarget = ADAPTER_RULES.runtime[VUE_API_MAP.provide]?.target;
+      const isProvideCall =
+        isCalleeNamed(node, VUE_API_MAP.provide) || (providerTarget && isCalleeNamed(node, providerTarget));
+      if (!isProvideCall) return;
 
       // 获取编译上下文中的 provide 数据
       const { provide } = ctx.scriptData;
@@ -70,7 +73,8 @@ function assignProviderValue(
     if (!exp) return "''"; // 空字符串
 
     if (t.isStringLiteral(exp)) {
-      return `'${exp.value}'`;
+      // 直接返回字符串字面量（含引号），便于后续按表达式解析
+      return JSON.stringify(exp.value);
     }
 
     if (t.isNumericLiteral(exp)) {
@@ -82,7 +86,7 @@ function assignProviderValue(
     }
 
     try {
-      // 降级：直接使用源码
+      // 降级：直接使用源代码表达式
       return generate(exp).code;
     } catch {
       return 'null';

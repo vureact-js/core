@@ -58,11 +58,12 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
     process: {
       applyBabel: [
         resolveElementRef,
+        // provide 需要在 rename 之前收集并移除原始调用，避免被重命名后失配
+        resolveProvide,
         resolveRenameAdapter,
         resolveArrowFnDeps,
         resolveUnanalyzedArrow,
         resolveAnalysisOnlyAdapter,
-        resolveProvide,
         resolveExprMemo,
         resolveLintRules,
       ],

@@ -5,6 +5,7 @@ import {
   resolvePropAsBabelExp,
 } from '@src/core/transform/sfc/template/shared/prop-ir-utils';
 import { PropTypes } from '@src/core/transform/sfc/template/shared/types';
+import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import {
   AttributeNode,
@@ -51,14 +52,14 @@ export function resolveVModel(
 
   if (isComponent) {
     // ==========================================
-    // 方案1：组件模式的 V-Model 转换
+    // 方案1：组件模式的 v-model 转换
     // ==========================================
     valuePropIR = createPropsIR('v-model', propName, getterName);
 
-    // 命名空间逻辑：如 user.name -> onUpdateUser
-    const getterNamespace = getRootIdName(getterName)!;
-    const eventReactName = `onUpdate${capitalize(getterNamespace)}`;
-    const eventVueName = `update:${getterNamespace}`;
+    // 事件名必须基于 propName（如 modelValue / value / status），
+    // 不能使用绑定变量名（如 keyword），否则会生成错误的 onUpdateKeyword
+    const eventReactName = `onUpdate${capitalize(camelCase(propName))}`;
+    const eventVueName = `update:${propName}`;
 
     const isTS = ctx.scriptData?.lang?.startsWith('ts');
     const valueArg = isTS ? 'value: any' : 'value';
@@ -71,7 +72,7 @@ export function resolveVModel(
     eventPropIR.type = PropTypes.EVENT;
   } else {
     // ==========================================
-    // 方案2：原生 HTML 元素的 V-Model 转换
+    // 方案2：原生 HTML 元素的 v-model 转换
     // ==========================================
     if (inputType === 'radio') {
       // Radio 特殊处理：绑定 checked，触发 onChange
@@ -143,7 +144,7 @@ function resolveHtmlInput(node: VueElementNode, isComponent: boolean): HTMLInput
 
 /**
  * 修饰符包装管道
- * 按照 Vue 官方处理顺序，依次对取值表达式进行包装，代替危险的全局 replace 替换
+ * 按照 Vue 官方处理顺序，依次对取值表达式进行包装，替代危险的全局 replace 替换
  */
 function applyValueModifiers(valueExp: string, modifiers: string[]): string {
   let result = valueExp;
@@ -159,13 +160,4 @@ function applyValueModifiers(valueExp: string, modifiers: string[]): string {
   }
 
   return result;
-}
-
-function getRootIdName(expr: string): string | undefined {
-  if (typeof expr !== 'string') return;
-
-  const pattern = /^([a-zA-Z_$][a-zA-Z0-9_$]*)(?:[\.\?\.\[\(].*)?$/;
-  const match = pattern.exec(expr.trim());
-
-  return match?.[1];
 }

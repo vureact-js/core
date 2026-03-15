@@ -11,6 +11,17 @@ import { capitalize } from '@utils/capitalize';
  * 如 emit('click', e) => props?.onClick(e)
  */
 export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
+  // fix: 事件名格式化：支持 update:xxx -> onUpdateXxx，并避免生成包含冒号的非法属性名
+  const formatEmitEventName = (raw: string): string => {
+    if (raw.startsWith('update:')) {
+      const modelKey = raw.slice('update:'.length);
+      return `onUpdate${capitalize(camelCase(modelKey))}`;
+    }
+
+    const normalized = raw.includes(':') ? raw.replace(/:/g, '-') : raw;
+    return `on${capitalize(camelCase(normalized))}`;
+  };
+
   return {
     CallExpression(path) {
       const { node } = path;
@@ -51,9 +62,7 @@ export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
 
       const [callee, ...args] = node.arguments;
 
-      const eventName = t.isStringLiteral(callee)
-        ? `on${capitalize(camelCase(callee.value))}`
-        : undefined;
+      const eventName = t.isStringLiteral(callee) ? formatEmitEventName(callee.value) : undefined;
 
       if (!eventName) {
         logger.warn(`Expected String type but got ${callee?.type}, expression will be removed`, {

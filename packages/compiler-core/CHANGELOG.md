@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-03-15
+
+### Fixed
+
+- 修复 `provide` 转换逻辑，改进 Provider 组件的属性处理
+- 修复事件调用转换，统一将事件调用变为可选的（`onClick?.()`）
+- 修复 `v-model` 转换中的事件名生成逻辑
+- 修复模板中 `template` 和 `slot` 出口节点不应注入 `scopeId` 的问题
+- 修复插槽作用域参数类型定义，支持包含连字符等非法标识符的字段
+- 修复 `ReactNode` 等类型导入，确保正确添加 `type` 修饰符
+- 修复 Vue Router 历史模式 API 的适配映射
+- 修复 `emit` 事件名格式化，支持 `update:xxx` -> `onUpdateXxx` 转换
+- 修复 `provide` 处理顺序，确保在重命名之前收集并移除原始调用
+- 修复样式作用域属性注入逻辑，避免在特定节点上错误注入
+
+---
+
 ## [1.2.0] - 2026-03-06
 
 ### Added

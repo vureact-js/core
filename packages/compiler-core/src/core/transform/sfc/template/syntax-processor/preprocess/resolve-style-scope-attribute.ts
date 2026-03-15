@@ -4,6 +4,8 @@ import { camelCase } from '@utils/camelCase';
 import {
   AttributeNode,
   ElementTypes,
+  isSlotOutlet,
+  isTemplateNode,
   NodeTypes,
   ElementNode as VueElementNode,
   ParentNode as VueParentNode,
@@ -39,7 +41,8 @@ function walkElementNodes(node: VueParentNode, onElement: (node: VueElementNode)
 function injectStyleScopeAttribute(node: VueElementNode, ctx: ICompilationContext) {
   const { scopeId } = ctx.styleData;
 
-  if (!scopeId || isComponentElement(node)) {
+  // fix: template / slot 出口节点不应注入 scopeId，否则会被当作作用域参数
+  if (!scopeId || isComponentElement(node) || isSlotOutlet(node) || isTemplateNode(node)) {
     return;
   }
 

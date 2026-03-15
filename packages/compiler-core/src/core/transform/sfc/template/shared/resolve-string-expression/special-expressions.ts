@@ -14,7 +14,7 @@ export function resolveSpecialExpressions(input: string, ctx: ICompilationContex
 /**
  * 将模板中的 defineProps/defineEmits 宏调用， 替换为 [propField]?.xxx，并转为 React 风格的调用。
  *
- * 例如：emits('click', e) => [propField]?.onClick(e)
+ * 例如：emits('click', e) => [propField]?.onClick?.(e)
  */
 function resolveEmitsCalls(input: string, ctx: ICompilationContext): string {
   const result = matchEmitCalls(input, ctx);
@@ -27,7 +27,8 @@ function resolveEmitsCalls(input: string, ctx: ICompilationContext): string {
     .map((part) => capitalize(camelCase(part)))
     .join('');
 
-  const event = args ? `on${callee}(${args})` : `on${callee}()`;
+  // fix: 事件调用统一变为可选的
+  const event = args ? `on${callee}?.(${args})` : `on${callee}?.()`;
   return `${ctx.propField}?.${event}`;
 }
 

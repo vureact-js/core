@@ -276,8 +276,24 @@ export const ADAPTER_RULES: AdapterRulesMap = {
       type: 'rename',
     },
 
+    // =============== Methods ===============
     createRouter: {
       target: 'createRouter',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
+    createWebHistory: {
+      target: 'createWebHistory',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
+    createWebHashHistory: {
+      target: 'createWebHashHistory',
+      package: PACKAGE_NAME.router,
+      type: 'rename',
+    },
+    createMemoryHistory: {
+      target: 'createMemoryHistory',
       package: PACKAGE_NAME.router,
       type: 'rename',
     },

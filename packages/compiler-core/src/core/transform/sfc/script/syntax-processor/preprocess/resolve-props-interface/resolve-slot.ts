@@ -307,7 +307,10 @@ function createSlotScopeParam(
       : null;
 
     const typeAnnotation = foundBindingTypes ? t.tsTypeAnnotation(foundBindingTypes) : tsType;
-    const propSign = t.tsPropertySignature(t.identifier(prop), typeAnnotation);
+
+    // 对包含连字符等非法标识符的字段使用字符串字面量，避免 TS 语法错误
+    const key = t.isValidIdentifier(prop) ? t.identifier(prop) : t.stringLiteral(prop);
+    const propSign = t.tsPropertySignature(key, typeAnnotation);
 
     propsSigns.push(propSign);
   });
