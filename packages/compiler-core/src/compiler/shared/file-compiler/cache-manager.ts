@@ -1,5 +1,5 @@
 import { FileCompiler } from '.';
-import { CacheKey, CompilationUnit } from '../types';
+import { CacheKey, CompilationUnit, ScriptUnit, SFCUnit, StyleUnit } from '../types';
 
 export class CacheManager {
   constructor(private fileCompiler: FileCompiler) {}
@@ -17,10 +17,15 @@ export class CacheManager {
     delete (meta as any).source;
 
     if (key === CacheKey.SFC) {
-      delete (meta as any).output.jsx.code;
-      delete (meta as any).output.css.code;
+      // @ts-ignore
+      delete (meta as SFCUnit).output?.jsx.code;
+      delete (meta as SFCUnit).output?.css.code;
     } else if (key === CacheKey.SCRIPT) {
-      delete (meta as any).output.script.code;
+      // @ts-ignore
+      delete (meta as ScriptUnit).output?.script.code;
+    } else if (key === CacheKey.STYLE) {
+      // @ts-ignore fix: 不存储 style 源码
+      delete (meta as StyleUnit).output?.style.code;
     }
 
     this.updateCache(unit.file, meta, cache);

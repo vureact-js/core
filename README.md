@@ -1,24 +1,29 @@
-# VuReact Core
+<div align="center"><a name="readme-top"></a>
 
-English | [简体中文](./README.zh.md)
+<img height="180" src="./logo.png" />
 
-**Next-Generation Intelligent Vue 3 → React Compilation Toolchain**
+<h1>VuReact</h1>
+
+Next Vue to React intelligent compilation toolchain that compiles Vue 3 into runnable React 18+ code
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+English | [简体中文](./README.zh.md)
+
+</div>
 
 ---
 
 ## 🎯 Core Philosophy
 
-VuReact is not a simple syntax transformation tool. It is a **convention-driven intelligent compilation platform**.
+VuReact is not just a simple syntax conversion tool, but a **convention-based intelligent compilation platform**. We adhere to the principle of "controllability over full coverage," providing a **predictable, analyzable, and maintainable** engineering path for Vue to React migration through explicit compilation conventions.
 
-We follow the principle that **controllability is more important than full coverage**. Through explicit compilation conventions, VuReact provides a **predictable, analyzable, and maintainable** engineering path for migrating from Vue to React.
+Furthermore, VuReact is not only suitable for migration scenarios but also for development scenarios where developers wish to enjoy **Vue's excellent mental model** while producing **React code**.
 
 ---
 

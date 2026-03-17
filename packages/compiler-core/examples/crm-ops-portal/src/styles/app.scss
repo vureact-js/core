@@ -1,0 +1,92 @@
+﻿// 定义基础颜色变量
+$colors: (
+  light: (
+    bg: #f5f6f8,
+    panel: #ffffff,
+    text: #111827,
+    muted: #6b7280,
+    border: #e5e7eb,
+    accent: #2563eb,
+    accent-soft: rgba(37, 99, 235, 0.12),
+    banner: #fef3c7,
+  ),
+  ocean: (
+    bg: #f2f7ff,
+    panel: #ffffff,
+    text: #0f172a,
+    muted: #64748b,
+    border: #dbeafe,
+    accent: #2563eb,
+    accent-soft: rgba(37, 99, 235, 0.14),
+    banner: #e0f2fe,
+  ),
+  forest: (
+    bg: #f6fbf5,
+    panel: #ffffff,
+    text: #052e16,
+    muted: #6b7280,
+    border: #d1fae5,
+    accent: #16a34a,
+    accent-soft: rgba(22, 163, 74, 0.15),
+    banner: #ecfccb,
+  ),
+);
+
+// 定义字体变量
+$font-family-base: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+// 循环生成所有主题
+:root {
+  @each $color-name, $color-value in map-get($colors, light) {
+    --#{$color-name}: #{$color-value};
+  }
+}
+
+.theme-ocean {
+  @each $color-name, $color-value in map-get($colors, ocean) {
+    --#{$color-name}: #{$color-value};
+  }
+}
+
+.theme-forest {
+  @each $color-name, $color-value in map-get($colors, forest) {
+    --#{$color-name}: #{$color-value};
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: $font-family-base;
+  background: var(--bg);
+  color: var(--text);
+
+  #root {
+    width: 100% !important;
+    text-align: start !important;
+  }
+}
+
+a {
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input {
+  background: #ffffff;
+  color: var(--text);
+}

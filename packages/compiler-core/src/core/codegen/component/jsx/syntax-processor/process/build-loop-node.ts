@@ -1,5 +1,6 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { resolveStringExpr } from '@src/core/transform/sfc/template/shared/resolve-string-expression';
 import { ElementNodeIR } from '@src/core/transform/sfc/template/syntax-processor/process';
 import { JSXChild } from '../../types';
 import { convertJsxChildToExpression } from '../../utils/jsx-expression-utils';
@@ -20,7 +21,9 @@ function buildArrayLoopNode(nodeIR: ElementNodeIR, ctx: ICompilationContext): JS
   const loop = nodeIR.meta.loop!;
   const { source, value, index, key } = loop.value;
 
-  const sourceIdentifier = t.identifier(source);
+  // fix: 修复属于 ref 类型的 API 变量访问没有补上 .value
+  // 如 list.map => list.value.map
+  const sourceExpression = resolveStringExpr(source, ctx);
 
   const params: t.Identifier[] = [t.identifier(value)];
   if (index ?? key) {
@@ -28,7 +31,7 @@ function buildArrayLoopNode(nodeIR: ElementNodeIR, ctx: ICompilationContext): JS
   }
 
   const mapCallExpression = t.callExpression(
-    t.memberExpression(sourceIdentifier, t.identifier('map')),
+    t.memberExpression(sourceExpression, t.identifier('map')),
     [
       t.arrowFunctionExpression(
         params,
@@ -44,10 +47,12 @@ function buildObjectLoopNode(nodeIR: ElementNodeIR, ctx: ICompilationContext): J
   const loop = nodeIR.meta.loop!;
   const { source, value, key, index } = loop.value;
 
-  const sourceIdentifier = t.identifier(source);
+  // fix: 修复属于 ref 类型的 API 变量访问没有补上 .value
+  const sourceExpression = resolveStringExpr(source, ctx);
+
   const objectEntriesCallExpression = t.callExpression(
     t.memberExpression(t.identifier('Object'), t.identifier('entries')),
-    [sourceIdentifier],
+    [sourceExpression],
   );
 
   const params: (t.Identifier | t.ArrayPattern)[] = [

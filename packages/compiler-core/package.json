@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.2.1",
-  "description": "🌀 Next Vue to React compiler, compiles Vue 3 syntax into runnable React 18+ code.",
+  "version": "1.3.0",
+  "description": "🌀 Next Vue 3 to React 18+ intelligent compilation toolchain",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
@@ -17,7 +17,8 @@
   },
   "files": [
     "bin",
-    "lib"
+    "lib",
+    "templates"
   ],
   "keywords": [
     "vue",
@@ -30,10 +31,16 @@
     "vue3",
     "react18",
     "migration",
-    "incremental",
+    "svelte",
     "typescript",
     "jsx",
-    "sfc"
+    "sfc",
+    "veaury",
+    "mitosis",
+    "vue3-to-react",
+    "vue-react",
+    "react-vue",
+    "vue-in-react"
   ],
   "homepage": "https://vureact.top",
   "repository": {
@@ -75,6 +82,7 @@
     "ora": "^9.1.0",
     "postcss": "^8.5.6",
     "sass": "^1.97.3",
+    "update-notifier": "^7.3.1",
     "xxhashjs": "^0.2.2"
   },
   "engines": {

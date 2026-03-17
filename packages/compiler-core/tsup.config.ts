@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { defineConfig } from 'tsup';
 import { author, version } from './package.json';
 
@@ -40,26 +39,11 @@ export default defineConfig({
     'chokidar',
     'less',
     'sass',
+    'update-notifier',
   ],
 
   banner: {
     js: licenseBanner,
-  },
-
-  onSuccess: async () => {
-    const cliFiles = ['lib/cli.esm.js', 'lib/cli.js'];
-
-    cliFiles.forEach((file) => {
-      if (fs.existsSync(file)) {
-        const content = fs.readFileSync(file, 'utf8');
-
-        // 检查是否已经有了 Shebang，如果没有则添加
-        if (!content.startsWith('#!')) {
-          const newContent = `#!/usr/bin/env node\n${content}`;
-          fs.writeFileSync(file, newContent);
-        }
-      }
-    });
   },
 
   outExtension({ format }) {

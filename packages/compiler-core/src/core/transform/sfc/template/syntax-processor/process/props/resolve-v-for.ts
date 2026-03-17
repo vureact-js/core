@@ -1,5 +1,5 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
+import { TemplateBlockIR } from '@transform/sfc/template';
 import { DirectiveNode, ForParseResult, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR, LoopMeta } from '../resolve-element-node';
 

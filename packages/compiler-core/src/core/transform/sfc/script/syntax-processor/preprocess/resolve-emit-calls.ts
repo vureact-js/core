@@ -75,7 +75,8 @@ export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
       }
 
       // 创建相应的 props 调用表达式
-      const propCall = t.callExpression(
+      // fix: 函数调用统一修改为可选的
+      const propCall = t.optionalCallExpression(
         t.optionalMemberExpression(
           t.identifier(ctx.propField),
           t.identifier(eventName),
@@ -83,6 +84,7 @@ export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
           true,
         ),
         args,
+        true,
       );
 
       path.replaceWith(propCall);

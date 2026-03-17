@@ -1,19 +1,29 @@
-# VuReact Core
+<div align="center"><a name="readme-top"></a>
 
-简体中文 | [English](./README.md)
+<img height="180" src="./logo.png" />
 
-**下一代 Vue 3 -> React 智能编译工具链**
+# VuReact
+
+下一代 Vue -> React 智能编译工具链，将 Vue 3 编译为可运行的 React 18+ 代码
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+
+简体中文 | [English](./README.md)
+
+</div>
+
+---
 
 ## 🎯 核心理念
 
 VuReact 不是简单的语法转换工具，而是一个**基于约定的智能编译平台**。我们遵循"可控性优先于全覆盖"的原则，通过明确的编译约定，为 Vue 到 React 的迁移提供**可预测、可分析、可维护**的工程路径。
+
+另外，VuReact **不仅适用于迁移场景**，也适用于那些希望**享受 Vue 优秀的心智模型**，同时**产出 React 代码**的开发场景。
 
 ## ✨ 核心特性
 

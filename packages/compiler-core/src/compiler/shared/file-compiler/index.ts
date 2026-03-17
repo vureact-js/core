@@ -168,35 +168,61 @@ export class FileCompiler extends BaseCompiler {
     await this.viteBootstrapper.bootstrapIfNeeded();
 
     try {
-      // 1. Vue文件处理管线
-      this.spinner.start('Compiling Vue files...');
-      const sfcCount = await this.pipelineManager.runSfcPipeline();
-      this.spinner.stop();
+      const sfcCount = await this.runPipelineWithSpinner(CacheKey.SFC);
+      const scriptCount = await this.runPipelineWithSpinner(CacheKey.SCRIPT);
+      const styleCount = await this.runPipelineWithSpinner(CacheKey.STYLE);
+      const assetCount = await this.runPipelineWithSpinner(CacheKey.ASSET);
 
-      // 2. Script 文件处理管线
-      this.spinner.start('Compiling script files...');
-      const scriptCount = await this.pipelineManager.runScriptPipeline();
-      this.spinner.stop();
-
-      // 3. Style 文件处理管线
-      this.spinner.start('Compiling style files...');
-      const styleCount = await this.pipelineManager.runStylePipeline();
-      this.spinner.stop();
-
-      // 4. 资源拷贝处理管线 (剩余无需处理的文件)
-      this.spinner.start('Copying assets...');
-      const assetCount = await this.assetManager.runAssetPipeline();
-      this.spinner.stop();
-
+      // 执行用户自定义的成功回调
       await this.options.onSuccess?.();
-      const endTime = calcElapsedTime(startTime);
 
+      const endTime = calcElapsedTime(startTime);
       this.printCoreLogs();
       this.showCompileStats(endTime, sfcCount, scriptCount, styleCount, assetCount);
     } catch (error) {
-      this.spinner.stop();
       const endTime = calcElapsedTime(startTime);
-      console.error(kleur.red('✖'), `Build failed in ${endTime}\n`);
+      console.error(kleur.red('✖'), `Build failed in ${endTime}`);
+      console.error(error);
+    }
+  }
+
+  /**
+   * 运行管线并显示加载动画
+   *
+   * @private
+   * @param text - 加载动画显示的文本
+   * @param pipelineFn - 要执行的管线函数
+   * @returns 返回的处理的文件数
+   */
+  private async runPipelineWithSpinner(name: CacheKey): Promise<number> {
+    const options = {
+      [CacheKey.SFC]: {
+        text: 'Compiling Vue files...',
+        pipeline: () => this.pipelineManager.runSfcPipeline(),
+      },
+      [CacheKey.SCRIPT]: {
+        text: 'Compiling script files...',
+        pipeline: () => this.pipelineManager.runScriptPipeline(),
+      },
+      [CacheKey.STYLE]: {
+        text: 'Compiling style files...',
+        pipeline: () => this.pipelineManager.runStylePipeline(),
+      },
+      [CacheKey.ASSET]: {
+        text: 'Copying assets...',
+        pipeline: () => this.assetManager.runAssetPipeline(),
+      },
+    };
+
+    const { text, pipeline } = options[name];
+
+    try {
+      this.spinner.start(text);
+      return await pipeline();
+    } catch (err) {
+      throw err;
+    } finally {
+      this.spinner.stop();
     }
   }
 

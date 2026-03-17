@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-03-17
+
+### Added
+
+- 新增 CLI 更新检查功能，启动时自动检查新版本
+- 新增路由配置说明文档，使用路由时自动生成配置指南
+- 新增对 `update-notifier` 依赖的支持
+
+### Fixed
+
+- 修复 `v-for` 循环中 ref 变量访问，自动添加 `.value` 后缀
+- 修复事件调用转换，统一改为可选调用（`onClick?.()`）
+- 修复依赖分析中的可选链保护，避免 ref.value 访问导致的运行时错误
+- 修复缓存管理，避免存储样式源码，减少缓存体积
+- 修复 CLI 构建配置，确保正确的 shebang 注入
+
+### Changed
+
+- 优化示例项目结构，移除旧的示例项目
+- 更新 README 文档，改进项目描述和徽章布局
+- 优化编译管线执行流程，改进错误处理和进度显示
+
+---
+
 ## [1.2.1] - 2026-03-15
 
 ### Fixed

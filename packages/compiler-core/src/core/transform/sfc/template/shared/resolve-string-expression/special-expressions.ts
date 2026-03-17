@@ -63,7 +63,11 @@ function resolveRefVariable(input: string, ctx: ICompilationContext): string {
     const escapedVarName = varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
     // 2. 使用 RegExp 构造函数，确保点被正确转义（\\\. 表示字面点）
-    const regex = new RegExp(`(?<![a-zA-Z0-9_])${escapedVarName}(?![a-zA-Z0-9_])(?!\\.value)`, 'g');
+    // 避免替换对象属性中的同名字段，如 member.leads
+    const regex = new RegExp(
+      `(?<![a-zA-Z0-9_\\.])${escapedVarName}(?![a-zA-Z0-9_])(?!\\.value)`,
+      'g',
+    );
 
     return input.replace(regex, `${varName}.value`);
   };

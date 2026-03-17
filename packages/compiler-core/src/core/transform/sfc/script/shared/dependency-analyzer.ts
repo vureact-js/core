@@ -142,8 +142,15 @@ export function analyzeDeps(
     if (t.isMemberExpression(path.node) || t.isOptionalMemberExpression(path.node)) {
       const normalizedExp = normalizeMemberForCallSite(path, path.node);
 
-      if (isReactValidDependencyExpr(normalizedExp)) {
-        return t.cloneNode(normalizedExp, true);
+      // fix: 如果依赖链包含 ref.value，且后续继续访问属性，则需要使用可选链保护，
+      // 避免依赖数组在渲染阶段因 null/undefined 直接崩溃。
+      const safeExp =
+        t.isMemberExpression(normalizedExp) || t.isOptionalMemberExpression(normalizedExp)
+          ? ensureOptionalForRefValue(normalizedExp)
+          : normalizedExp;
+
+      if (isReactValidDependencyExpr(safeExp)) {
+        return t.cloneNode(safeExp, true);
       }
 
       return t.identifier(rootName);
@@ -247,6 +254,41 @@ export function analyzeDeps(
 
     // 对于调用场景，返回 object 部分作为依赖（例如 obj.foo() 的依赖应为 obj，而不是 obj.foo）
     return node.object;
+  }
+
+  function ensureOptionalForRefValue(
+    node: t.MemberExpression | t.OptionalMemberExpression,
+  ): t.MemberExpression | t.OptionalMemberExpression {
+    if (!hasRefValueAccess(node)) {
+      return node;
+    }
+
+    // 已经是可选链则直接返回
+    if (t.isOptionalMemberExpression(node) && node.optional) {
+      return node;
+    }
+
+    const object = t.cloneNode(node.object as t.Expression, true);
+    const property = t.cloneNode(node.property, true) as t.Expression | t.Identifier;
+    return t.optionalMemberExpression(object, property, node.computed, true);
+  }
+
+  function hasRefValueAccess(node: t.MemberExpression | t.OptionalMemberExpression): boolean {
+    let current: t.Expression | t.Super = node;
+
+    while (t.isMemberExpression(current) || t.isOptionalMemberExpression(current)) {
+      if (current.computed) {
+        if (t.isStringLiteral(current.property) && current.property.value === 'value') {
+          return true;
+        }
+      } else if (t.isIdentifier(current.property) && current.property.name === 'value') {
+        return true;
+      }
+
+      current = current.object;
+    }
+
+    return false;
   }
 
   /**

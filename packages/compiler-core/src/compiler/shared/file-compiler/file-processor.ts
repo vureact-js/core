@@ -1,5 +1,7 @@
 import { PACKAGE_NAME } from '@consts/other';
+import { getDirname } from '@shared/path';
 import fs from 'fs';
+import path from 'path';
 import { FileCompiler } from '.';
 import {
   CacheKey,
@@ -135,9 +137,10 @@ export class FileProcessor {
 
       // 只有 sfc / script 文件存在时，才需要执行注入逻辑
       if (key === CacheKey.SFC || key === CacheKey.SCRIPT) {
-        if ((processed as any)?.hasRoute) {
+        if ((processed as SFCUnit)?.hasRoute) {
           // 对 package.json 注入路由依赖项
           await this.injectVuReactRouteDep();
+          await this.copyRouteSetupNotes();
         }
       }
 
@@ -153,8 +156,39 @@ export class FileProcessor {
 
     // 注入依赖
     const { router } = this.pkgs;
+    if (!pkg['dependencies']) {
+      pkg['dependencies'] = {};
+    }
     pkg['dependencies'][router.name] = router.version;
 
     await fs.promises.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8');
+  }
+
+  /**
+   * 如果使用了路由，则拷贝路由配置说明文档到输出目录根部。
+   */
+  private async copyRouteSetupNotes() {
+    const outputDir = this.fileCompiler.getOuputPath();
+
+    // 测试路径，以当前文件的路径为起点
+    // const packageRoot = path.resolve(getDirname(import.meta.url), '../../../../');
+
+    // 获取生产环境下的包根路径
+    const packageRoot = path.resolve(getDirname(import.meta.url), '../');
+    const templateDir = path.join(packageRoot, 'templates');
+
+    if (!fs.existsSync(templateDir)) {
+      return;
+    }
+
+    const files = ['route-setup-notes.md', 'route-setup-notes.zh.md'];
+
+    // 拷贝文件
+    for (const file of files) {
+      const srcPath = path.join(templateDir, file);
+      if (!fs.existsSync(srcPath)) continue;
+      const destPath = path.join(outputDir, file);
+      await fs.promises.copyFile(srcPath, destPath);
+    }
   }
 }
