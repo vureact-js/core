@@ -1,20 +1,42 @@
-﻿# 路由配置说明（需人工处理）
+﻿# 路由适配指南
 
-当你的 Vue 项目使用了 Vue Router，编译器会自动完成以下工作：
+## 概述
 
-- 向输出的 `package.json` 注入 `@vureact/router`
-- 转换 `<router-link>` / `<router-view>` 及相关 API
-- 生成可运行的 React 代码
+VuReact 对 Vue Router 提供了完整的转换支持，但由于路由是工程级上下文，编译后仍需要一些人工调整。
 
-但 **路由配置文件** 和 **入口挂载方式** 仍需要人工调整。请在输出工程（如 `react-app` / `dist` 目录）按以下步骤处理：
+### 自动转换的部分
 
-## 1. 检查依赖
+- `<router-link>` → `<RouterLink>`
+- `<router-view>` → `<RouterView>`
+- 路由API调用：`useRouter()`, `useRoute()`等
+- 自动注入`@vureact/router`依赖
 
-`@vureact/router` 会自动注入，无需手动添加。
+### 需要人工调整的部分
 
-## 2. 更新入口文件（`src/main.tsx`）
+- 路由配置文件格式转换
+- 入口文件渲染方式
+- 排除配置设置
 
-入口仅保留路由提供器，不需要渲染 `<App />`，因为 `App` 应该在路由配置中挂载。
+## 配置步骤
+
+### 步骤1：编译前的准备
+
+确保你的Vue项目使用标准Vue Router配置。
+
+### 步骤2：执行编译
+
+```bash
+npx vureact build
+
+# 或手动配置 npm 命令
+npm run vr:build
+```
+
+### 步骤3：调整输出的 React 项目（关键步骤）
+
+#### 3.1 更新入口文件（src/main.tsx）
+
+示例：
 
 ```tsx
 import { StrictMode } from 'react';
@@ -29,17 +51,15 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-## 3. 将路由配置改为 JSX/TSX
+**重要变化**：
 
-路由配置需要允许 JSX 语法，因此建议将文件改为 `.tsx`/`.jsx`。
+- 导入路由提供器，不需要渲染 `<App />`，因为 `App` 应该在路由配置中挂载。
 
-处理要点：
+#### 3.2 转换路由配置文件
 
-- 将 `src/router/index.ts` 改为 `src/router/index.tsx`（或 `.jsx`）
-- 导出 `createRouter` 路由器实例
-- 路由组件以 React 组件方式导入
-- 将如 `component: Foo` 改为 `component: <Foo />`
-- `App` 作为根路由组件放入路由树（如有布局）
+实际以你项目输出的路由配置结构为准。
+
+将 `src/router/index.ts` 改为 `src/router/index.tsx`。
 
 示例：
 
@@ -47,7 +67,7 @@ createRoot(document.getElementById('root')!).render(
 import { createRouter, createWebHashHistory } from '@vureact/router';
 import App from '../App';
 import Dashboard from '../pages/Dashboard';
-import Foo from '../pages/Foo';
+import Customers from '../pages/Customers';
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -57,7 +77,7 @@ const router = createRouter({
       component: <App />,
       children: [
         { path: 'dashboard', component: <Dashboard /> },
-        { path: 'foo', component: <Foo /> },
+        { path: 'customers', component: <Customers /> },
       ],
     },
   ],
@@ -66,30 +86,107 @@ const router = createRouter({
 export default router;
 ```
 
-## 4. 检查布局与路由视图
+**重要变化**：
 
-- `App` 中应包含布局，并使用 `<RouterView />` 作为页面渲染出口。
-- 如果使用了路由守卫或自定义 `meta` 字段，请确认运行时行为符合预期。
+- 文件扩展名：`.ts` → `.tsx`
+- 导出 `createRouter` 路由器实例
+- 组件语法：`component: Dashboard` → `component: <Dashboard />`
+- 导入方式：保持React组件导入
 
-## 5. 保护已调整的文件
+#### 3.3 配置排除项
 
-> 警告：若不进行此项，将导致页面崩溃。因为从 Vue 路由配置文件迁移过来的 `.ts` / `.js` 文件无法直接在 React 中运行。
+在 `vureact.config.js` 中添加排除配置，防止重新编译时覆盖手动调整的文件。
 
-在首次编译后，将 Vue 路由配置文件及根组件 `<App />` 加入 `vureact.config.js` 的 `exclude` 排除项。这可以避免后续重新编译时覆盖已调整好的路由配置。若后续需要修改这些文件，需**手动同步**变更。
+若后续需要修改这些文件，需**手动同步**变更。
 
 示例：
 
 ```js
 export default defineConfig({
-  exclude: ['src/main.ts', 'src/App.vue', 'src/router/**'],
+  exclude: [
+    'src/main.ts',
+    'src/router/**', // 排除整个路由目录
+  ],
 });
 ```
 
-## 6. 启动项目
+### 步骤4：验证与测试
 
-```bash
-npm install
-npm run dev
+1. 安装依赖：`npm install`
+2. 启动项目：`npm run dev`
+3. 测试路由跳转
+4. 验证嵌套路由
+
+## 常见问题
+
+### Q1: 页面空白，控制台报错
+
+**可能原因**：路由配置文件未转换为JSX语法
+**解决方案**：
+
+1. 确认文件扩展名为`.tsx`或`.jsx`
+2. 检查组件是否使用`<Component />`语法
+3. 确保正确导入React组件
+
+### Q2: 路由跳转404
+
+**可能原因**：历史模式配置错误
+**解决方案**：
+
+- 检查`createWebHashHistory` vs `createWebHistory`
+- 确认base路径配置
+
+### Q3: 嵌套路由不显示内容
+
+**可能原因**：父组件缺少`<RouterView />`
+**解决方案**：
+在布局组件中添加路由出口：
+
+```vue
+<!-- Vue原版 -->
+<template>
+  <div>
+    <header>...</header>
+    <router-view />
+  </div>
+</template>
 ```
 
-当编译器检测到路由使用时，会自动把这份说明文档复制到输出目录根部。
+### Q4: 编译后手动调整被覆盖
+
+**可能原因**：未将文件加入`exclude`列表
+**解决方案**：
+更新`vureact.config.js`，将调整过的文件加入排除列表。
+
+## 最佳实践
+
+### 1. 路由配置规范
+
+- 导出路由器实例：`export default createRouter({})`
+- 使用命名路由：`{ name: 'dashboard', path: '/dashboard', ... }`
+- 配置路由懒加载：
+
+  ```tsx
+  const Dashboard = lazy(() => import('../pages/Dashboard'));
+  ```
+
+- 统一管理路由meta字段
+
+### 2. 文件管理策略
+
+- 路由配置文件单独目录管理
+- 类型定义分离到`src/router/types.ts`
+- 路由守卫统一在`src/router/guards.ts`
+
+### 3. 测试策略
+
+- 单元测试路由配置
+- E2E测试路由跳转流程
+- 编译前后功能对比测试
+
+## 相关资源
+
+- [VuReact 官方文档](https://vureact.top)
+- [VuReact Router 官方文档](https://router.vureact.top)
+- [编译问题反馈与支持](https://github.com/vureact-js/core/issues)
+- [路由问题反馈与支持](https://github.com/vureact-js/vureact-router/issues)

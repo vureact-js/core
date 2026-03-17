@@ -1,5 +1,7 @@
 ﻿# CRM 运营门户管理后台
 
+简体中文 | [English](./README.md)
+
 本示例是标准 `vue-ts` 风格工程，，用于验证常规 Vite + Vue3 + Vue Router 项目的闭环转换。
 
 ## 覆盖能力

@@ -1,5 +1,7 @@
 ﻿# CRM Operations Portal Admin Backend
 
+English | [简体中文](./README.zh.md)
+
 This sample is a standard `vue-ts` style project, designed to verify the closed-loop conversion of regular Vite + Vue3 + Vue Router projects.
 
 ## Coverage Capabilities
