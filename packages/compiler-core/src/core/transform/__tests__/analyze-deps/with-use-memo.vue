@@ -14,13 +14,16 @@ const memoizedObj = {
 };
 
 // 应忽略处理
-const staticObj = {
+let staticObj = {
   foo: 1,
   state: { bar: { c: 1 } },
 };
 
 const reactiveList = [fooRef.value, 1, 2];
+
+// 应忽略处理
 const staticList = [1, 2, 3];
+
 const mixedList = [
   { name: reactiveState.foo, age: fooRef.value },
   { name: 'A', age: 20 },

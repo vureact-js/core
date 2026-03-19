@@ -26,7 +26,6 @@ import {
   resolveLintRules,
   resolveProvide,
   resolveRenameAdapter,
-  resolveUnanalyzedArrow,
 } from './process';
 
 interface ProcessorOptions {
@@ -61,10 +60,11 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         // provide 需要在 rename 之前收集并移除原始调用，避免被重命名后失配
         resolveProvide,
         resolveRenameAdapter,
-        resolveArrowFnDeps,
-        resolveUnanalyzedArrow,
-        resolveAnalysisOnlyAdapter,
+        // fix：在分析函数前分析可优化为 useMemo 的顶层变量声明，
+        // 使得后续能够被函数依赖分析
         resolveExprMemo,
+        resolveArrowFnDeps,
+        resolveAnalysisOnlyAdapter,
         resolveLintRules,
       ],
       excludeBabel: [resolveTemplateSlotIface, resolveCompIProps],

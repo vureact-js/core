@@ -7,7 +7,7 @@ import { REACT_API_MAP } from '@consts/react-api-map';
 import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { recordImport } from '@transform/shared';
 import { getVariableDeclaratorPath } from '../../shared/babel-utils';
-import { analyzeDeps, getIsAnalyzed, markAsAnalyzed } from '../../shared/dependency-analyzer';
+import { analyzeDeps } from '../../shared/dependency-analyzer';
 import { createUseCallback } from '../../shared/hook-creator';
 import { setScriptNodeMeta } from '../../shared/metadata-utils';
 
@@ -31,39 +31,8 @@ export function resolveArrowFnDeps(ctx: ICompilationContext, ast: ParseResult): 
       const newNode = createUseCallback(node, deps);
       const declaratorPath = getVariableDeclaratorPath(path);
 
-      // 标记新节点的箭头函数表达式为已分析
-      markAsAnalyzed(newNode.arguments[0]!);
       recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.useCallback);
       setScriptNodeMeta(declaratorPath?.node, { is_reactive: true, reactive_type: 'indirect' });
-
-      // 替换成 useCallback
-      path.replaceWith(newNode);
-    },
-  };
-}
-
-/**
- * 解决被作为依赖项收集的箭头函数，
- * 但自身并没有依赖可分析导致跳过，
- * 因此需要追加为 useCallback
- */
-export function resolveUnanalyzedArrow(ctx: ICompilationContext): TraverseOptions {
-  return {
-    ArrowFunctionExpression(path) {
-      const { node } = path;
-
-      const analyzed = getIsAnalyzed(node);
-      if (typeof analyzed === 'undefined' || analyzed) return;
-
-      const newNode = createUseCallback(node);
-      const declaratorPath = getVariableDeclaratorPath(path);
-
-      if (declaratorPath?.node) {
-        setScriptNodeMeta(declaratorPath.node, { is_reactive: true, reactive_type: 'indirect' });
-      }
-
-      // 标记新节点的箭头函数表达式为已分析
-      markAsAnalyzed(newNode.arguments[0]!);
 
       // 替换成 useCallback
       path.replaceWith(newNode);

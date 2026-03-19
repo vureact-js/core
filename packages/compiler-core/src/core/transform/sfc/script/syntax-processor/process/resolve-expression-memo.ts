@@ -18,14 +18,22 @@ export function resolveExprMemo(ctx: ICompilationContext, ast: ParseResult): Tra
       const { node } = path;
       const { init } = node;
 
-      // 如果没有初始值，直接返回
-      if (!init) return;
-
       const shouldMemo = (): boolean => {
+        // 如果没有初始值，直接返回
+        if (!init) return false;
+
         // 排除非有效顶层变量声明
         if (!atComponentOrHookRoot(path, ast.program, isScriptFile)) {
           return false;
         }
+
+        // 排除父节点没有变量声明 / 非常量声明
+        if (!t.isVariableDeclaration(path.parent) || path.parent.kind !== 'const') {
+          return false;
+        }
+
+        // 排除值为函数，归 resolveArrowFnDeps 管
+        if (t.isFunction(init)) return false;
 
         // 排除值为 hook 调用
         if (

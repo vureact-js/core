@@ -11,7 +11,7 @@ const fn1 = () => {
   console.log(count.value);
 };
 
-// 应被追加为 useCallback
+// 应被忽略
 const fn = () => {};
 
 // 应分析
@@ -71,7 +71,7 @@ const methods = {
   },
 };
 
-const objRef = ref({ a: 1 });
+const objRef = ref({ a: 1, b: { c: 1 } });
 const listRef = ref([1, 2, 3]);
 
 const chainFn = () => {
@@ -85,6 +85,7 @@ const dynamicFn = () => {
   state[Date.now()];
   // @ts-ignore
   foo?.[count.value];
+  objRef.value.b.c;
 };
 
 const aliasA = state.foo;
