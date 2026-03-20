@@ -1,4 +1,4 @@
-import { PACKAGE_NAME } from '@consts/other';
+import { RUNTIME_PACKAGES } from '@consts/other';
 import { getDirname } from '@shared/path';
 import fs from 'fs';
 import path from 'path';
@@ -18,13 +18,6 @@ import { CacheManager } from './cache-manager';
 import { CompilationUnitProcessor } from './compilation-unit';
 
 export class FileProcessor {
-  private pkgs = {
-    router: {
-      name: PACKAGE_NAME.router,
-      version: '^1.0.0',
-    },
-  };
-
   constructor(
     private fileCompiler: FileCompiler,
     private compilationUnitProcessor: CompilationUnitProcessor,
@@ -155,10 +148,11 @@ export class FileProcessor {
     const pkg = await this.fileCompiler.resolvePackageFile(pkgPath);
 
     // 注入依赖
-    const { router } = this.pkgs;
+    const { router } = RUNTIME_PACKAGES;
     if (!pkg['dependencies']) {
       pkg['dependencies'] = {};
     }
+
     pkg['dependencies'][router.name] = router.version;
 
     await fs.promises.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8');

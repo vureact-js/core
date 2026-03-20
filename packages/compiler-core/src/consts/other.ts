@@ -4,6 +4,17 @@ export const PACKAGE_NAME = {
   router: '@vureact/router',
 } as const;
 
+export const RUNTIME_PACKAGES = {
+  router: {
+    name: PACKAGE_NAME.router,
+    version: '^1.0.0',
+  },
+  runtime: {
+    name: PACKAGE_NAME.runtime,
+    version: '^1.0.0',
+  },
+} as const;
+
 /** 导入 style 模块所有使用的别名 */
 export const STYLE_MODULE_NAME = '$style';
 

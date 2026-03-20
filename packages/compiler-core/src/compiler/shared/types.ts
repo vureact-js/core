@@ -199,6 +199,54 @@ export interface CompilerOptions {
    * @param unit Current sfc or script file compilation unit
    */
   onChange?: (event: 'add' | 'change', unit: CompilationUnit) => Promise<void | undefined>;
+
+  /**
+   * Specify the routing configuration config file for
+   * injecting the VuReact Router Provider into `main.tsx`.
+   *
+   * @example
+   * ```js
+   * router: {
+   *   dir: 'src/router',
+   *   configFile: 'index.ts'
+   * }
+   * ```
+   *
+   * Suppose the content of the router config file is as follows:
+   *
+   * ```js
+   * export default createRouter({ ... })
+   * ```
+   */
+  router?: {
+    /**
+     * Specify the directory where the routing configuration resides,
+     * which is used to automatically add all files under the directory to the `exclude` list.
+     */
+    dir?: string;
+
+    /**
+     * Path to the Vue Router config file.
+     *
+     * If `dir` is specified, it will be concatenated as the path prefix.
+     *
+     * Must be the location where `createRouter` is **exported as default**.
+     */
+    configFile: string;
+
+    autoSetup?: {
+      /**
+       * Automatically update the src entry file to use the VuReact Router Provider
+       * @default true
+       */
+      updateEntry?: boolean;
+      /**
+       * Automatically add to the exclude list
+       * @default true
+       */
+      excludeFromBuild?: boolean;
+    };
+  };
 }
 
 export interface PluginRegister<T> {

@@ -1,4 +1,4 @@
-import { PACKAGE_NAME, VUE_PACKAGES } from '@consts/other';
+import { RUNTIME_PACKAGES, VUE_PACKAGES } from '@consts/other';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import kleur from 'kleur';
@@ -11,12 +11,6 @@ import { CompilerOptions } from '../types';
  */
 export class ViteBootstrapper {
   private spinner = ora();
-  private pkgs = {
-    runtime: {
-      name: PACKAGE_NAME.runtime,
-      version: '^1.0.0',
-    },
-  };
 
   constructor(
     private fileCompiler: FileCompiler,
@@ -100,7 +94,7 @@ export class ViteBootstrapper {
       };
 
       if (!isDev) {
-        const { runtime } = this.pkgs;
+        const { runtime } = RUNTIME_PACKAGES;
         deps[runtime.name] = runtime.version;
       }
 
