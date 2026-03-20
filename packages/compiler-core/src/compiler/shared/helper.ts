@@ -461,13 +461,18 @@ export class Helper {
    * 读取 package.json 文件内容，并处理成对象返回
    */
   async resolvePackageFile(path: string): Promise<Record<string, any>> {
+    if (!fs.existsSync(path)) {
+      return {};
+    }
+
     try {
-      if (!fs.existsSync(path)) {
+      const content = await fs.promises.readFile(path, 'utf-8');
+      // fix: 修复无内容造成 json 解析错误
+      if (!content.trim()) {
         return {};
       }
-      return JSON.parse(await fs.promises.readFile(path, 'utf-8'));
-    } catch (error) {
-      console.error(error);
+      return JSON.parse(content);
+    } catch {
       return {};
     }
   }

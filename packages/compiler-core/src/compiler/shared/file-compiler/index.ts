@@ -157,6 +157,7 @@ export class FileCompiler extends BaseCompiler {
    */
   async execute(): Promise<void> {
     console.info('\n\n', kleur.magenta(`${kleur.bold('VUREACT')} v${this.version}`), '\n');
+
     const startTime = performance.now();
 
     // 没有启用缓存则清理上一次的输出产物
@@ -164,10 +165,10 @@ export class FileCompiler extends BaseCompiler {
       await fs.promises.rm(this.getWorkspaceDir(), { recursive: true, force: true });
     }
 
-    // 0. 环境初始化管线
-    await this.viteBootstrapper.bootstrapIfNeeded();
-
     try {
+      // 环境初始化管线
+      await this.viteBootstrapper.bootstrapIfNeeded();
+
       const sfcCount = await this.runPipelineWithSpinner(CacheKey.SFC);
       const scriptCount = await this.runPipelineWithSpinner(CacheKey.SCRIPT);
       const styleCount = await this.runPipelineWithSpinner(CacheKey.STYLE);
@@ -177,6 +178,7 @@ export class FileCompiler extends BaseCompiler {
       await this.options.onSuccess?.();
 
       const endTime = calcElapsedTime(startTime);
+
       this.printCoreLogs();
       this.showCompileStats(endTime, sfcCount, scriptCount, styleCount, assetCount);
     } catch (error) {

@@ -116,8 +116,10 @@ export class ViteBootstrapper {
     vitePkg.dependencies = newDeps;
     vitePkg.devDependencies = newDevDeps;
 
-    // 写入
-    await fs.promises.writeFile(outputPkgPath, JSON.stringify(vitePkg, null, 2), 'utf-8');
+    // 写入新数据到 vite 项目的 package.json
+    const newVitePkg = JSON.stringify(vitePkg, null, 2);
+    await this.fileCompiler.writeFileWithDir(outputPkgPath, newVitePkg);
+
     this.spinner.succeed('Standard Vite React environment initialized');
 
     return true;

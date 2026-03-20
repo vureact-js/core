@@ -64,25 +64,11 @@ function mergeConfig(
     root: projectRoot,
   } as CompilerOptions;
 
-  // 处理 exclude 数组
-  if (options.exclude) {
-    merged.exclude = Array.isArray(options.exclude) ? options.exclude : [options.exclude];
-  } else if (userConfig.exclude) {
-    merged.exclude = userConfig.exclude;
-  }
-
   // 处理 output 配置
   merged.output = {
     ...userConfig.output,
     workspace: options.workspace ?? userConfig.output?.workspace,
     outDir: options.outDir ?? userConfig.output?.outDir,
-    bootstrapVite: options.bootstrapVite ?? userConfig.output?.bootstrapVite,
-  };
-
-  // 处理 format 配置
-  merged.format = {
-    enabled: options.format ?? userConfig.format?.enabled,
-    formatter: options.formatter ?? userConfig.format?.formatter,
   };
 
   return merged;

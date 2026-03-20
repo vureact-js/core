@@ -155,7 +155,10 @@ export class FileProcessor {
 
     pkg['dependencies'][router.name] = router.version;
 
-    await fs.promises.writeFile(pkgPath, JSON.stringify(pkg, null, 2), 'utf-8');
+    // 写入新数据
+    const newPkg = JSON.stringify(pkg, null, 2);
+    // fix: 修复当目录不存在时导致报错
+    await this.fileCompiler.writeFileWithDir(pkgPath, newPkg);
   }
 
   /**
