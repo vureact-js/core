@@ -69,22 +69,25 @@ export interface CompilerOptions {
   preprocessStyles?: boolean;
 
   /**
-   * Specify the routing configuration config file for
-   * injecting the VuReact Router Provider into `main.tsx`.
+   * Specify the path to the Vue Router config file
+   * The file must default export createRouter
+   * Used to inject Router Provider in React's main.tsx or main.jsx
+   *
+   *
    *
    * @see {@link RouterConfig}
    *
    * @example
    * ```js
    * router: {
-   *   dir: 'src/router',
-   *   configFile: 'index.ts'
+   *   configFile: 'src/router/index.ts'
    * }
    * ```
    *
-   * Suppose the content of the router config file is as follows:
+   * Assumes the config file default exports createRouter:
    *
    * ```js
+   * // src/router/index.ts
    * export default createRouter({ ... })
    * ```
    */
@@ -95,7 +98,7 @@ export interface CompilerOptions {
    * the parse/transform/codegen/compiled stages respectively.
    *
    * @see {@link CompilerPlugins}
-   * 
+   *
    * @example
    * ```ts
    * plugins: {
@@ -165,9 +168,22 @@ export interface OutputConfig {
     | boolean
     | {
         /**
+         * Specify the React template type.
          * @default 'react-ts'
          */
-        template: 'react-ts' | 'react';
+        template?: 'react-ts' | 'react';
+
+        /**
+         * Specify the Vite version for initial installation, which must start with '@'.
+         * @default '@latest'
+         */
+        vite?: string;
+
+        /**
+         * Specify the React version for initial installation.
+         * @default '^19.2.0'
+         */
+        react?: string;
       };
 
   /**
@@ -192,32 +208,19 @@ export interface OutputConfig {
 
 export interface RouterConfig {
   /**
-   * Specify the directory where the routing configuration resides,
-   * which is used to automatically add all files under the directory to the `exclude` list.
-   */
-  dir?: string;
-
-  /**
    * Path to the Vue Router config file.
-   *
-   * If `dir` is specified, it will be concatenated as the path prefix.
-   *
    * Must be the location where `createRouter` is **exported as default**.
    */
   configFile: string;
 
-  autoSetup?: {
-    /**
-     * Automatically update the src entry file to use the VuReact Router Provider
-     * @default true
-     */
-    updateEntry?: boolean;
-    /**
-     * Automatically add to the exclude list
-     * @default true
-     */
-    excludeFromBuild?: boolean;
-  };
+  /**
+   * Automatically update the react app entry file to use the VuReact Router Provider.
+   *
+   * Note: Injection only occurs when `output.bootstrapVite` is enabled.
+   *
+   * @default true
+   */
+  autoUpdateEntry?: boolean;
 }
 
 export interface FormatConfig {

@@ -44,9 +44,13 @@ export class CleanupManager {
         if (css?.file) {
           await this.fileCompiler.removeOutputFile(css.file);
         }
-      } else if (key === CacheKey.SCRIPT || key === CacheKey.ASSET) {
+      } else {
         // 普通缓存直接删除对应文件
-        await this.fileCompiler.removeOutputFile(m.file, true);
+        // 样式文件后缀名统一处理成 .css，因为对应的产物只有 css 文件
+        const target =
+          key === CacheKey.STYLE ? m.file.replace(/$(.less|.sass|.scss)/, '.css') : m.file;
+
+        await this.fileCompiler.removeOutputFile(target, true);
       }
     };
 

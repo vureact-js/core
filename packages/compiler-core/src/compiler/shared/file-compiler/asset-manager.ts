@@ -9,6 +9,8 @@ export class AssetManager {
   // 需要经过管线编译处理的文件类型
   pipelineFiles = ['.js', '.ts', '.less', '.scss', '.sass'];
 
+  private skippedCount = 0;
+
   constructor(
     private fileCompiler: FileCompiler,
     private cleanupManager: CleanupManager,
@@ -18,6 +20,8 @@ export class AssetManager {
    * 运行资源文件处理管线
    */
   async runAssetPipeline(): Promise<number> {
+    const { options } = this.fileCompiler;
+
     const rootPath = this.fileCompiler.getProjectRoot();
     const inputPath = this.fileCompiler.getInputPath();
     const exclusions = this.fileCompiler.getIgnoreAssets();
@@ -30,7 +34,7 @@ export class AssetManager {
       const filename = path.basename(p).toLowerCase();
       const ext = path.extname(p).toLowerCase();
 
-      if (!this.fileCompiler.options.output?.ignoreAssets) {
+      if (!options.output?.ignoreAssets) {
         // 规则 A: 排除预设的冲突文件（适用于所有目录）
         // fix: 检查完整相对路径或文件名是否匹配预设排除模式
         const shouldExclude = Array.from(exclusions).some((pattern) => {
@@ -49,9 +53,7 @@ export class AssetManager {
         });
 
         // 最终验证文件是否排除拷贝
-        if (shouldExclude) {
-          return false;
-        }
+        if (shouldExclude) return false;
       } else if (exclusions.has(relativeToRoot) || exclusions.has(filename)) {
         // 规则 B: 如果指定了 ignoreAssets 则由用户控制
         return false;
@@ -68,30 +70,30 @@ export class AssetManager {
         return false;
       }
 
-      // 如果是根目录下的 js/less 等 (如 tailwind.config.js)，会绕过上面的 if，作为 Asset 被安全拷贝
+      // 如果是根目录下的 js/less 等 (如 tailwind.config.js)，
+      // 会绕过上面的 if，作为 Asset 被安全拷贝
       return true;
     });
 
-    // 执行拷贝逻辑
-    const absFiles = new Set(assetFiles.map((f) => this.fileCompiler.getAbsPath(f)));
+    if (!assetFiles.length) return 0;
+
+    // 加载缓存
     const cache = await this.fileCompiler.loadCache(CacheKey.ASSET);
+    const absFiles = new Set(assetFiles.map((f) => this.fileCompiler.getAbsPath(f)));
 
+    // 清理不存在的输出文件
     await this.cleanupManager.cleanupOldOutput(CacheKey.ASSET, (u) => !absFiles.has(u.file));
-    await this.updateAssetCaches(assetFiles, cache);
 
-    return assetFiles.length;
-  }
+    // 并行拷贝所有资源文件
+    const copied = await Promise.all(
+      assetFiles.map((file) => {
+        return this.processAsset(file, cache);
+      }),
+    );
 
-  /**
-   * 更新资源文件缓存
-   */
-  private async updateAssetCaches(files: string[], cache?: LoadedCache<FileCacheMeta>) {
-    for (const file of files) {
-      const meta = await this.processAsset(file, cache);
-      this.updateCache(file, meta, cache);
-    }
+    await this.fileCompiler.flushCache(CacheKey.ASSET);
 
-    await this.fileCompiler.saveCache(cache);
+    return copied.filter(Boolean).length;
   }
 
   /**
@@ -100,7 +102,7 @@ export class AssetManager {
   async processAsset(
     filePath: string,
     existingCache?: LoadedCache<FileCacheMeta>,
-  ): Promise<FileCacheMeta> {
+  ): Promise<FileCacheMeta | undefined> {
     const absPath = this.fileCompiler.getAbsPath(filePath);
 
     const fileMeta: FileCacheMeta = {
@@ -118,7 +120,8 @@ export class AssetManager {
 
     // 如果元数据（大小、时间）未变，跳过拷贝
     if (record && this.fileCompiler.compareFileMeta(record, fileMeta)) {
-      return fileMeta;
+      this.skippedCount++;
+      return;
     }
 
     // 计算输出路径并执行拷贝
@@ -126,6 +129,9 @@ export class AssetManager {
 
     await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.promises.copyFile(absPath, outputPath);
+
+    // 添加到待更新队列
+    this.updateCache(absPath, fileMeta, cache);
 
     return fileMeta;
   }
@@ -148,5 +154,19 @@ export class AssetManager {
     } else {
       cache.target.push(newData);
     }
+  }
+
+  /**
+   * 获取跳过的文件数量
+   */
+  getSkippedCount(): number {
+    return this.skippedCount;
+  }
+
+  /**
+   * 重置跳过的文件数量
+   */
+  resetSkippedCount(): void {
+    this.skippedCount = 0;
   }
 }

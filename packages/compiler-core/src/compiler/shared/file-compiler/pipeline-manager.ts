@@ -1,6 +1,6 @@
 import path from 'path';
 import { FileCompiler } from '.';
-import { CacheKey, FileCacheMeta, LoadedCache, Vue2ReactCacheMeta } from '../types';
+import { CacheKey } from '../types';
 import { CleanupManager } from './cleanup-manager';
 import { FileProcessor } from './file-processor';
 
@@ -73,28 +73,22 @@ export class PipelineManager {
     // 清理旧输出文件
     await this.cleanupManager.cleanupOldOutput(key, (c: any) => !absFiles.has(c.file));
 
-    const results = await Promise.all(
-      files.map(async (f) => {
-        // 根据 key 的类型传递正确的缓存类型
-        if (key === CacheKey.SFC) {
-          return this.fileProcessor.processFile(key, f, cache as LoadedCache<Vue2ReactCacheMeta>);
-        } else {
-          return this.fileProcessor.processFile(key, f, cache as LoadedCache<FileCacheMeta>);
-        }
-      }),
+    // 使用 Promise.all 并行编译
+    const compiled = await Promise.all(
+      files.map(async (f) => this.fileProcessor.processFile(key, f, cache)),
     );
 
-    const compiledCount = results.filter(Boolean).length;
-    this.skippedCount += files.length - compiledCount;
+    // 批量保存缓存
+    await this.fileCompiler.flushCache(key);
 
-    return compiledCount;
+    return compiled.filter(Boolean).length;
   }
 
   /**
    * 获取跳过的文件数量
    */
   getSkippedCount(): number {
-    return this.skippedCount;
+    return (this.skippedCount += this.fileProcessor.getSkippedCount());
   }
 
   /**

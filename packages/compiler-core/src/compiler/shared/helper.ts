@@ -6,6 +6,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
+import { fileLock, FileLockOptions } from './file-lock-manager';
 import {
   CacheCheckResult,
   CacheKey,
@@ -52,8 +53,8 @@ export class Helper {
    * 获取输入文件的路径
    */
   getInputPath(): string {
-    const { input } = this.compilerOpts;
-    return path.resolve(this.getProjectRoot(), input || 'src');
+    const { input = 'src' } = this.compilerOpts;
+    return path.resolve(this.getProjectRoot(), input);
   }
 
   /**
@@ -66,9 +67,11 @@ export class Helper {
 
   /**
    * 获取输出文件的路径。如：'[root]/.vureact/dist/'
+   * @param addInput 会输出如：'[root]/.vureact/dist/[input]/'
    */
-  getOuputPath(): string {
-    return path.resolve(this.getWorkspaceDir(), this.getOutDirName());
+  getOuputPath(addInput = false): string {
+    const { input = 'src' } = this.compilerOpts;
+    return path.resolve(this.getWorkspaceDir(), this.getOutDirName(), addInput ? input : '');
   }
 
   getOutDirName() {
@@ -248,11 +251,29 @@ export class Helper {
   }
 
   /**
-   * 统一的写文件方法，包含自动创建目录
+   * 统一的写文件方法，包含自动创建目录（带文件互斥锁可选）
+   * @param filePath - 要写入的文件路径
+   * @param content - 要写入的内容
+   * @param options - 可选配置项
+   * @param options.lock - 是否启用文件锁（默认false）
    */
-  async writeFileWithDir(filePath: string, content: string) {
-    await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-    await fs.promises.writeFile(filePath, content, 'utf-8');
+  async writeFileWithDir(
+    filePath: string,
+    content: string,
+    options?: FileLockOptions & { lock?: boolean },
+  ) {
+    if (options?.lock) {
+      await fileLock.updateFile(filePath, async () => content, options);
+    } else {
+      await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.promises.writeFile(filePath, content, 'utf-8');
+    }
+  }
+
+  async rmFile(filePath: string) {
+    try {
+      await fs.promises.rm(filePath, { recursive: true, force: true });
+    } catch {}
   }
 
   /**
@@ -317,9 +338,27 @@ export class Helper {
       return;
     }
 
-    const { key, source, target } = data;
-    source[key] = target as any[];
-    await this.writeFileWithDir(this.getCachePath(), JSON.stringify(source));
+    const getDefaultValue = (): CacheList => ({
+      [CacheKey.SFC]: [],
+      [CacheKey.SCRIPT]: [],
+      [CacheKey.STYLE]: [],
+      [CacheKey.ASSET]: [],
+    });
+
+    const cachePath = this.getCachePath();
+
+    // 使用文件锁确保并发安全
+    await fileLock.updateFile(cachePath, (currentData: CacheList | null) => {
+      const { key, target } = data;
+
+      // 如果当前数据为空，创建默认结构
+      const mergedData = currentData || getDefaultValue();
+
+      // 只更新指定key的缓存，保留其他key的数据
+      mergedData[key] = target as any[];
+
+      return mergedData;
+    });
   }
 
   genHash(content: string) {
@@ -467,13 +506,35 @@ export class Helper {
 
     try {
       const content = await fs.promises.readFile(path, 'utf-8');
+
       // fix: 修复无内容造成 json 解析错误
       if (!content.trim()) {
         return {};
       }
+
       return JSON.parse(content);
-    } catch {
+    } catch (error) {
+      console.error(kleur.red('❌'), `Failed to parse JSON file ${path}:\n`, error);
       return {};
     }
+  }
+
+  /**
+   * 获取目录到文件的相对路径
+   * @returns 结果路径不包含文件拓展名，并以诸如 ./ 开头
+   */
+  resolveRelativePath(from: string, to: string) {
+    // 获取相对路径
+    let relativePath = path.relative(from, to);
+
+    // 去掉文件扩展名，如 .js 或者多拓展名 .tar.gz
+    relativePath = relativePath.substring(0, relativePath.indexOf('.'));
+
+    // 确保以 ./ 或 ../ 开头
+    if (!relativePath.startsWith('.')) {
+      relativePath = `./${relativePath}`;
+    }
+
+    return normalizePath(relativePath);
   }
 }

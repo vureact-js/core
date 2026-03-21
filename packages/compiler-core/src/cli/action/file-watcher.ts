@@ -2,79 +2,14 @@ import { CacheKey, CompilerOptions, Helper, VuReact } from '@compiler/index';
 import { normalizePath } from '@shared/path';
 import { calcElapsedTime } from '@utils/calc-elapsed-time';
 import chokidar from 'chokidar';
-import { existsSync } from 'fs';
 import kleur from 'kleur';
 import ora from 'ora';
 import path from 'path';
-import { pathToFileURL } from 'url';
-import { CliOptions } from './types';
 
-export async function resolveAction(root: string, options: CliOptions) {
-  const projectRoot = root ? path.resolve(process.cwd(), root) : process.cwd();
-
-  // 加载用户本地配置 (vureact.config.js)
-  const userConfig = await loadUserConfig(projectRoot);
-  const finalConfig = mergeConfig(projectRoot, options, userConfig);
-
-  const compiler = new VuReact(finalConfig);
-
-  // 1. 首次全量运行
-  await compiler.execute();
-
-  // 2. 如果是 watch 模式，进入监听模式
-  if (finalConfig.watch) {
-    setupWatcher(compiler, finalConfig);
-    console.info(
-      kleur.dim(`\n${new Date().toLocaleTimeString()}`),
-      kleur.bold(kleur.magenta('[hrm]')),
-      kleur.gray(`Watching for file changes...\n`),
-    );
-  }
-}
-
-async function loadUserConfig(root: string): Promise<CompilerOptions> {
-  const configPath = path.resolve(root, 'vureact.config.js');
-
-  if (!existsSync(configPath)) return {};
-
-  try {
-    // 使用 pathToFileURL 解决 Windows 绝对路径无法直接 import 的问题
-    const configUrl = pathToFileURL(configPath).href;
-    const module = await import(configUrl);
-    // 处理 export default 或 module.exports
-    return module.default || module;
-  } catch (err) {
-    console.warn(
-      kleur.yellow('\n⚠'),
-      `Load config failed at ${configPath}, using default options`,
-      err,
-    );
-    return {};
-  }
-}
-
-function mergeConfig(
-  projectRoot: string,
-  options: CliOptions,
-  userConfig: CompilerOptions,
-): CompilerOptions {
-  const merged = {
-    ...userConfig,
-    ...options,
-    root: projectRoot,
-  } as CompilerOptions;
-
-  // 处理 output 配置
-  merged.output = {
-    ...userConfig.output,
-    workspace: options.workspace ?? userConfig.output?.workspace,
-    outDir: options.outDir ?? userConfig.output?.outDir,
-  };
-
-  return merged;
-}
-
-function setupWatcher(compiler: VuReact, config: CompilerOptions) {
+/**
+ * 设置文件监听器
+ */
+export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
   const spinner = ora();
   const cmpHelper = new Helper(config);
 

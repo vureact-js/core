@@ -13,7 +13,6 @@ export default defineConfig({
     formatter: 'prettier',
   },
   router: {
-    dir: 'src/router',
-    configFile: 'index.ts',
+    configFile: 'src/router/index.ts',
   },
 });

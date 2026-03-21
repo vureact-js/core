@@ -40,6 +40,7 @@ export default defineConfig({
     'less',
     'sass',
     'update-notifier',
+    'proper-lockfile',
   ],
 
   banner: {
