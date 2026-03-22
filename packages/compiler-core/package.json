@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.3.0",
-  "description": "🌀 Next Vue 3 to React 18+ intelligent compilation toolchain",
+  "version": "1.4.0",
+  "description": "🌀 Semantic-aware Vue 3 to React 18+ compiler for progressive migration.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
@@ -39,7 +39,14 @@
     "vue3-to-react",
     "vue-react",
     "react-vue",
-    "vue-in-react"
+    "vue-in-react",
+    "code-migration",
+    "framework-migration",
+    "vue-migration",
+    "react-conversion",
+    "single-file-components",
+    "progressive-migration",
+    "automated-refactoring"
   ],
   "homepage": "https://vureact.top",
   "repository": {
@@ -82,6 +89,7 @@
     "postcss": "^8.5.6",
     "proper-lockfile": "^4.1.2",
     "sass": "^1.97.3",
+    "tsx": "^4.21.0",
     "update-notifier": "^7.3.1",
     "xxhashjs": "^0.2.2"
   },

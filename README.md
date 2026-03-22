@@ -4,7 +4,7 @@
 
 <h1>VuReact</h1>
 
-Next Vue to React intelligent compilation toolchain that compiles Vue 3 into runnable React 18+ code
+An intelligent Vue 3 to React 18+ compilation toolchain for semantic-level code migration
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)

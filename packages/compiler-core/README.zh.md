@@ -6,7 +6,7 @@
 
 ## 什么是 VuReact？
 
-[VuReact](http://vureact.top)（发音 `/vjuːˈriːækt/`）是一个面向 Vue 3 → React 的智能编译工具链。
+[VuReact](http://vureact.top)（发音 `/vjuːˈriːækt/`）是一个面向语义级代码迁移的智能 Vue 3 转 React 18+ 编译器
 
 它不是简单的语法转换，而是**语义级编译**：理解 Vue 代码的意图，生成符合 React 最佳实践的代码。由**编译时转换** + **运行时适配**两部分构成。
 

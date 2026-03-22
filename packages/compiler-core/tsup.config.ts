@@ -41,6 +41,7 @@ export default defineConfig({
     'sass',
     'update-notifier',
     'proper-lockfile',
+    'tsx',
   ],
 
   banner: {

@@ -108,7 +108,9 @@ export class Helper {
       'eslint.config.',
       'readme.',
       'vue.',
+      '.vue',
       'vureact.config.js',
+      'vureact.config.ts',
     ]);
   }
 

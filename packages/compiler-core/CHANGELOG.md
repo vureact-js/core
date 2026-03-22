@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-03-22
+
+### Added
+
+- **新增 React 产物入口文件注入路由提供器**：自动在编译后的 React 项目中注入路由提供器，简化路由配置
+- **新增文件锁读写机制**：基于 `proper-lockfile` 实现跨进程文件锁，解决并发编译场景下的数据混乱问题
+- **新增支持在 `bootstrapVite` 选项中指定 Vite 版本和 React 版本**：允许用户自定义 Vite 和 React 的安装版本
+- **新增全量编译失败后自动移除工作区产物**：编译失败时自动清理不完整的输出，保持工作区干净
+- **新增支持 TypeScript 类型的 vureact 配置文件**：支持 `vureact.config.ts` 配置文件，提供更好的类型提示
+- **新增批量缓存更新功能**：优化缓存管理，支持批量更新和清理缓存记录
+- **新增 SetupManager 架构**：重构编译器管理器依赖注入，提供更清晰的依赖管理
+- **新增配置加载器和合并器**：分离配置加载逻辑，支持更灵活的配置合并策略
+
+### Fixed
+
+- **修复未初始化 Vite 时导致项目构建失败问题**：改进 Vite 初始化流程，提供更好的错误处理
+- **修复被优化为 `useMemo` 的顶层变量声明，其内部依赖收集不精确**：改进依赖分析器，只收集引用的根变量
+- **修复被优化为 `useMemo` 的顶层变量声明，在其他地方使用时未被识别为可收集的依赖**：优化依赖识别逻辑
+- **修复编译器 CLI 选项总是覆盖用户配置**：改进配置合并策略，CLI 选项只覆盖必要的路径相关配置
+- **修复首次编译出现 JSON 解析报错问题**：改进缓存文件读取，提供更好的错误恢复
+- **修复并发编译场景下，多个进程操作同一文件导致数据混乱**：通过文件锁机制确保数据一致性
+- **修复每次执行全量编译，都有一部分缓存数据丢失，导致增量编译功能失效**：改进缓存持久化逻辑
+- **修复关闭 Vite 初始化导致未创建工作区目录**：确保工作区目录始终被正确创建
+- **修复每次编译时静态资产的拷贝没有经过缓存优化**：改进资产管理器缓存逻辑
+- **修复删除原样式文件后，对应产物文件未被删除**：完善清理管理器，支持样式文件清理
+- **修复当删除文件并重新编译后，缓存记录未更新**：改进缓存更新机制
+- **修复静态资产无改动但重复构建仍出现已处理了多少文件，且无改动资产未计入缓存数**：优化资产处理统计
+- **修复删除样式文件后，没有同步删除对应产物文件和缓存记录**：完善样式文件清理流程
+
+### Changed
+
+- **优化外部 import 不再作为依赖被收集**：减少不必要的依赖收集，提升编译性能
+- **优化函数内部的依赖收集不再把所有外部函数都无条件收集**：只收集已分析过的函数，减少误判
+- **优化对对象访问形式的依赖添加一层可选链保护**：防止运行时的空值访问导致崩溃
+- **优化 CLI 只保留路径相关的必要选项**：简化 CLI 接口，移除行为相关配置
+- **优化对静态资产的缓存维护流程**：改进资产缓存管理，提升性能
+- **优化全量编译后的 CLI 统计信息**：提供更清晰的编译统计报告
+- **优化依赖分析器**：重构路由配置，提升编译质量，减少不必要的 `useCallback` 包装
+- **优化编译器架构**：引入模块化类型和函数式配置，提升代码可维护性
+
+### Removed
+
+- **移除在项目工程中自动输出路由适配指南的功能**：简化输出，路由配置现在通过注入提供器实现
+- **移除 CLI 所有与行为相关的配置选项**：简化 CLI 接口，只保留必要的路径配置
+- **移除编译器 templates 目录**：删除不再使用的路由配置模板文件
+- **移除大量冗长注释，简化类和方法文档**：保持代码简洁，提高可读性
+
+---
+
+[1.4.0]: https://github.com/vureact-js/vureact-router/compare/v1.3.0...v1.4.0
+
+---
+
 ## [1.3.0] - 2026-03-17
 
 ### Added
@@ -29,6 +82,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.3.0]: https://github.com/vureact-js/vureact-router/compare/v1.2.1...v1.3.0
+
+---
+
 ## [1.2.1] - 2026-03-15
 
 ### Fixed
@@ -46,6 +103,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.1]: https://github.com/vureact-js/vureact-router/compare/v1.2.0...v1.2.1
+
+---
+
 ## [1.2.0] - 2026-03-06
 
 ### Added
@@ -57,11 +118,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.2.0]: https://github.com/vureact-js/vureact-router/compare/v1.1.1...v1.2.0
+
+---
+
 ## [1.1.1] - 2026-03-05
 
 ### Fiexd
 
 - 修复当样式预处理启用时，样式文件里导入的 `.less`/`.scss` 文件后缀没有替换成 `.css`
+
+---
+
+[1.1.1]: https://github.com/vureact-js/vureact-router/compare/v1.1.0...v1.1.1
 
 ---
 
@@ -74,12 +143,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.1.0]: https://github.com/vureact-js/vureact-router/compare/v1.0.4...v1.1.0
+
+---
+
 ## [1.0.4] - 2026-03-05
 
 ### Fiexd
 
 - 修复当是默认插槽且没有参数，或者是非作用域插槽（没有参数），则使用 ReactNode 类型
 - 修复当 ignoreAssets 选项没有配置时，预设的排除列表没有生效
+
+---
+
+[1.0.4]: https://github.com/vureact-js/vureact-router/compare/v1.0.3...v1.0.4
 
 ---
 
@@ -92,11 +169,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.0.3]: https://github.com/vureact-js/vureact-router/compare/v1.0.2...v1.0.3
+
+---
+
 ## [1.0.2] - 2026-03-04
 
 ### Fixed
 
 - 修复 VUE_PACKAGES 常量配置，添加 `@vureact/compiler-core` 到排除列表，避免将其带到 React 项目中
+
+---
+
+[1.0.2]: https://github.com/vureact-js/vureact-router/compare/v1.0.1...v1.0.2
 
 ---
 
@@ -114,6 +199,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - add comprehensive JSDoc comments to core compiler classes
 - update CHANGELOG with detailed 1.0.0 release notes
+
+---
+
+[1.0.1]: https://github.com/vureact-js/vureact-router/compare/v1.0.0...v1.0.1
 
 ---
 
@@ -318,41 +407,9 @@ compiler-core/
 └── package.json              # 项目配置
 ```
 
-### 🎯 使用场景
+---
 
-#### 理想场景
-
-1. **Vue 3 项目迁移**：将现有 Vue 3 项目逐步迁移到 React
-2. **混合技术栈**：在 React 项目中引入 Vue 组件
-3. **团队技术栈统一**：统一前端团队的技术栈
-4. **库作者适配**：为 Vue 组件库提供 React 版本
-
-#### 限制说明
-
-1. **Vue 2 不支持**：仅支持 Vue 3 Composition API
-2. **服务端渲染**：SSR 支持仍在开发中
-3. **浏览器 API**：某些浏览器特定 API 可能需要手动适配
-4. **第三方库**：部分 Vue 生态库需要额外适配器
-
-### 🔄 未来规划
-
-#### 短期目标
-
-- **测试覆盖率**：达到 90% 以上的测试覆盖率
-- **性能优化**：进一步优化编译速度和内存使用
-- **错误恢复**：改进错误处理和恢复机制
-
-#### 中期目标
-
-- **插件系统**：完整的插件生态系统
-- **SSR 支持**：服务端渲染支持
-- **更多示例**：丰富的示例和最佳实践
-
-#### 长期愿景
-
-- **双向编译**：支持 React 到 Vue 的反向编译
-- **AI 辅助**：AI 驱动的代码转换建议
-- **生态整合**：深度集成主流前端工具链
+[1.0.0]: https://github.com/vureact-js/vureact-router/compare/v1.0.0...HEAD
 
 ---
 
@@ -384,5 +441,17 @@ When releasing a new version:
 
 ---
 
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/vureact-js/core/releases/tag/v1.0.0
+```md
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/vureact-js/core/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/vureact-js/core/compare/v1.2.1...v1.3.0
+[1.2.1]: https://github.com/vureact-js/core/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/vureact-js/core/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/vureact-js/core/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/vureact-js/core/compare/v1.0.4...v1.1.0
+[1.0.4]: https://github.com/vureact-js/core/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/vureact-js/core/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/vureact-js/core/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/vureact-js/core/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/vureact-js/core/compare/v1.0.0...HEAD
+```

@@ -151,12 +151,19 @@ export class FileProcessor {
    * 对 package.json 注入路由依赖项
    */
   private async addRouterToPackageJson() {
+    const { output } = this.fileCompiler.options;
+
+    // fix: 未初始化 Vite 时，输出目录通常不存在 package.json，跳过依赖注入
+    if (output?.bootstrapVite === false) {
+      return;
+    }
+
     const { router } = RUNTIME_PACKAGES;
     const filePath = this.fileCompiler.getOutputPkgPath();
     const packageJson = await this.fileCompiler.resolvePackageFile(filePath);
 
     // 如果已经包含路由依赖，则跳过
-    if (packageJson?.dependencies[router.name]) {
+    if (packageJson?.dependencies?.[router.name]) {
       return;
     }
 

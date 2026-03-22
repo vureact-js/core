@@ -183,7 +183,7 @@ export class FileCompiler extends BaseCompiler {
       if (styleCount) stats.push(`${styleCount} style(s)`);
       if (assetCount) stats.push(`${assetCount} asset(s)`);
 
-      this.spinner.succeed(`Processed: ${stats.join(' | ')}`);
+      this.spinner.succeed(`Processed: ${stats.join(', ')}`);
     }
 
     const skippedCount =
@@ -191,11 +191,11 @@ export class FileCompiler extends BaseCompiler {
 
     if (skippedCount) {
       console.info(kleur.gray(`↷ Cached: ${kleur.white(skippedCount)} unchanged file(s)`));
-      console.info();
       this.resetSkippedCount();
     }
 
     const dir = normalizePath(this.relativePath(this.getOuputPath()));
+    console.info();
     console.info(`📦 Output: ${dir}`);
     console.info();
   }

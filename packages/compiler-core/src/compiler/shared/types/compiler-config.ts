@@ -212,7 +212,9 @@ export interface OutputConfig {
    *  'eslint.config.',
    *  'readme.',
    *  'vue.',
+   *  '.vue',
    *  'vureact.config.js',
+   *  'vureact.config.ts',
    * ]
    */
   ignoreAssets?: string[];

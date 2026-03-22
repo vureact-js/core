@@ -4,7 +4,7 @@
 
 # VuReact
 
-下一代 Vue -> React 智能编译工具链，将 Vue 3 编译为可运行的 React 18+ 代码
+一个面向语义级代码迁移的智能 Vue 3 转 React 18+ 编译工具链
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
