@@ -176,12 +176,24 @@ export interface OutputConfig {
         /**
          * Specify the Vite version for initial installation, which must start with '@'.
          * @default '@latest'
+         *
+         * @example
+         *
+         * ```js
+         * { vite: '@7' }
+         * ```
          */
         vite?: string;
 
         /**
          * Specify the React version for initial installation.
-         * @default '^19.2.0'
+         * @default 'latest'
+         *
+         * @example
+         *
+         * ```js
+         * { react: '^19.2.0' }
+         * ```
          */
         react?: string;
       };

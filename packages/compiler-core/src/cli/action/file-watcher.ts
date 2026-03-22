@@ -76,7 +76,7 @@ export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
     const ext = path.extname(filePath);
 
     const scriptExtRegex = /\.(js|ts)$/i;
-    const styleExtRegex = /\.(less|sass|scss)$/i;
+    const styleExtRegex = /\.(css|less|sass|scss)$/i;
 
     const removeFile = async (type: CacheKey) => {
       await compiler.removeOutputPath(filePath, type);

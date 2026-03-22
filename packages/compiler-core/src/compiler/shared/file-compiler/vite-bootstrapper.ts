@@ -14,7 +14,6 @@ export class ViteBootstrapper {
   private defaultConfig = {
     template: 'react-ts',
     viteVersion: '@latest',
-    reactVersion: '^19.2.0',
   };
 
   constructor(
@@ -137,14 +136,14 @@ export class ViteBootstrapper {
    */
   private async resolveViteCreateApp() {
     const { output } = this.options;
-    const { viteVersion, reactVersion, template: tmpl } = this.defaultConfig;
+    const { viteVersion, template: tmpl } = this.defaultConfig;
 
     const bootstrapVite = output?.bootstrapVite;
     const outDirName = this.fileCompiler.getOutDirName();
     const configObject = typeof bootstrapVite === 'object' ? bootstrapVite : null;
 
     const viteVer = configObject?.vite || viteVersion;
-    const reactVer = configObject?.react || reactVersion;
+    const reactVer = configObject?.react;
     const template = configObject?.template || tmpl;
 
     // 执行 vite 创建命令，使用 --template xxx 跳过交互式选择
@@ -155,7 +154,9 @@ export class ViteBootstrapper {
       stdio: 'ignore', // 隐藏 create-vite 内部的输出日志，保持终端整洁
     });
 
-    await this.resolveReactVersion(reactVer);
+    if (reactVer) {
+      await this.resolveReactVersion(reactVer);
+    }
   }
 
   /**

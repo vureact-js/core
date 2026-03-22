@@ -1,6 +1,6 @@
 import path from 'path';
 import { FileCompiler } from '.';
-import { CacheKey, CacheMeta, Vue2ReactCacheMeta } from '../types';
+import { CacheKey, CacheMeta, ScriptCacheMeta, StyleCacheMeta, Vue2ReactCacheMeta } from '../types';
 
 export class CleanupManager {
   constructor(private fileCompiler: FileCompiler) {}
@@ -33,28 +33,52 @@ export class CleanupManager {
     if (!toRemove.length) return;
 
     const removeFn = async (m: CacheMeta) => {
-      if (key === CacheKey.SFC) {
-        const meta = m as Vue2ReactCacheMeta;
-        if (!meta?.output) return;
+      let meta;
 
-        // 删除对应 jsx / css 文件
-        const { jsx, css } = meta.output;
-        await this.fileCompiler.removeOutputFile(jsx.file);
+      switch (key) {
+        case CacheKey.SFC: {
+          meta = m as Vue2ReactCacheMeta;
 
-        if (css?.file) {
-          await this.fileCompiler.removeOutputFile(css.file);
+          // 删除对应 jsx 产物
+          const { jsx, css } = meta.output!;
+          await this.fileCompiler.removeOutputFile(jsx.file);
+
+          // 删除对应 style 产物
+          if (css?.file) {
+            await this.fileCompiler.removeOutputFile(css.file);
+          }
+
+          break;
         }
-      } else {
-        // 普通缓存直接删除对应文件
-        // 样式文件后缀名统一处理成 .css，因为对应的产物只有 css 文件
-        const target =
-          key === CacheKey.STYLE ? m.file.replace(/$(.less|.sass|.scss)/, '.css') : m.file;
 
-        await this.fileCompiler.removeOutputFile(target, true);
+        case CacheKey.SCRIPT: {
+          meta = m as ScriptCacheMeta;
+          await this.fileCompiler.removeOutputFile(meta.output!.script.file);
+          break;
+        }
+
+        case CacheKey.STYLE: {
+          meta = m as StyleCacheMeta;
+          await this.fileCompiler.removeOutputFile(meta.output!.style.file);
+          break;
+        }
+
+        // 静态资产缓存直接删除对应文件
+        default: {
+          await this.fileCompiler.removeOutputFile(m.file, true);
+          break;
+        }
       }
     };
 
+    // 并行删除
     await Promise.all(toRemove.map(removeFn));
+
+    // 更新缓存
+    const removedFiles = new Set(toRemove.map((m) => m.file));
+
+    cache.target = cache.target.filter((m) => !removedFiles.has(m.file));
+
     await this.fileCompiler.saveCache(cache);
   }
 }

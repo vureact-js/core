@@ -64,14 +64,16 @@ export class PipelineManager {
       return false;
     });
 
-    if (!files.length) return 0;
-
     // 加载缓存
-    const cache = await this.fileCompiler.loadCache(key);
     const absFiles = new Set(files.map((f) => this.fileCompiler.getAbsPath(f)));
 
-    // 清理旧输出文件
+    // fix: 即使当前类型已无文件，也需要清理历史产物与缓存
     await this.cleanupManager.cleanupOldOutput(key, (c: any) => !absFiles.has(c.file));
+
+    if (!files.length) return 0;
+
+    // fix: 在清理后重新加载缓存，避免把已删除条目写回
+    const cache = await this.fileCompiler.loadCache(key);
 
     // 使用 Promise.all 并行编译
     const compiled = await Promise.all(

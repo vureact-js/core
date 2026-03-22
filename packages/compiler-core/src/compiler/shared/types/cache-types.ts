@@ -1,4 +1,4 @@
-import { SFCUnit } from './compilation-unit';
+import { ScriptUnit, SFCUnit, StyleUnit } from './compilation-unit';
 
 export type LoadedCache<T = CacheMeta> = {
   key: CacheKey;
@@ -17,12 +17,14 @@ export enum CacheKey {
 
 export interface CacheList {
   [CacheKey.SFC]: Vue2ReactCacheMeta[];
-  [CacheKey.SCRIPT]: FileCacheMeta[];
-  [CacheKey.STYLE]: FileCacheMeta[];
+  [CacheKey.SCRIPT]: ScriptCacheMeta[];
+  [CacheKey.STYLE]: StyleCacheMeta[];
   [CacheKey.ASSET]: FileCacheMeta[];
 }
 
 export type Vue2ReactCacheMeta = Omit<SFCUnit, 'source'>;
+export type ScriptCacheMeta = Omit<ScriptUnit, 'source'>;
+export type StyleCacheMeta = Omit<StyleUnit, 'source'>;
 
 export interface FileCacheMeta extends FileMeta {
   file: string;

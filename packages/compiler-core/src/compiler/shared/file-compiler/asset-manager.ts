@@ -75,14 +75,15 @@ export class AssetManager {
       return true;
     });
 
-    if (!assetFiles.length) return 0;
-
-    // 加载缓存
-    const cache = await this.fileCompiler.loadCache(CacheKey.ASSET);
     const absFiles = new Set(assetFiles.map((f) => this.fileCompiler.getAbsPath(f)));
 
-    // 清理不存在的输出文件
+    // 先清理不存在的输出与缓存记录（即使 assetFiles 为空也需要执行）
     await this.cleanupManager.cleanupOldOutput(CacheKey.ASSET, (u) => !absFiles.has(u.file));
+
+    if (!assetFiles.length) return 0;
+
+    // fix: 在清理之后重新加载缓存，避免把已删除条目写回去
+    const cache = await this.fileCompiler.loadCache(CacheKey.ASSET);
 
     // 并行拷贝所有资源文件
     const copied = await Promise.all(
@@ -91,7 +92,8 @@ export class AssetManager {
       }),
     );
 
-    await this.fileCompiler.flushCache(CacheKey.ASSET);
+    // 资产缓存直接由 AssetManager 维护，这里统一落盘
+    await this.fileCompiler.saveCache(cache);
 
     return copied.filter(Boolean).length;
   }
@@ -132,6 +134,11 @@ export class AssetManager {
 
     // 添加到待更新队列
     this.updateCache(absPath, fileMeta, cache);
+
+    // fix: watch 场景直接调用 processAsset 时，当前文件需要立即落盘缓存
+    if (this.fileCompiler.getIsCache() && !existingCache) {
+      await this.fileCompiler.saveCache(cache);
+    }
 
     return fileMeta;
   }

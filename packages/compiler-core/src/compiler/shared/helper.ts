@@ -2,7 +2,6 @@ import { formatWithPrettier, simpleFormat } from '@plugins/prettier';
 import { logger } from '@shared/logger';
 import { normalizePath, PathFilter } from '@shared/path';
 import { genHashByXXH } from '@utils/hash';
-import { execSync } from 'child_process';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
@@ -430,21 +429,6 @@ export class Helper {
     } else {
       cache.target.push(newData);
     }
-  }
-
-  resolveViteCreateApp() {
-    const { output } = this.compilerOpts;
-    const config = output?.bootstrapVite;
-    const template = typeof config === 'object' ? config.template : 'react-ts';
-    const outDirName = this.getOutDirName();
-
-    // 执行 vite 创建命令，使用 --template xxx 跳过交互式选择
-    const cmd = `npm create vite@latest ${outDirName} -- --template ${template}`;
-
-    execSync(cmd, {
-      cwd: this.getWorkspaceDir(),
-      stdio: 'ignore', // 隐藏 create-vite 内部的输出日志，保持终端整洁
-    });
   }
 
   /**
