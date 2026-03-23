@@ -4,7 +4,7 @@
 
 <h1>VuReact</h1>
 
-An intelligent Vue 3 to React 18+ compilation toolchain for semantic-level code migration
+A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)

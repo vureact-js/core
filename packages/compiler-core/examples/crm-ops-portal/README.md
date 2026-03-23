@@ -17,6 +17,14 @@ This sample is a standard `vue-ts` style project, designed to verify the closed-
 - Comprehensive coverage of template syntax including event handling, directives, conditional rendering, and list rendering
 - Conversion of Sass/Less style syntax to CSS syntax
 - Conversion of emit('event') calls to component props method calls
+- Collaboration center scenario coverage: notifications + approvals + cross-page business linkage
+
+## Business Workflow Highlights
+
+- High-value lead linkage: when lead amount reaches 100+, an approval is generated automatically.
+- Task blockage linkage: when a task enters blocked status, a collaboration notification is created.
+- Dashboard collaboration summary: unread notifications / pending approvals / handled today.
+- End-to-end flow: Leads/Tasks action -> Notification/Approval center -> Dashboard metrics update.
 
 ## Getting Started
 

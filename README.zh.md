@@ -4,7 +4,7 @@
 
 # VuReact
 
-一个面向语义级代码迁移的智能 Vue 3 转 React 18+ 编译工具链
+一个渐进式语义驱动的 Vue 3 → React 18+ 迁移编译器
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)

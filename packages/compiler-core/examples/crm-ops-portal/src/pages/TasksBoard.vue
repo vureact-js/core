@@ -60,6 +60,8 @@
       <div class="summary">进行中 {{ inProgressCount }} · 阻塞 {{ blockedCount }}</div>
     </div>
 
+    <div v-if="actionNotice" class="notice">{{ actionNotice }}</div>
+
     <div class="board">
       <div v-for="column in columns" :key="column" class="column">
         <div class="column-header">
@@ -91,7 +93,7 @@
 // @vr-name: TasksBoard
 import { computed, onMounted, ref } from 'vue';
 import StatusPill from '../components/StatusPill.vue';
-import { createTask, fetchTasks, updateTaskStatus } from '../data/mock-api';
+import { createTask, fetchTasks, notifyTaskBlocked, updateTaskStatus } from '../data/mock-api';
 
 type Task = Awaited<ReturnType<typeof fetchTasks>>[0];
 
@@ -103,6 +105,7 @@ const ownerFilter = ref('all');
 const priorityFilter = ref('all');
 
 const createOpen = ref(false);
+const actionNotice = ref('');
 const draft = ref({
   title: '',
   owner: '',
@@ -165,6 +168,18 @@ const move = async (id: string, direction: 'next' | 'prev') => {
   const nextStatus = columns[nextIndex] ?? task.status;
   const updated = await updateTaskStatus(id, nextStatus as Task['status']);
   tasks.value = tasks.value.map((item) => (item.id === updated.id ? updated : item));
+  if (updated.status === '阻塞') {
+    await notifyTaskBlocked({
+      id: updated.id,
+      title: updated.title,
+      owner: updated.owner,
+      reason: '需跨团队支持',
+    });
+    actionNotice.value = `任务「${updated.title}」进入阻塞，已通知协同中心。`;
+    setTimeout(() => {
+      actionNotice.value = '';
+    }, 2200);
+  }
 };
 
 const markDone = async (id: string) => {
@@ -234,6 +249,13 @@ onMounted(async () => {
 .summary {
   font-size: 12px;
   color: var(--muted);
+}
+
+.notice {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--banner);
+  font-size: 12px;
 }
 
 .input,
@@ -312,7 +334,6 @@ onMounted(async () => {
 }
 
 .ghost {
-  background: transparent;
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px 8px;

@@ -26,6 +26,31 @@
       />
     </div>
 
+    <section class="panel">
+      <header class="panel-header">
+        <h3>协同概览</h3>
+        <StatusPill label="实时" variant="info" />
+      </header>
+      <div class="collab-grid">
+        <div class="collab-card">
+          <span class="label">未读通知</span>
+          <strong>{{ collab.unreadCount }}</strong>
+        </div>
+        <div class="collab-card">
+          <span class="label">待审批</span>
+          <strong>{{ collab.pendingApprovals }}</strong>
+        </div>
+        <div class="collab-card">
+          <span class="label">今日已处理</span>
+          <strong>{{ collab.handledToday }}</strong>
+        </div>
+      </div>
+      <div class="summary-actions">
+        <button class="primary ghost" @click="goNotifications">去通知中心</button>
+        <button class="primary" @click="goApprovals">去审批中心</button>
+      </div>
+    </section>
+
     <div class="overview-grid">
       <section class="panel">
         <header class="panel-header">
@@ -102,10 +127,11 @@
 <script setup lang="ts">
 // @vr-name: Dashboard
 import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import KpiCard from '../components/KpiCard.vue';
 import StatusPill from '../components/StatusPill.vue';
 import ThemeCard from '../components/ThemeCard.vue';
-import { addActivity, fetchDashboard } from '../data/mock-api';
+import { addActivity, fetchCollabSummary, fetchDashboard } from '../data/mock-api';
 
 type DashboardData = Awaited<ReturnType<typeof fetchDashboard>>;
 
@@ -123,6 +149,12 @@ const alerts = ref<Alert[]>([]);
 const teamLoad = ref<TeamMember[]>([]);
 const leads = ref<Lead[]>([]);
 const stages = ref<Stage[]>([]);
+const collab = ref({
+  unreadCount: 0,
+  pendingApprovals: 0,
+  handledToday: 0,
+});
+const router = useRouter();
 
 const actionNotice = ref('');
 
@@ -165,8 +197,17 @@ const createChecklist = async () => {
   }, 2000);
 };
 
+const goNotifications = () => {
+  router.push('/notifications');
+};
+
+const goApprovals = () => {
+  router.push('/approvals');
+};
+
 onMounted(async () => {
   const data = await fetchDashboard();
+  collab.value = await fetchCollabSummary();
   kpis.value = data.kpis;
   activities.value = data.activities;
   alerts.value = data.alerts;
@@ -222,7 +263,6 @@ onMounted(async () => {
 }
 
 .primary.ghost {
-  background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
 }
@@ -322,6 +362,21 @@ onMounted(async () => {
   gap: 12px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.collab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.collab-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
 }
 
 .muted {

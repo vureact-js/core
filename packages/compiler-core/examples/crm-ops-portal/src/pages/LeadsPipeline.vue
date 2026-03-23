@@ -42,7 +42,14 @@
 // @vr-name: LeadsPipeline
 import { computed, onMounted, ref } from 'vue';
 import PipelineStage from '../components/PipelineStage.vue';
-import { createLead, fetchLeads, fetchStages, moveLead, resetLeads } from '../data/mock-api';
+import {
+  createLead,
+  fetchLeads,
+  fetchStages,
+  moveLead,
+  resetLeads,
+  triggerLeadApprovalByThreshold,
+} from '../data/mock-api';
 
 type Lead = Awaited<ReturnType<typeof fetchLeads>>[0];
 
@@ -81,6 +88,13 @@ const hotCount = computed(() => filteredLeads.value.filter((item) => item.daysIn
 const onMove = async (payload: { id: string; stage: string; direction: 'next' | 'prev' }) => {
   const updated = await moveLead(payload.id, payload.direction);
   leads.value = leads.value.map((lead) => (lead.id === updated.id ? updated : lead));
+  const result = await triggerLeadApprovalByThreshold(updated.id);
+  if (result.triggered) {
+    actionNotice.value = `线索「${updated.name}」已触发高价值审批。`;
+    setTimeout(() => {
+      actionNotice.value = '';
+    }, 2200);
+  }
 };
 
 const reset = async () => {
@@ -101,8 +115,11 @@ const createQuickLead = async () => {
     owner: ownerFilter.value === 'all' ? '张琳' : ownerFilter.value,
   });
   leads.value.unshift(created);
+  const result = await triggerLeadApprovalByThreshold(created.id);
   quickLeadName.value = '';
-  actionNotice.value = `已新增线索：${created.name}`;
+  actionNotice.value = result.triggered
+    ? `已新增线索：${created.name}，并触发审批流程。`
+    : `已新增线索：${created.name}`;
   setTimeout(() => {
     actionNotice.value = '';
   }, 2000);
@@ -179,7 +196,6 @@ onMounted(async () => {
   padding: 8px 14px;
   border-radius: 8px;
   color: #ccc;
-  background: transparent;
 }
 
 .muted {

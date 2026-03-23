@@ -103,7 +103,6 @@ function move(item: { id: string }, direction: 'next' | 'prev') {
 }
 
 .ghost {
-  background: transparent;
   color: #ccc;
   border: 1px solid var(--border);
   border-radius: 8px;

@@ -51,6 +51,8 @@
         <RouterLink to="/customers" class="nav-item">客户</RouterLink>
         <RouterLink to="/leads" class="nav-item">线索管道</RouterLink>
         <RouterLink to="/tasks" class="nav-item">任务看板</RouterLink>
+        <RouterLink to="/notifications" class="nav-item">通知中心</RouterLink>
+        <RouterLink to="/approvals" class="nav-item">审批中心</RouterLink>
         <RouterLink to="/settings" class="nav-item">设置</RouterLink>
       </aside>
 
@@ -277,7 +279,6 @@ onMounted(async () => {
 }
 
 .ghost {
-  background: transparent;
   border: 1px solid var(--border);
   padding: 8px 14px;
   border-radius: 8px;
