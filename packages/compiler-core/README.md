@@ -281,4 +281,4 @@ If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/guide/min
 - Gitee: <https://gitee.com/vureact-js/core>
 - Documentation: [https://vureact.top](https://vureact.top/)
 - npm: <https://www.npmjs.com/package/@vureact/compiler-core>
-- Online Examples: <https://codesandbox.io/p/devbox/compiler-examples-n8yg68>
+- Online Examples: <https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>

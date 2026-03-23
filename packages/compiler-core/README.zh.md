@@ -281,4 +281,4 @@ CSS 文件内容：
 - Gitee：<https://gitee.com/vureact-js/core>
 - 文档：[https://vureact.top](https://vureact.top/)
 - npm：<https://www.npmjs.com/package/@vureact/compiler-core>
-- 在线示例：<https://codesandbox.io/p/devbox/compiler-examples-n8yg68>
+- 在线示例：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
