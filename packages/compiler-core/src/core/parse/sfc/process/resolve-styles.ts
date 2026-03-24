@@ -25,13 +25,14 @@ export function resolveStyles(
     );
   }
 
+  // re: 移除 @import 警告
   // 对使用了 @import 语法进行警告
-  if (content.includes('@import')) {
-    logger.warn(
-      'Detected @import in scoped style. Imported styles remain global. Consider inlining them to preserve scoping.',
-      { file: filename },
-    );
-  }
+  // if (content.includes('@import')) {
+  //   logger.warn(
+  //     'Detected @import in scoped style. Imported styles remain global. Consider inlining them to preserve scoping.',
+  //     { file: filename },
+  //   );
+  // }
 
   // 预处理样式
   const { code, fileExt } = resolveLessSass(content, {
