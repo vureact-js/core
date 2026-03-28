@@ -1,63 +1,63 @@
 # @vureact/runtime-core
 
-English | [简体中文](./README.zh.md)
-
-**React Adaptation Layer for Vue 3 Built-in Components / React Hooks / Template Directive Toolset**
+**Vue 3 内置组件 / React 钩子 / 模板指令工具集 的 React 适配层**
 
 [![npm version](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-A comprehensive React adaptation layer that empowers React applications with the powerful features of Vue 3. Leverage built-in components, reactive hooks, and template directive tools to bring Vue-style development experience to your React projects.
+一套全面的 React 适配层，将 Vue 3 的强大特性赋能至 React 应用中。通过内置组件、响应式钩子和模板指令工具，让你的 React 项目拥有 Vue 风格的开发体验。
 
-## What is it?
+简体中文 | [English](./README.en.md)
 
-It's serves as a bridge between Vue 3 and React, enabling React developers to directly reuse Vue's well-proven built-in components (KeepAlive, Transition, Teleport), reactive APIs, and template directive paradigms without leaving the React technical ecosystem.
+## 简介
 
-The reactive implementation in this library is developed based on the mature [valtio](https://github.com/pmndrs/valtio) library from the React community.
+这是 Vue 3 与 React 之间的桥梁，让 React 开发者无需脱离 React 技术生态，就能直接复用 Vue 优秀的内置组件（KeepAlive、Transition、Teleport）、响应式 API 以及模板指令范式。
 
-## What problems does it solve?
+本库使用 [Valtio](https://github.com/pmndrs/valtio) 作为响应式引擎，提供高性能的 Proxy-based 响应式系统。
 
-### 1. **Component Reusability**
+## 说明
 
-- Utilize Vue's battle-tested built-in components in React
-- Rapidly implement complex UI patterns such as component caching (KeepAlive), animation transitions (Transition), and portal rendering (Teleport)
+### 1. **组件复用性**
 
-### 2. **Development Experience**
+- 在 React 中使用 Vue 经过实战验证的内置组件
+- 快速实现组件缓存（KeepAlive）、动画过渡（Transition）、端口渲染（Teleport）等复杂 UI 模式
 
-- Enjoy Vue's intuitive reactive programming model in React
-- Use familiar Vue-style APIs like `useReactive`, `useWatch`, and lifecycle hooks
-- Write more concise JSX code with template directive tools (`vCls`, `vStyle`, `vOn`)
+### 2. **开发体验**
 
-### 3. **Migration & Integration**
+- 在 React 中享受 Vue 直观的响应式编程模型
+- 使用熟悉的 Vue 风格 API，如 `useReactive`、`useWatch` 以及生命周期钩子
+- 借助模板指令工具（`vCls`、`vStyle`、`vOn`）编写更简洁的 JSX 代码
 
-- Effortlessly migrate Vue components to the React tech stack
-- Seamlessly integrate Vue development paradigms into existing React applications
-- Reduce the learning curve for Vue developers to get started with React projects
+### 3. **迁移与集成**
 
-## Core Features
+- 轻松将 Vue 组件迁移至 React 技术栈
+- 在已有 React 应用中无缝融入 Vue 开发范式
+- 降低 Vue 开发者上手 React 项目的学习成本
 
-- ✅ **Vue Built-in Components**: `<KeepAlive>`, `<Transition>`, `<Teleport>`, `<Suspense>`, etc.
-- ✅ **Reactive Hooks**: `useReactive`, `useWatch`, `useVRef`, `useComputed`, lifecycle hooks, and more
-- ✅ **Directive Toolset**: `vCls`, `vStyle`, `vOn`, `vKeyless`, etc., restoring Vue-style template syntax
-- ✅ **Comprehensive TypeScript Support**: Full type definitions, compatible with IntelliSense
-- ✅ **Lightweight & Redundancy-Free**: Minimal dependencies with optimized bundle size
-- ✅ **React 18+ Compatible**: Tailored for modern React applications
+## 核心特性
 
-## Applicable Scenarios
+- ✅ **Vue 内置组件**：`<KeepAlive>`、`<Transition>`、`<Teleport>`、`<Suspense>` 等
+- ✅ **响应式钩子**：`useReactive`、`useWatch`、`useVRef`、`useComputed` 和生命周期钩子等
+- ✅ **指令工具集**：`vCls`、`vStyle`、`vOn`、`vKeyless` 等，还原 Vue 风格模板语法
+- ✅ **完备 TypeScript 支持**：全量类型定义，兼容智能提示（IntelliSense）
+- ✅ **轻量无冗余**：依赖极简，打包体积经过优化
+- ✅ **适配 React 18+**：为现代 React 应用量身打造
 
-- **React projects requiring Vue component paradigms**
-- **Teams with both Vue/React technical backgrounds**
-- **Applications needing component caching (KeepAlive)**
-- **Projects requiring advanced transition animation effects**
-- **Scenarios of migrating from Vue to React while retaining the original development paradigm**
+## 适用场景
 
-## Quick Start
+- **需要 Vue 组件范式的 React 项目**
+- **团队成员兼具 Vue/React 技术背景**
+- **需实现组件缓存（KeepAlive）的应用**
+- **需要高级过渡动画效果的项目**
+- **从 Vue 迁移至 React 且希望保留原有开发范式的场景**
 
-For more detailed tutorials, please visit [https://runtime.vureact.top](https://runtime.vureact.top/en).
+## 快速上手
 
-### Installation
+### 安装
+
+更多详细教程请访问 [https://runtime.vureact.top](https://runtime.vureact.top)。
 
 ```bash
 npm i @vureact/runtime-core
@@ -71,7 +71,7 @@ pnpm add @vureact/runtime-core
 yarn add @vureact/runtime-core
 ```
 
-### Simple Example
+### 简易示例
 
 ```tsx
 import { KeepAlive, useVRef, useWatch } from '@vureact/runtime-core';
@@ -80,7 +80,7 @@ function App() {
   const count = useVRef(0);
 
   useWatch(count, (newVal, oldVal) => {
-    console.log(`Count changed: ${oldVal} → ${newVal}`);
+    console.log(`计数发生变化：${oldVal} → ${newVal}`);
   });
 
   return (
@@ -93,21 +93,21 @@ function App() {
 function Counter(props: { value: number; onIncrement: () => any }) {
   return (
     <>
-      <p>Current count: {props.value}</p>
-      <button onClick={props.onIncrement}>Increment</button>
+      <p>当前计数：{props.value}</p>
+      <button onClick={props.onIncrement}>增加</button>
     </>
   );
 }
 ```
 
-## 🔗 Links
+## 🔗 链接
 
-- [GitHub Repository](https://github.com/vureact-js/core)
-- [npm Package](https://www.npmjs.com/package/@vureact/runtime-core)
-- [Documentation](https://runtime.vureact.top/en)
-- [Issue Tracker](https://github.com/vureact-js/core/issues)
-- [Contributing Guidelines](../../CONTRIBUTING.md)
+- [GitHub 仓库](https://github.com/vureact-js/core)
+- [npm 包](https://www.npmjs.com/package/@vureact/runtime-core)
+- [文档](https://runtime.vureact.top)
+- [问题跟踪](https://github.com/vureact-js/core/issues)
+- [贡献指南](../../CONTRIBUTING.zh.md)
 
-## 📄 License
+## 📄 许可证
 
 MIT © [Ryan John](./LICENSE)

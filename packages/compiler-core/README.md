@@ -4,28 +4,30 @@
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## What is VuReact?
+简体中文 | [English](./README.en.md)
 
-[VuReact](http://vureact.top) (pronounced /vjuːˈriːækt/) is a Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
+## 什么是 VuReact？
 
-It is not a simple syntax conversion, but **semantic-level compilation**: it understands the intent of Vue code and generates code that adheres to React best practices. It consists of two parts: **compile-time transformation** + **runtime adaptation**.
+[VuReact](http://vureact.top)（发音 `/vjuːˈriːækt/`）是一个渐进式语义驱动的 Vue 3 → React 18+ 迁移编译器
 
-The core strategy is **"convention over configuration"** — through clear compilation conventions, it ensures stable and reliable conversion, making it especially suitable for **progressive migration** scenarios.
+它不是简单的语法转换，而是**语义级编译**：理解 Vue 代码的意图，生成符合 React 最佳实践的代码。由**编译时转换** + **运行时适配**两部分构成。
 
-## Quick Start
+核心策略是 **“约定优先”** ——通过明确的编译约定，确保转换稳定可靠，尤其适合**渐进式迁移**场景。
 
-This section will guide you through creating, compiling, and running your first VuReact project; alternatively, you can check out the [online examples first](https://codesandbox.io/p/sandbox/examples-f5rlpk).
+## 快速开始
 
-After completion, you will clearly understand three things:
+本节将引导你完成第一个 VuReact 项目的创建、编译和运行；或者选择先查看 [在线示例。](https://codesandbox.io/p/sandbox/examples-f5rlpk)
 
-1. Under what conventions input SFCs can be stably converted
-2. What the compiled directory structure looks like
-3. The semantic correspondence between the output TSX and the original SFC
-4. The compiler automatically analyzes and appends dependencies, eliminating the need to manually manage React hooks dependencies
+完成后你会明确三件事：
 
-## Step 0: Prepare the Directory
+1. 输入 SFC 在什么约定下可稳定转换
+2. 编译后目录会长什么样
+3. 输出 TSX 与原始 SFC 的语义对应关系
+4. 编译器会自动分析并追加依赖，无需手动管理 React hooks 依赖项
 
-First, set up a minimal project (illustration):
+## Step 0：准备目录
+
+先准备一个最小工程（示意）：
 
 ```txt
 my-app/
@@ -38,22 +40,22 @@ my-app/
 └─ vureact.config.js
 ```
 
-## Step 1: Installation
+## Step 1：安装
 
-Install the VuReact compiler in your Vue project:
+在你的 Vue 项目中安装 VuReact 编译器：
 
 ```bash
-# Using npm
+# 使用 npm
 npm install -D @vureact/compiler-core
 
-# Using yarn
+# 使用 yarn
 yarn add -D @vureact/compiler-core
 
-# Using pnpm
+# 使用 pnpm
 pnpm add -D @vureact/compiler-core
 ```
 
-## Step 2: Write the Input SFC
+## Step 2：编写输入 SFC
 
 `src/components/Counter.vue`
 
@@ -68,16 +70,16 @@ pnpm add -D @vureact/compiler-core
 </template>
 
 <script setup lang="ts">
-  // @vr-name: Counter (Note: Tells the compiler what component name to generate)
+  // @vr-name: Counter （注：用于告诉编译器，该生成什么组件名）
   import { computed, ref } from 'vue';
 
-  // You can also use macros to define component names
+  // 也可以使用宏定义组件名
   defineOptions({ name: 'Counter' });
 
-  // Define props
+  // 定义 props
   const props = defineProps<{ title?: string }>();
 
-  // Define emits
+  // 定义 emits
   const emits = defineEmits<{
     (e: 'change'): void;
     (e: 'update', value: number): number;
@@ -112,7 +114,7 @@ pnpm add -D @vureact/compiler-core
 </style>
 ```
 
-## Step 3: Configure the Compiler
+## Step 3：配置编译器
 
 `vureact.config.js`
 
@@ -121,34 +123,34 @@ import { defineConfig } from '@vureact/compiler-core';
 
 export default defineConfig({
   input: 'src',
-  // Key: Exclude Vue entry files to avoid entry semantic conflicts
+  // 关键：排除 Vue 入口文件，避免入口语义冲突
   exclude: ['src/main.ts'],
   output: {
     workspace: '.vureact',
     outDir: 'dist',
-    // Disable environment initialization for tutorial scenarios to observe pure compilation output
+    // 教程场景关闭环境初始化，便于观察纯编译产物
     bootstrapVite: false,
   },
   format: {
-    enabled: true, // Enable formatting (this will increase compilation time).
+    enabled: true, // 开启格式化，同时这也会增加编译耗时。
     formatter: 'prettier',
   },
 });
 ```
 
-## Step 4: Execute Compilation
+## Step 4：执行编译
 
-### Method 1: Use the npx command
+### 方式一：使用 npx 命令
 
-Run in the root directory:
+在根目录下运行：
 
 ```bash
 npx vureact build
 ```
 
-### Method 2: Use npm scripts
+### 方式二：使用 npm scripts
 
-Add script commands to `package.json`:
+在 `package.json` 里添加脚本命令：
 
 ```json
 "scripts": {
@@ -161,9 +163,9 @@ Add script commands to `package.json`:
 npm run build
 ```
 
-## Step 5: View the Output Directory Tree
+## Step 5：查看输出目录树
 
-Compiled directory (illustration):
+编译后目录（示意）：
 
 ```txt
 my-app/
@@ -174,42 +176,42 @@ my-app/
 │     └─ src/
 │        └─ components/
 │           ├─ Counter.tsx
-│           └─ Counter-<hash>.css
+│           └─ counter-<hash>.css
 ├─ src/
 │  └─ ...
 └─ vureact.config.js
 ```
 
-## Step 6: Compare the Generated Results
+## Step 6：对照生成结果
 
-Below is a typical formatted output (slightly simplified for illustration; the actual hash and property names are subject to local output):
+下面是一个格式化后的典型输出（为说明做了轻微简化，实际哈希与属性名以本地产物为准）：
 
-```ts
+```tsx
 import { memo, useCallback, useMemo } from 'react';
 import { useComputed, useVRef } from '@vureact/runtime-core';
-import './Counter-a1b2c3.css';
+import './counter-a1b2c3.css';
 
-// Derived from defineProps and defineEmits
+// 根据 defineProps 和 defineEmits 推导
 type ICounterType = {
-  title?: string
+  title?: string;
   onChange: () => void;
   onUpdate: (value: number) => number;
-}
+};
 
-// Component wrapped with memo
+// memo 包裹组件
 const Counter = memo((props: ICounterType) => {
-  // ref/computed converted to equivalent adaptation APIs
+  // ref/computed 转换成了对等的适配 API
   const step = useVRef(1);
   const count = useVRef(0);
   const title = useComputed(() => `Counter x${step.value}`);
 
-  // Automatically analyze dependencies of top-level arrow functions and append useCallback optimization
+  // 自动分析顶层箭头函数依赖，并追加 useCallback 优化
   const increment = useCallback(() => {
     count.value += step.value;
-    props.onUpdate?.(count.value); // emits conversion
+    props.onUpdate?.(count.value); // emits 转换
   }, [count.value, step.value, props.onUpdate]);
 
-  // Automatically analyze dependencies in top-level objects and append useMemo optimization
+  // 自动分析顶层对象中的依赖，并追加 useMemo 优化
   const methods = useMemo(
     () => ({
       decrease() {
@@ -238,7 +240,7 @@ const Counter = memo((props: ICounterType) => {
 export default Counter;
 ```
 
-CSS file content:
+CSS 文件内容：
 
 ```css
 .counter-card[data-css-a1b2c3] {
@@ -248,37 +250,37 @@ CSS file content:
 }
 ```
 
-## Key Observations
+## 关键观察点
 
-1. The special comment `// @vr-name: Counter` defines the component name
-2. `defineProps` and `defineEmits` are converted to TS component types
-3. Non-pure UI display components are wrapped with `memo` by default
-4. `ref` / `computed` are converted to runtime adaptation APIs (`useVRef` / `useComputed`)
-5. Template event callbacks generate React-semantic `onClick`
-6. Top-level arrow functions have their dependencies automatically analyzed and `useCallback` is injected where applicable
-7. Top-level variable declarations have their dependencies automatically analyzed and `useMemo` is injected where applicable
-8. The `.value` suffix is added to original `ref` state values in JSX
-9. Less styles are compiled to CSS code
-10. Scoped styles generate hashed CSS files and add scoped attributes to elements
+1. `// @vr-name: Counter` 这段特殊注释定义了组件名
+2. `defineProps` 和 `defineEmits` 被转换成了 TS 组件类型
+3. 非纯 UI 展示组件，默认会走 `memo` 包装
+4. `ref` / `computed` 被转换为 runtime 适配 API（`useVRef` / `useComputed`）
+5. 模板事件回调会生成符合 React 语义的 `onClick`
+6. 顶层箭头函数自动分析依赖，尝试注入 `useCallback`
+7. 顶层变量声明自动分析依赖，尝试注入 `useMemo`
+8. 对 JSX 中的原 `ref` 状态值补上 `.value`
+9. `less` 样式被编译为 css 代码
+10. `scoped` 样式会生成带哈希的 css 文件，并在元素上标注作用域属性
 
-## Common Failure Points
+## 常见失败点
 
-- Failure to exclude Vue entry files (e.g., `src/main.ts` or `App.vue`)
-- Calling APIs that are converted to Hooks outside the top level
-- Unanalyzable expressions appearing in templates (triggering warnings)
-- Disabling style preprocessing while using `scoped`, leading to scoping failure
+- 没排除 Vue 入口文件，如 `src/main.ts` 或 `App.vue`
+- 在非顶层调用会被转换为 Hook 的 API
+- 模板里出现不可分析表达式并被告警
+- 关闭样式预处理且使用 `scoped`，导致作用域失效
 
-## Ecosystem Integration
+## 生态集成
 
-- **[Vue Core Adaptation Package](https://runtime.vureact.top/)**: Provides React versions of Vue's common built-in components, core Composition API, etc.
-- **[Vue Router Adaptation Package](https://router.vureact.top/)**: Supports conversion from Vue Router 4.x to React Router DOM 7.9+.
+- **[Vue 核心适配包](https://runtime.vureact.top/)**：提供 React 版的 Vue 常用内置组件、核心 Composition API 等
+- **[Vue 路由适配包](https://router.vureact.top/)**：支持 Vue Router 4.x -> React Router DOM 7.9+ 转换
 
-If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/guide/mind-control-readme.html) to directly use the React ecosystem.
+如果确实需要，你可以选择 [☣️混合编写](https://vureact.top/guide/mind-control-readme.html)，以此直接使用 React 生态。
 
-## 🔗 Links
+## 🔗 链接
 
-- GitHub: <https://github.com/vureact-js/core>
-- Gitee: <https://gitee.com/vureact-js/core>
-- Documentation: [https://vureact.top](https://vureact.top/)
-- npm: <https://www.npmjs.com/package/@vureact/compiler-core>
-- Online Examples: <https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+- GitHub：<https://github.com/vureact-js/core>
+- Gitee：<https://gitee.com/vureact-js/core>
+- 文档：[https://vureact.top](https://vureact.top/)
+- npm：<https://www.npmjs.com/package/@vureact/compiler-core>
+- 在线示例：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>

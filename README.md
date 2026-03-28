@@ -2,9 +2,9 @@
 
 <img height="180" src="./logo.png" />
 
-<h1>VuReact</h1>
+# VuReact
 
-A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
+一个渐进式语义驱动的 Vue 3 → React 18+ 迁移编译器
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -13,99 +13,63 @@ A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-English | [简体中文](./README.zh.md)
+简体中文 | [English](./README.en.md)
 
 </div>
 
 ---
 
-## 🎯 Core Philosophy
+## 🎯 核心理念
 
-VuReact is not just a simple syntax conversion tool, but a **convention-based intelligent compilation platform**. We adhere to the principle of "controllability over full coverage," providing a **predictable, analyzable, and maintainable** engineering path for Vue to React migration through explicit compilation conventions.
+VuReact 不是简单的语法转换工具，而是一个**基于约定的智能编译平台**。我们遵循"可控性优先于全覆盖"的原则，通过明确的编译约定，为 Vue 到 React 的迁移提供**可预测、可分析、可维护**的工程路径。
 
-Furthermore, VuReact is not only suitable for migration scenarios but also for development scenarios where developers wish to enjoy **Vue's excellent mental model** while producing **React code**.
+另外，VuReact **不仅适用于迁移场景**，也适用于那些希望**享受 Vue 优秀的心智模型**，同时**产出 React 代码**的开发场景。
 
----
+## ✨ 核心特性
 
-## ✨ Core Features
+- ⚖️ 可控渐进式：支持从单个组件到整个项目的渐进迁移路径，规避爆炸式转换带来的技术债务和系统风险。
 
-⚖️ Progressive Migration
+- 🧭 约定驱动：基于明确的语法约定而非启发式规则进行编译，确保转换行为的确定性、可分析性和可维护性。
 
-- Migrate from a single component to a full project safely and gradually.
+- 🌀 跨框架编译桥：探索性的混合编译模式，允许 Vue 和 React 代码在编译层面共存，编译器作为桥梁连接两个生态，负责处理框架间的语法差异。
 
-🧭 Convention Driven
+- 🏆 概念验证（实验性）：验证"Vue 到 React 完整编译"这一长期技术设想的可行性，通过创新的编译架构和运行时适配，实现前所未有的转换深度和工程完整性。
 
-- Compilation based on explicit rules, not heuristics.
+- 🔄 现代 Vue 语法优先：完整支持 Vue 3 script setup 语法与组合式 API，包括 watch、defineProps、defineEmits 等。
 
-🌀 Cross-Framework Bridge
+- 📋 模板到 JSX 智能转换：将 Vue 模板语法和指令等，智能转换为符合 React 习惯的 JSX 代码，保持逻辑清晰且符合 React 最佳实践。
 
-- Vue and React coexist through a unified compilation layer.
+- ⚛️ Vue 核心特性适配：将响应式系统、生命周期、内置组件（Transition/KeepAlive）等核心特性完整适配到 React，保持开发心智模型一致。
 
-🏆 Proof of Concept
+- 🎨 零运行时样式方案：在编译阶段完全处理 SFC 的 scoped 和 module 样式，以及 Less 和 Sass，生成静态 CSS 文件，解决运行时样式性能开销。
 
-- Exploring full Vue to React compilation at scale.
+- 🔬 细致的处理：从 import 路径修正到类型定义生成，从代码格式化到依赖分析，每一个编译细节都经过精心设计和优化。
 
-🔄 Modern Vue First
+- 📝 TypeScript 无缝迁移：完整保留 TS 类型定义，自动推导并生成对应的 React 组件类型接口，支持 .vue 到 .tsx 的无缝类型转换。
 
-- Full support for Vue 3 script setup and Composition API.
+- ⚡ CLI 与实时编译：提供 build/watch 双模式 CLI，支持增量编译与文件监听，开发体验流畅。
 
-📋 Template to JSX
+- 📁 完整工程化：不仅仅是代码转换，而是完整的项目编译：保持目录、生成文件、拷贝资源、管理依赖。
 
-- Transforms Vue templates into idiomatic React JSX.
+- 🛠️ Vite 环境集成：可选集成 Vite 官方脚手架，自动初始化标准 React 项目结构与配置。
 
-⚛️ Core Feature Adaptation
+## 📦 快速开始
 
-- Reactivity and lifecycle adapted seamlessly to React.
+查看详细的使用指南和 API 文档请移步 [VuReact 官网](https://vureact.top)！
 
-🎨 Zero Runtime CSS
-
-- Scoped and module styles compiled to static CSS.
-
-🔬 Fine-Grained Processing
-
-- Carefully optimized at every compilation step.
-
-📝 TypeScript Ready
-
-- Preserves types and converts .vue to .tsx seamlessly.
-
-⚡ CLI & Watch Mode
-
-- Build and incremental compilation support.
-
-📁 Project-Level Build
-
-- Handles files, assets, and dependencies automatically.
-
-🛠️ Vite Integration
-
-- Optional Vite scaffolding for React projects.
-
----
-
-## 📦 Quick Start
-
-For detailed usage guides and API documentation, please visit the official VuReact website:
-
-👉 [https://vureact.top](https://vureact.top/en)
-
----
-
-### Installation
+### 安装
 
 ```bash
 npm install -D @vureact/compiler-core
-# or
+# 或
 yarn add -D @vureact/compiler-core
-# or
+# 或
 pnpm add -D @vureact/compiler-core
 ```
 
----
+### 基础配置
 
-### Basic Configuration
-
-Create `vureact.config.js`:
+创建 `vureact.config.js`：
 
 ```javascript
 import { defineConfig } from '@vureact/compiler-core';
@@ -113,7 +77,7 @@ import { defineConfig } from '@vureact/compiler-core';
 export default defineConfig({
   input: 'src',
   cache: true,
-  exclude: ['src/main.ts'], // Exclude Vue entry file
+  exclude: ['src/main.ts'], // 排除 Vue 入口文件
   output: {
     workspace: '.vureact',
     outDir: 'react-app',
@@ -122,32 +86,28 @@ export default defineConfig({
 });
 ```
 
-In practice, except for `exclude` (which must be specified manually), all other options use the default values shown above and require no additional configuration.
+实际上，除了 `exclude` 需要手动指定外，其他选项均采用示例配置中的默认值，无需额外配置。
 
----
-
-### Run Compilation
+### 运行编译
 
 ```bash
-# One-time build
+# 一次性编译
 npx vureact build
 
-# Watch mode (recommended for development)
+# 监听模式（开发推荐）
 npx vureact watch
 ```
 
----
+## 🎨 转换示例
 
-## 🎨 Transformation Example
-
-### Vue 3 Component (Input)
+### Vue 3 组件 (输入)
 
 ```html
 <template>
   <div :class="$style['hello-container']">
     <h1>{{ greetingMessage }}</h1>
-    <p>Counter: {{ count }}</p>
-    <button @click="increment">Click me to increase</button>
+    <p>计数器: {{ count }}</p>
+    <button @click="increment">点击我增加计数</button>
   </div>
 </template>
 
@@ -158,7 +118,7 @@ npx vureact watch
   const name = ref('Vue 3');
 
   const greetingMessage = computed(() => {
-    return `Hello, welcome to the world of ${name.value}!`;
+    return `你好，欢迎来到 ${name.value} 的世界!`;
   });
 
   const increment = () => {
@@ -166,7 +126,7 @@ npx vureact watch
   };
 
   onMounted(() => {
-    console.log('Component mounted!');
+    console.log('组件已挂载！');
   });
 </script>
 
@@ -179,9 +139,7 @@ npx vureact watch
 </style>
 ```
 
----
-
-### React Component (Output)
+### React 组件 (输出)
 
 ```tsx
 import { useCallback, memo } from 'react';
@@ -193,7 +151,7 @@ const Counter = memo(() => {
   const name = useVRef('Vue 3');
 
   const greetingMessage = useComputed(() => {
-    return `Hello, welcome to the world of ${name.value}!`;
+    return `你好，欢迎来到 ${name.value} 的世界!`;
   });
 
   const increment = useCallback(() => {
@@ -201,15 +159,15 @@ const Counter = memo(() => {
   }, [count.value]);
 
   useMounted(() => {
-    console.log('Component mounted!');
+    console.log('组件已挂载！');
   });
 
   return (
     <div className={$style['hello-container']} data-css-159e8f98>
       <h1 data-css-159e8f98>{greetingMessage.value}</h1>
-      <p data-css-159e8f98>Counter: {count.value}</p>
+      <p data-css-159e8f98>计数器: {count.value}</p>
       <button onClick={increment} data-css-159e8f98>
-        Click me to increase
+        点击我增加计数
       </button>
     </div>
   );
@@ -218,7 +176,7 @@ const Counter = memo(() => {
 export default Counter;
 ```
 
-Generated CSS file:
+生成的附属 CSS 文件内容：
 
 ```css
 .hello-container[data-css-159e8f98] {
@@ -228,132 +186,104 @@ Generated CSS file:
 }
 ```
 
----
+## 📋 编译约定（必读）
 
-## 📋 Compilation Conventions (Important)
+为确保转换质量，请遵守以下约定：
 
-To ensure transformation quality, please follow these conventions:
+### 🗂️ 文件与入口
 
-### 🗂️ Files & Entry
+- 建议只把可控目录纳入 `input`
+- 强烈建议把 Vue 入口（如 `src/main.ts`）加入 `exclude`
+- 先在小目录验证，再扩大范围
 
-- Include only controllable directories in `input`
-- Strongly recommend excluding Vue entry files (e.g., `src/main.ts`)
-- Validate in small directories before expanding scope
+### 📜 Script 约定
 
-### 📜 Script Conventions
+- 优先使用 `<script setup>`
+- `defineProps/defineEmits/defineSlots/defineOptions` 仅允许顶层使用
+- 将被转换为 React Hook 的 `use*` 调用必须位于顶层
 
-- Prefer `<script setup>`
-- `defineProps / defineEmits / defineSlots / defineOptions` must be top-level only
-- Any `use*` call that will be converted into React Hooks must remain at the top level
+### 🎨 Template 约定
 
-### 🎨 Template Conventions
+- 仅使用已支持指令，未知指令会告警
+- `v-else` / `v-else-if` 必须紧邻前一个条件分支
 
-- Only supported directives should be used; unknown directives will trigger warnings
-- `v-else` / `v-else-if` must be adjacent to the previous conditional branch
+### 🎨 Style 约定
 
-### 🎨 Style Conventions
+- 仅支持首个 `style` 块，多 `style` 会告警
+- `scoped` 与 `module` 支持，但需按规范使用
 
-- Only the first `<style>` block is supported; multiple blocks will trigger warnings
-- `scoped` and `module` are supported but must follow conventions
-
----
-
-## 🛠️ CLI Commands
+## 🛠️ CLI 命令
 
 ```bash
-# Build project
+# 编译项目
 npx vureact build
 
-# Watch mode
+# 监听模式编译
 npx vureact watch
 
-# Show help
+# 查看帮助
 npx vureact --help
 ```
 
----
-
-## 📁 Project Structure
+## 📁 项目结构
 
 ```txt
 my-project/
-├── src/                    # Original Vue source code
+├── src/                    # 原始 Vue 代码
 │   ├── components/
 │   │   └── Counter.vue
 │   └── main.ts
-├── .vureact/               # Workspace (generated)
-│   ├── react-app/          # Generated React project
+├── .vureact/              # 工作区（生成）
+│   ├── react-app/         # 生成的 React 代码
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   │   ├── Counter.tsx
 │   │   │   │   └── counter-[hash].css
 │   │   │   └── main.tsx
 │   │   └── package.json
-│   └── cache/              # Compilation cache
-└── vureact.config.js       # Configuration file
+│   └── cache/             # 编译缓存
+└── vureact.config.js      # 配置文件
 ```
 
----
+## 🔗 生态系统
 
-## 🔗 Ecosystem
+- **[运行时适配包](https://runtime.vureact.top)**：提供 React 版的 Vue 核心 API
+- **[路由适配包](https://router.vureact.top)**：支持 Vue Router → React Router 转换
+- **[完整文档](https://vureact.top)**：详细的使用指南和 API 文档
 
-- **Runtime Adapter Package**
-  Provides React-compatible implementations of Vue core APIs.
-  [https://runtime.vureact.top](https://runtime.vureact.top/en/)
+## 🎯 适用场景
 
-- **Router Adapter Package**
-  Supports Vue Router → React Router transformation.
-  [https://router.vureact.top](https://router.vureact.top/en/)
+### ✅ 推荐使用
 
-- **Full Documentation**
-  Detailed usage guides and API references.
-  [https://vureact.top](https://vureact.top/en)
+- **新项目开发**：直接按照 VuReact 约定编写 Vue 风格的组件
+- **渐进式迁移**：支持按目录、模块逐步迁移
+- **混合开发**：允许 Vue 和 React 组件在项目中并存
 
----
+### ⚠️ 注意事项
 
-## 🎯 Use Cases
+- **优先可控**：当前版本优先服务于可控工程场景
+- **约定驱动**：需要遵守明确的编译约定
+- **现代语法**：专注于 Vue 3 Composition API 与 `<script setup>`
 
-### ✅ Recommended
+## 🔎 仓库子包
 
-- **New Projects**: Write Vue-style components directly following VuReact conventions
-- **Progressive Migration**: Migrate by directory or module incrementally
-- **Hybrid Development**: Allow Vue and React components to coexist
+- [packages/compiler-core](./packages/compiler-core/)
+- [packages/runtime-core](./packages/runtime-core/)
 
-### ⚠️ Notes
+## 🤝 贡献
 
-- **Experimental Tool**: Current versions prioritize controllable engineering scenarios
-- **Convention-Driven**: Strict compilation conventions must be followed
-- **Modern Syntax Focus**: Focused on Vue 3 Composition API and `<script setup>`
+欢迎提交 Issue 和 Pull Request！请先阅读 [贡献指南](CONTRIBUTING.zh.md)。
 
----
+## 📄 许可证
 
-## 🔎 Repository Sub-Packages
+MIT License © 2025 [Ruihong Zhong (Ryan John)](./LICENSE)
 
-- [@vureact/compiler-core](packages/compiler-core)
-- [@vureact/runtime-core](packages/runtime-core)
+## 🩷 赞助
 
----
+**VuReact 的持续发展离不开社区的支持，您的赞助将直接用于项目维护、功能开发和文档完善，帮助我们共同探索 Vue 到 React 编译的技术边界。**
 
-## 🤝 Contributing
-
-Issues and Pull Requests are welcome!
-Please read the contribution guide first: [CONTRIBUTING.md](CONTRIBUTING.md)
+平台：[爱发电](https://afdian.com/a/vureact-js/plan)
 
 ---
 
-## 📄 License
-
-MIT License © 2025 Ruihong Zhong (Ryan John)
-
----
-
-## 🩷 Sponsorship
-
-VuReact’s continued development depends on community support.
-Your sponsorship directly supports maintenance, feature development, and documentation improvements, helping push the technical boundaries of Vue-to-React compilation.
-
-Platform: [afdian](https://afdian.com/a/vureact-js/plan)
-
----
-
-**VuReact — Validating the feasibility of full Vue-to-React compilation through innovative compilation architecture and runtime adaptation, achieving unprecedented transformation depth and engineering completeness.**
+**VuReact - 验证"Vue 到 React 完整编译"这一长期技术设想的可行性，通过创新的编译架构和运行时适配，实现前所未有的转换深度和工程完整性。**
