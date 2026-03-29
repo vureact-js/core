@@ -16,6 +16,12 @@ const SLOT_FN_PARAM_NAME = 'props';
  * 将 Vue 模板中描述的 slot 调用签名，转换为 React 组件使用的 props 类型。
  */
 export function resolveSlotsTopLevelTypes(ctx: ICompilationContext): TraverseOptions {
+  // fix: 仅 SFC 需要做 defineSlots/顶层 slot 类型适配。
+  // 普通 .ts/.tsx 脚本文件不能进入这条分支，否则会误把业务接口当成 slot 类型。
+  if (ctx.inputType !== 'sfc') {
+    return {};
+  }
+
   return {
     'TSInterfaceDeclaration|TSTypeAliasDeclaration'(path) {
       if (!t.isProgram(path.parent)) return;

@@ -65,7 +65,11 @@ export class FileCompiler extends BaseCompiler {
 
       console.error(kleur.red('✖'), `Build failed in ${endTime}`);
       console.error(error);
+
+      // fix: 出错后需结束正在运行的进程
+      process.exit(-1);
     } finally {
+      this.spinner.stop();
       this.resetSkippedCount();
     }
   }

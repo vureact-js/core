@@ -4,7 +4,7 @@ A hands-on practice for migrating the CRM Customer and Sales Operations Dashboar
 
 This example is a standard `vue-ts` style project, designed to verify the closed-loop conversion of a typical Vite + Vue3 + Vue Router project.
 
-English | [简体中文](./README.zh.md)
+English | [简体中文](./README.md)
 
 ## Getting Started
 

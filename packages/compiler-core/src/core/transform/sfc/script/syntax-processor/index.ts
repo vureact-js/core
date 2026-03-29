@@ -4,7 +4,7 @@ import { ICompilationContext } from '@compiler/context/types';
 import {
   collectLocalStatements,
   insertCSSImport,
-  insertRequiredImports,
+  resolveRequiredImports,
   resolveStaticHoisting,
 } from './postprocess';
 import {
@@ -71,7 +71,7 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
     },
 
     postprocess: {
-      applyBabel: [insertRequiredImports, resolveStaticHoisting],
+      applyBabel: [resolveRequiredImports, resolveStaticHoisting],
       excludeBabel: [insertCSSImport, collectLocalStatements],
     },
   });

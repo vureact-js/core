@@ -27,7 +27,9 @@ export function resolveVOn(
   const modifiers = node.modifiers.map((item) => item.content);
   const captureIndex = modifiers.findIndex((modifier) => modifier === 'capture');
 
-  let eventName = `on${camelCase(capitalize(arg.content))}`;
+  // fix: Vue 事件名转 React 事件 props：
+  // 例如 `update:modelValue` -> `onUpdateModelValue`
+  let eventName = normalizeVOnEventName(arg.content);
   let handler = resolveSpecialExpressions(exp.content.trim(), ctx);
 
   if (captureIndex > -1) {
@@ -42,8 +44,12 @@ export function resolveVOn(
   } else {
     const expr = stringToExpr(handler);
 
-    // 如果值不是函数表达式也不是标识符，则需要函数包裹
-    if (!t.isFunctionExpression(expr) && !t.isIdentifier(expr)) {
+    // fix: 仅当表达式不是“函数引用/函数表达式”时，才包一层事件回调函数
+    if (
+      !t.isFunctionExpression(expr) &&
+      !t.isArrowFunctionExpression(expr) &&
+      !t.isIdentifier(expr)
+    ) {
       handler = `() => {${handler}}`;
     }
   }
@@ -68,4 +74,15 @@ export function resolveVOn(
   }
 
   nodeIR.props.push(eventIR);
+}
+
+function normalizeVOnEventName(rawEventName: string): string {
+  const segments = rawEventName
+    .split(/[:-]/g)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+
+  const normalized = segments.map((segment) => capitalize(camelCase(segment))).join('');
+
+  return `on${normalized}`;
 }

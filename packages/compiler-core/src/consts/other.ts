@@ -7,11 +7,11 @@ export const PACKAGE_NAME = {
 export const RUNTIME_PACKAGES = {
   router: {
     name: PACKAGE_NAME.router,
-    version: '^1.0.0',
+    version: '^2.0.1',
   },
   runtime: {
     name: PACKAGE_NAME.runtime,
-    version: '^1.0.0',
+    version: '^1.0.1',
   },
 } as const;
 

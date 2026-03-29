@@ -38,45 +38,42 @@ export class ViteBootstrapper {
   /**
    * 利用 Vite 官方脚手架创建标准 React 环境
    */
-  async bootstrapIfNeeded(): Promise<boolean> {
-    const { bootstrapVite } = this.options.output || {};
+  async bootstrapIfNeeded() {
+    const { output } = this.options;
     const workspaceDir = this.fileCompiler.getWorkspaceDir();
 
     // 默认创建工作区目录
     await fs.promises.mkdir(workspaceDir, { recursive: true });
 
     // 检查是否应该初始化 Vite
-    if (bootstrapVite === false) {
+    if (output?.bootstrapVite === false) {
       return false;
     }
 
     // 如果是单个文件，跳过 Vite 初始化
     if (this.isSingleFile()) {
       console.info('Skipping Vite initialization for single file compilation');
-      return false;
+      return;
     }
 
     const outputPkgPath = this.fileCompiler.getOutputPkgPath();
 
     // 如果 package.json 已存在，说明环境初始化过了
     if (fs.existsSync(outputPkgPath)) {
-      return false;
+      return;
     }
 
-    this.spinner.start('Bootstrapping Vite React environment...');
-
     try {
+      this.spinner.start('Bootstrapping Vite React environment...');
       await this.resolveViteCreateApp();
     } catch (err) {
-      this.spinner.stop();
-
       console.error(
         kleur.red('✖'),
-        'Failed to bootstrap Vite environment. Please check npm/network.',
+        'Failed to bootstrap Vite environment. Please check npm/network.\n',
         err,
       );
-
-      return false;
+      this.spinner.stop();
+      return;
     }
 
     // 智能剔除原项目中的 Vue 强绑定包，避免带到 React 环境
@@ -108,23 +105,25 @@ export class ViteBootstrapper {
     };
 
     // 读取原 package.json
-    const rootPkgPath = this.fileCompiler.getRootPkgPath();
-    const rootPkg = await this.fileCompiler.resolvePackageFile(rootPkgPath);
+    const sourcePkgPath = this.fileCompiler.getRootPkgPath();
+    const sourcePkg = await this.fileCompiler.resolvePackageFile(sourcePkgPath);
 
     // 读取输出路径的 package.json
-    const vitePkg = await this.fileCompiler.resolvePackageFile(outputPkgPath);
+    let newPkg = await this.fileCompiler.resolvePackageFile(outputPkgPath);
 
     // 执行依赖合并
-    const newDeps = resolveDeps(rootPkg.dependencies, vitePkg.dependencies);
-    const newDevDeps = resolveDeps(rootPkg.devDependencies, vitePkg.devDependencies, true);
+    const newDeps = resolveDeps(sourcePkg.dependencies, newPkg.dependencies);
+    const newDevDeps = resolveDeps(sourcePkg.devDependencies, newPkg.devDependencies, true);
 
     // 更新 package.json
-    vitePkg.dependencies = newDeps;
-    vitePkg.devDependencies = newDevDeps;
+    newPkg.dependencies = newDeps;
+    newPkg.devDependencies = newDevDeps;
+
+    // 处理用户自定义的 package.json
+    newPkg = output?.packageJson?.(newPkg) || newPkg;
 
     // 写入新数据到 vite 项目的 package.json
-    const newVitePkg = JSON.stringify(vitePkg, null, 2);
-    await this.fileCompiler.writeFileWithDir(outputPkgPath, newVitePkg);
+    await this.fileCompiler.writeFileWithDir(outputPkgPath, JSON.stringify(newPkg, null, 2));
 
     this.spinner.succeed('Standard Vite React environment initialized');
 
@@ -163,20 +162,23 @@ export class ViteBootstrapper {
    * 处理 React 包版本
    * @param ver 版本号
    */
-  private async resolveReactVersion(ver: string) {
+  private async resolveReactVersion(ver: string): Promise<Record<string, any>> {
     const outputPkgPath = this.fileCompiler.getOutputPkgPath();
-    const vitePkg = await this.fileCompiler.resolvePackageFile(outputPkgPath);
+    const curPkg = await this.fileCompiler.resolvePackageFile(outputPkgPath);
 
     // 类型包使用 react 主版本号
-    const typesVer = `^${ver.split('.')[0]!.replace(/@|\^/, '')}.0.0`;
+    const mainVer = Number(ver.split('.')[0]);
+    const typeVer = !isNaN(mainVer)
+      ? `^${mainVer.toString().replace(/@|\^|~|>=|>|/, '')}.0.0`
+      : '^19.0.0';
 
-    vitePkg.dependencies.react = ver;
-    vitePkg.dependencies['react-dom'] = ver;
-    vitePkg.devDependencies['@types/react'] = typesVer;
-    vitePkg.devDependencies['@types/react-dom'] = typesVer;
+    curPkg.dependencies.react = ver;
+    curPkg.dependencies['react-dom'] = ver;
+    curPkg.devDependencies['@types/react'] = typeVer;
+    curPkg.devDependencies['@types/react-dom'] = typeVer;
 
-    await this.fileCompiler.writeFileWithDir(outputPkgPath, JSON.stringify(vitePkg, null, 2), {
-      lock: true,
-    });
+    await this.fileCompiler.writeFileWithDir(outputPkgPath, JSON.stringify(curPkg, null, 2));
+
+    return curPkg;
   }
 }

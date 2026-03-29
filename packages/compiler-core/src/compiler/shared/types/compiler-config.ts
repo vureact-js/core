@@ -218,6 +218,24 @@ export interface OutputConfig {
    * ]
    */
   ignoreAssets?: string[];
+
+  /**
+   * Customize the generated package.json file.
+   * This function receives the default package.json object
+   * and should return the modified version.
+   *
+   * @note This option only takes effect when `bootstrapVite` is enabled.
+   *
+   * @example
+   * ```js
+   * packageJson: (defaultPkg) => {
+   *   // Modify and return the copy
+   *   defaultPkg.dependencies['my-library'] = '^1.0.0';
+   *   return defaultPkg;
+   * }
+   * ```
+   */
+  packageJson?: (defaultPkg: Record<string, any>) => Record<string, any>;
 }
 
 export interface RouterConfig {

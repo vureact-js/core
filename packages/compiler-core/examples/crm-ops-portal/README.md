@@ -48,4 +48,4 @@ npm run dev
 
 ## 官方教程
 
-<https://www.vureact.top/guide/crm-admin-backend/>
+<https://www.vureact.top/guide/crm-admin-backend.html>

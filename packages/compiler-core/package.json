@@ -1,6 +1,6 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "🌀 Semantic-aware Vue 3 to React 18+ compiler for progressive migration.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
