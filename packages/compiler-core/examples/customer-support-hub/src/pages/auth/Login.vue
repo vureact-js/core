@@ -1,46 +1,70 @@
 ﻿<template>
   <section class="login-page">
-    <div class="card">
-      <h2>登录客服协同台</h2>
-      <p>演示账号默认填充，可直接进入系统。</p>
+    <AntCard class-name="login-card" :bordered="false" title="登录客户支持协同台">
+      <AntTypographyParagraph type="secondary">演示账号默认填充，可直接进入系统。</AntTypographyParagraph>
 
-      <label>
-        邮箱
-        <input v-model="email" placeholder="agent@support.local" />
-      </label>
+      <AntForm layout="vertical" @finish="submit">
+        <AntFormItem label="邮箱" name="email">
+          <AntInput :value="email" placeholder="agent@support.local" @change="onEmail" />
+        </AntFormItem>
 
-      <label>
-        密码
-        <input v-model="password" type="password" placeholder="至少 3 位" />
-      </label>
+        <AntFormItem label="密码" name="password">
+          <AntInputPassword :value="password" placeholder="至少 3 位" @change="onPassword" />
+        </AntFormItem>
 
-      <AntButton type="primary" @click="submit">登录</AntButton>
-      <p v-if="error" class="error">{{ error }}</p>
-    </div>
+        <AntAlert v-if="error" :message="error" type="error" show-icon style="margin-bottom: 12px" />
+
+        <AntButton type="primary" html-type="submit" block :loading="loading">登录</AntButton>
+      </AntForm>
+    </AntCard>
   </section>
 </template>
 
 <script setup lang="ts">
 // @vr-name: SupportLogin
-import { Button as AntButton } from 'antd';
+import {
+  Alert as AntAlert,
+  Button as AntButton,
+  Card as AntCard,
+  Form as AntForm,
+  Input as AntInput,
+  Typography as AntTypography,
+} from 'antd';
 import { ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { login } from '../../data/mock-api';
 
+const AntFormItem = (AntForm as any).Item;
+const AntInputPassword = (AntInput as any).Password;
+const AntTypographyParagraph = (AntTypography as any).Paragraph;
+
 const email = ref('agent@support.local');
 const password = ref('123');
 const error = ref('');
+const loading = ref(false);
 
 const router = useRouter();
 const route = useRoute();
 
+const onEmail = (event: any) => {
+  email.value = event?.target?.value || '';
+};
+
+const onPassword = (event: any) => {
+  password.value = event?.target?.value || '';
+};
+
 const submit = async () => {
   error.value = '';
+  loading.value = true;
+
   try {
     await login({ email: email.value, password: password.value });
     router.push((route.query.redirect as string) || '/dashboard');
   } catch (e: any) {
     error.value = e?.message || '登录失败';
+  } finally {
+    loading.value = false;
   }
 };
 </script>
@@ -50,41 +74,10 @@ const submit = async () => {
   min-height: 100vh;
   display: grid;
   place-items: center;
+  background: #f4f7fb;
 }
 
-.card {
-  width: min(420px, 90vw);
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
-  display: grid;
-  gap: 10px;
-}
-
-h2 {
-  margin: 0;
-}
-
-p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-label {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-}
-
-input {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 10px;
-}
-
-.error {
-  color: #dc2626;
+.login-card {
+  width: min(440px, 92vw);
 }
 </style>

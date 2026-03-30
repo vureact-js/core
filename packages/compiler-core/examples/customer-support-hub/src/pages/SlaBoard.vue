@@ -1,44 +1,62 @@
 ﻿<template>
-  <section class="page">
+  <section class="page-grid">
     <PagePanel title="SLA 看板">
-      <div class="grid" v-if="rows.length">
-        <div v-for="row in rows" :key="row.id" class="card">
-          <div class="head">
-            <strong>{{ row.id }}</strong>
-            <TicketStatusTag :status="row.status" />
-          </div>
-          <p>{{ row.title }}</p>
-          <SlaMeter
-            :percent="row.progressPercent"
-            :label="row.remainMinutes > 0 ? `剩余 ${row.remainMinutes} 分钟` : '已超时'"
-            :status="row.risk === 'risk' ? 'exception' : row.risk === 'done' ? 'success' : 'normal'"
-          />
-        </div>
-      </div>
-      <EmptyState v-else text="暂无 SLA 数据" />
+      <template #extra>
+        <AntRadioGroup :value="riskFilter" @change="onFilterChange">
+          <AntRadioButton value="all">全部</AntRadioButton>
+          <AntRadioButton value="risk">风险</AntRadioButton>
+          <AntRadioButton value="timeout">已超时</AntRadioButton>
+        </AntRadioGroup>
+      </template>
+
+      <AntTable :columns="columns" :data-source="tableRows" row-key="id" :pagination="false" />
+
+      <EmptyState v-if="!tableRows.length" text="暂无 SLA 数据" />
     </PagePanel>
   </section>
 </template>
 
 <script setup lang="ts">
 // @vr-name: SlaBoard
-import { onMounted, ref } from 'vue';
+import { Radio as AntRadio, Table as AntTable } from 'antd';
+import { computed, onMounted, ref } from 'vue';
 import EmptyState from '../components/EmptyState.vue';
 import PagePanel from '../components/PagePanel.vue';
-import SlaMeter from '../components/SlaMeter.vue';
-import TicketStatusTag from '../components/TicketStatusTag.vue';
 import { fetchSlaBoard } from '../data/mock-api';
 
-const rows = ref<
-  {
-    id: string;
-    title: string;
-    status: 'open' | 'processing' | 'resolved' | 'closed';
-    remainMinutes: number;
-    progressPercent: number;
-    risk: 'risk' | 'safe' | 'done';
-  }[]
->([]);
+const AntRadioGroup = (AntRadio as any).Group;
+const AntRadioButton = (AntRadio as any).Button;
+
+const rows = ref<any[]>([]);
+const riskFilter = ref<'all' | 'risk' | 'timeout'>('all');
+
+const columns = [
+  { title: '工单号', dataIndex: 'id', key: 'id' },
+  { title: '标题', dataIndex: 'title', key: 'title' },
+  { title: '负责人', dataIndex: 'owner', key: 'owner' },
+  { title: '状态', dataIndex: 'status', key: 'status' },
+  { title: '截止时间', dataIndex: 'dueAt', key: 'dueAt' },
+  { title: '剩余分钟', dataIndex: 'remainMinutes', key: 'remainMinutes' },
+  { title: '进度(%)', dataIndex: 'progressPercent', key: 'progressPercent' },
+  { title: '升级', dataIndex: 'escalationText', key: 'escalationText' },
+  { title: '风险', dataIndex: 'riskText', key: 'riskText' },
+];
+
+const tableRows = computed(() => {
+  if (riskFilter.value === 'risk') {
+    return rows.value.filter((item) => item.risk === 'risk');
+  }
+
+  if (riskFilter.value === 'timeout') {
+    return rows.value.filter((item) => item.remainMinutes <= 0 && item.risk !== 'done');
+  }
+
+  return rows.value;
+});
+
+const onFilterChange = (event: any) => {
+  riskFilter.value = (event?.target?.value || 'all') as 'all' | 'risk' | 'timeout';
+};
 
 onMounted(async () => {
   const data = await fetchSlaBoard();
@@ -47,33 +65,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page {
+.page-grid {
   display: grid;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px;
-}
-
-.card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px;
-  background: #fff;
-  display: grid;
-  gap: 8px;
-}
-
-.head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-p {
-  margin: 0;
-  font-size: 13px;
 }
 </style>

@@ -40,12 +40,19 @@ function normalizePropName(rawName: string, name: string): string {
   switch (name) {
     case 'v-html':
       return 'dangerouslySetInnerHTML';
+
     case 'class':
       return 'className';
+
     case 'for':
       return 'htmlFor';
+
     default:
-      return whitelist.test(name) ? name : camelCase(name);
+      // fix: 白名单属性需非动态绑定的
+      if (!isVBind(rawName) && whitelist.test(name)) {
+        return name;
+      }
+      return camelCase(name);
   }
 }
 
@@ -74,7 +81,7 @@ export function isVModel(name?: string): boolean {
 }
 
 export function isClassAttr(name?: string): boolean {
-  return /^(class|:class|v-bind:class|className)$/.test(name ?? '');
+  return /^(class|:class|v-bind:class|className|class-name)$/.test(name ?? '');
 }
 
 export function isStyleAttr(name?: string): boolean {

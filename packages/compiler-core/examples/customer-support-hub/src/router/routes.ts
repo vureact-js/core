@@ -1,5 +1,7 @@
 ﻿import type { RouteRecordRaw } from 'vue-router';
 import App from '../App.vue';
+import Agents from '../pages/Agents.vue';
+import Customers from '../pages/Customers.vue';
 import Dashboard from '../pages/Dashboard.vue';
 import KnowledgeBase from '../pages/KnowledgeBase.vue';
 import SlaBoard from '../pages/SlaBoard.vue';
@@ -17,6 +19,8 @@ export default [
       { path: 'dashboard', name: 'dashboard', component: Dashboard, meta: { title: '总览' } },
       { path: 'tickets', name: 'tickets', component: TicketsList, meta: { title: '工单列表' } },
       { path: 'tickets/:id', name: 'ticket-detail', component: TicketDetail, meta: { title: '工单详情' } },
+      { path: 'customers', name: 'customers', component: Customers, meta: { title: '客户管理' } },
+      { path: 'agents', name: 'agents', component: Agents, meta: { title: '坐席管理' } },
       { path: 'knowledge', name: 'knowledge', component: KnowledgeBase, meta: { title: '知识库' } },
       { path: 'sla', name: 'sla', component: SlaBoard, meta: { title: 'SLA 看板' } },
       { path: 'settings', name: 'settings', component: Settings, meta: { title: '设置' } },

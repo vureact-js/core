@@ -1,9 +1,16 @@
 ﻿export type TicketStatus = 'open' | 'processing' | 'resolved' | 'closed';
 export type TicketPriority = 'high' | 'medium' | 'low';
 
+export type TicketEscalationMeta = {
+  level: 1 | 2 | 3;
+  reason: string;
+  at: string;
+};
+
 export type Ticket = {
   id: string;
   title: string;
+  customerId: string;
   customer: string;
   category: string;
   owner: string;
@@ -14,6 +21,30 @@ export type Ticket = {
   firstResponseAt?: string;
   resolvedAt?: string;
   summary: string;
+  escalation?: TicketEscalationMeta;
+};
+
+export type CustomerTier = 'A' | 'B' | 'C';
+
+export type Customer = {
+  id: string;
+  name: string;
+  industry: string;
+  tier: CustomerTier;
+  owner: string;
+  contact: string;
+  phone: string;
+  email: string;
+  satisfaction: number;
+};
+
+export type Agent = {
+  id: string;
+  name: string;
+  team: string;
+  status: 'online' | 'busy' | 'offline';
+  avgResponseMinutes: number;
+  handledToday: number;
 };
 
 export type KnowledgeArticle = {
@@ -24,76 +55,84 @@ export type KnowledgeArticle = {
   content: string;
 };
 
-export const agents = ['林冉', '周岩', '吴楠', '许诺'];
-
-export const tickets: Ticket[] = [
-  {
-    id: 'TK-1001',
-    title: '无法同步客服会话记录',
-    customer: '恒星教育',
-    category: '系统集成',
-    owner: '林冉',
-    priority: 'high',
-    status: 'processing',
-    createdAt: '2026-03-27 09:20',
-    dueAt: '2026-03-29 12:00',
-    firstResponseAt: '2026-03-27 09:40',
-    summary: '三方 IM 回调失败，重试队列堆积。',
-  },
-  {
-    id: 'TK-1002',
-    title: '工单导出 Excel 缺少列',
-    customer: '云桥物流',
-    category: '报表',
-    owner: '周岩',
-    priority: 'medium',
-    status: 'open',
-    createdAt: '2026-03-28 10:05',
-    dueAt: '2026-03-30 18:00',
-    summary: '导出模板升级后，联系人电话字段丢失。',
-  },
-  {
-    id: 'TK-1003',
-    title: '机器人回复规则触发异常',
-    customer: '星舟金融',
-    category: '自动化',
-    owner: '吴楠',
-    priority: 'high',
-    status: 'resolved',
-    createdAt: '2026-03-26 14:12',
-    dueAt: '2026-03-28 17:00',
-    firstResponseAt: '2026-03-26 14:30',
-    resolvedAt: '2026-03-28 11:15',
-    summary: '关键词匹配库旧版本缓存未清空。',
-  },
-  {
-    id: 'TK-1004',
-    title: 'SLA 报警邮件重复发送',
-    customer: '晨光零售',
-    category: '通知',
-    owner: '许诺',
-    priority: 'low',
-    status: 'closed',
-    createdAt: '2026-03-24 08:50',
-    dueAt: '2026-03-26 20:00',
-    firstResponseAt: '2026-03-24 09:06',
-    resolvedAt: '2026-03-25 16:42',
-    summary: '告警合并任务 cron 并发配置重复。',
-  },
-  {
-    id: 'TK-1005',
-    title: '客户门户无法查看历史工单',
-    customer: '海平制造',
-    category: '权限',
-    owner: '林冉',
-    priority: 'medium',
-    status: 'processing',
-    createdAt: '2026-03-28 16:40',
-    dueAt: '2026-03-30 09:00',
-    firstResponseAt: '2026-03-28 17:00',
-    summary: '组织树权限映射缺失二级部门。',
-  },
+export const agents: Agent[] = [
+  { id: 'AG-01', name: '林冉', team: '一线支持', status: 'online', avgResponseMinutes: 12, handledToday: 9 },
+  { id: 'AG-02', name: '周岚', team: '一线支持', status: 'busy', avgResponseMinutes: 14, handledToday: 11 },
+  { id: 'AG-03', name: '吴桥', team: '一线支持', status: 'online', avgResponseMinutes: 10, handledToday: 8 },
+  { id: 'AG-04', name: '许诺', team: '二线支持', status: 'busy', avgResponseMinutes: 16, handledToday: 7 },
+  { id: 'AG-05', name: '孟晨', team: '二线支持', status: 'online', avgResponseMinutes: 15, handledToday: 6 },
+  { id: 'AG-06', name: '顾庭', team: '二线支持', status: 'offline', avgResponseMinutes: 18, handledToday: 0 },
+  { id: 'AG-07', name: '唐澄', team: '质检组', status: 'online', avgResponseMinutes: 20, handledToday: 5 },
+  { id: 'AG-08', name: '梁朴', team: '质检组', status: 'busy', avgResponseMinutes: 19, handledToday: 4 },
+  { id: 'AG-09', name: '苏黎', team: '值班组', status: 'online', avgResponseMinutes: 13, handledToday: 10 },
+  { id: 'AG-10', name: '季安', team: '值班组', status: 'busy', avgResponseMinutes: 17, handledToday: 8 },
 ];
+
+export const customers: Customer[] = [
+  { id: 'CU-01', name: '恒星教育', industry: '教育', tier: 'A', owner: '林冉', contact: '郑青', phone: '021-8001-0001', email: 'ops@hxedu.com', satisfaction: 92 },
+  { id: 'CU-02', name: '云桥物流', industry: '物流', tier: 'A', owner: '周岚', contact: '沈衍', phone: '021-8001-0002', email: 'it@yqlogi.com', satisfaction: 88 },
+  { id: 'CU-03', name: '星舟金融', industry: '金融', tier: 'A', owner: '吴桥', contact: '程昕', phone: '021-8001-0003', email: 'tech@xzbank.com', satisfaction: 90 },
+  { id: 'CU-04', name: '晨光零售', industry: '零售', tier: 'B', owner: '许诺', contact: '何清', phone: '021-8001-0004', email: 'support@cgrt.com', satisfaction: 85 },
+  { id: 'CU-05', name: '海平制造', industry: '制造', tier: 'A', owner: '林冉', contact: '严述', phone: '021-8001-0005', email: 'ops@hpfab.com', satisfaction: 89 },
+  { id: 'CU-06', name: '北辰医药', industry: '医药', tier: 'B', owner: '孟晨', contact: '卢宸', phone: '021-8001-0006', email: 'service@bcyy.com', satisfaction: 84 },
+  { id: 'CU-07', name: '河洛能源', industry: '能源', tier: 'B', owner: '周岚', contact: '鲁景', phone: '021-8001-0007', email: 'ops@hlny.com', satisfaction: 80 },
+  { id: 'CU-08', name: '蓝域科技', industry: '互联网', tier: 'A', owner: '苏黎', contact: '章然', phone: '021-8001-0008', email: 'infra@lytech.com', satisfaction: 93 },
+  { id: 'CU-09', name: '启元文旅', industry: '文旅', tier: 'C', owner: '季安', contact: '秦陌', phone: '021-8001-0009', email: 'it@qytravel.com', satisfaction: 78 },
+  { id: 'CU-10', name: '远山电商', industry: '电商', tier: 'B', owner: '唐澄', contact: '田予', phone: '021-8001-0010', email: 'ops@ysmall.com', satisfaction: 83 },
+  { id: 'CU-11', name: '光年通信', industry: '通信', tier: 'A', owner: '吴桥', contact: '白言', phone: '021-8001-0011', email: 'noc@gytel.com', satisfaction: 91 },
+  { id: 'CU-12', name: '森穗农业', industry: '农业', tier: 'C', owner: '梁朴', contact: '骆木', phone: '021-8001-0012', email: 'it@shagri.com', satisfaction: 76 },
+  { id: 'CU-13', name: '岚峰出行', industry: '出行', tier: 'B', owner: '许诺', contact: '杨律', phone: '021-8001-0013', email: 'support@lftrip.com', satisfaction: 82 },
+  { id: 'CU-14', name: '曦石物业', industry: '物业', tier: 'C', owner: '顾庭', contact: '陈桥', phone: '021-8001-0014', email: 'ops@yswy.com', satisfaction: 75 },
+  { id: 'CU-15', name: '临海传媒', industry: '传媒', tier: 'B', owner: '苏黎', contact: '张衣', phone: '021-8001-0015', email: 'it@lhmedia.com', satisfaction: 86 },
+];
+
+const ticketTemplates = [
+  { category: '系统集成', title: '会话同步失败', summary: '三方回调重试次数异常升高。' },
+  { category: '报表导出', title: '导出字段缺失', summary: '导出模板升级后关键字段未映射。' },
+  { category: '权限管理', title: '门户权限异常', summary: '组织树映射缺失二级部门授权。' },
+  { category: '自动化', title: '机器人规则误触发', summary: '关键词分词版本冲突导致命中异常。' },
+  { category: '通知告警', title: '告警重复发送', summary: '任务调度并发导致重复通知。' },
+  { category: '支付对账', title: '对账明细不一致', summary: '账单流水时间窗配置错误。' },
+];
+
+const statusCycle: TicketStatus[] = ['open', 'processing', 'open', 'resolved', 'processing', 'closed'];
+const priorityCycle: TicketPriority[] = ['high', 'medium', 'low', 'high', 'medium', 'low'];
+
+export const tickets: Ticket[] = Array.from({ length: 36 }).map((_, index) => {
+  const customer = customers[index % customers.length]!;
+  const tpl = ticketTemplates[index % ticketTemplates.length]!;
+  const owner = agents[index % agents.length]!.name;
+  const status = statusCycle[index % statusCycle.length]!;
+  const priority = priorityCycle[index % priorityCycle.length]!;
+
+  const day = 10 + (index % 20);
+  const createdAt = `2026-03-${String(day).padStart(2, '0')} ${String(9 + (index % 8)).padStart(2, '0')}:20`;
+  const dueAt = `2026-04-${String(1 + (index % 18)).padStart(2, '0')} ${String(10 + (index % 9)).padStart(2, '0')}:00`;
+
+  return {
+    id: `TK-${String(1001 + index)}`,
+    title: `${customer.name} - ${tpl.title}`,
+    customerId: customer.id,
+    customer: customer.name,
+    category: tpl.category,
+    owner,
+    priority,
+    status,
+    createdAt,
+    dueAt,
+    firstResponseAt: status === 'open' ? undefined : createdAt,
+    resolvedAt: status === 'resolved' || status === 'closed' ? `2026-04-${String(2 + (index % 16)).padStart(2, '0')} 18:30` : undefined,
+    summary: tpl.summary,
+    escalation:
+      index % 9 === 0
+        ? {
+            level: ((index % 3) + 1) as 1 | 2 | 3,
+            reason: '客户反馈影响核心业务流程，需要升级处理。',
+            at: `2026-04-${String(2 + (index % 16)).padStart(2, '0')} 11:15`,
+          }
+        : undefined,
+  };
+});
 
 export const knowledgeBase: KnowledgeArticle[] = [
   {
@@ -123,5 +162,19 @@ export const knowledgeBase: KnowledgeArticle[] = [
     tags: ['自动化', '机器人'],
     updatedAt: '2026-03-10',
     content: '关键词发布前需走灰度验证与回滚预案。',
+  },
+  {
+    id: 'KB-05',
+    title: '高优先工单升级标准',
+    tags: ['工单', '升级'],
+    updatedAt: '2026-03-22',
+    content: '定义 P1/P2 升级等级、SLA 要求与跨团队响应机制。',
+  },
+  {
+    id: 'KB-06',
+    title: '客户满意度回访模板',
+    tags: ['客户', '质检'],
+    updatedAt: '2026-03-25',
+    content: '统一回访话术、评分规则与改进建议闭环流程。',
   },
 ];

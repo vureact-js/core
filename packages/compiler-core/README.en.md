@@ -8,7 +8,7 @@ English | [简体中文](./README.md)
 
 ## What is VuReact?
 
-[VuReact](http://vureact.top/en) (pronounced /vjuːˈriːækt/) is a Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
+[VuReact](http://vureact.top/en) (pronounced `/vjuːˈriːækt/`) is a Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 
 It is not a simple syntax conversion, but **semantic-level compilation**: it understands the intent of Vue code and generates code that adheres to React best practices. It consists of two parts: **compile-time transformation** + **runtime adaptation**.
 
@@ -16,7 +16,7 @@ The core strategy is **"convention over configuration"** — through clear compi
 
 ## Quick Start
 
-This section will guide you through creating, compiling, and running your first VuReact project; alternatively, you can check out the [online examples first](https://codesandbox.io/p/sandbox/examples-f5rlpk).
+This section will guide you through creating, compiling, and running your first VuReact project; alternatively, you can check out the [codesandbox examples first](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master).
 
 After completion, you will clearly understand three things:
 

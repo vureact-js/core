@@ -1,38 +1,61 @@
 ﻿<template>
-  <div class="app-shell" :class="themeClass">
+  <div class="app-shell">
     <RouterView v-if="isPublicPage" />
 
-    <template v-else>
-      <header class="topbar">
-        <div>
-          <h1>客户支持协同台</h1>
-          <p>工单、知识库与 SLA 的统一协同视图</p>
+    <AntLayout v-else class-name="shell-layout">
+      <component
+        :is="AntSider"
+        :collapsed="collapsed"
+        collapsible
+        @collapse="onCollapse"
+        width="224"
+        class="shell-sider"
+      >
+        <div class="brand">
+          <AntTypographyTitle :level="4" class-name="title">Support Hub</AntTypographyTitle>
+          <AntTypographyText type="secondary" class-name="desc">客户支持协同台</AntTypographyText>
         </div>
-        <div class="user">
-          <span>{{ userName }}</span>
-          <button class="ghost" @click="logoutNow">退出</button>
-        </div>
-      </header>
+        <AntMenu
+          mode="inline"
+          theme="dark"
+          :selected-keys="selectedKeys"
+          :items="menuItems"
+          @click="onMenuClick"
+        />
+      </component>
 
-      <div class="layout">
-        <aside class="sidebar">
-          <RouterLink to="/dashboard" class="nav-item">总览</RouterLink>
-          <RouterLink to="/tickets" class="nav-item">工单列表</RouterLink>
-          <RouterLink to="/knowledge" class="nav-item">知识库</RouterLink>
-          <RouterLink to="/sla" class="nav-item">SLA 看板</RouterLink>
-          <RouterLink to="/settings" class="nav-item">设置</RouterLink>
-        </aside>
+      <AntLayout>
+        <component :is="AntHeader" class-name="shell-header">
+          <div class="header-left">
+            <AntBreadcrumb :items="breadcrumbItems" />
+          </div>
+          <AntSpace>
+            <AntAvatar>{{ userInitial }}</AntAvatar>
+            <AntTypographyText>{{ userName }}</AntTypographyText>
+            <AntButton type="text" @click="logoutNow">退出</AntButton>
+          </AntSpace>
+        </component>
 
-        <main class="content">
+        <component :is="AntContent" class-name="shell-content">
           <RouterView />
-        </main>
-      </div>
-    </template>
+        </component>
+      </AntLayout>
+    </AntLayout>
   </div>
 </template>
 
 <script setup lang="ts">
 // @vr-name: CustomerSupportHub
+import {
+  Avatar as AntAvatar,
+  Breadcrumb as AntBreadcrumb,
+  Button as AntButton,
+  Layout as AntLayout,
+  Menu as AntMenu,
+  Space as AntSpace,
+  Typography as AntTypography,
+} from 'antd';
+import type { ItemType } from 'antd/es/breadcrumb/Breadcrumb';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { logout } from './data/mock-api';
@@ -41,14 +64,54 @@ import { appStore } from './store/useAppStore';
 const route = useRoute();
 const router = useRouter();
 
+const AntSider = AntLayout.Sider;
+const AntHeader = AntLayout.Header;
+const AntContent = AntLayout.Content;
+const AntTypographyTitle = AntTypography.Title;
+const AntTypographyText = AntTypography.Text;
+
+const collapsed = ref(false);
 const userName = ref(appStore.getState().session.user?.name || '访客');
-const themeClass = computed(() => `theme-${appStore.getState().uiPrefs.theme}`);
+
+const isPublicPage = computed(() => !!route.meta.public);
+const selectedKeys = computed(() => [route.path]);
+const userInitial = computed(() => userName.value.slice(0, 1).toUpperCase());
+
+const menuItems = [
+  { key: '/dashboard', label: '总览' },
+  { key: '/tickets', label: '工单列表' },
+  { key: '/customers', label: '客户管理' },
+  { key: '/agents', label: '坐席管理' },
+  { key: '/knowledge', label: '知识库' },
+  { key: '/sla', label: 'SLA 看板' },
+  { key: '/settings', label: '设置' },
+];
+
+const breadcrumbItems = computed(() => {
+  const matched = route.matched.filter((item) => item.path && item.path !== '/');
+  if (!matched.length) {
+    return [{ title: '总览' }] as ItemType[];
+  }
+
+  return matched.map((item) => ({
+    title: (item.meta?.title as string) || item.name || '页面',
+  })) as ItemType[];
+});
 
 appStore.subscribe((state) => {
   userName.value = state.session.user?.name || '访客';
 });
 
-const isPublicPage = computed(() => !!route.meta.public);
+const onCollapse = (next: boolean) => {
+  collapsed.value = next;
+};
+
+const onMenuClick = (info: any) => {
+  if (!info?.key) return;
+  if (info.key !== route.path) {
+    router.push(info.key);
+  }
+};
 
 const logoutNow = async () => {
   await logout();
@@ -59,84 +122,41 @@ const logoutNow = async () => {
 <style scoped>
 .app-shell {
   min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
 }
 
-.topbar {
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--border);
+.shell-layout {
+  min-height: 100vh;
+}
+
+.shell-sider {
+  border-right: 1px solid #edf1f7;
+}
+
+.brand {
+  padding: 16px;
+  display: grid;
+  gap: 2px;
+}
+
+.title,
+.desc {
+  color: #fff;
+}
+
+.shell-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  background: var(--panel);
+  background: #fff;
+  border-bottom: 1px solid #edf1f7;
+  padding: 0 20px;
 }
 
-.topbar h1 {
-  margin: 0;
-  font-size: 20px;
+.shell-content {
+  padding: 16px;
 }
 
-.topbar p {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 18px;
-  padding: 18px 22px;
-}
-
-.sidebar {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--panel);
-  padding: 12px;
-  display: grid;
-  gap: 6px;
-  align-content: start;
-}
-
-.nav-item {
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: var(--text);
-}
-
-.nav-item.router-link-active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.content {
-  display: grid;
-  gap: 16px;
-}
-
-.user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ghost {
-  border: 1px solid var(--border);
-  background: transparent;
-  border-radius: 8px;
-  padding: 6px 10px;
-}
-
-@media (max-width: 980px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  }
+.header-left {
+  min-width: 0;
 }
 </style>

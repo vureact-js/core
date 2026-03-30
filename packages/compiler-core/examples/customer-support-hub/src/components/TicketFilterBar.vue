@@ -1,40 +1,30 @@
 ﻿<template>
-  <div class="bar">
-    <label>
-      关键词
-      <input :value="props.keyword" @input="onKeyword" placeholder="工单号/客户/标题" />
-    </label>
-    <label>
-      状态
-      <select :value="props.status" @change="onStatus">
-        <option value="all">全部</option>
-        <option value="open">待处理</option>
-        <option value="processing">处理中</option>
-        <option value="resolved">已解决</option>
-        <option value="closed">已关闭</option>
-      </select>
-    </label>
-    <label>
-      优先级
-      <select :value="props.priority" @change="onPriority">
-        <option value="all">全部</option>
-        <option value="high">高</option>
-        <option value="medium">中</option>
-        <option value="low">低</option>
-      </select>
-    </label>
-    <label>
-      负责人
-      <select :value="props.owner" @change="onOwner">
-        <option value="all">全部</option>
-        <option v-for="owner in props.owners" :key="owner" :value="owner">{{ owner }}</option>
-      </select>
-    </label>
-  </div>
+  <AntForm layout="inline" class-name="ticket-filter-bar">
+    <AntFormItem label="关键词">
+      <AntInput :value="props.keyword" allow-clear placeholder="工单号/客户/标题" @change="onKeyword" />
+    </AntFormItem>
+
+    <AntFormItem label="状态">
+      <AntSelect :value="props.status" style="min-width: 120px" :options="statusOptions" @change="onStatus" />
+    </AntFormItem>
+
+    <AntFormItem label="优先级">
+      <AntSelect :value="props.priority" style="min-width: 120px" :options="priorityOptions" @change="onPriority" />
+    </AntFormItem>
+
+    <AntFormItem label="负责人">
+      <AntSelect :value="props.owner" style="min-width: 140px" :options="ownerOptions" @change="onOwner" />
+    </AntFormItem>
+  </AntForm>
 </template>
 
 <script setup lang="ts">
 // @vr-name: TicketFilterBar
+import { Form as AntForm, Input as AntInput, Select as AntSelect } from 'antd';
+import { computed } from 'vue';
+
+const AntFormItem = (AntForm as any).Item;
+
 const props = defineProps<{
   keyword: string;
   status: string;
@@ -50,30 +40,34 @@ const emit = defineEmits<{
   (e: 'update:owner', value: string): void;
 }>();
 
-const onKeyword = (event: Event) => emit('update:keyword', (event.target as HTMLInputElement).value);
-const onStatus = (event: Event) => emit('update:status', (event.target as HTMLSelectElement).value);
-const onPriority = (event: Event) => emit('update:priority', (event.target as HTMLSelectElement).value);
-const onOwner = (event: Event) => emit('update:owner', (event.target as HTMLSelectElement).value);
+const statusOptions = [
+  { label: '全部', value: 'all' },
+  { label: '待处理', value: 'open' },
+  { label: '处理中', value: 'processing' },
+  { label: '已解决', value: 'resolved' },
+  { label: '已关闭', value: 'closed' },
+];
+
+const priorityOptions = [
+  { label: '全部', value: 'all' },
+  { label: '高', value: 'high' },
+  { label: '中', value: 'medium' },
+  { label: '低', value: 'low' },
+];
+
+const ownerOptions = computed(() => [
+  { label: '全部', value: 'all' },
+  ...props.owners.map((owner) => ({ label: owner, value: owner })),
+]);
+
+const onKeyword = (event: any) => emit('update:keyword', event?.target?.value || '');
+const onStatus = (value: any) => emit('update:status', value || 'all');
+const onPriority = (value: any) => emit('update:priority', value || 'all');
+const onOwner = (value: any) => emit('update:owner', value || 'all');
 </script>
 
 <style scoped>
-.bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-}
-
-label {
-  display: grid;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-input,
-select {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
+.ticket-filter-bar {
+  row-gap: 10px;
 }
 </style>

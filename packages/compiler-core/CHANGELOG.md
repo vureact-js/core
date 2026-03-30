@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-03-30
+
+### Added
+
+- **新增 `output.packageJson` 配置选项**：支持对产物 `package.json` 内容进行自定义配置，提供更灵活的产物管理
+
+### Fixed
+
+- **修复部分事件名未规范化与事件处理函数包裹问题**：改进事件处理逻辑，确保事件名格式统一和函数正确包裹
+- **修复非 SFC 脚本文件未跳过 slot 顶层类型改写问题**：优化类型处理逻辑，避免对非 SFC 文件进行不必要的类型改写
+- **修复脚本文件被注入 `React.memo` 导入的问题**：改进导入注入逻辑，避免错误注入 React 优化 API
+- **修复初始化 Vite 失败但终端进程未结束问题**：改进错误处理机制，确保进程在初始化失败时正确退出
+- **修复脚本文件被注入 `dir` 工具包导入的问题**：优化导入分析，避免错误注入工具包导入
+- **修复适配器把同名局部变量识别为 Vue API 的问题**：改进 Vue API 识别逻辑，避免与局部变量冲突
+- **修复 HTML 动态属性值为字符串类型时的格式转换错误**：改进属性值处理，确保字符串类型属性正确转换
+- **修复 HTML 的 `data-*` 为动态属性时，未转换成小驼峰格式**：改进动态属性处理，确保 `data-*` 属性正确转换为小驼峰格式
+- **修复 HTML 属性值为模板字面量时，被编译为纯文本的问题**：改进属性值处理逻辑，确保模板字面量正确保留
+
+### Changed
+
+- **不再对 SFC style 块的 `@import` 发出警告**：简化样式导入处理，减少不必要的警告信息
+- **优化需要运行时 import 注入的处理逻辑**：改进运行时导入注入机制，提升编译效率和代码质量
+- **`vue-router` 导入不再删除，映射为 `@vureact-router` 且保留类型导入**：改进路由导入处理，确保类型信息完整保留
+- **提升运行时适配包的版本号至当前最新**：同步更新运行时适配包版本，确保版本一致性
+- **优化作用域样式 ID 注入逻辑**：避免向纯结构元素等不需要样式的元素注入 `scopeId`
+
+---
+
+[1.5.0]: https://github.com/vureact-js/core/compare/v1.4.0...v1.5.0
+
+---
+
 ## [1.4.0] - 2026-03-22
 
 ### Added
@@ -54,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.4.0]: https://github.com/vureact-js/vureact-router/compare/v1.3.0...v1.4.0
+[1.4.0]: https://github.com/vureact-js/core/compare/v1.3.0...v1.4.0
 
 ---
 
@@ -82,7 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.3.0]: https://github.com/vureact-js/vureact-router/compare/v1.2.1...v1.3.0
+[1.3.0]: https://github.com/vureact-js/core/compare/v1.2.1...v1.3.0
 
 ---
 
@@ -103,7 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.2.1]: https://github.com/vureact-js/vureact-router/compare/v1.2.0...v1.2.1
+[1.2.1]: https://github.com/vureact-js/core/compare/v1.2.0...v1.2.1
 
 ---
 
@@ -118,7 +150,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.2.0]: https://github.com/vureact-js/vureact-router/compare/v1.1.1...v1.2.0
+[1.2.0]: https://github.com/vureact-js/core/compare/v1.1.1...v1.2.0
 
 ---
 
@@ -130,7 +162,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.1.1]: https://github.com/vureact-js/vureact-router/compare/v1.1.0...v1.1.1
+[1.1.1]: https://github.com/vureact-js/core/compare/v1.1.0...v1.1.1
 
 ---
 
@@ -143,7 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.1.0]: https://github.com/vureact-js/vureact-router/compare/v1.0.4...v1.1.0
+[1.1.0]: https://github.com/vureact-js/core/compare/v1.0.4...v1.1.0
 
 ---
 
@@ -156,7 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.0.4]: https://github.com/vureact-js/vureact-router/compare/v1.0.3...v1.0.4
+[1.0.4]: https://github.com/vureact-js/core/compare/v1.0.3...v1.0.4
 
 ---
 
@@ -169,7 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.0.3]: https://github.com/vureact-js/vureact-router/compare/v1.0.2...v1.0.3
+[1.0.3]: https://github.com/vureact-js/core/compare/v1.0.2...v1.0.3
 
 ---
 
@@ -181,7 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.0.2]: https://github.com/vureact-js/vureact-router/compare/v1.0.1...v1.0.2
+[1.0.2]: https://github.com/vureact-js/core/compare/v1.0.1...v1.0.2
 
 ---
 
@@ -202,7 +234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[1.0.1]: https://github.com/vureact-js/vureact-router/compare/v1.0.0...v1.0.1
+[1.0.1]: https://github.com/vureact-js/core/compare/v1.0.0...v1.0.1
 
 ---
 
@@ -409,7 +441,7 @@ compiler-core/
 
 ---
 
-[1.0.0]: https://github.com/vureact-js/vureact-router/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/vureact-js/core/compare/v1.0.0...HEAD
 
 ---
 
@@ -442,7 +474,8 @@ When releasing a new version:
 ---
 
 ```md
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/vureact-js/core/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/vureact-js/core/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/vureact-js/core/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/vureact-js/core/compare/v1.2.0...v1.2.1

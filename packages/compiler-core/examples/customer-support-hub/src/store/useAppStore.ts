@@ -1,4 +1,4 @@
-﻿import { createStore } from 'zustand/vanilla';
+import { createStore } from 'zustand/vanilla';
 
 type User = {
   id: string;
@@ -49,7 +49,7 @@ type AppState = {
 
 const makeId = () => Math.random().toString(36).slice(2, 10);
 
-export const appStore = createStore<AppState>((set, get) => ({
+export const appStore = createStore<AppState>((set) => ({
   session: {
     user: null,
   },

@@ -68,7 +68,16 @@ export function resolvePropertyIR(
   }
 
   if (isDynamic) {
-    node.value.isStringLiteral = strCodeTypes.isStringLiteral(content);
+    const isStringLiteral = strCodeTypes.isStringLiteral(content);
+
+    // fix: 在字符串的情况下某些内容还带着单引号，需规范化
+    if (isStringLiteral) {
+      content = normalizeString(content);
+      node.value.content = content;
+    }
+
+    // 该节点标记为字符串类型，踢出动态类型
+    node.value.isStringLiteral = isStringLiteral;
   }
 
   const existing = findSameProp(nodeIR.props, node);
@@ -80,4 +89,12 @@ export function resolvePropertyIR(
   }
 
   resolvePropAsBabelExp(existing ?? node, ctx);
+}
+
+function normalizeString(s: string): string {
+  if (s.startsWith("'") && s.endsWith("'")) {
+    // 替换 'xxx' -> xxxx
+    return s.slice(1, -1);
+  }
+  return s;
 }

@@ -76,7 +76,9 @@ export function isIdentifier(code: string): boolean {
 export function isStringLiteral(code: string): boolean {
   try {
     const node = parseExpression(code);
-    return t.isStringLiteral(node) || t.isTemplateLiteral(node);
+    // 只把真正的单/双引号字符串当作“字符串字面量”。
+    // fix: 模板字面量（`...${...}`）应保留为表达式，否则会被错误编译成纯文本字符串。
+    return t.isStringLiteral(node);
   } catch {
     return false;
   }

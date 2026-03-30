@@ -16,7 +16,7 @@
 
 ## 快速开始
 
-本节将引导你完成第一个 VuReact 项目的创建、编译和运行；或者选择先查看 [在线示例。](https://codesandbox.io/p/sandbox/examples-f5rlpk)
+本节将引导你完成第一个 VuReact 项目的创建、编译和运行；或者选择先查看 [codesandbox 在线示例](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)。
 
 完成后你会明确三件事：
 
