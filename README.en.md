@@ -15,7 +15,7 @@ A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 
 English | [简体中文](./README.zh.md)
 
-<video src="./assets/demo.mp4" muted autoplay loop></video>
+[<video autoplay loop muted src="./assets/demo.mp4"></video>](https://github.com/user-attachments/assets/e93dbb23-1143-4d53-9596-c62653a91884)
 
 </div>
 
