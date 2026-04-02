@@ -1,8 +1,8 @@
 <div align="center"><a name="readme-top"></a>
 
-<img height="180" src="./logo.png" />
+  <img height="180" src="./logo.png" />
 
-<h1>VuReact</h1>
+  <h1>VuReact</h1>
 
 A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 
@@ -15,6 +15,7 @@ A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 
 English | [简体中文](./README.zh.md)
 
+  <img src="https://i.postimg.cc/SsJCGfZv/demo.gif" />
 </div>
 
 ---

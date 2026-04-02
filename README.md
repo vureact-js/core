@@ -1,6 +1,5 @@
 <div align="center"><a name="readme-top"></a>
-
-<img height="180" src="./logo.png" />
+  <img height="180" src="./logo.png" />
 
 # VuReact
 
@@ -15,6 +14,7 @@
 
 简体中文 | [English](./README.en.md)
 
+  <img src="https://i.postimg.cc/SsJCGfZv/demo.gif" />
 </div>
 
 ---
