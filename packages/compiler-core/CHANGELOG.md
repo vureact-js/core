@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-04-04
+
+### Fixed
+
+- **修复产物代码中的注释语句位置混乱问题**：改进代码生成逻辑，确保注释位置正确对齐
+- **修复当 Babel 的 minified 选项关闭后，产物组件的 import 模块名丢失字符串引号的问题**：优化 Babel 配置处理，确保模块导入语句格式正确
+- **修复值为简单字面量且非 const 声明也被静态提升的问题**：改进静态提升逻辑，避免对非 const 声明的字面量进行错误提升
+- **修复产物中部分注入到顶部的 import 与已存在的顶部注释位置冲突的问题**：优化导入注入逻辑，确保与现有注释位置兼容
+
+### Changed
+
+- **移除组件产物中无用的 @vr 特殊注释**：清理编译产物，移除不再需要的特殊标记注释
+- **不再默认压缩脚本产物的内容**：调整默认编译行为，保留脚本产物的可读性以便于调试
+
+---
+
+[1.5.1]: https://github.com/vureact-js/core/compare/v1.5.0...v1.5.1
+
 ## [1.5.0] - 2026-03-30
 
 ### Added
@@ -474,7 +492,8 @@ When releasing a new version:
 ---
 
 ```md
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/vureact-js/core/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/vureact-js/core/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/vureact-js/core/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/vureact-js/core/compare/v1.2.1...v1.3.0

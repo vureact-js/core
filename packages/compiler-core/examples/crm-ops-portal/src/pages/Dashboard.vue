@@ -133,22 +133,32 @@ import StatusPill from '../components/StatusPill.vue';
 import ThemeCard from '../components/ThemeCard.vue';
 import { addActivity, fetchCollabSummary, fetchDashboard } from '../data/mock-api';
 
+/** 仪表板数据完整类型 */
 type DashboardData = Awaited<ReturnType<typeof fetchDashboard>>;
 
+/** 线索数据类型 */
 type Lead = DashboardData['leads'][0];
+/** 线索阶段类型 */
 type Stage = DashboardData['stages'][0];
 
+/** KPI指标类型 */
 type Kpi = DashboardData['kpis'][0];
+/** 动态活动类型 */
 type Activity = DashboardData['activities'][0];
+/** 提醒事项类型 */
 type Alert = DashboardData['alerts'][0];
+/** 团队成员负载类型 */
 type TeamMember = DashboardData['teamLoad'][0];
 
+// 响应式数据定义
 const kpis = ref<Kpi[]>([]);
 const activities = ref<Activity[]>([]);
 const alerts = ref<Alert[]>([]);
 const teamLoad = ref<TeamMember[]>([]);
 const leads = ref<Lead[]>([]);
 const stages = ref<Stage[]>([]);
+
+// 协同数据（未读通知、待审批等
 const collab = ref({
   unreadCount: 0,
   pendingApprovals: 0,
@@ -156,13 +166,16 @@ const collab = ref({
 });
 const router = useRouter();
 
+// 操作提示信息
 const actionNotice = ref('');
 
+/** 计算线索总价值 */
 const totalValue = computed(() => {
   const sum = leads.value.reduce((acc, item) => acc + item.value, 0);
   return `¥ ${sum} 万`;
 });
 
+/** 计算各阶段线索统计信息 */
 const stageSummary = computed(() => {
   return stages.value.map((stage) => {
     const items = leads.value.filter((lead) => lead.stage === stage.key);
@@ -181,6 +194,7 @@ const stageSummary = computed(() => {
   });
 });
 
+// 预览本周计划
 const previewPlan = async () => {
   actionNotice.value = '已生成本周计划，正在同步给团队。';
   await addActivity({ who: '系统', action: '生成了本周计划', target: '运营节奏' });
@@ -189,6 +203,7 @@ const previewPlan = async () => {
   }, 2000);
 };
 
+/* 创建跟进清单 */
 const createChecklist = async () => {
   actionNotice.value = '已创建跟进清单，线索负责人将收到提醒。';
   await addActivity({ who: '系统', action: '创建跟进清单', target: '高风险线索' });
@@ -197,15 +212,18 @@ const createChecklist = async () => {
   }, 2000);
 };
 
+/** 跳转到通知中心 */
 const goNotifications = () => {
   router.push('/notifications');
 };
 
+/** 跳转到审批中心 */
 const goApprovals = () => {
   router.push('/approvals');
 };
 
 onMounted(async () => {
+  // 组件挂载时加载数据
   const data = await fetchDashboard();
   collab.value = await fetchCollabSummary();
   kpis.value = data.kpis;

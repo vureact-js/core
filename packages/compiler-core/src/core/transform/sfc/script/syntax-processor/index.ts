@@ -1,12 +1,7 @@
 import { ParseResult as BabelParseResult, traverse } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
-import {
-  collectLocalStatements,
-  insertCSSImport,
-  resolveRequiredImports,
-  resolveStaticHoisting,
-} from './postprocess';
+import { resolveASTChunks, resolveRuntimeImports, resolveSfcCssImport } from './postprocess';
 import {
   resolveCompIProps,
   resolveDefineAsyncComponent,
@@ -35,8 +30,16 @@ interface ProcessorOptions {
 }
 
 interface ProcessorConfig {
-  /** 处理器需依赖于 babel 的 traverse 函数进行调用 */
+  /**
+   * 处理器需依赖于 babel 的 traverse 函数进行调用
+   */
   applyBabel?: Array<(ctx: ICompilationContext, ast: BabelParseResult) => TraverseOptions>;
+
+  /**
+   * 不依赖于 babel 的 traverse。
+   * 其中 excludeBabel.preprocess 和 excludeBabel.process 数组项的
+   * 处理器先于 applyBabel 执行，postprocess 则反之。
+   */
   excludeBabel?: Array<(ctx: ICompilationContext, ast: BabelParseResult) => void>;
 }
 
@@ -71,8 +74,8 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
     },
 
     postprocess: {
-      applyBabel: [resolveRequiredImports, resolveStaticHoisting],
-      excludeBabel: [insertCSSImport, collectLocalStatements],
+      applyBabel: [resolveRuntimeImports, resolveASTChunks],
+      excludeBabel: [resolveSfcCssImport],
     },
   });
 }

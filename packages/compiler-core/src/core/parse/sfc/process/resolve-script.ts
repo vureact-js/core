@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions, LangType } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
-import { SFCDescriptor } from '@vue/compiler-sfc';
+import { SFCDescriptor, SFCScriptBlock } from '@vue/compiler-sfc';
 import { ParseResult } from '..';
 
 export function resolveScript(
@@ -23,6 +23,8 @@ export function resolveScript(
   };
 
   const options = getBabelParseOptions(scriptBlock.lang as 'js', 'script', ctx.filename);
+
+  resolveCtxData(scriptBlock, ctx);
 
   // 处理传统 script
   if (descriptor.script) {
@@ -50,13 +52,28 @@ export function resolveScript(
     });
   }
 
-  const source = scriptBlock.content;
-
-  ctx.scriptData.source = source;
-  ctx.compName = extractCompName(source);
-  ctx.scriptData.lang = (scriptBlock.lang as LangType) || 'js';
-
   pResult.script = result;
+}
+
+function resolveCtxData(scriptBlock: SFCScriptBlock, ctx: ICompilationContext) {
+  let { content, lang } = scriptBlock;
+
+  const resolveVRComment = (source: string): string => {
+    // 从注释 @vr-name: xxx 中提取组件名
+    const regx = /\/\/\s*@vr-name:\s*(\w+)/;
+    const nameMatch = source.match(regx);
+
+    // 移除注释
+    content = content.replace(regx, '');
+
+    return nameMatch?.[1]?.trim() || '';
+  };
+
+  ctx.compName = resolveVRComment(content);
+  ctx.scriptData.source = content;
+  ctx.scriptData.lang = (lang as LangType) || 'js';
+
+  scriptBlock.content = content;
 }
 
 function extractSetupBodyToTopLevel(
@@ -159,10 +176,4 @@ function extractSetupBodyToTopLevel(
     console.error(e);
     return { name, code: content };
   }
-}
-
-function extractCompName(source: string): string {
-  // 匹配最顶部的注释
-  const nameMatch = source.match(/@vr-name:\s*(\w+)/);
-  return nameMatch?.[1]?.trim() || '';
 }

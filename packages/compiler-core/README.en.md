@@ -16,7 +16,7 @@ The core strategy is **"convention over configuration"** — through clear compi
 
 ## Quick Start
 
-This section will guide you through creating, compiling, and running your first VuReact project; alternatively, you can check out the [codesandbox examples first](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master).
+This section will guide you through creating, compiling, and running your first VuReact project; alternatively, you can check out the [playground](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master).
 
 After completion, you will clearly understand three things:
 
@@ -116,9 +116,9 @@ pnpm add -D @vureact/compiler-core
 
 ## Step 3: Configure the Compiler
 
-`vureact.config.js`
+`vureact.config.ts`
 
-```js
+```ts
 import { defineConfig } from '@vureact/compiler-core';
 
 export default defineConfig({
@@ -129,11 +129,8 @@ export default defineConfig({
     workspace: '.vureact',
     outDir: 'dist',
     // Disable environment initialization for tutorial scenarios to observe pure compilation output
+    // Recommended to enable in actual use
     bootstrapVite: false,
-  },
-  format: {
-    enabled: true, // Enable formatting (this will increase compilation time).
-    formatter: 'prettier',
   },
 });
 ```
@@ -186,17 +183,17 @@ my-app/
 
 Below is a typical formatted output (slightly simplified for illustration; the actual hash and property names are subject to local output):
 
-```ts
+```tsx
 import { memo, useCallback, useMemo } from 'react';
 import { useComputed, useVRef } from '@vureact/runtime-core';
 import './Counter-a1b2c3.css';
 
 // Derived from defineProps and defineEmits
 type ICounterType = {
-  title?: string
+  title?: string;
   onChange: () => void;
   onUpdate: (value: number) => number;
-}
+};
 
 // Component wrapped with memo
 const Counter = memo((props: ICounterType) => {
@@ -263,17 +260,19 @@ CSS file content:
 9. Less styles are compiled to CSS code
 10. Scoped styles generate hashed CSS files and add scoped attributes to elements
 
-## Common Failure Points
+## FAQ
 
-- Failure to exclude Vue entry files (e.g., `src/main.ts` or `App.vue`)
+- Failure to exclude Vue entry files (e.g., `src/main.ts`)
 - Calling APIs that are converted to Hooks outside the top level
 - Unanalyzable expressions appearing in templates (triggering warnings)
 - Disabling style preprocessing while using `scoped`, leading to scoping failure
 
+For more details, please refer to the [FAQ](https://vureact.top/guide/en/faq.html) of the official documentation.
+
 ## Ecosystem Integration
 
-- **[Vue Core Adaptation Package](https://runtime.vureact.top/)**: Provides React versions of Vue's common built-in components, core Composition API, etc.
-- **[Vue Router Adaptation Package](https://router.vureact.top/)**: Supports conversion from Vue Router 4.x to React Router DOM 7.9+.
+- **[VuReact Runtime Core](https://runtime.vureact.top/en)**: Provides React versions of Vue's common built-in components, core Composition API, etc.
+- **[VuReact Router](https://router.vureact.top/en)**: Supports conversion from Vue Router 4.x to React Router DOM 7.9+.
 
 If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/guide/mind-control-readme.html) to directly use the React ecosystem.
 
@@ -282,5 +281,6 @@ If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/guide/min
 - GitHub: <https://github.com/vureact-js/core>
 - Gitee: <https://gitee.com/vureact-js/core>
 - Documentation: [https://vureact.top](https://vureact.top/)
-- npm: <https://www.npmjs.com/package/@vureact/compiler-core>
-- Online Examples: <https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+- Playground：
+  - CRM Admin Dashboard (Standard): <https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+  - Customer Support Hub (Mixed): <https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>

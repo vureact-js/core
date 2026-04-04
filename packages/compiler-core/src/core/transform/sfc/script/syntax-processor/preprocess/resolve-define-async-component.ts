@@ -84,7 +84,7 @@ function checkIsDynamicImport(ctx: ICompilationContext, node: t.Node) {
 
     // import('xx.vue') -> import('xx.jsx')
     if (t.isStringLiteral(node.arguments[0])) {
-      replaceVueSuffix(ctx, node.arguments[0]);
+      replaceVueSuffix(node.arguments[0]);
     }
 
     return;

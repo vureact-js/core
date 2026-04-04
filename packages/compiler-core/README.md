@@ -3,6 +3,8 @@
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
+[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
 简体中文 | [English](./README.en.md)
 
@@ -16,7 +18,7 @@
 
 ## 快速开始
 
-本节将引导你完成第一个 VuReact 项目的创建、编译和运行；或者选择先查看 [codesandbox 在线示例](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)。
+本节将引导你完成第一个 VuReact 项目的创建、编译和运行；或者选择查看 [CodeSandbox 在线案例](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)。
 
 完成后你会明确三件事：
 
@@ -116,9 +118,9 @@ pnpm add -D @vureact/compiler-core
 
 ## Step 3：配置编译器
 
-`vureact.config.js`
+`vureact.config.ts`
 
-```js
+```ts
 import { defineConfig } from '@vureact/compiler-core';
 
 export default defineConfig({
@@ -129,11 +131,8 @@ export default defineConfig({
     workspace: '.vureact',
     outDir: 'dist',
     // 教程场景关闭环境初始化，便于观察纯编译产物
+    // 实际使用时建议开启
     bootstrapVite: false,
-  },
-  format: {
-    enabled: true, // 开启格式化，同时这也会增加编译耗时。
-    formatter: 'prettier',
   },
 });
 ```
@@ -263,17 +262,19 @@ CSS 文件内容：
 9. `less` 样式被编译为 css 代码
 10. `scoped` 样式会生成带哈希的 css 文件，并在元素上标注作用域属性
 
-## 常见失败点
+## 常见问题
 
-- 没排除 Vue 入口文件，如 `src/main.ts` 或 `App.vue`
+- 没排除 Vue 入口文件，如 `src/main.ts`
 - 在非顶层调用会被转换为 Hook 的 API
 - 模板里出现不可分析表达式并被告警
 - 关闭样式预处理且使用 `scoped`，导致作用域失效
 
+更多请查阅官方文档的 [FAQ 章节](https://vureact.top/guide/faq.html)。
+
 ## 生态集成
 
-- **[Vue 核心适配包](https://runtime.vureact.top/)**：提供 React 版的 Vue 常用内置组件、核心 Composition API 等
-- **[Vue 路由适配包](https://router.vureact.top/)**：支持 Vue Router 4.x -> React Router DOM 7.9+ 转换
+- **[VuReact Runtime Core](https://runtime.vureact.top/)**：提供 React 版的 Vue 常用内置组件、核心 Composition API 等
+- **[VuReact Router](https://router.vureact.top/)**：支持 Vue Router 4.x -> React Router DOM 7.9+ 转换
 
 如果确实需要，你可以选择 [☣️混合编写](https://vureact.top/guide/mind-control-readme.html)，以此直接使用 React 生态。
 
@@ -282,5 +283,6 @@ CSS 文件内容：
 - GitHub：<https://github.com/vureact-js/core>
 - Gitee：<https://gitee.com/vureact-js/core>
 - 文档：[https://vureact.top](https://vureact.top/)
-- npm：<https://www.npmjs.com/package/@vureact/compiler-core>
-- 在线示例：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+- CodeSandbox 在线案例：
+  - 客户关系管理后台（标准）：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+  - 客户支持协同后台（混写）：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>

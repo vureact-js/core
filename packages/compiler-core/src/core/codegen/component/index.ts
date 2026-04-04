@@ -47,7 +47,9 @@ export function generateComponent(
       minimal: true, // 只转义必要的字符
       quotes: 'single', // 使用单引号
     },
-    minified: true,
+    minified: false, // 不压缩输出内容
+    retainLines: false, // 不保留行号
+    retainFunctionParens: true, // 保留函数括号
     ...options,
   });
 

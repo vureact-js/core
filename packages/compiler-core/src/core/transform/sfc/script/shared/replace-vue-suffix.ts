@@ -1,18 +1,20 @@
 import { StringLiteral } from '@babel/types';
-import { ICompilationContext } from '@compiler/context/types';
 
 /**
  * 替换 .vue 文件名后缀为 .jsx/.tsx
  *
  * @param node babel 字符串节点
  */
-export function replaceVueSuffix(ctx: ICompilationContext, node: StringLiteral) {
+export function replaceVueSuffix(node: StringLiteral) {
   if (!node.value.endsWith('.vue')) return;
 
-  // const { scriptData } = ctx;
-  // const jsxFile = node.value.replace(/.vue$/, `.${scriptData.lang}x`);
+  // 导入 jsx/tsx 文件无需后缀名
+  const replaced = node.value.replace(/.vue$/, '');
 
-  const jsxFile = node.value.replace(/.vue$/, ''); // 无需后缀
-  node.value = jsxFile;
-  node.extra = { rawValue: jsxFile, raw: jsxFile };
+  node.value = replaced;
+  node.extra = {
+    rawValue: replaced,
+    // fix: 当 minified: true 的情况下，输出内容丢失引号
+    raw: `'${replaced}'`,
+  };
 }

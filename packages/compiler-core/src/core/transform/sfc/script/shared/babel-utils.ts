@@ -357,3 +357,53 @@ export function isSimpleLiteral(node: t.Node | null | undefined): boolean {
 
   return false;
 }
+
+/**
+ * 从原节点 “分叉” 出一个新节点，并继承原始节点的注释信息。
+ *
+ * 注意：这是分叉 + 原节点失效，通常用于原节点要移除的场景。
+ *
+ * @description
+ *
+ * 此函数是对 `@babel/types.cloneNode` 的包装，主要增加了注释处理逻辑：
+ * 1. 继承原始节点的 leadingComments 和 innerComments
+ * 2. 清空原始节点的位置信息和注释，避免重复使用
+ *
+ * @param node - 要分叉的 AST 节点
+ * @param deep - 是否深度克隆，默认为 true
+ * @returns 分叉后的新节点
+ */
+export function forkNode(node: t.Node, deep = true): t.Node {
+  const newNode = t.cloneNode(node, deep);
+
+  // 继承原始注释
+  newNode.leadingComments = node.leadingComments;
+  newNode.innerComments = node.innerComments;
+
+  // 节点的 trailingComments 通常是粘连了相邻节点的 leadingComments
+  newNode.trailingComments = null;
+
+  // 清空原始节点信息，防止重复使用
+  cleanNodeLoc(node);
+  cleanNodeComments(node);
+
+  return newNode;
+}
+
+/**
+ * 清除节点位置信息
+ */
+export function cleanNodeLoc(node: t.Node) {
+  node.start = null;
+  node.end = null;
+  node.loc = null;
+}
+
+/**
+ * 清除节点所有注释
+ */
+export function cleanNodeComments(node: t.Node) {
+  node.leadingComments = null;
+  node.innerComments = null;
+  node.trailingComments = null;
+}

@@ -86,20 +86,11 @@ export class BaseCompiler extends Helper {
   private prepareGenerateOptions(filename?: string): GeneratorOptions {
     const userOptions = this.options.generate || {};
 
-    const mergedOptions: GeneratorOptions = {
-      jsescOption: {
-        minimal: true,
-        quotes: 'single',
-      },
-      minified: true,
-      ...userOptions,
-    };
-
-    if (mergedOptions.sourceMaps && filename) {
-      mergedOptions.sourceFileName = mergedOptions.sourceFileName || filename;
+    if (userOptions.sourceMaps && filename) {
+      userOptions.sourceFileName = userOptions.sourceFileName || filename;
     }
 
-    return mergedOptions;
+    return userOptions;
   }
 
   private resolveMainResult(
