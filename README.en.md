@@ -15,7 +15,7 @@ A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 
 English | [简体中文](./README.zh.md)
 
-[<video autoplay loop muted src="https://jsd.onmicrosoft.cn/gh/vureact-js/core@master/assets/hero_demo_3MB.mp4"></video>](https://jsd.onmicrosoft.cn/gh/vureact-js/core@master/assets/hero_demo_3MB.mp4)
+[<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
 
 </div>
 

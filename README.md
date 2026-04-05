@@ -15,7 +15,7 @@
 
 简体中文 | [English](./README.en.md)
 
-[<video autoplay loop muted src="https://jsd.onmicrosoft.cn/gh/vureact-js/core@master/assets/hero_demo_3MB.mp4"></video>](https://jsd.onmicrosoft.cn/gh/vureact-js/core@master/assets/hero_demo_3MB.mp4)
+[<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
 
 </div>
 
