@@ -1,7 +1,8 @@
 <div align="center"><a name="readme-top"></a>
+
   <img height="180" src="./assets/logo.png" />
 
-# VuReact
+  <h1>VuReact</h1>
 
 一个渐进式语义驱动的 Vue 3 → React 18+ 迁移编译器
 
@@ -14,7 +15,7 @@
 
 简体中文 | [English](./README.en.md)
 
-[<video autoplay loop muted src="./assets/demo.mp4"></video>](https://github.com/user-attachments/assets/e93dbb23-1143-4d53-9596-c62653a91884)
+[<video autoplay loop muted src="https://jsd.onmicrosoft.cn/gh/vureact-js/core@master/assets/hero_demo_3MB.mp4"></video>](https://jsd.onmicrosoft.cn/gh/vureact-js/core@master/assets/hero_demo_3MB.mp4)
 
 </div>
 
