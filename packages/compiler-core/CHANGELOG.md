@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-04-08
+
+### Fixed
+
+- **修复传统 `<script>` 语法支持问题**：传统语法转换不完整，产出不可运行的 React 代码，调整为在编译期直接抛出清晰错误
+
+### Changed
+
+- **移除传统语法的残缺处理逻辑**：使用传统语法的项目将无法编译，但避免了运行时错误
+
+---
+
+[1.5.2]: https://github.com/vureact-js/core/compare/v1.5.1...v1.5.2
+
+---
+
 ## [1.5.1] - 2026-04-04
 
 ### Fixed
@@ -22,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 [1.5.1]: https://github.com/vureact-js/core/compare/v1.5.0...v1.5.1
+
+---
 
 ## [1.5.0] - 2026-03-30
 

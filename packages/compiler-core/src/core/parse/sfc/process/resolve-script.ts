@@ -1,6 +1,4 @@
-import { generate } from '@babel/generator';
-import { parse as babelParse, ParseResult as BabelParseResult } from '@babel/parser';
-import * as t from '@babel/types';
+import { parse as babelParse } from '@babel/parser';
 import { ICompilationContext } from '@compiler/context/types';
 import { getBabelParseOptions, LangType } from '@shared/babel-utils';
 import { logger } from '@shared/logger';
@@ -10,53 +8,41 @@ import { ParseResult } from '..';
 export function resolveScript(
   descriptor: SFCDescriptor,
   ctx: ICompilationContext,
-  pResult: ParseResult,
+  parseResult: ParseResult,
 ) {
-  // 优先使用 <script setup>
-  const scriptBlock = descriptor.scriptSetup || descriptor.script;
-
-  if (!scriptBlock) return null;
-
-  const result: ParseResult['script'] = {
-    ast: {} as BabelParseResult,
-    source: scriptBlock,
-  };
-
-  const options = getBabelParseOptions(scriptBlock.lang as 'js', 'script', ctx.filename);
-
-  resolveCtxData(scriptBlock, ctx);
-
-  // 处理传统 script
+  // 不支持传统 script！！！
+  // 我们不是"万能转换器"
+  // 我们是"现代 Vue → React 专业转换器"
+  // 专注于一件事，做到最好
   if (descriptor.script) {
-    const { code, ast, name } = extractSetupBodyToTopLevel(scriptBlock.content, options);
-
-    if (ast) {
-      result.source!.content = code;
-      result.ast = ast;
-      ctx.compName = name;
-    }
-
-    logger.warn(
-      'Using traditional script (instead of <script setup>) may result in unstable or non-functional React code. It is recommended to use <script setup> instead.',
-      { file: ctx.filename },
+    throw new Error(
+      `Traditional Vue <script> syntax is not supported. Please migrate to <script setup>. \n    at <anonymous> (${ctx.filename})`,
     );
-  } else {
-    // 处理 scriptSetup
-    result.ast = babelParse(result.source!.content, options);
   }
 
+  const { scriptSetup } = descriptor;
+
+  if (!scriptSetup) return null;
+
   // 收集 Vue 的 script 警告
-  if (scriptBlock?.warnings) {
-    scriptBlock?.warnings.forEach((msg) => {
+  if (scriptSetup?.warnings) {
+    scriptSetup?.warnings.forEach((msg) => {
       logger.warn(msg, { file: ctx.filename });
     });
   }
 
-  pResult.script = result;
+  resolveContext(scriptSetup, ctx);
+
+  const parseOpts = getBabelParseOptions(scriptSetup.lang as 'js', 'script', ctx.filename);
+
+  parseResult.script = {
+    ast: babelParse(scriptSetup.content, parseOpts),
+    source: scriptSetup,
+  };
 }
 
-function resolveCtxData(scriptBlock: SFCScriptBlock, ctx: ICompilationContext) {
-  let { content, lang } = scriptBlock;
+function resolveContext(scriptSetup: SFCScriptBlock, ctx: ICompilationContext) {
+  let { content, lang } = scriptSetup;
 
   const resolveVRComment = (source: string): string => {
     // 从注释 @vr-name: xxx 中提取组件名
@@ -73,107 +59,6 @@ function resolveCtxData(scriptBlock: SFCScriptBlock, ctx: ICompilationContext) {
   ctx.scriptData.source = content;
   ctx.scriptData.lang = (lang as LangType) || 'js';
 
-  scriptBlock.content = content;
-}
-
-function extractSetupBodyToTopLevel(
-  content: string,
-  options: any,
-): { code: string; name: string; ast?: BabelParseResult } {
-  let name = '';
-
-  try {
-    const ast: BabelParseResult = babelParse(content, options);
-
-    const importNodes: t.Node[] = [];
-    const otherTopLevel: t.Node[] = [];
-
-    let setupStatements: t.Node[] = [];
-
-    for (const node of ast.program.body) {
-      if (t.isImportDeclaration(node)) {
-        importNodes.push(node);
-        continue;
-      }
-
-      // 处理 export default {...}
-      if (t.isExportDefaultDeclaration(node)) {
-        const decl = node.declaration;
-
-        if (decl && t.isObjectExpression(decl)) {
-          // 获取 name 选项
-          const nameProp = decl.properties.find((p) => {
-            if (t.isObjectProperty(p)) {
-              const key = p.key;
-              return (
-                (t.isIdentifier(key) && key.name === 'name') ||
-                (t.isStringLiteral(key) && key.value === 'name')
-              );
-            }
-            return false;
-          });
-
-          if (nameProp && t.isObjectProperty(nameProp)) {
-            if (t.isStringLiteral(nameProp.value)) {
-              name = nameProp.value.value;
-            }
-          }
-
-          // 获取 setup 选项
-          const setupProp = decl.properties.find((p: any) => {
-            if (t.isObjectMethod(p)) {
-              return p.key && (p.key as t.Identifier).name === 'setup';
-            }
-
-            if (t.isObjectProperty(p)) {
-              const key = p.key;
-              return (
-                (t.isIdentifier(key) && key.name === 'setup') ||
-                (t.isStringLiteral(key) && key.value === 'setup')
-              );
-            }
-
-            return false;
-          });
-
-          // 提取 setup 内的所有语句，但不包含最后的 return
-          if (setupProp) {
-            const value = t.isObjectMethod(setupProp)
-              ? setupProp
-              : t.isObjectProperty(setupProp)
-                ? setupProp.value
-                : null;
-
-            if (value && (t.isFunction(value) || t.isObjectMethod(value))) {
-              const fnBody = t.isBlockStatement(value.body) ? value.body.body : [];
-
-              for (const stmt of fnBody) {
-                if (t.isReturnStatement(stmt)) continue;
-                setupStatements.push(stmt);
-              }
-            }
-          }
-        }
-
-        // skip adding export default to otherTopLevel (we're removing it)
-        continue;
-      }
-
-      // keep other top-level nodes (e.g., additional exports, consts)
-      otherTopLevel.push(node);
-    }
-
-    const parts: string[] = [];
-    const stmts = importNodes.concat(otherTopLevel, setupStatements);
-
-    for (const n of stmts) {
-      parts.push(generate(n).code);
-    }
-
-    return { name, ast, code: parts.join('\n\n') };
-  } catch (e) {
-    // 如果解析失败则回退到原始内容
-    console.error(e);
-    return { name, code: content };
-  }
+  // 更新源码
+  scriptSetup.content = content;
 }
