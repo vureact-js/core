@@ -1,18 +1,14 @@
 # @vureact/compiler-core
 
+A compiler that allows you to write React 18+ applications using Vue 3 syntax.
+
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
+[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
 English | [简体中文](./README.md)
-
-## What is VuReact?
-
-[VuReact](http://vureact.top/en) (pronounced `/vjuːˈriːækt/`) is a Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
-
-It is not a simple syntax conversion, but **semantic-level compilation**: it understands the intent of Vue code and generates code that adheres to React best practices. It consists of two parts: **compile-time transformation** + **runtime adaptation**.
-
-The core strategy is **"convention over configuration"** — through clear compilation conventions, it ensures stable and reliable conversion, making it especially suitable for **progressive migration** scenarios.
 
 ## Quick Start
 
@@ -279,8 +275,7 @@ If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/guide/min
 ## 🔗 Links
 
 - GitHub: <https://github.com/vureact-js/core>
-- Gitee: <https://gitee.com/vureact-js/core>
-- Documentation: [https://vureact.top](https://vureact.top/)
+- Documentation: <https://vureact.top/en>
 - Playground：
   - CRM Admin Dashboard (Standard): <https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
   - Customer Support Hub (Mixed): <https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>

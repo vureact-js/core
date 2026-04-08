@@ -1,5 +1,7 @@
 # @vureact/compiler-core
 
+一个让你用 Vue 3 语法编写 React 18+ 应用的编译器。
+
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -7,14 +9,6 @@
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
 简体中文 | [English](./README.en.md)
-
-## 什么是 VuReact？
-
-[VuReact](http://vureact.top)（发音 `/vjuːˈriːækt/`）是一个渐进式语义驱动的 Vue 3 → React 18+ 迁移编译器
-
-它不是简单的语法转换，而是**语义级编译**：理解 Vue 代码的意图，生成符合 React 最佳实践的代码。由**编译时转换** + **运行时适配**两部分构成。
-
-核心策略是 **“约定优先”** ——通过明确的编译约定，确保转换稳定可靠，尤其适合**渐进式迁移**场景。
 
 ## 快速开始
 

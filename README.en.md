@@ -4,7 +4,9 @@
 
   <h1>VuReact</h1>
 
-A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
+A compiler that allows you to write React 18+ applications using Vue 3 syntax.
+
+Its core value extends beyond project migration, focusing on seamlessly integrating Vue's development experience with React's ecosystem capabilities, producing maintainable, evolvable, and production-ready React code.
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -13,7 +15,7 @@ A Semantic-Aware Vue 3 to React 18+ compiler for progressive migration.
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-English | [简体中文](./README.zh.md)
+English | [简体中文](./README.md)
 
 [<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
 

@@ -4,7 +4,9 @@
 
   <h1>VuReact</h1>
 
-一个渐进式语义驱动的 Vue 3 → React 18+ 迁移编译器
+一个让你用 Vue 3 语法编写 React 18+ 应用的编译器。
+
+它不仅限于项目迁移，更在于将 Vue 的开发体验与 React 生态能力无缝结合，产出可维护、可演进、生产就绪的 React 代码。
 
 [![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
 [![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
