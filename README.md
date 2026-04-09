@@ -8,9 +8,10 @@
 
 它不仅限于项目迁移，更在于将 Vue 的开发体验与 React 生态能力无缝结合，产出可维护、可演进、生产就绪的 React 代码。
 
-[![npm version](https://img.shields.io/npm/v/@vureact/compiler-core.svg?style=flat-square)](https://vureact.top/)
-[![npm downloads](https://img.shields.io/npm/dm/@vureact/compiler-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
+[![Total Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Total%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Monthly Downloads](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
