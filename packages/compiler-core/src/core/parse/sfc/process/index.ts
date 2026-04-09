@@ -1,8 +1,8 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { SFCDescriptor } from '@vue/compiler-sfc';
 import { ParseResult } from '..';
+import { resolveScriptMeta } from '../postprocess/resolve-script-metadata';
 import { resolveScript } from './resolve-script';
-import { resolveScriptMeta } from './resolve-script-meta';
 import { resolveStyles } from './resolve-styles';
 import { resolveTemplate } from './resolve-template';
 
