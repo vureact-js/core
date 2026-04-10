@@ -67,7 +67,7 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
  * Build component props TS interface node (without babel traverse).
  */
 export function resolveCompIProps(ctx: ICompilationContext, ast: BabelParseResult) {
-  const { propsTSIface, lang } = ctx.scriptData;
+  const { declaredOptions, propsTSIface, lang } = ctx.scriptData;
   const { propsTypes, emitTypes, slotTypes } = propsTSIface;
   const tsTypes = [...propsTypes, ...emitTypes, ...slotTypes];
 
@@ -75,7 +75,7 @@ export function resolveCompIProps(ctx: ICompilationContext, ast: BabelParseResul
     return;
   }
 
-  const n = ctx.compName || 'Comp';
+  const n = declaredOptions.name || 'Comp';
   const ns = `I${camelCase(capitalize(n))}Props`;
 
   const typeNode = t.tsIntersectionType(tsTypes);

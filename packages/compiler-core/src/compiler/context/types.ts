@@ -5,58 +5,82 @@ import { ReactiveTypes } from '@shared/reactive-utils';
 export interface ICompilationContext {
   fileId: string;
   source: string;
-  compName: string;
   filename: string;
   imports: Map<string, ImportItem[]>;
   cssVars: string[];
   inputType: FileInputType;
+
   /**
    * 函数组件的 prop 参数名
    * @default '$props'
    */
   propField: string;
+
   /** 是否使用了路由 */
   route?: boolean;
+
   /** 是否将 Less / Sass 样式语言处理为 CSS */
   preprocessStyles?: boolean;
 
   templateData: {
     lang?: string;
+
     /** 用于描述 `<slot>` / `<slot name="" ...props>` */
     slots: Record<string, SlotNodesContext>;
+
     /** 收集模板 ref 对应的 script 绑定元数据 */
     refBindings: {
       /** 普通 html 元素的 ref */
       domRefs: RefBindings;
+
       /** 组件的 ref */
       componentRefs: RefBindings;
     };
+
     /** 收集所有模板中的响应式变量，其来自 script 的绑定元数据 */
     reactiveBindings: ReactiveBindinds;
+
+    /** defineProps 中声明的属性名 */
+    declaredProps: Set<string>;
+
+    /** defineEmits 中声明的事件名 */
+    declaredEmits: Set<string>;
   };
 
   scriptData: {
     lang: LangType;
+
     /** 用于收集 Vue 的 `provide(name, value)` */
     provide: ProvideData;
+
+    /** 组件 props ts 接口集合 */
     propsTSIface: IPropsContext;
     source: string;
 
     /** 是否需要 forwardRef 包装组件 */
     forwardRef: {
       enabled: boolean;
+
       /**
        * forwardRef 函数的第二个参数名
        * @default 'expose'
        */
       refField: string;
     };
+
+    /** defineOptions 中声明的选项 */
+    declaredOptions: {
+      name?: string;
+      inheritAttrs?: boolean;
+    };
   };
 
   styleData: {
     filePath: string;
+
     /** style module 的名称  */
     moduleName?: string;
+
     /** style scoped 对应 id */
     scopeId?: string;
   };

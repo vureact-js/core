@@ -85,22 +85,19 @@ function resolveMemoComponent(
 }
 
 function resolveComponentName(ctx: ICompilationContext): t.Identifier {
-  const { filename, compName } = ctx as ICompilationContext;
+  const { filename, scriptData } = ctx as ICompilationContext;
 
-  let name = compName;
-
+  let { name } = scriptData.declaredOptions;
   if (!name) {
     // 没有设置组件名则回退到文件名/随机名
     name = basename(filename).split('.')[0] || `FC${genHashByXXH(filename)}`;
-  }
-
-  name = capitalize(camelCase(name));
-
-  if (!compName) {
-    logger.warn('Missing component name, it falls back to the filename. ' + name, {
+    logger.warn(`Unnamed component detected. Using file name: <${name}>`, {
       file: filename,
     });
   }
+
+  name = capitalize(camelCase(name));
+  scriptData.declaredOptions.name = name;
 
   return t.identifier(name);
 }

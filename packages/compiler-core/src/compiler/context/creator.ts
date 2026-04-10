@@ -29,7 +29,6 @@ export class CompilationContext {
       fileId: '',
       source: '',
       filename: '',
-      compName: '',
       imports: new Map(),
       cssVars: [],
       inputType: 'sfc',
@@ -42,6 +41,8 @@ export class CompilationContext {
           componentRefs: {},
         },
         reactiveBindings: {},
+        declaredProps: new Set(),
+        declaredEmits: new Set(),
       },
 
       scriptData: {
@@ -62,6 +63,7 @@ export class CompilationContext {
           enabled: false,
           refField: 'expose',
         },
+        declaredOptions: {},
         source: '',
       },
 

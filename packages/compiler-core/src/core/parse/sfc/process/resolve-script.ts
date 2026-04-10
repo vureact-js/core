@@ -42,6 +42,7 @@ export function resolveScript(
 }
 
 function resolveContext(scriptSetup: SFCScriptBlock, ctx: ICompilationContext) {
+  const { scriptData } = ctx;
   let { content, lang } = scriptSetup;
 
   const resolveVRComment = (source: string): string => {
@@ -55,9 +56,9 @@ function resolveContext(scriptSetup: SFCScriptBlock, ctx: ICompilationContext) {
     return nameMatch?.[1]?.trim() || '';
   };
 
-  ctx.compName = resolveVRComment(content);
-  ctx.scriptData.source = content;
-  ctx.scriptData.lang = (lang as LangType) || 'js';
+  scriptData.declaredOptions.name = resolveVRComment(content);
+  scriptData.lang = (lang as LangType) || 'js';
+  scriptData.source = content;
 
   // 更新源码
   scriptSetup.content = content;
