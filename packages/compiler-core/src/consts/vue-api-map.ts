@@ -10,4 +10,5 @@ export const VUE_API_MAP = {
   DynamicComponent: 'Component',
   Transition: 'Transition',
   RouterLink: 'RouterLink',
+  useAttrs: 'useAttrs',
 } as const;

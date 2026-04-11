@@ -1,7 +1,7 @@
 import { Expression, JSXIdentifier } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
-import { BabelExp, PropTypes } from '@src/core/transform/sfc/template/shared/types';
+import { TemplateBlockIR } from '@transform/sfc/template';
+import { BabelExp, PropTypes } from '@transform/sfc/template/shared/types';
 import { DirectiveNode, NodeTypes, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { resolveAttributeProp } from './resolve-attribute-prop';
@@ -48,9 +48,7 @@ export function resolveProps(
         siblingNodesIR,
       );
 
-      if (stop) {
-        break;
-      }
+      if (stop) break;
     }
   }
 }

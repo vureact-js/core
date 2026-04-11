@@ -82,7 +82,7 @@ export function resolveRuntimeImports(ctx: ICompilationContext): TraverseOptions
             path.insertAfter(importNodes);
           } else {
             // 首个 import 注入节点继承当前 import 节点的顶部注释
-            forkLeadingComments(importNodes[0]!, node);
+            forkFilePreambleLeadingComments(importNodes[0]!, node);
 
             // 其他情况，在第一个 import 之前注入，
             path.insertBefore(importNodes);
@@ -105,7 +105,7 @@ export function resolveRuntimeImports(ctx: ICompilationContext): TraverseOptions
         if (!importNodes.length) return;
 
         // 首个 import 注入节点继承当前的顶部注释
-        forkLeadingComments(importNodes[0]!, node);
+        forkProgramTopLeadingComments(importNodes[0]!, node);
 
         // 注入文件顶部
         path.unshiftContainer('body', importNodes);
@@ -195,16 +195,46 @@ function createImportNodes(ctx: ICompilationContext): t.ImportDeclaration[] {
   return result;
 }
 
-function forkLeadingComments(target: t.Node, source: t.Node) {
+function forkProgramTopLeadingComments(target: t.Node, program: t.Program) {
+  const [firstStatement] = program.body;
+
+  if (!firstStatement) {
+    return;
+  }
+
+  forkFilePreambleLeadingComments(target, firstStatement);
+}
+
+function forkFilePreambleLeadingComments(target: t.Node, source: t.Node) {
   const { leadingComments } = source;
 
   if (!leadingComments?.length) {
     return;
   }
 
-  const newComments = [...leadingComments];
+  const commentsToMove: t.Comment[] = [];
+  const remainingComments: t.Comment[] = [];
 
-  // 清除原节点的注释，避免重复输出
-  source.leadingComments = null;
-  target.leadingComments = newComments;
+  for (const comment of leadingComments) {
+    if (isFilePreambleComment(comment.value)) {
+      commentsToMove.push(comment);
+    } else {
+      remainingComments.push(comment);
+    }
+  }
+
+  if (!commentsToMove.length) {
+    return;
+  }
+
+  source.leadingComments = remainingComments.length ? remainingComments : null;
+  target.leadingComments = [...(target.leadingComments ?? []), ...commentsToMove];
+}
+
+function isFilePreambleComment(commentValue: string) {
+  const value = commentValue.trim();
+
+  return /^(?:@ts-(?:nocheck|check)\b|eslint-(?:disable|enable|disable-next-line|env|global)\b|@jsx(?:ImportSource|Runtime)?\b|!)/.test(
+    value,
+  );
 }

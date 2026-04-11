@@ -5,6 +5,7 @@ import { MACRO_API_NAMES } from '@consts/other';
 import { logger } from '@shared/logger';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
+import { replaceNode } from '../../shared/babel-utils';
 
 /**
  * 转换 defineEmits 的返回值调用形式，
@@ -87,7 +88,7 @@ export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
         true,
       );
 
-      path.replaceWith(propCall);
+      replaceNode(path, propCall, node);
     },
   };
 }

@@ -1,6 +1,6 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { strCodeTypes } from '@shared/string-code-types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
+import { TemplateBlockIR } from '@transform/sfc/template';
 import {
   checkPropIsDynamicKey,
   createPropsIR,
@@ -8,10 +8,10 @@ import {
   isStyleAttr,
   isVBind,
   resolvePropAsBabelExp,
-} from '@src/core/transform/sfc/template/shared/prop-ir-utils';
-import { mergePropsIR } from '@src/core/transform/sfc/template/shared/prop-merge-utils';
-import { parseStyleString } from '@src/core/transform/sfc/template/shared/style-utils';
-import { warnUnsupportedVueDollarVar } from '@src/core/transform/sfc/template/shared/warning-utils';
+} from '@transform/sfc/template/shared/prop-ir-utils';
+import { mergePropsIR } from '@transform/sfc/template/shared/prop-merge-utils';
+import { parseStyleString } from '@transform/sfc/template/shared/style-utils';
+import { warnUnsupportedVueDollarVar } from '@transform/sfc/template/shared/warning-utils';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { resolveDynamicIsProp } from './resolve-is-prop';
@@ -42,11 +42,12 @@ export function resolveDynamicAttributeProp(
     return;
   }
 
-  const dynamicPropIR = createPropsIR(node.rawName!, name, content);
-  dynamicPropIR.isStatic = arg?.isStatic ?? true;
+  const propIR = createPropsIR(node.rawName!, name, content);
+  propIR.isStatic = arg?.isStatic ?? true;
 
   checkPropIsDynamicKey(ctx, node);
-  resolvePropertyIR(dynamicPropIR, ir, ctx, nodeIR, true);
+
+  resolvePropertyIR(propIR, ir, ctx, nodeIR, true);
 }
 
 export function resolvePropertyIR(

@@ -30,7 +30,7 @@ export function createPropsIR(rawName: string, name: string, content: string): P
   };
 }
 
-function normalizePropName(rawName: string, name: string): string {
+export function normalizePropName(rawName: string, name: string): string {
   if (rawName === 'v-for') {
     return name;
   }

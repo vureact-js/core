@@ -1,8 +1,8 @@
 import { ArrayExpression } from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ADAPTER_RULES } from '@consts/adapters-map';
-import { TemplateBlockIR, TemplateChildNodeIR } from '@src/core/transform/sfc/template';
-import { BabelExp, NodeTypes } from '@src/core/transform/sfc/template/shared/types';
+import { TemplateBlockIR, TemplateChildNodeIR } from '@transform/sfc/template';
+import { BabelExp, NodeTypes } from '@transform/sfc/template/shared/types';
 import { recordImport } from '@transform/shared';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';

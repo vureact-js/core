@@ -1,7 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
-import { createPropsIR } from '@src/core/transform/sfc/template/shared/prop-ir-utils';
-import { PropTypes } from '@src/core/transform/sfc/template/shared/types';
+import { TemplateBlockIR } from '@transform/sfc/template';
+import { createPropsIR } from '@transform/sfc/template/shared/prop-ir-utils';
+import { PropTypes } from '@transform/sfc/template/shared/types';
 import { AttributeNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { resolvePropertyIR } from './resolve-dynamic-attribute-prop';

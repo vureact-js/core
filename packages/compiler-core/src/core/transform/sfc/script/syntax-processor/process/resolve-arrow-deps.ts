@@ -6,7 +6,7 @@ import { PACKAGE_NAME } from '@consts/other';
 import { REACT_API_MAP } from '@consts/react-api-map';
 import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { recordImport } from '@transform/shared';
-import { getVariableDeclaratorPath } from '../../shared/babel-utils';
+import { getVariableDeclaratorPath, replaceNode } from '../../shared/babel-utils';
 import { analyzeDeps } from '../../shared/dependency-analyzer';
 import { createUseCallback } from '../../shared/hook-creator';
 import { setScriptNodeMeta } from '../../shared/metadata-utils';
@@ -35,7 +35,7 @@ export function resolveArrowFnDeps(ctx: ICompilationContext, ast: ParseResult): 
       setScriptNodeMeta(declaratorPath?.node, { is_reactive: true, reactive_type: 'indirect' });
 
       // 替换成 useCallback
-      path.replaceWith(newNode);
+      replaceNode(path, newNode, node);
     },
   };
 }

@@ -32,7 +32,7 @@ export class CompilationContext {
       imports: new Map(),
       cssVars: [],
       inputType: 'sfc',
-      propField: '$props',
+      propField: 'props',
 
       templateData: {
         slots: {},

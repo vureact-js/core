@@ -6,7 +6,7 @@ import { MACRO_API_NAMES } from '@consts/other';
 import { REACT_API_MAP } from '@consts/react-api-map';
 import { logger } from '@shared/logger';
 import { recordImport } from '@transform/shared';
-import { isCalleeNamed } from '../../shared/babel-utils';
+import { isCalleeNamed, replaceNode } from '../../shared/babel-utils';
 import { createUseImperativeHandle } from '../../shared/hook-creator';
 
 /**
@@ -58,7 +58,7 @@ export function resolveDefineExpose(ctx: ICompilationContext): TraverseOptions {
       const newNode = createUseImperativeHandle(t.identifier(forwardRef.refField), init);
 
       forwardRef.enabled = true;
-      path.replaceWith(newNode);
+      replaceNode(path, newNode, node);
     },
   };
 }

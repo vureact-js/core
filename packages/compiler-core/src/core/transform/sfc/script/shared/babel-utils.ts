@@ -391,6 +391,29 @@ export function forkNode(node: t.Node, deep = true): t.Node {
 }
 
 /**
+ * 替换节点并继承原节点的位置/注释信息/TS类型
+ * @param path  节点路径
+ * @param target 新节点
+ * @param source 被替换的节点
+ */
+export function replaceNode(path: NodePath, target: t.Node, source: t.Node) {
+  const { start, end, loc, leadingComments, innerComments, trailingComments } = source;
+
+  target.start = start;
+  target.end = end;
+  target.loc = loc;
+
+  target.leadingComments = leadingComments;
+  target.innerComments = innerComments;
+  target.trailingComments = trailingComments;
+
+  cleanNodeLoc(source);
+  cleanNodeComments(source);
+
+  path.replaceWith(target);
+}
+
+/**
  * 清除节点位置信息
  */
 export function cleanNodeLoc(node: t.Node) {

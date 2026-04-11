@@ -12,3 +12,4 @@ export {
   resolveSlotsTopLevelTypes,
   resolveTemplateSlotIface,
 } from './resolve-props-interface/resolve-slot';
+export { resolveUseAttrs } from './resolve-use-attrs';
