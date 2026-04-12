@@ -1,7 +1,8 @@
 import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { replaceNode } from '../../shared/babel-utils';
+import { VUE_API_MAP } from '@consts/vue-api-map';
+import { isCalleeNamed, replaceNode } from '../../shared/babel-utils';
 
 /**
  * 将 useAttrs() 函数调用替换为 props 引用
@@ -24,18 +25,23 @@ export function resolveUseAttrs(ctx: ICompilationContext): TraverseOptions {
   return {
     VariableDeclarator(path) {
       const { init, id } = path.node;
+
+      if (!init) return;
+
       const initPath = path.get('init') as NodePath;
       const propsIdentifier = t.identifier(ctx.propField);
 
-      // 如果初始值是 TypeScript 类型断言表达式
-      if (t.isTSAsExpression(init)) {
-        if (!t.isCallExpression(init.expression)) {
-          return;
-        }
-
+      // 如果初始值是 useAttrs() 调用并且是 TypeScript 类型断言表达式
+      if (t.isTSAsExpression(init) && isUseAttrsCall(init.expression)) {
+        // 初始值替换为例如 props as TypeAssertion
         const typeAssertion = createPropsTypeAssertion(propsIdentifier, init.typeAnnotation);
         replaceNode(initPath, typeAssertion, init);
+        return;
+      }
 
+      // 处理一般情况
+
+      if (!isUseAttrsCall(init)) {
         return;
       }
 
@@ -45,7 +51,7 @@ export function resolveUseAttrs(ctx: ICompilationContext): TraverseOptions {
       if (isTS) {
         let typeAnnotation = null;
 
-        // 使用已有的类型注解
+        // 使用已有的变量标识符类型注解
         if (t.isIdentifier(id) && t.isTSTypeAnnotation(id.typeAnnotation)) {
           typeAnnotation = id.typeAnnotation.typeAnnotation;
           id.typeAnnotation = null;
@@ -68,6 +74,10 @@ export function resolveUseAttrs(ctx: ICompilationContext): TraverseOptions {
       replaceNode(initPath, propsIdentifier, init!);
     },
   };
+}
+
+function isUseAttrsCall(expr: t.Expression): boolean {
+  return t.isCallExpression(expr) && isCalleeNamed(expr, VUE_API_MAP.useAttrs);
 }
 
 /**

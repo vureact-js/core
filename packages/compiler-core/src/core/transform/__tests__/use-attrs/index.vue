@@ -14,7 +14,7 @@
 
   <template v-if="attrs?.class">
     <span :class="attrs.class">
-      {{ attrs?.xxx?.class }}
+      {{ attrs?.xxx?.class() }}
     </span>
   </template>
 
@@ -64,6 +64,7 @@ B;
 
 if (attrs?.class || props.class) {
   const cls = attrs.class + 'red';
+  attrs.class();
   console.log(attrs.class, cls, props.class);
 }
 </script>

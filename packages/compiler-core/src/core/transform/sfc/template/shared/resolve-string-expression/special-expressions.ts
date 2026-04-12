@@ -11,7 +11,12 @@ import { capitalize } from '@utils/capitalize';
  * 解决各种需要特殊处理的模板字符串表达式
  */
 export function resolveSpecialExpressions(input: string, ctx: ICompilationContext): string {
-  const resolver = [resolveEmitsCalls, resolveRefVariable, resolveClassToClassName];
+  const resolver = [
+    resolveEmitsCalls,
+    resolveRefVariable,
+    // feature: https://github.com/vureact-js/core/issues/10
+    resolveClassToClassName,
+  ];
   input = resolver.reduce((result, fn) => fn(result, ctx), input);
   return input;
 }
@@ -87,11 +92,9 @@ function resolveRefVariable(input: string, ctx: ICompilationContext): string {
 }
 
 /**
- * 把属性名为 'class' 的属性替换为 'className'
+ * 处理 Vue 模板属性相关的 `class` 字段替换为 `className`
  */
 function resolveClassToClassName(input: string, ctx: ICompilationContext): string {
-  // feature: https://github.com/vureact-js/core/issues/10
-
   const { filename, scriptData } = ctx;
   const expr = stringToExpr(input, scriptData.lang, filename);
 

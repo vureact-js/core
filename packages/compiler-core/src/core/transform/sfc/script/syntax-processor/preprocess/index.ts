@@ -1,3 +1,4 @@
+export { resolveClassPropertyAccess } from './resolve-class-property-access';
 export { resolveDefineAsyncComponent } from './resolve-define-async-component';
 export { resolveDefineExpose } from './resolve-define-expose';
 export { resolveDefineOptions } from './resolve-define-options';
