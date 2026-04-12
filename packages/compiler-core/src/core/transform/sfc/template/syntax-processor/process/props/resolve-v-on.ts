@@ -1,18 +1,14 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { stringToExpr } from '@shared/babel-utils';
-import { TemplateBlockIR } from '@transform/sfc/template';
-import {
-  createPropsIR,
-  findSameProp,
-  resolvePropAsBabelExp,
-} from '@transform/sfc/template/shared/prop-ir-utils';
-import { mergePropsIR } from '@transform/sfc/template/shared/prop-merge-utils';
-import { resolveSpecialExpressions } from '@transform/sfc/template/shared/resolve-string-expression';
-import { PropTypes } from '@transform/sfc/template/shared/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
+import { TemplateBlockIR } from '../../../';
+import { createPropsIR, findSameProp, resolvePropAsBabelExp } from '../../../shared/prop-ir-utils';
+import { mergePropsIR } from '../../../shared/prop-merge-utils';
+import { resolveSpecialExpression } from '../../../shared/resolve-string-expression';
+import { PropTypes } from '../../../shared/types';
 import { ElementNodeIR } from '../resolve-element-node';
 
 export function resolveVOn(
@@ -30,7 +26,7 @@ export function resolveVOn(
   // fix: Vue 事件名转 React 事件 props：
   // 例如 `update:modelValue` -> `onUpdateModelValue`
   let eventName = normalizeVOnEventName(arg.content);
-  let handler = resolveSpecialExpressions(exp.content.trim(), ctx);
+  let handler = resolveSpecialExpression(exp.content.trim(), ctx);
 
   if (captureIndex > -1) {
     eventName = modifiers[captureIndex] ? `${eventName}Capture` : eventName;

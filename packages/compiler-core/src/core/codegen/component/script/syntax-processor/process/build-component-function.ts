@@ -190,17 +190,14 @@ function resolveForwardRef(body: t.BlockStatement, ctx: ICompilationContext) {
 // 处理 props 参数
 function resolvePropsParam(ctx: ICompilationContext): t.Identifier | undefined {
   const { propField, scriptData } = ctx;
-  const { propsTSIface, declaredOptions } = scriptData;
+  const { propsTSIface, hasUseAttrsCall } = scriptData;
   const propsIdentifier = t.identifier(propField);
-
-  // 是否使用了 useAttrs() 属性透传功能
-  const isInheritAttrs = typeof declaredOptions.inheritAttrs !== 'undefined';
 
   // JavaScript 环境
   if (scriptData.lang.startsWith('js')) {
     // 1. 没有收集 props 类型，但疑似有 props 则返回它
     // 2. 使用属性透传也返回 props 参数
-    if (propsTSIface.hasPropsInJsEnv || isInheritAttrs) {
+    if (propsTSIface.hasPropsInJsEnv || hasUseAttrsCall) {
       return propsIdentifier;
     }
 
@@ -211,7 +208,7 @@ function resolvePropsParam(ctx: ICompilationContext): t.Identifier | undefined {
   // TypeScript 环境
   if (!propsTSIface.name) {
     // 使用属性透传，需返回 props 参数 + 默认类型注解
-    if (isInheritAttrs) {
+    if (hasUseAttrsCall) {
       return withPropsTypeAnnotation(propsIdentifier);
     }
 
@@ -220,7 +217,8 @@ function resolvePropsParam(ctx: ICompilationContext): t.Identifier | undefined {
     return;
   }
 
-  return withPropsTypeAnnotation(propsIdentifier, propsTSIface.name);
+  const typeName = resolvePropsTypeName(propsTSIface.name, hasUseAttrsCall);
+  return withPropsTypeAnnotation(propsIdentifier, typeName);
 }
 
 /**
@@ -236,4 +234,10 @@ function withPropsTypeAnnotation(
 
   propsIdentifier.typeAnnotation = typeAnnotation;
   return propsIdentifier;
+}
+
+function resolvePropsTypeName(name: string, hasUseAttrsCall?: boolean): string {
+  // props 接口存在且属性透传也存在，
+  // 则需让 props 接口交叉 Record<string, unknown>
+  return typeof hasUseAttrsCall !== 'undefined' ? `${name} & Record<string, unknown>` : name;
 }

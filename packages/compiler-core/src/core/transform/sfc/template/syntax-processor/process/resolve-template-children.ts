@@ -14,11 +14,17 @@ import { resolveSlotOutletNode } from './resolve-slot-outlet-node';
 import { resolveTemplateVSlotNode } from './resolve-template-v-slot-node';
 import { resolveTextNode } from './resolve-text-node';
 
+// 用于记录当前处理批次中，是否已标记了根节点
+let isRootMarked: boolean | undefined = false;
+
 export function resolveTemplateChildren(
   node: VueRootNode,
   nodeIR: TemplateBlockIR,
   ctx: ICompilationContext,
 ) {
+  if (!isRootMarked) {
+    isRootMarked = true;
+  }
   resolveChildNodes(node, nodeIR, ctx, null, nodeIR.children);
 }
 
@@ -50,6 +56,9 @@ export function resolveChildNodes(
       // 处理普通元素节点
       const elementIR = resolveElementNode(child, nodeIR, ctx, childrenIR as ElementNodeIR[]);
 
+      // 根据情况标记根节点
+      markRootNode(elementIR);
+
       // 将生成的元素IR添加到子节点列表中
       childrenIR.push(elementIR);
 
@@ -79,5 +88,13 @@ export function resolveChildNodes(
     }
   }
 
-  return nodeIR
+  return nodeIR;
+}
+
+function markRootNode(nodeIR: ElementNodeIR) {
+  if (isRootMarked) {
+    nodeIR.isRoot = isRootMarked;
+    // 重置全局标记
+    isRootMarked = undefined;
+  }
 }

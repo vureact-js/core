@@ -1,4 +1,3 @@
-export { resolveClassPropertyAccess } from './resolve-class-property-access';
 export { resolveDefineAsyncComponent } from './resolve-define-async-component';
 export { resolveDefineExpose } from './resolve-define-expose';
 export { resolveDefineOptions } from './resolve-define-options';
@@ -10,7 +9,6 @@ export {
 } from './resolve-props-interface/resolve-emits';
 export {
   resolveDefineSlotsIface,
-  resolveSlotsTopLevelTypes,
   resolveTemplateSlotIface,
 } from './resolve-props-interface/resolve-slot';
 export { resolveUseAttrs } from './resolve-use-attrs';

@@ -14,17 +14,19 @@ import {
   warnUnsupportedVueDollarVar,
 } from '@transform/sfc/template/shared/warning-utils';
 import { DirectiveNode, ElementNode as VueElementNode } from '@vue/compiler-core';
+import {
+  resolveDynamicAttributeProp,
+  resolveRouterLinkVSlotProp,
+  resolveVFor,
+  resolveVHtml,
+  resolveVIf,
+  resolveVMemo,
+  resolveVModel,
+  resolveVOn,
+  resolveVShow,
+  resolveVText,
+} from '.';
 import { ElementNodeIR } from '../resolve-element-node';
-import { resolveDynamicAttributeProp } from './resolve-dynamic-attribute-prop';
-import { resolveRouterLinkVSlotProp } from './resolve-router-link-v-slot-prop';
-import { resolveVFor } from './resolve-v-for';
-import { resolveVHtml } from './resolve-v-html';
-import { resolveVIf } from './resolve-v-if';
-import { resolveVMemo } from './resolve-v-memo';
-import { resolveVModel } from './resolve-v-model';
-import { resolveVOn } from './resolve-v-on';
-import { resolveVShow } from './resolve-v-show';
-import { resolveVText } from './resolve-v-text';
 
 export function resolveDirectiveProp(
   directive: DirectiveNode,

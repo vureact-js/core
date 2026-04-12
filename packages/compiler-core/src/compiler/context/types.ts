@@ -45,6 +45,9 @@ export interface ICompilationContext {
 
     /** defineEmits 中声明的事件名 */
     declaredEmits: Set<string>;
+
+    /** useAttrs 的变量声明名 */
+    declaredAttrs?: string;
   };
 
   scriptData: {
@@ -55,7 +58,12 @@ export interface ICompilationContext {
 
     /** 组件 props ts 接口集合 */
     propsTSIface: IPropsContext;
+
+    /** script 源码 */
     source: string;
+
+    /** 检测 useAttrs() 调用是否存在  */
+    hasUseAttrsCall?: boolean;
 
     /** 是否需要 forwardRef 包装组件 */
     forwardRef: {

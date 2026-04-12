@@ -34,6 +34,9 @@ export function resolveDeclaredOptions(path: NodePath<t.CallExpression>, ctx: IC
 
   const { source, declaredOptions } = scriptData;
 
+  // 默认开启 inheritAttrs
+  declaredOptions.inheritAttrs = true;
+
   // 遍历选项进行收集
   for (const property of options.properties) {
     if (!t.isObjectProperty(property) || !t.isIdentifier(property.key) || property.computed) {

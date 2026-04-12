@@ -12,6 +12,5 @@ export function resolveCommentNode(
 ) {
   const nodeIR = createTextNodeIR(node.content, true);
   nodeIR.babelExp = resolveStringExpr(nodeIR.content, ctx);
-
   childrenIR.push(nodeIR);
 }

@@ -3,7 +3,6 @@ import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
 import { resolveASTChunks, resolveRuntimeImports, resolveSfcCssImport } from './postprocess';
 import {
-  resolveClassPropertyAccess,
   resolveCompIProps,
   resolveDefineAsyncComponent,
   resolveDefineExpose,
@@ -11,7 +10,6 @@ import {
   resolveEmitCalls,
   resolveEmitsTopLevelTypes,
   resolvePropsIface,
-  resolveSlotsTopLevelTypes,
   resolveTemplateSlotIface,
   resolveUseAttrs,
 } from './preprocess';
@@ -51,15 +49,12 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
       applyBabel: [
         resolvePropsIface,
         resolveEmitsTopLevelTypes,
-        resolveSlotsTopLevelTypes,
         resolveDefineOptions,
         resolveDefineExpose,
         resolveDefineAsyncComponent,
         resolveEmitCalls,
         // feature: https://github.com/vureact-js/core/issues/6
         resolveUseAttrs,
-        // feature: https://github.com/vureact-js/core/issues/10
-        resolveClassPropertyAccess,
       ],
     },
 

@@ -54,6 +54,7 @@ export function resolvePropsIface(ctx: ICompilationContext): TraverseOptions {
         } else if (name === MACRO_API_NAMES.emits) {
           resolveDefineEmitsIface(path, ctx);
         } else if (name === MACRO_API_NAMES.slots) {
+          // fix: https://github.com/vureact-js/core/issues/12
           resolveDefineSlotsIface(path, ctx);
         }
       }

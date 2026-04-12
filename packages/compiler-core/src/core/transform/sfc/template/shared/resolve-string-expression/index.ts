@@ -1,9 +1,9 @@
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { stringToExpr } from '@shared/babel-utils';
-import { resolveSpecialExpressions } from './special-expressions';
+import { resolveSpecialExpression } from './resolve-special-expression';
 
-export * from './special-expressions';
+export * from './resolve-special-expression';
 
 /**
  * 模板中的所有字符串表达式都会经过此函数
@@ -13,10 +13,12 @@ export function resolveStringExpr(
   ctx: ICompilationContext,
   toStrLiteral = false,
 ): t.Expression {
-  if (toStrLiteral) return t.stringLiteral(input);
+  if (toStrLiteral) {
+    return t.stringLiteral(input);
+  }
 
   const { filename, scriptData } = ctx;
-  const newContent = resolveSpecialExpressions(input, ctx);
+  const newContent = resolveSpecialExpression(input, ctx);
 
   try {
     return stringToExpr(newContent, scriptData.lang, filename);

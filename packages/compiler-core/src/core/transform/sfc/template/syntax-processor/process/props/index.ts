@@ -4,6 +4,7 @@ export { resolveDynamicAttributeProp } from './resolve-dynamic-attribute-prop';
 export { resolveDynamicIsProp, resolveStaticIsProp } from './resolve-is-prop';
 export { resolveProps, type PropIRValue, type PropsIR } from './resolve-props';
 export { resolveRefProp } from './resolve-ref-prop';
+export { resolveRouterLinkVSlotProp } from './resolve-router-link-v-slot-prop';
 export { resolveVFor } from './resolve-v-for';
 export { resolveVHtml } from './resolve-v-html';
 export { resolveVIf } from './resolve-v-if';

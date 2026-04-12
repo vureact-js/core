@@ -21,6 +21,7 @@ export interface ElementNodeIR extends BaseElementNodeIR {
 
 export interface BaseElementNodeIR {
   tag: string;
+  isRoot?: boolean;
   isComponent?: boolean;
   isSelfClosing?: boolean;
   ref?: string;

@@ -1,6 +1,5 @@
 <template>
   Hello {{ props.title }}
-  {{ $props.title }}
 
   <!-- 应将 emit('change') 替换为 props?.onChange() -->
   <button @click="() => emit('change')"></button>
@@ -13,10 +12,25 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+interface SomeTypes {
+  name: string;
+  class?: () => string;
+  click: () => any;
+  change: (v: string) => string;
+}
+
 const props = defineProps<{ title: string }>();
+
 const emit = defineEmits<{
   (e: 'change'): void;
   (e: 'update', arg: { value: number }, d?: number): number;
+}>();
+
+defineSlots<{
+  default?: () => any;
+  header?: (props: { title: string }) => any;
+  footer?: (props: { year: number }) => any;
+  item?: (props: { id: number; name: string }) => any;
 }>();
 
 const count = ref(1);
