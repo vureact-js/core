@@ -1,10 +1,7 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
-import {
-  createPropsIR,
-  resolvePropAsBabelExp,
-} from '@src/core/transform/sfc/template/shared/prop-ir-utils';
-import { PropTypes } from '@src/core/transform/sfc/template/shared/types';
+import { TemplateBlockIR } from '@transform/sfc/template';
+import { createPropsIR, resolvePropAsBabelExp } from '@transform/sfc/template/shared/prop-ir-utils';
+import { PropTypes } from '@transform/sfc/template/shared/types';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 import {
@@ -32,19 +29,19 @@ type HTMLInputType =
   | 'url';
 
 export function resolveVModel(
-  node: DirectiveNode,
-  _ir: TemplateBlockIR,
+  directive: DirectiveNode,
+  ir: TemplateBlockIR,
   ctx: ICompilationContext,
-  elementNode: VueElementNode,
+  vueNode: VueElementNode,
   nodeIR: ElementNodeIR,
 ) {
-  const arg = node.arg as SimpleExpressionNode;
-  const exp = node.exp as SimpleExpressionNode;
-  const modifiers = node.modifiers.map((item) => item.content);
+  const arg = directive.arg as SimpleExpressionNode;
+  const exp = directive.exp as SimpleExpressionNode;
+  const modifiers = directive.modifiers.map((item) => item.content);
 
   const getterName = exp.content;
-  const isComponent = elementNode.tagType === ElementTypes.COMPONENT;
-  const inputType = resolveHtmlInput(elementNode, isComponent);
+  const isComponent = vueNode.tagType === ElementTypes.COMPONENT;
+  const inputType = resolveHtmlInput(vueNode, isComponent);
   const propName = arg?.content ?? resolveModelPropName(inputType, isComponent);
 
   let valuePropIR: PropsIR;
@@ -76,7 +73,7 @@ export function resolveVModel(
     // ==========================================
     if (inputType === 'radio') {
       // Radio 特殊处理：绑定 checked，触发 onChange
-      const radioValue = getRadioValue(elementNode);
+      const radioValue = getRadioValue(vueNode);
       valuePropIR = createPropsIR('v-model', 'checked', `${getterName} === ${radioValue}`);
 
       const processedValue = applyValueModifiers(radioValue, modifiers);
@@ -119,8 +116,8 @@ function resolveModelPropName(inputType?: HTMLInputType, isComponent = false): s
   return !isComponent ? 'value' : 'modelValue';
 }
 
-function getRadioValue(elementNode: VueElementNode): string {
-  const valueAttr = elementNode.props.find(
+function getRadioValue(vueNode: VueElementNode): string {
+  const valueAttr = vueNode.props.find(
     (prop) => prop.type === NodeTypes.ATTRIBUTE && prop.name === 'value',
   ) as AttributeNode | undefined;
 

@@ -1,17 +1,18 @@
 import { ICompilationContext } from '@compiler/context/types';
+import { SUPPORTED_DIRECTIVES } from '@consts/other';
 import { VUE_API_MAP } from '@consts/vue-api-map';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
+import { TemplateBlockIR } from '@transform/sfc/template';
 import {
   isVBind,
   isVConditional,
   isVModel,
   isVOn,
   isVSlot,
-} from '@src/core/transform/sfc/template/shared/prop-ir-utils';
+} from '@transform/sfc/template/shared/prop-ir-utils';
 import {
   warnUnsupportedDirective,
   warnUnsupportedVueDollarVar,
-} from '@src/core/transform/sfc/template/shared/warning-utils';
+} from '@transform/sfc/template/shared/warning-utils';
 import { DirectiveNode, ElementNode as VueElementNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { resolveDynamicAttributeProp } from './resolve-dynamic-attribute-prop';
@@ -25,63 +26,49 @@ import { resolveVOn } from './resolve-v-on';
 import { resolveVShow } from './resolve-v-show';
 import { resolveVText } from './resolve-v-text';
 
-const SUPPORTED_DIRECTIVES = new Set<string>([
-  'text',
-  'html',
-  'show',
-  'if',
-  'else',
-  'else-if',
-  'for',
-  'on',
-  'once',
-  'bind',
-  'model',
-  'cloak',
-  'slot',
-  'memo',
-  'is',
-]);
-
 export function resolveDirectiveProp(
-  node: DirectiveNode,
+  directive: DirectiveNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
-  elementNode: VueElementNode,
+  vueNode: VueElementNode,
   nodeIR: ElementNodeIR,
   siblingNodesIR: ElementNodeIR[],
 ): boolean | void {
-  const { name, rawName } = node;
+  const { name, rawName } = directive;
 
   if (!SUPPORTED_DIRECTIVES.has(name)) {
-    warnUnsupportedDirective(ctx, node.loc, rawName);
+    warnUnsupportedDirective(ctx, directive.loc, rawName);
     return;
   }
 
-  warnUnsupportedVueDollarVar(ctx, node);
+  warnUnsupportedVueDollarVar(ctx, directive);
 
   if (isVConditional(rawName)) {
-    return resolveVIf(node, ir, ctx, nodeIR, siblingNodesIR);
+    return resolveVIf(directive, ir, ctx, nodeIR, siblingNodesIR);
   }
 
   /**
    * 处理能够直接精确匹配的指令
    */
   function processExactDirectives() {
-    switch (node.rawName) {
+    switch (directive.rawName) {
       case 'v-html':
-        resolveVHtml(node, ir, ctx, nodeIR);
+        resolveVHtml(directive, ir, ctx, nodeIR);
         return true;
+
       case 'v-text':
-        resolveVText(node, ir, ctx, nodeIR);
+        resolveVText(directive, ir, ctx, nodeIR);
         return true;
+
       case 'v-once':
       case 'v-memo':
-        return resolveVMemo(node, ir, ctx, nodeIR);
+        return resolveVMemo(directive, ir, ctx, nodeIR);
+
       case 'v-show':
-        return resolveVShow(node, ir, ctx, nodeIR);
+        return resolveVShow(directive, ir, ctx, nodeIR);
+
       case 'v-for':
-        return resolveVFor(node, ir, ctx, nodeIR);
+        return resolveVFor(directive, ir, ctx, nodeIR);
     }
   }
 
@@ -89,20 +76,23 @@ export function resolveDirectiveProp(
    * 处理模糊匹配的指令，如 v-on/@/:
    */
   function processRangeDirectives(): true | void {
-    const { rawName } = node;
+    const { rawName } = directive;
 
     if (isVModel(rawName)) {
-      return resolveVModel(node, ir, ctx, elementNode, nodeIR);
+      return resolveVModel(directive, ir, ctx, vueNode, nodeIR);
     }
+
     if (isVBind(rawName)) {
-      return resolveDynamicAttributeProp(node, ir, ctx, nodeIR);
+      return resolveDynamicAttributeProp(directive, ir, ctx, vueNode, nodeIR);
     }
+
     if (isVOn(rawName)) {
-      return resolveVOn(node, ir, ctx, nodeIR);
+      return resolveVOn(directive, ir, ctx, nodeIR);
     }
+
     if (isVSlot(rawName)) {
       if (nodeIR.tag === VUE_API_MAP.RouterLink) {
-        resolveRouterLinkVSlotProp(node, nodeIR, ctx);
+        resolveRouterLinkVSlotProp(directive, nodeIR, ctx);
       }
       return true;
     }

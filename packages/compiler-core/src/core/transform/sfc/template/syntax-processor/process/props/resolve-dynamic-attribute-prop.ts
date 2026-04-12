@@ -12,60 +12,71 @@ import {
 import { mergePropsIR } from '@transform/sfc/template/shared/prop-merge-utils';
 import { parseStyleString } from '@transform/sfc/template/shared/style-utils';
 import { warnUnsupportedVueDollarVar } from '@transform/sfc/template/shared/warning-utils';
-import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
+import {
+  DirectiveNode,
+  SimpleExpressionNode,
+  ElementNode as VueElementNode,
+} from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { resolveDynamicIsProp } from './resolve-is-prop';
 import { PropsIR } from './resolve-props';
 import { resolveRefProp } from './resolve-ref-prop';
+import { resolveTemplateNodeKey } from './resolve-template-key';
 
 export function resolveDynamicAttributeProp(
-  node: DirectiveNode,
+  directive: DirectiveNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
+  vueNode: VueElementNode,
   nodeIR: ElementNodeIR,
 ) {
-  const arg = node.arg as SimpleExpressionNode;
-  const exp = node.exp as SimpleExpressionNode;
+  const arg = directive.arg as SimpleExpressionNode;
+  const exp = directive.exp as SimpleExpressionNode;
 
   const name = arg?.content ?? '';
   const content = exp?.content ?? 'true';
 
-  warnUnsupportedVueDollarVar(ctx, node);
+  warnUnsupportedVueDollarVar(ctx, directive);
 
   if (name === 'is') {
-    resolveDynamicIsProp(node, ir, ctx, nodeIR);
+    resolveDynamicIsProp(directive, ir, ctx, nodeIR);
     return;
   }
 
   if (name === 'ref') {
-    resolveRefProp(node, ctx, nodeIR);
+    resolveRefProp(directive, ctx, nodeIR);
     return;
   }
 
-  const propIR = createPropsIR(node.rawName!, name, content);
+  // fix: https://github.com/vureact-js/core/issues/11
+  if (vueNode.tag === 'template' && name === 'key') {
+    resolveTemplateNodeKey(vueNode, content);
+    return;
+  }
+
+  const propIR = createPropsIR(directive.rawName!, name, content);
   propIR.isStatic = arg?.isStatic ?? true;
 
-  checkPropIsDynamicKey(ctx, node);
-
+  checkPropIsDynamicKey(ctx, directive);
   resolvePropertyIR(propIR, ir, ctx, nodeIR, true);
 }
 
 export function resolvePropertyIR(
-  node: PropsIR,
+  propsIR: PropsIR,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
   isDynamic = false,
 ) {
-  let content = node.value.content;
+  let content = propsIR.value.content;
 
-  if (isVBind(node.rawName) && !node.name) {
-    node.isKeyLessVBind = true;
+  if (isVBind(propsIR.rawName) && !propsIR.name) {
+    propsIR.isKeyLessVBind = true;
   }
 
-  if (isStyleAttr(node.name)) {
-    node.value.isStringLiteral = false;
-    content = node.value.content = parseStyleString(content);
+  if (isStyleAttr(propsIR.name)) {
+    propsIR.value.isStringLiteral = false;
+    content = propsIR.value.content = parseStyleString(content);
   }
 
   if (isDynamic) {
@@ -74,22 +85,22 @@ export function resolvePropertyIR(
     // fix: 在字符串的情况下某些内容还带着单引号，需规范化
     if (isStringLiteral) {
       content = normalizeString(content);
-      node.value.content = content;
+      propsIR.value.content = content;
     }
 
     // 该节点标记为字符串类型，踢出动态类型
-    node.value.isStringLiteral = isStringLiteral;
+    propsIR.value.isStringLiteral = isStringLiteral;
   }
 
-  const existing = findSameProp(nodeIR.props, node);
+  const existing = findSameProp(nodeIR.props, propsIR);
 
   if (existing) {
-    mergePropsIR(ctx, existing, node);
+    mergePropsIR(ctx, existing, propsIR);
   } else {
-    nodeIR.props.push(node);
+    nodeIR.props.push(propsIR);
   }
 
-  resolvePropAsBabelExp(existing ?? node, ctx);
+  resolvePropAsBabelExp(existing ?? propsIR, ctx);
 }
 
 function normalizeString(s: string): string {

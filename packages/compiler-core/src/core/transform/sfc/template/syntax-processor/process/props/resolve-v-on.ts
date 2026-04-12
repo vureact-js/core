@@ -16,15 +16,15 @@ import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 
 export function resolveVOn(
-  node: DirectiveNode,
-  _ir: TemplateBlockIR,
+  directive: DirectiveNode,
+  ir: TemplateBlockIR,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
 ) {
-  const arg = node.arg as SimpleExpressionNode;
-  const exp = node.exp as SimpleExpressionNode;
+  const arg = directive.arg as SimpleExpressionNode;
+  const exp = directive.exp as SimpleExpressionNode;
 
-  const modifiers = node.modifiers.map((item) => item.content);
+  const modifiers = directive.modifiers.map((item) => item.content);
   const captureIndex = modifiers.findIndex((modifier) => modifier === 'capture');
 
   // fix: Vue 事件名转 React 事件 props：
@@ -54,7 +54,7 @@ export function resolveVOn(
     }
   }
 
-  const eventIR = createPropsIR(node.rawName!, eventName, handler);
+  const eventIR = createPropsIR(directive.rawName!, eventName, handler);
 
   eventIR.type = PropTypes.EVENT;
   eventIR.isStatic = arg.isStatic;

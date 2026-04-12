@@ -1,4 +1,9 @@
+import { traverse } from '@babel/core';
+import { generate } from '@babel/generator';
+import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { stringToExpr } from '@shared/babel-utils';
+import { resolveClassPropertyToClassName } from '@transform/shared';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 
@@ -6,8 +11,8 @@ import { capitalize } from '@utils/capitalize';
  * 解决各种需要特殊处理的模板字符串表达式
  */
 export function resolveSpecialExpressions(input: string, ctx: ICompilationContext): string {
-  input = resolveEmitsCalls(input, ctx);
-  input = resolveRefVariable(input, ctx);
+  const resolver = [resolveEmitsCalls, resolveRefVariable, resolveClassToClassName];
+  input = resolver.reduce((result, fn) => fn(result, ctx), input);
   return input;
 }
 
@@ -79,4 +84,22 @@ function resolveRefVariable(input: string, ctx: ICompilationContext): string {
   }
 
   return input;
+}
+
+/**
+ * 把属性名为 'class' 的属性替换为 'className'
+ */
+function resolveClassToClassName(input: string, ctx: ICompilationContext): string {
+  // feature: https://github.com/vureact-js/core/issues/10
+
+  const { filename, scriptData } = ctx;
+  const expr = stringToExpr(input, scriptData.lang, filename);
+
+  traverse(t.program([t.expressionStatement(expr)]), {
+    'MemberExpression|OptionalMemberExpression'(path) {
+      resolveClassPropertyToClassName(path);
+    },
+  });
+
+  return generate(expr).code;
 }

@@ -55,7 +55,7 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         resolveDefineExpose,
         resolveDefineAsyncComponent,
         resolveEmitCalls,
-        resolveUseAttrs,
+        resolveUseAttrs, // feature: https://github.com/vureact-js/core/issues/6
       ],
     },
 

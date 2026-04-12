@@ -104,6 +104,7 @@ export function resolveRuntimeImports(ctx: ICompilationContext): TraverseOptions
 
         if (!importNodes.length) return;
 
+        // fix: https://github.com/vureact-js/core/issues/9
         // 首个 import 注入节点继承当前的顶部注释
         forkProgramTopLeadingComments(importNodes[0]!, node);
 

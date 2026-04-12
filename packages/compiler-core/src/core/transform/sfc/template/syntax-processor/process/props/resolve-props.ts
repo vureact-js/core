@@ -26,13 +26,13 @@ export type PropIRValue = {
 };
 
 export function resolveProps(
-  node: VueElementNode,
+  vueNode: VueElementNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
   siblingNodesIR: ElementNodeIR[],
 ) {
-  for (const prop of node.props) {
+  for (const prop of vueNode.props) {
     if (prop.type === NodeTypes.ATTRIBUTE) {
       resolveAttributeProp(prop, ir, ctx, nodeIR);
       continue;
@@ -43,7 +43,7 @@ export function resolveProps(
         prop as DirectiveNode,
         ir,
         ctx,
-        node,
+        vueNode,
         nodeIR,
         siblingNodesIR,
       );

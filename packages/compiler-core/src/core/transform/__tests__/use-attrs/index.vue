@@ -1,5 +1,28 @@
 <template>
-  <div :class="['red', attrs.class]"></div>
+  <div
+    :class="[
+      'red',
+      attrs.class,
+      attrs.xx.class,
+      attrs['class'],
+      attrs.xx['class'],
+      attrs?.['class'],
+    ]"
+  >
+    {{ attrs?.xxx?.['class'] }}
+  </div>
+
+  <template v-if="attrs?.class">
+    <span :class="attrs.class">
+      {{ attrs?.xxx?.class }}
+    </span>
+  </template>
+
+  <template v-for="value in source" :key="value">
+    <div>{{ value }}</div>
+  </template>
+
+  <template>dawdw</template>
 </template>
 
 <script setup lang="ts">
@@ -26,7 +49,7 @@ interface Attrs {
   style?: string;
 }
 
-defineProps<{ title: string }>();
+const props = defineProps<{ title: string; class: string }>();
 
 const attrs = useAttrs();
 
@@ -38,4 +61,9 @@ const destructured: Attrs = useAttrs();
 
 A;
 B;
+
+if (attrs?.class || props.class) {
+  const cls = attrs.class + 'red';
+  console.log(attrs.class, cls, props.class);
+}
 </script>

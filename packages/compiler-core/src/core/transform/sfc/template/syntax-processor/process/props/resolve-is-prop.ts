@@ -2,33 +2,30 @@ import { ICompilationContext } from '@compiler/context/types';
 import { PACKAGE_NAME } from '@consts/other';
 import { VUE_API_MAP } from '@consts/vue-api-map';
 import { strCodeTypes } from '@shared/string-code-types';
-import { TemplateBlockIR } from '@src/core/transform/sfc/template';
-import {
-  createPropsIR,
-  resolvePropAsBabelExp,
-} from '@src/core/transform/sfc/template/shared/prop-ir-utils';
+import { TemplateBlockIR } from '@transform/sfc/template';
+import { createPropsIR, resolvePropAsBabelExp } from '@transform/sfc/template/shared/prop-ir-utils';
 import { recordImport } from '@transform/shared';
 import { camelCase } from '@utils/camelCase';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 
 export function resolveStaticIsProp(
-  node: string,
+  content: string,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
 ) {
-  if (!node) {
+  if (!content) {
     return;
   }
 
-  if (node.startsWith('vue:')) {
-    const name = node.split('vue:')[1]!;
+  if (content.startsWith('vue:')) {
+    const name = content.split('vue:')[1]!;
     nodeIR.tag = camelCase(name);
     return;
   }
 
-  const propIR = createPropsIR('is', 'is', node);
+  const propIR = createPropsIR('is', 'is', content);
   propIR.value.isStringLiteral = true;
 
   resolvePropAsBabelExp(propIR, ctx);
@@ -36,12 +33,12 @@ export function resolveStaticIsProp(
 }
 
 export function resolveDynamicIsProp(
-  node: DirectiveNode,
+  directive: DirectiveNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
 ) {
-  const exp = node.exp as SimpleExpressionNode;
+  const exp = directive.exp as SimpleExpressionNode;
   const content = exp.content;
 
   if (strCodeTypes.isStringLiteral(content)) {

@@ -1,15 +1,12 @@
 import { ICompilationContext } from '@compiler/context/types';
 import { HTML_TAG_TYPES } from '@consts/html-tag-types';
-import {
-  createPropsIR,
-  resolvePropAsBabelExp,
-} from '@src/core/transform/sfc/template/shared/prop-ir-utils';
+import { createPropsIR, resolvePropAsBabelExp } from '@transform/sfc/template/shared/prop-ir-utils';
 import { AttributeNode, DirectiveNode, NodeTypes, SimpleExpressionNode } from '@vue/compiler-core';
 import { ElementNodeIR } from '../resolve-element-node';
 import { PropsIR } from './resolve-props';
 
 export function resolveRefProp(
-  node: AttributeNode | DirectiveNode,
+  prop: AttributeNode | DirectiveNode,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
 ) {
@@ -19,8 +16,8 @@ export function resolveRefProp(
 
   let propIR: PropsIR;
 
-  if (node.type === NodeTypes.ATTRIBUTE) {
-    const tag = node.value?.content;
+  if (prop.type === NodeTypes.ATTRIBUTE) {
+    const tag = prop.value?.content;
     if (!tag) return;
 
     // 收集组件 ref 信息
@@ -33,7 +30,7 @@ export function resolveRefProp(
     propIR = createPropsIR('ref', 'ref', refVar || 'null');
   } else {
     // 处理 :ref 值
-    const exp = node.exp as SimpleExpressionNode;
+    const exp = prop.exp as SimpleExpressionNode;
 
     // 为 useTemplateRef 的变量访问，添加 .current 属性
     for (const name in refBindings.domRefs) {

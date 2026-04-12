@@ -9,13 +9,13 @@ import { resolveStaticIsProp } from './resolve-is-prop';
 import { resolveRefProp } from './resolve-ref-prop';
 
 export function resolveAttributeProp(
-  node: AttributeNode,
+  attribute: AttributeNode,
   ir: TemplateBlockIR,
   ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
 ) {
-  const name = node.name;
-  const content = node.value?.content ?? 'true';
+  const name = attribute.name;
+  const content = attribute.value?.content ?? 'true';
 
   if (name === 'is') {
     resolveStaticIsProp(content, ir, ctx, nodeIR);
@@ -23,7 +23,7 @@ export function resolveAttributeProp(
   }
 
   if (name === 'ref') {
-    resolveRefProp(node, ctx, nodeIR);
+    resolveRefProp(attribute, ctx, nodeIR);
     return;
   }
 

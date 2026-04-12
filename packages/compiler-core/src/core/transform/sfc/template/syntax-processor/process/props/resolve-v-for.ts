@@ -4,15 +4,15 @@ import { DirectiveNode, ForParseResult, SimpleExpressionNode } from '@vue/compil
 import { ElementNodeIR, LoopMeta } from '../resolve-element-node';
 
 export function resolveVFor(
-  node: DirectiveNode,
-  _ir: TemplateBlockIR,
-  _ctx: ICompilationContext,
+  directive: DirectiveNode,
+  ir: TemplateBlockIR,
+  ctx: ICompilationContext,
   nodeIR: ElementNodeIR,
 ) {
   nodeIR.meta.loop = {
     isLoop: true,
     isHandled: false,
-    value: resolveForResult(node.forParseResult!),
+    value: resolveForResult(directive.forParseResult!),
   };
 }
 

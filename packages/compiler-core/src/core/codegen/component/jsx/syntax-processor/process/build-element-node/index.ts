@@ -1,12 +1,13 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { ElementNodeIR } from '@src/core/transform/sfc/template/syntax-processor/process';
-import { JSXChild } from '../../types';
-import { createJsxElement } from '../../utils/jsx-element-utils';
-import { buildConditionNode } from './build-condition-node';
-import { buildJsxChildren } from './build-jsx-children';
-import { buildLoopNode } from './build-loop-node';
-import { buildMemoNode } from './build-memo-node';
-import { buildProps } from './build-props';
+import { ElementNodeIR } from '@transform/sfc/template/syntax-processor/process';
+import { JSXChild } from '../../../types';
+import { createJsxElement } from '../../../utils/jsx-element-utils';
+import { buildConditionNode } from '../build-condition-node';
+import { buildJsxChildren } from '../build-jsx-children';
+import { buildLoopNode } from '../build-loop-node';
+import { buildMemoNode } from '../build-memo-node';
+import { buildProps } from '../build-props';
+import { resolveTemplateNode } from './resolve-template-node';
 
 export function buildElementNode(nodeIR: ElementNodeIR, ctx: ICompilationContext): JSXChild | null {
   const mutableNodeIR = nodeIR as ElementNodeIR & { __processing?: boolean };
@@ -15,7 +16,7 @@ export function buildElementNode(nodeIR: ElementNodeIR, ctx: ICompilationContext
     return null;
   }
 
-  const meta = nodeIR.meta;
+  const { meta } = nodeIR;
 
   if (meta?.condition && !meta.condition.isHandled) {
     return buildConditionNode(nodeIR, ctx);
@@ -31,6 +32,12 @@ export function buildElementNode(nodeIR: ElementNodeIR, ctx: ICompilationContext
 
   const props = buildProps(nodeIR, ctx);
   const children = buildJsxChildren(nodeIR.children, ctx);
+
+  // fix: https://github.com/vureact-js/core/issues/8
+  if (nodeIR.tag === 'template') {
+    const jsxChild = resolveTemplateNode(nodeIR, children);
+    if (jsxChild) return jsxChild;
+  }
 
   return createJsxElement(nodeIR.tag, props, children, nodeIR.isSelfClosing);
 }

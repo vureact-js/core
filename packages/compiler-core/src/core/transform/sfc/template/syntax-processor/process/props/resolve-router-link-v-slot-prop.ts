@@ -1,25 +1,24 @@
 import { ICompilationContext } from '@compiler/context/types';
-import { checkPropIsDynamicKey } from '@src/core/transform/sfc/template/shared/prop-ir-utils';
-import { PropTypes } from '@src/core/transform/sfc/template/shared/types';
+import { checkPropIsDynamicKey } from '@transform/sfc/template/shared/prop-ir-utils';
+import { PropTypes } from '@transform/sfc/template/shared/types';
 import { DirectiveNode, SimpleExpressionNode } from '@vue/compiler-core';
-import { SlotPropsIR } from './resolve-v-slot-prop';
 import { ElementNodeIR } from '../resolve-element-node';
-import { PropsIR } from './resolve-props';
+import { SlotPropsIR } from './resolve-v-slot-prop';
 
 export function resolveRouterLinkVSlotProp(
-  node: DirectiveNode,
+  directive: DirectiveNode,
   nodeIR: ElementNodeIR,
   ctx: ICompilationContext,
 ) {
-  const arg = node.arg as SimpleExpressionNode | undefined;
-  const exp = node.exp as SimpleExpressionNode | undefined;
+  const arg = directive.arg as SimpleExpressionNode | undefined;
+  const exp = directive.exp as SimpleExpressionNode | undefined;
 
-  checkPropIsDynamicKey(ctx, node);
+  checkPropIsDynamicKey(ctx, directive);
 
   const propIR: SlotPropsIR = {
     type: PropTypes.SLOT,
     name: 'customRender',
-    rawName: node.rawName ?? 'v-slot',
+    rawName: directive.rawName ?? 'v-slot',
     isStatic: arg?.isStatic ?? true,
     isScoped: true,
     callback: {

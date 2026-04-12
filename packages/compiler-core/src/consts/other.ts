@@ -58,3 +58,24 @@ export const VUE_PACKAGES = [
   // 不需要带到 React 项目中
   '@vureact/compiler-core',
 ];
+
+/**
+ * 支持处理的 Vue 指令列表
+ */
+export const SUPPORTED_DIRECTIVES = new Set([
+  'text',
+  'html',
+  'show',
+  'if',
+  'else',
+  'else-if',
+  'for',
+  'on',
+  'once',
+  'bind',
+  'model',
+  'cloak',
+  'slot',
+  'memo',
+  'is',
+]);
