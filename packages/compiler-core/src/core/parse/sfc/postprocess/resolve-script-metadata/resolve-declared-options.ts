@@ -20,11 +20,14 @@ export function resolveDeclaredOptions(path: NodePath<t.CallExpression>, ctx: IC
 
   // 选项必须是 ObjectExpression 类型
   if (!options || !t.isObjectExpression(options)) {
-    logger.warn(`Expected argument type "ObjectExpression", but got "${options?.type}".`, {
-      file: filename,
-      source: scriptData.source,
-      loc: options?.loc || node.loc,
-    });
+    logger.warn(
+      `Expected argument to be of a type ["ObjectExpression"] but instead got "${options?.type}".`,
+      {
+        file: filename,
+        source: scriptData.source,
+        loc: options?.loc || node.loc,
+      },
+    );
 
     return;
   }
@@ -43,11 +46,14 @@ export function resolveDeclaredOptions(path: NodePath<t.CallExpression>, ctx: IC
     if (propKey.name === 'name') {
       // 只允许 name 值为字符串字面量类型，避免过度解析
       if (!t.isStringLiteral(propValue)) {
-        logger.warn(`Expected type 'StringLiteral', but got '${propValue.type}'.`, {
-          source,
-          file: filename,
-          loc: propKey?.loc,
-        });
+        logger.warn(
+          `Expected property to be of a type ["StringLiteral"] but instead got "${propValue.type}".`,
+          {
+            source,
+            file: filename,
+            loc: propKey?.loc,
+          },
+        );
 
         continue;
       }
@@ -63,11 +69,14 @@ export function resolveDeclaredOptions(path: NodePath<t.CallExpression>, ctx: IC
     if (propKey.name === 'inheritAttrs') {
       // 只允许 inheritAttrs 值为布尔字面量类型，避免过度解析
       if (!t.isBooleanLiteral(propValue)) {
-        logger.warn(`Expected type 'BooleanLiteral', but got '${propValue.type}'.`, {
-          source,
-          file: filename,
-          loc: propKey?.loc,
-        });
+        logger.warn(
+          `Expected property to be of a type ["BooleanLiteral"] but instead got "${propValue.type}".`,
+          {
+            source,
+            file: filename,
+            loc: propKey?.loc,
+          },
+        );
 
         continue;
       }

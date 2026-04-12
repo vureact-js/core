@@ -190,13 +190,17 @@ function resolveForwardRef(body: t.BlockStatement, ctx: ICompilationContext) {
 // 处理 props 参数
 function resolvePropsParam(ctx: ICompilationContext): t.Identifier | undefined {
   const { propField, scriptData } = ctx;
-  const { propsTSIface } = scriptData;
+  const { propsTSIface, declaredOptions } = scriptData;
   const propsIdentifier = t.identifier(propField);
 
-  // 有 props 但是 js 环境，直接返回参数名
+  // 是否使用了 useAttrs() 属性透传功能
+  const isInheritAttrs = typeof declaredOptions.inheritAttrs !== 'undefined';
+
+  // JavaScript 环境
   if (scriptData.lang.startsWith('js')) {
-    // 即使没有收集 props 类型，但只要疑似有 props 则返回 props 参数名
-    if (propsTSIface.hasPropsInJsEnv) {
+    // 1. 没有收集 props 类型，但疑似有 props 则返回它
+    // 2. 使用属性透传也返回 props 参数
+    if (propsTSIface.hasPropsInJsEnv || isInheritAttrs) {
       return propsIdentifier;
     }
 
@@ -204,15 +208,32 @@ function resolvePropsParam(ctx: ICompilationContext): t.Identifier | undefined {
     return;
   }
 
-  // TypeScript 环境：只有在有有效的 props 类型名称时才返回参数
+  // TypeScript 环境
   if (!propsTSIface.name) {
+    // 使用属性透传，需返回 props 参数 + 默认类型注解
+    if (isInheritAttrs) {
+      return withPropsTypeAnnotation(propsIdentifier);
+    }
+
+    // 只在有效的 props 类型名称时才返回参数
     // 没有 props 类型名称，返回 undefined
     return;
   }
 
-  // 参数设置类型注解
-  const typeIdentifier = t.identifier(propsTSIface.name);
-  propsIdentifier.typeAnnotation = t.tsTypeAnnotation(t.tsTypeReference(typeIdentifier));
+  return withPropsTypeAnnotation(propsIdentifier, propsTSIface.name);
+}
 
+/**
+ * 创建 props 的类型注解
+ * 示例: props: PropsType
+ */
+function withPropsTypeAnnotation(
+  propsIdentifier: t.Identifier,
+  typeName = 'Record<string, unknown>',
+): t.Identifier {
+  const typeRef = t.tsTypeReference(t.identifier(typeName));
+  const typeAnnotation = t.tsTypeAnnotation(typeRef);
+
+  propsIdentifier.typeAnnotation = typeAnnotation;
   return propsIdentifier;
 }

@@ -391,7 +391,7 @@ export function forkNode(node: t.Node, deep = true): t.Node {
 }
 
 /**
- * 替换节点并继承原节点的位置/注释信息/TS类型
+ * 替换原节点并继承其位置/注释信息
  * @param path  节点路径
  * @param target 新节点
  * @param source 被替换的节点

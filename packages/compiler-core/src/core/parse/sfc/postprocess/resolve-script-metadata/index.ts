@@ -4,6 +4,7 @@ import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { ParseResult } from '../../';
 import { resolveDeclaredOptions } from './resolve-declared-options';
 import { resolveDeclaredPropsAndEmits } from './resolve-declared-props-emits';
+import { resolveUseAttrs } from './resolve-use-attrs';
 import { resolveVarBindings } from './resolve-var-bindings';
 
 /**
@@ -29,6 +30,7 @@ export function resolveScriptMeta(result: ParseResult, ctx: ICompilationContext)
     CallExpression(path) {
       resolveDeclaredOptions(path, ctx);
       resolveDeclaredPropsAndEmits(path, ctx);
+      resolveUseAttrs(path, ctx);
     },
   });
 }
