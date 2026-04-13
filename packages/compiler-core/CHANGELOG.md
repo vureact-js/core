@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-04-13
+
+### Added
+
+- **新增 SFC 元数据收集功能**：在解析阶段收集组件定义的 props、emits 和 options 元数据
+- **新增 `useAttrs` 转换支持**：将 Vue 的 `useAttrs()` 调用转换为 React 的 props，并在 TypeScript 环境下自动断言为 `Record` 类型，以隔离原有 props 的类型提示
+- **新增 TypeScript 交叉类型支持**：当组件使用 `useAttrs` 时，自动为 props 类型增加 `Record` 交叉类型，确保类型完整性
+
+### Changed
+
+- **重构脚本元数据收集逻辑**：将解析阶段的脚本元数据收集重构为模块化方案，提升代码可维护性和扩展性
+
+### Fixed
+
+- **修复 import 注入与顶部注释位置冲突问题**：优化导入语句注入逻辑，确保与文件顶部的现有注释正确对齐
+- **修复特定指令的 `<template>` 节点错误迁移问题**：改进模板节点处理逻辑，避免将带有特定指令的 `<template>` 节点直接迁移到 React 产物中
+- **修复 `<template>` 节点的 `:key` 属性未正确转移问题**：确保 `<template>` 上的 `:key` 属性被正确转移到其第一个子节点
+- **修复 SFC 顶层 TypeScript 类型声明中函数字段类型错误问题**：修正类型处理逻辑，避免将函数类型字段错误地当成 slot 处理为 `ReactNode` 类型
+
+---
+
+[1.6.0]: https://github.com/vureact-js/core/compare/v1.5.2...v1.6.0
+
+---
+
 ## [1.5.2] - 2026-04-08
 
 ### Fixed
@@ -509,8 +534,10 @@ When releasing a new version:
 
 ---
 
-```md
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.5.1...HEAD
+```
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/vureact-js/core/compare/v1.5.2...v1.6.0
+[1.5.2]: https://github.com/vureact-js/core/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/vureact-js/core/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/vureact-js/core/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/vureact-js/core/compare/v1.3.0...v1.4.0
