@@ -2,11 +2,13 @@ import {
   memo,
   Suspense as ReactSuspense,
   useCallback,
-  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
 } from 'react';
+import { SuspenseContent } from './Content';
+import { RuntimeSuspenseBoundaryContext } from './context';
+import { SuspenseFallback } from './Fallback';
 
 export interface SuspenseProps {
   children: ReactNode;
@@ -94,39 +96,18 @@ export const Suspense = memo((props: SuspenseProps) => {
   }
 
   return (
-    <ReactSuspense
-      fallback={
-        <SuspenseFallback
-          fallback={fallback}
-          showFallback={showFallback}
-          startPendingCycle={startPendingCycle}
-        />
-      }
-    >
-      <SuspenseContent onResolve={resolvePendingCycle}>{children}</SuspenseContent>
-    </ReactSuspense>
+    <RuntimeSuspenseBoundaryContext.Provider value={true}>
+      <ReactSuspense
+        fallback={
+          <SuspenseFallback
+            fallback={fallback}
+            showFallback={showFallback}
+            startPendingCycle={startPendingCycle}
+          />
+        }
+      >
+        <SuspenseContent onResolve={resolvePendingCycle}>{children}</SuspenseContent>
+      </ReactSuspense>
+    </RuntimeSuspenseBoundaryContext.Provider>
   );
 });
-
-const SuspenseFallback: React.FC<{
-  fallback: ReactNode;
-  showFallback: boolean;
-  startPendingCycle: () => void;
-}> = ({ fallback, showFallback, startPendingCycle }) => {
-  useLayoutEffect(() => {
-    startPendingCycle();
-  }, [startPendingCycle]);
-
-  return <>{showFallback ? fallback : null}</>;
-};
-
-const SuspenseContent: React.FC<{
-  children: ReactNode;
-  onResolve: () => void;
-}> = ({ children, onResolve }) => {
-  useLayoutEffect(() => {
-    onResolve();
-  }, [onResolve]);
-
-  return <>{children}</>;
-};

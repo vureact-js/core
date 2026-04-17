@@ -3,6 +3,7 @@ import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ADAPTER_RULES } from '@consts/adapters-map';
 import { PACKAGE_NAME, VUE_PACKAGES } from '@consts/other';
+import { VUE_API_MAP } from '@consts/vue-api-map';
 import { getReactiveType } from '@shared/reactive-utils';
 import { recordImport } from '@transform/shared';
 import {
@@ -72,7 +73,17 @@ export function resolveRenameAdapter(ctx: ICompilationContext): TraverseOptions 
   };
 }
 
-function isVueApiReference(path: NodePath<t.CallExpression | t.Identifier>, apiName: string): boolean {
+function isVueApiReference(
+  path: NodePath<t.CallExpression | t.Identifier>,
+  apiName: string,
+): boolean {
+  // 白名单可直接放行
+  const whitelist: string[] = [VUE_API_MAP.defineAsyncComponent];
+
+  if (whitelist.includes(apiName)) {
+    return true;
+  }
+
   if (path.isIdentifier()) {
     // CallExpression 的 callee 由 CallExpression 分支统一处理，避免重复命中。
     if (path.parentPath.isCallExpression() && path.parentPath.node.callee === path.node) {

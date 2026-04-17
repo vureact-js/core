@@ -260,6 +260,11 @@ export const ADAPTER_RULES: AdapterRulesMap = {
       package: PACKAGE_NAME.runtime,
       type: 'rename',
     },
+    defineAsyncComponent: {
+      target: 'defineAsyncComponent',
+      package: PACKAGE_NAME.runtime,
+      type: 'rename',
+    },
   },
 
   // =================== [VuReact Router] ===================

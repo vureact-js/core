@@ -4,6 +4,7 @@ import { vOn } from './vOn';
 import { VStyleItem, vStyle } from './vStyle';
 
 export * from './nextTick';
+export * from './defineAsyncComponent';
 export * from './vCls';
 export * from './vKeyless';
 export * from './vOn';
