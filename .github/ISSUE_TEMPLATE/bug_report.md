@@ -1,12 +1,20 @@
+---
+name: Bug Report
+about: Report a bug or unexpected behavior
+title: '[BUG] '
+labels: ['bug']
+assignees: ''
+---
+
 <!-- Thanks for taking the time to report an issue! Please fill out this template to help us understand and address the problem. -->
 
 ## Description
 
-<!-- A clear and concise description of what the bug is or what feature you'd like to request. -->
+<!-- A clear and concise description of what the bug is. -->
 
-## Steps to Reproduce (for bugs)
+## Steps to Reproduce
 
-<!-- If this is a bug report, please provide detailed steps to reproduce the issue. -->
+<!-- Please provide detailed steps to reproduce the issue. -->
 
 1.
 2.
@@ -56,7 +64,7 @@
 
 ```typescript
 // For runtime-core issues
-import { useWatch } from '@vureact/runtime-core/adapter-hooks';
+import { useWatch } from '@vureact/runtime-core';
 // Your code here
 ```
 

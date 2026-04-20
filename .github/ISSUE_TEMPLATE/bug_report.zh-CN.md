@@ -1,12 +1,20 @@
+---
+name: 错误报告
+about: 报告错误或意外行为
+title: '[BUG] '
+labels: ['bug']
+assignees: ''
+---
+
 <!-- 感谢你花时间报告问题！请填写此模板以帮助我们理解和解决问题。 -->
 
 ## 描述
 
-<!-- 清晰简洁地描述错误是什么或你想要请求什么功能。 -->
+<!-- 清晰简洁地描述错误是什么。 -->
 
-## 重现步骤（针对错误）
+## 重现步骤
 
-<!-- 如果这是错误报告，请提供详细的重现步骤。 -->
+<!-- 请提供详细的重现步骤。 -->
 
 1.
 2.
@@ -56,7 +64,7 @@
 
 ```typescript
 // 对于 runtime-core 问题
-import { useWatch } from '@vureact/runtime-core/adapter-hooks';
+import { useWatch } from '@vureact/runtime-core';
 // 你的代码在这里
 ```
 
