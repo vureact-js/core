@@ -16,7 +16,7 @@ Its core value extends beyond project migration, focusing on seamlessly integrat
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-English | [简体中文](./README.md)
+English | [简体中文](./README.md) | [日本語](./README.ja.md)
 
 [<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
 
