@@ -3,14 +3,21 @@
 A compiler that allows you to write React 18+ applications using Vue 3 syntax.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
-[![Total Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Total%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Monthly Downloads](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
 English | [简体中文](./README.md)
+
+## Playground
+
+Before you begin, you can first understand the complete process of how VuReact compiles a Vue project into a React project and successfully runs the page!
+
+- Customer Support Hub (Mixed)：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
+- CRM Admin Dashboard (Standard)：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
 
 ## Quick Start
 
@@ -278,6 +285,3 @@ If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/guide/min
 
 - GitHub: <https://github.com/vureact-js/core>
 - Documentation: <https://vureact.top/en>
-- Playground：
-  - CRM Admin Dashboard (Standard): <https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
-  - Customer Support Hub (Mixed): <https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>

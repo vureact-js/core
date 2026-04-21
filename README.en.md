@@ -9,8 +9,8 @@ A compiler that allows you to write React 18+ applications using Vue 3 syntax.
 Its core value extends beyond project migration, focusing on seamlessly integrating Vue's development experience with React's ecosystem capabilities, producing maintainable, evolvable, and production-ready React code.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
-[![Total Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Total%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Monthly Downloads](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
@@ -24,77 +24,38 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
 
 ---
 
+## 🪄 Playground
+
+Before you begin, you can first understand the complete process of how VuReact compiles a Vue project into a React project and successfully runs the page!
+
+- Customer Support Hub (Mixed)：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
+- CRM Admin Dashboard (Standard)：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+
 ## 🎯 Core Philosophy
 
 VuReact is not just a simple syntax conversion tool, but a **convention-based intelligent compilation platform**. We adhere to the principle of "controllability over full coverage," providing a **predictable, analyzable, and maintainable** engineering path for Vue to React migration through explicit compilation conventions.
 
 Furthermore, VuReact is not only suitable for migration scenarios but also for development scenarios where developers wish to enjoy **Vue's excellent mental model** while producing **React code**.
 
----
-
 ## ✨ Core Features
 
-⚖️ Progressive Migration
+**🧠 Semantic-aware**：Understand Vue 3 like a compiler, generate maintainable React 18+ like a pro
 
-- Migrate from a single component to a full project safely and gradually.
+**⚖️ Incremental Migration**：Start small, scale to full projects—no risky rewrites
 
-🧭 Convention Driven
+**🧭 Convention-driven**：Predictable transforms powered by clear conventions, not guesses
 
-- Compilation based on explicit rules, not heuristics.
+**⚛️ Complete Feature Adaptation**：Vue features, fully mapped to React—zero runtime cost
 
-🌀 Cross-Framework Bridge
+**⚡ Excellent Developer Experience**：Vue mental model, seamless React dev; CLI build/watch, fast incremental compile, native-like
 
-- Vue and React coexist through a unified compilation layer.
-
-🏆 Proof of Concept
-
-- Exploring full Vue to React compilation at scale.
-
-🔄 Modern Vue First
-
-- Full support for Vue 3 script setup and Composition API.
-
-📋 Template to JSX
-
-- Transforms Vue templates into idiomatic React JSX.
-
-⚛️ Core Feature Adaptation
-
-- Reactivity and lifecycle adapted seamlessly to React.
-
-🎨 Zero Runtime CSS
-
-- Scoped and module styles compiled to static CSS.
-
-🔬 Fine-Grained Processing
-
-- Carefully optimized at every compilation step.
-
-📝 TypeScript Ready
-
-- Preserves types and converts .vue to .tsx seamlessly.
-
-⚡ CLI & Watch Mode
-
-- Build and incremental compilation support.
-
-📁 Project-Level Build
-
-- Handles files, assets, and dependencies automatically.
-
-🛠️ Vite Integration
-
-- Optional Vite scaffolding for React projects.
-
----
+**🌀 Innovative Exploration**：A new bridge between Vue and React at compile time
 
 ## 📦 Quick Start
 
 For detailed usage guides and API documentation, please visit the official VuReact website:
 
 👉 [https://vureact.top](https://vureact.top/en)
-
----
 
 ### Installation
 
@@ -106,18 +67,15 @@ yarn add -D @vureact/compiler-core
 pnpm add -D @vureact/compiler-core
 ```
 
----
-
 ### Basic Configuration
 
 Create `vureact.config.js`:
 
-```javascript
+```ts
 import { defineConfig } from '@vureact/compiler-core';
 
 export default defineConfig({
-  input: 'src',
-  cache: true,
+  input: './src',
   exclude: ['src/main.ts'], // Exclude Vue entry file
   output: {
     workspace: '.vureact',
@@ -129,8 +87,6 @@ export default defineConfig({
 
 In practice, except for `exclude` (which must be specified manually), all other options use the default values shown above and require no additional configuration.
 
----
-
 ### Run Compilation
 
 ```bash
@@ -140,8 +96,6 @@ npx vureact build
 # Watch mode (recommended for development)
 npx vureact watch
 ```
-
----
 
 ## 🎨 Transformation Example
 
@@ -183,8 +137,6 @@ npx vureact watch
   }
 </style>
 ```
-
----
 
 ### React Component (Output)
 
@@ -233,8 +185,6 @@ Generated CSS file:
 }
 ```
 
----
-
 ## 📋 Compilation Conventions (Important)
 
 To ensure transformation quality, please follow these conventions:
@@ -261,8 +211,6 @@ To ensure transformation quality, please follow these conventions:
 - Only the first `<style>` block is supported; multiple blocks will trigger warnings
 - `scoped` and `module` are supported but must follow conventions
 
----
-
 ## 🛠️ CLI Commands
 
 ```bash
@@ -275,8 +223,6 @@ npx vureact watch
 # Show help
 npx vureact --help
 ```
-
----
 
 ## 📁 Project Structure
 
@@ -298,8 +244,6 @@ my-project/
 └── vureact.config.js       # Configuration file
 ```
 
----
-
 ## 🔗 Ecosystem
 
 - **Runtime Adapter Package**
@@ -313,8 +257,6 @@ my-project/
 - **Full Documentation**
   Detailed usage guides and API references.
   [https://vureact.top](https://vureact.top/en)
-
----
 
 ## 🎯 Use Cases
 
@@ -330,27 +272,19 @@ my-project/
 - **Convention-Driven**: Strict compilation conventions must be followed
 - **Modern Syntax Focus**: Focused on Vue 3 Composition API and `<script setup>`
 
----
-
 ## 🔎 Repository Sub-Packages
 
 - [@vureact/compiler-core](packages/compiler-core)
 - [@vureact/runtime-core](packages/runtime-core)
-
----
 
 ## 🤝 Contributing
 
 Issues and Pull Requests are welcome!
 Please read the contribution guide first: [CONTRIBUTING.md](CONTRIBUTING.md)
 
----
-
 ## 📄 License
 
 MIT License © 2025 Ruihong Zhong (Ryan John)
-
----
 
 ## 🩷 Sponsorship
 

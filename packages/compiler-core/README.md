@@ -3,8 +3,8 @@
 一个让你用 Vue 3 语法编写 React 18+ 应用的编译器。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
-[![Total Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Total%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Monthly Downloads](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly%20Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
@@ -12,9 +12,16 @@
 
 简体中文 | [English](./README.en.md)
 
+## 在线案例演示
+
+在开始之前，你可以先了解 VuReact 将 Vue 项目编译为 React 项目，再到成功运行页面的完整流程！
+
+- 客户支持协同后台（混写）：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
+- 客户关系管理后台（标准）：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+
 ## 快速开始
 
-本节将引导你完成第一个 VuReact 项目的创建、编译和运行；或者选择查看 [CodeSandbox 在线案例](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)。
+本节将引导你完成第一个 VuReact 项目的创建、编译和运行；
 
 完成后你会明确三件事：
 
@@ -279,6 +286,3 @@ CSS 文件内容：
 - GitHub：<https://github.com/vureact-js/core>
 - Gitee：<https://gitee.com/vureact-js/core>
 - 文档：[https://vureact.top](https://vureact.top/)
-- CodeSandbox 在线案例：
-  - 客户关系管理后台（标准）：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
-  - 客户支持协同后台（混写）：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
