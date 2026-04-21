@@ -1,6 +1,15 @@
 import { useSyncExternalStore } from 'react';
 import { Snapshot, getVersion, snapshot, subscribe } from 'valtio/vanilla';
-import { getValtioProxyTarget } from './proxy';
+import { VALTIO_PROXY_TARGET } from './consts';
+
+/**
+ * @private
+ * 解包当前 proxy 对象内部的 Valtio proxy
+ */
+function getValtioProxyTarget<T extends object>(target: T): object {
+  const innerProxy = (target as any)[VALTIO_PROXY_TARGET];
+  return innerProxy ?? target;
+}
 
 /**
  * @private

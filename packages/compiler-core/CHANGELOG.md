@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.2] - 2026-04-21
+
+### Fixed
+
+- **修复 `<template>` 标签上的 `:key` 属性在多个子元素场景下无法正确处理的问题**：当 `<template>` 标签包含多个子元素时，编译器无法确定应该将 `:key` 属性转移到哪个子元素。现在会发出明确的警告信息，提示用户 `<template>` 应该只有一个子元素，否则无法正确转移 key 属性
+- **修复 `<template>` 标签上的 `:key` 属性被错误地转移到不支持 key 的节点类型的问题**：当 `<template>` 的第一个子元素是 `<template>` 或 `<slot>` 等不支持 key 属性的节点类型时，编译器会跳过 key 转移，甚至可能奔溃报错，避免将 key 属性错误地应用到这些特殊节点上
+
+### Changed
+
+- **提升运行时适配包的版本号至当前最新**：同步更新运行时适配包版本，确保版本一致性
+
+---
+
+[1.6.2]: https://github.com/vureact-js/core/compare/v1.6.1...v1.6.2
+
+---
+
 ## [1.6.1] - 2026-04-17
 
 ### Changed
@@ -548,7 +565,8 @@ When releasing a new version:
 ---
 
 ```
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.6.1...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.6.2...HEAD
+[1.6.2]: https://github.com/vureact-js/core/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/vureact-js/core/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/vureact-js/core/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/vureact-js/core/compare/v1.5.1...v1.5.2

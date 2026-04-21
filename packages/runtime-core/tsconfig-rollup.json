@@ -5,6 +5,7 @@
     "rootDir": "src",
     "lib": ["DOM", "DOM.Iterable", "ESNext"]
   },
+  "types": ["node"],
   "include": ["src"],
   "exclude": ["**/__tests__", "**/__tests__/**/*"]
 }

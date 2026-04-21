@@ -50,7 +50,7 @@ export function resolveDynamicAttributeProp(
 
   // fix: https://github.com/vureact-js/core/issues/11
   if (vueNode.tag === 'template' && name === 'key') {
-    resolveTemplateNodeKey(vueNode, content);
+    resolveTemplateNodeKey(vueNode, content, ctx);
     return;
   }
 

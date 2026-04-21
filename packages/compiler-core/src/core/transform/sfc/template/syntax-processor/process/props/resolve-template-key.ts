@@ -1,28 +1,59 @@
+import { ICompilationContext } from '@compiler/context/types';
+import { logger } from '@shared/logger';
 import {
   ConstantTypes,
   DirectiveNode,
-  NodeTypes,
   ElementNode as VueElementNode,
+  ElementTypes as VueElementTypes,
+  NodeTypes as VueNodeTypes,
 } from '@vue/compiler-core';
 
 /**
  * 处理 `<template :key="xx">`，将其 key 转移到内部第一个子节点
  */
-export function resolveTemplateNodeKey(vueNode: VueElementNode, keyContent: string) {
-  // 获取 <template> 的第一个子节点
-  const firstNode = vueNode.children[0] as VueElementNode;
+export function resolveTemplateNodeKey(
+  templNode: VueElementNode,
+  keyContent: string,
+  ctx: ICompilationContext,
+) {
+  const { filename, source } = ctx;
+  const { children, loc } = templNode;
 
-  if (!firstNode) return;
+  // fix: https://github.com/vureact-js/core/issues/18
+  if (children.length > 1) {
+    // 要求用户使用一个父节点包裹
+    logger.warn(
+      'Expected <template> with `:key` to have a single parent element; otherwise, the key cannot be transferred to the first child.',
+      {
+        file: filename,
+        source,
+        loc,
+      },
+    );
+    return;
+  }
+
+  // 获取 <template> 的第一个子节点
+  const [firstChild] = children;
+
+  // fix: https://github.com/vureact-js/core/issues/19
+  if (
+    firstChild?.type !== VueNodeTypes.ELEMENT ||
+    firstChild.tagType === VueElementTypes.TEMPLATE ||
+    firstChild.tagType === VueElementTypes.SLOT
+  ) {
+    return;
+  }
 
   // 如果该子节点已存在 `:key` 则跳过
-  const hasKeyProp = firstNode.props.some(
-    (p) => p.type === NodeTypes.DIRECTIVE && p.name === 'key',
+  const hasKeyProp = firstChild.props.some(
+    (p) => p.type === VueNodeTypes.DIRECTIVE && p.name === 'key',
   );
 
   if (hasKeyProp) return;
 
   // 创建 :key="xx" ast 节点，并添加到子节点 props 中
-  firstNode.props.push(createSimpleVueBind('key', keyContent));
+  firstChild.props.push(createSimpleVueBind('key', keyContent));
 }
 
 /**
@@ -32,18 +63,18 @@ export function resolveTemplateNodeKey(vueNode: VueElementNode, keyContent: stri
  */
 function createSimpleVueBind(name: string, value: string): DirectiveNode {
   return {
-    type: NodeTypes.DIRECTIVE,
+    type: VueNodeTypes.DIRECTIVE,
     name: 'bind',
     rawName: `:${name}`,
     exp: {
-      type: NodeTypes.SIMPLE_EXPRESSION,
+      type: VueNodeTypes.SIMPLE_EXPRESSION,
       content: value,
       isStatic: false,
       constType: ConstantTypes.NOT_CONSTANT,
       loc: {} as any,
     },
     arg: {
-      type: NodeTypes.SIMPLE_EXPRESSION,
+      type: VueNodeTypes.SIMPLE_EXPRESSION,
       content: name,
       isStatic: true,
       constType: ConstantTypes.CAN_STRINGIFY,

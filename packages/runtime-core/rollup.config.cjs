@@ -79,10 +79,12 @@ export default [
       typescript({
         tsconfig: './tsconfig-rollup.json',
         declaration: false,
-        // declaration: tsconfig.declaration,
-        // declarationDir: tsconfig.declarationDir,
-        // outDir: tsconfig.outDir,
-        // rootDir: tsconfig.rootDir,
+        // 添加 types 配置
+        types: ['node'],
+        // 添加 compiler options
+        compilerOptions: {
+          types: ['node'],
+        },
       }),
 
       terser({
