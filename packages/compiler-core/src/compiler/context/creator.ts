@@ -26,7 +26,7 @@ export class CompilationContext {
 
   create(): ICompilationContext {
     return {
-      fileId: '',
+      fileId: Date.now().toString(),
       source: '',
       filename: '',
       imports: new Map(),
