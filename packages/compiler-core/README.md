@@ -24,7 +24,7 @@ npm install -D @vureact/compiler-core
 
 ## 快速开始
 
-👉 **完整教程请访问：[VuReact 官网 - 快速开始](https://vureact.top/guide/introduction.html)**
+👉 **完整教程请访问：[VuReact - 快速开始](https://vureact.top/guide/quick-start.html)**
 
 ### 配置示例
 
@@ -66,4 +66,4 @@ npx vureact watch      # 监听模式
 
 - GitHub：<https://github.com/vureact-js/core>
 - Gitee：<https://gitee.com/vureact-js/core>
-- 文档：[https://vureact.top](https://vureact.top/)
+- 文档：<https://vureact.top>

@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-04-26
+
+### Added
+
+- **新增 `:deep()` 转换支持**：支持深度选择器的编译转换，覆盖多种复杂场景（多参数、嵌套等），确保样式穿透至子组件
+- **新增 `:slotted()` 转换支持**：支持插槽选择器的编译转换，允许样式作用域精确作用于插槽内容
+- **新增 `:global()` 转换支持**：支持全局选择器的编译转换，允许在 scoped 样式中声明全局样式规则
+
+### Fixed
+
+- **修复 scoped 样式转换时 `data-css-*` 属性未全面覆盖到组件 DOM 元素的问题**：完善作用域属性注入逻辑，确保所有可样式化的 DOM 元素均正确标注作用域属性
+- **修复 scoped 样式转换时 hash 属性错误作用于伪类/伪元素/属性选择器，导致样式失效的问题**：优化选择器解析逻辑，避免将 `scopeId` 错误注入到 `:hover`、`::before`、`[attr]` 等非元素选择器上
+- **修复编译上下文中文件 ID 不存在时默认使用时间戳的问题**：改进文件 ID 兜底策略，使用更稳定的回退值确保编译结果可预测
+
+### Changed
+
+- **重构 scoped 样式处理逻辑为模块化架构**：将 `postcss.ts` 单文件拆分为 `postcss/` 目录下的多个模块（`index.ts`、`selector.ts`、`standard.ts`、`deep.ts`、`utils.ts`、`types.ts`），提升代码可维护性和可扩展性
+- **优化 scoped 样式选择器处理逻辑，提高转换容错率**：改进选择器解析算法，增强对复杂 CSS 选择器场景的兼容性
+
+---
+
+[1.7.0]: https://github.com/vureact-js/core/compare/v1.6.2...v1.7.0
+
+---
+
 ## [1.6.2] - 2026-04-21
 
 ### Fixed
@@ -565,7 +590,8 @@ When releasing a new version:
 ---
 
 ```
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.6.2...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/vureact-js/core/compare/v1.6.2...v1.7.0
 [1.6.2]: https://github.com/vureact-js/core/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/vureact-js/core/compare/v1.6.0...v1.6.1
 [1.6.0]: https://github.com/vureact-js/core/compare/v1.5.2...v1.6.0

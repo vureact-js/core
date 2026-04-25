@@ -53,9 +53,7 @@ Furthermore, VuReact is not only suitable for migration scenarios but also for d
 
 ## 📦 Quick Start
 
-For detailed usage guides and API documentation, please visit the official VuReact website:
-
-👉 [https://vureact.top](https://vureact.top/en)
+👉 **Full tutorial: [VuReact Website - Quick Start](https://vureact.top/en/guide/quick-start.html)**
 
 After completion, you will clearly understand three things:
 

@@ -24,7 +24,7 @@ npm install -D @vureact/compiler-core
 
 ## Quick Start
 
-👉 **Full tutorial: [VuReact Website - Quick Start](https://vureact.top/en/guide/introduction.html)**
+👉 **Full tutorial: [VuReact Website - Quick Start](https://vureact.top/en/guide/quick-start.html)**
 
 ### Configuration Example
 
