@@ -79,6 +79,22 @@
   }
 }
 
+.parent :deep(.btn){color:red}
+
+.parent:deep(.btn){color:red}
+
+.parent > :deep(.btn){color:red}
+
+:deep(.btn){color:red}
+
+.a :deep(.x, .y){color:red}
+
+.component {
+  :deep(.nested-component) {
+    background: yellow;
+  }
+}
+
 input[type='checkbox'] {
   padding: 6px;
 }
