@@ -4,9 +4,9 @@
 
   <h1>VuReact</h1>
 
-A compiler that allows you to write React 18+ applications using Vue 3 syntax.
+**Write Vue, Ship Production-Ready React** — Build React 18+ apps with the Vue 3 mental model.
 
-Its core value extends beyond project migration, focusing on seamlessly integrating Vue's development experience with React's ecosystem capabilities, producing maintainable, evolvable, and production-ready React code.
+It's more than just a migration tool — it seamlessly blends Vue's excellent development mindset with the power of the React ecosystem, producing **maintainable, evolvable, production-ready** React code.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -57,159 +57,269 @@ For detailed usage guides and API documentation, please visit the official VuRea
 
 👉 [https://vureact.top](https://vureact.top/en)
 
-### Installation
+After completion, you will clearly understand three things:
+
+1. Under what conventions input SFCs can be stably converted
+2. What the compiled directory structure looks like
+3. The semantic correspondence between the output TSX and the original SFC
+4. The compiler automatically analyzes and appends dependencies, eliminating the need to manually manage React hooks dependencies
+
+### Step 0: Prepare the Directory
+
+First, set up a minimal project (illustration):
+
+```txt
+my-app/
+├─ src/
+│  ├─ components/
+│  │  └─ Counter.vue
+│  ├─ App.vue
+│  ├─ main.ts
+│  └─ index.css
+├─ package.json
+├─ tsconfig.json
+└─ vureact.config.ts
+```
+
+### Step 1: Installation
+
+Install the VuReact compiler in your Vue project:
 
 ```bash
+# Using npm
 npm install -D @vureact/compiler-core
-# or
+
+# Using yarn
 yarn add -D @vureact/compiler-core
-# or
+
+# Using pnpm
 pnpm add -D @vureact/compiler-core
 ```
 
-### Basic Configuration
+### Step 2: Write the Input SFC
 
-Create `vureact.config.js`:
+`src/components/Counter.vue`
+
+```html
+<template>
+  <section class="counter-card">
+    <h2>{{ props.title || title }}</h2>
+    <p>Count: {{ count }}</p>
+    <button @click="increment">+1</button>
+    <button @click="methods.decrease">-1</button>
+  </section>
+</template>
+
+<script setup lang="ts">
+  // @vr-name: Counter (Note: Tells the compiler what component name to generate)
+  import { computed, ref } from 'vue';
+
+  // You can also use macros to define component names
+  defineOptions({ name: 'Counter' });
+
+  // Define props
+  const props = defineProps<{ title?: string }>();
+
+  // Define emits
+  const emits = defineEmits<{
+    (e: 'change'): void;
+    (e: 'update', value: number): number;
+  }>();
+
+  const step = ref(1);
+  const count = ref(0);
+  const title = computed(() => `Counter x${step.value}`);
+
+  const increment = () => {
+    count.value += step.value;
+    emits('update', count.value);
+  };
+
+  const methods = {
+    decrease() {
+      count.value -= step.value;
+    },
+  };
+</script>
+
+<style lang="less" scoped>
+  @border-color: #ddd;
+  @border-radius: 8px;
+  @padding-base: 12px;
+
+  .counter-card {
+    border: 1px solid @border-color;
+    border-radius: @border-radius;
+    padding: @padding-base;
+  }
+</style>
+```
+
+### Step 3: Configure the Compiler
+
+`vureact.config.ts`
 
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
 
 export default defineConfig({
+  // Input path containing Vue files to compile; single file 'xxx.vue' is allowed
   input: './src',
-  exclude: ['src/main.ts'], // Exclude Vue entry file
+
+  // Exclude Vue entry files to avoid semantic conflicts
+  exclude: ['src/main.ts'],
+
   output: {
+    // Workspace directory to store compilation output and cache
     workspace: '.vureact',
+
+    // Output directory name
     outDir: 'react-app',
+
+    // Automatically initialize Vite React environment
     bootstrapVite: true,
   },
 });
 ```
 
-In practice, except for `exclude` (which must be specified manually), all other options use the default values shown above and require no additional configuration.
+### Step 4: Execute Compilation
 
-### Run Compilation
+#### Method 1: Use the npx command
+
+Run in the root directory:
 
 ```bash
-# One-time build
 npx vureact build
-
-# Watch mode (recommended for development)
-npx vureact watch
 ```
 
-## 🎨 Transformation Example
+#### Method 2: Use npm scripts
 
-### Vue 3 Component (Input)
+Add script commands to `package.json`:
 
-```html
-<template>
-  <div :class="$style['hello-container']">
-    <h1>{{ greetingMessage }}</h1>
-    <p>Counter: {{ count }}</p>
-    <button @click="increment">Click me to increase</button>
-  </div>
-</template>
-
-<script setup lang="ts">
-  import { computed, onMounted, ref } from 'vue';
-
-  const count = ref<number>(0);
-  const name = ref('Vue 3');
-
-  const greetingMessage = computed(() => {
-    return `Hello, welcome to the world of ${name.value}!`;
-  });
-
-  const increment = () => {
-    count.value++;
-  };
-
-  onMounted(() => {
-    console.log('Component mounted!');
-  });
-</script>
-
-<style module scoped>
-  .hello-container {
-    padding: 20px;
-    border: 1px solid #42b883;
-    border-radius: 8px;
-  }
-</style>
+```json
+"scripts": {
+  "watch": "vureact watch",
+  "build": "vureact build"
+}
 ```
 
-### React Component (Output)
+```bash
+npm run build
+```
+
+### Step 5: View the Output Directory Tree
+
+Compiled directory (illustration):
+
+```txt
+my-project/
+├── .vureact/              # Workspace (generated)
+│   ├── cache/             # Compilation cache
+│   ├── react-app/         # Generated React code
+│   │   ├── src/
+│   │   │   ├── components/
+│   │   │   │   ├── Counter.tsx
+│   │   │   │   └── counter-[hash].css
+│   │   │   └── App.tsx
+│   │   │   └── index.css
+│   │   │   └── main.tsx
+│   │   └── package.json
+│   │   └── tsconfig.json
+│   │   └── vite.config.ts
+│   │   └── ...
+│   │
+├── src/                   # Original Vue code
+│   ├── components/
+│   │   └── Counter.vue
+│   └── main.ts            # Vue entry file
+├── ...
+└── vureact.config.js      # VuReact configuration file
+```
+
+### Step 6: Compare the Generated Results
+
+Below is a typical formatted output (slightly simplified for illustration; the actual hash and property names are subject to local output):
 
 ```tsx
-import { useCallback, memo } from 'react';
-import { useComputed, useMounted, useVRef } from '@vureact/runtime-core';
-import $style from './counter-159e8f98.module.css';
+import { memo, useCallback, useMemo } from 'react';
+import { useComputed, useVRef } from '@vureact/runtime-core';
+import './Counter-a1b2c3.css';
 
-const Counter = memo(() => {
-  const count = useVRef<number>(0);
-  const name = useVRef('Vue 3');
+// Derived from defineProps and defineEmits
+type ICounterType = {
+  title?: string;
+  onChange: () => void;
+  onUpdate: (value: number) => number;
+};
 
-  const greetingMessage = useComputed(() => {
-    return `Hello, welcome to the world of ${name.value}!`;
-  });
+// Component wrapped with memo
+const Counter = memo((props: ICounterType) => {
+  // ref/computed converted to equivalent adaptation APIs
+  const step = useVRef(1);
+  const count = useVRef(0);
+  const title = useComputed(() => `Counter x${step.value}`);
 
+  // Automatically analyze dependencies of top-level arrow functions and append useCallback optimization
   const increment = useCallback(() => {
-    count.value++;
-  }, [count.value]);
+    count.value += step.value;
+    props.onUpdate?.(count.value); // emits conversion
+  }, [count.value, step.value, props.onUpdate]);
 
-  useMounted(() => {
-    console.log('Component mounted!');
-  });
+  // Automatically analyze dependencies in top-level objects and append useMemo optimization
+  const methods = useMemo(
+    () => ({
+      decrease() {
+        count.value -= step.value;
+      },
+    }),
+    [count.value, step.value],
+  );
 
   return (
-    <div className={$style['hello-container']} data-css-159e8f98>
-      <h1 data-css-159e8f98>{greetingMessage.value}</h1>
-      <p data-css-159e8f98>Counter: {count.value}</p>
-      <button onClick={increment} data-css-159e8f98>
-        Click me to increase
-      </button>
-    </div>
+    <>
+      <section className="counter-card" data-css-a1b2c3>
+        <h2 data-css-a1b2c3>{props.title || title.value}</h2>
+        <p data-css-a1b2c3>Count: {count.value}</p>
+        <button onClick={increment} data-css-a1b2c3>
+          +1
+        </button>
+        <button onClick={methods.decrease} data-css-a1b2c3>
+          -1
+        </button>
+      </section>
+    </>
   );
 });
 
 export default Counter;
 ```
 
-Generated CSS file:
+CSS file content:
 
 ```css
-.hello-container[data-css-159e8f98] {
-  padding: 20px;
-  border: 1px solid #42b883;
+.counter-card[data-css-a1b2c3] {
+  border: 1px solid #ddd;
   border-radius: 8px;
+  padding: 12px;
 }
 ```
 
+## Key Observations
+
+1. The special comment `// @vr-name: Counter` defines the component name
+2. `defineProps` and `defineEmits` are converted to TS component types
+3. Non-pure UI display components are wrapped with `memo` by default
+4. `ref` / `computed` are converted to runtime adaptation APIs (`useVRef` / `useComputed`)
+5. Template event callbacks generate React-semantic `onClick`
+6. Top-level arrow functions have their dependencies automatically analyzed and `useCallback` is injected where applicable
+7. Top-level variable declarations have their dependencies automatically analyzed and `useMemo` is injected where applicable
+8. The `.value` suffix is added to original `ref` state values in JSX
+9. Less styles are compiled to CSS code
+10. Scoped styles generate hashed CSS files and add scoped attributes to elements
+
 ## 📋 Compilation Conventions (Important)
 
-To ensure transformation quality, please follow these conventions:
-
-### 🗂️ Files & Entry
-
-- Include only controllable directories in `input`
-- Strongly recommend excluding Vue entry files (e.g., `src/main.ts`)
-- Validate in small directories before expanding scope
-
-### 📜 Script Conventions
-
-- Prefer `<script setup>`
-- `defineProps / defineEmits / defineSlots / defineOptions` must be top-level only
-- Any `use*` call that will be converted into React Hooks must remain at the top level
-
-### 🎨 Template Conventions
-
-- Only supported directives should be used; unknown directives will trigger warnings
-- `v-else` / `v-else-if` must be adjacent to the previous conditional branch
-
-### 🎨 Style Conventions
-
-- Only the first `<style>` block is supported; multiple blocks will trigger warnings
-- `scoped` and `module` are supported but must follow conventions
+For details, please refer to [VuReact Compilation Conventions](https://vureact.top/en/guide/specification.html).
 
 ## 🛠️ CLI Commands
 
@@ -224,25 +334,9 @@ npx vureact watch
 npx vureact --help
 ```
 
-## 📁 Project Structure
+## FAQ
 
-```txt
-my-project/
-├── src/                    # Original Vue source code
-│   ├── components/
-│   │   └── Counter.vue
-│   └── main.ts
-├── .vureact/               # Workspace (generated)
-│   ├── react-app/          # Generated React project
-│   │   ├── src/
-│   │   │   ├── components/
-│   │   │   │   ├── Counter.tsx
-│   │   │   │   └── counter-[hash].css
-│   │   │   └── main.tsx
-│   │   └── package.json
-│   └── cache/              # Compilation cache
-└── vureact.config.js       # Configuration file
-```
+Please visit [VuReact FAQ](https://vureact.top/en/guide/faq.html)!
 
 ## 🔗 Ecosystem
 
