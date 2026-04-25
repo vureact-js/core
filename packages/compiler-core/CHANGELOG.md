@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **修复 scoped 样式转换时 `data-css-*` 属性未全面覆盖到组件 DOM 元素的问题**：完善作用域属性注入逻辑，确保所有可样式化的 DOM 元素均正确标注作用域属性
 - **修复 scoped 样式转换时 hash 属性错误作用于伪类/伪元素/属性选择器，导致样式失效的问题**：优化选择器解析逻辑，避免将 `scopeId` 错误注入到 `:hover`、`::before`、`[attr]` 等非元素选择器上
 - **修复编译上下文中文件 ID 不存在时默认使用时间戳的问题**：改进文件 ID 兜底策略，使用更稳定的回退值确保编译结果可预测
+- **修复顶层变量被 `useMemo` 优化后，未从 React 中导入该 Hook 的问题**：完善依赖导入逻辑，确保 `useMemo` 被正确引入，避免页面报错
+- **修复对 `v-on` 需包裹函数的识别与处理有误的问题**：优化函数体表达式识别逻辑，确保生成正确的 JSX 语法
 
 ### Changed
 

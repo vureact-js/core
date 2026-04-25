@@ -1,6 +1,5 @@
-import { generate } from '@babel/generator';
 import { createCompilationCtx } from '@compiler/context';
-import { parse, transform } from '@core/index';
+import { generate, parse, transform } from '@core/index';
 import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
 import { readFileSync, writeFileSync } from 'fs';
@@ -22,7 +21,7 @@ function testWithUseMemo() {
   console.timeEnd('testAnalyzeFnDeps transform duration');
   console.log();
 
-  const { code } = generate(result.script?.statement.local!);
+  const { code } = generate(result, ctx.data);
 
   writeFileSync(path.resolve(__dirname, './previews/with-use-memo.tsx'), code, 'utf-8');
 

@@ -1,4 +1,15 @@
+<template>
+  <button @click="log"></button>
+  <button @click="log(1)"></button>
+  <button @click="fooRef++"></button>
+  <button @click="memoizedObj.bar + 1"></button>
+  <button @click="memoizedObj.bar = 1"></button>
+  <button @click="memoizedObj.add"></button>
+  <button @click="(e) => console.log(e)"></button>
+</template>
+
 <script setup lang="ts">
+import { log } from 'console';
 import { reactive, ref } from 'vue';
 
 const fooRef = ref(0);

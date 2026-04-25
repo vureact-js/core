@@ -2,6 +2,9 @@ import { ParseResult } from '@babel/parser';
 import { TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
+import { PACKAGE_NAME } from '@consts/other';
+import { REACT_API_MAP } from '@consts/react-api-map';
+import { recordImport } from '@core/transform/shared';
 import { atComponentOrHookRoot } from '@shared/babel-utils';
 import { analyzeDeps } from '../../shared/dependency-analyzer';
 import { createUseMemo } from '../../shared/hook-creator';
@@ -65,6 +68,9 @@ export function resolveExprMemo(ctx: ICompilationContext, ast: ParseResult): Tra
 
       // 标记该变量为间接响应式，供后续依赖分析溯源使用
       setScriptNodeMeta(node, { is_reactive: true, reactive_type: 'indirect' });
+
+      // fix: 修复未自动从 React 中导入 useMemo
+      recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.useMemo);
     },
   };
 }
