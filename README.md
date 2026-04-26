@@ -75,7 +75,8 @@ my-app/
 │  ├─ main.ts
 ├─ package.json
 ├─ tsconfig.json
-└─ vureact.config.js
+├─ vite.config.json
+└─ vureact.config.ts
 ```
 
 ### Step 1：安装
@@ -218,7 +219,7 @@ my-project/
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   │   ├── Counter.tsx
-│   │   │   │   └── counter-[hash].css
+│   │   │   │   └── Counter-[hash].css
 │   │   │   └── App.tsx
 │   │   │   └── index.css
 │   │   │   └── main.tsx
@@ -232,7 +233,7 @@ my-project/
 │   │   └── Counter.vue
 │   └── main.ts            # Vue 入口文件
 ├── ...
-└── vureact.config.js      # VuReact 配置文件
+└── vureact.config.ts      # VuReact 配置文件
 ```
 
 ### Step 6：对照生成结果
@@ -242,7 +243,7 @@ my-project/
 ```tsx
 import { memo, useCallback, useMemo } from 'react';
 import { useComputed, useVRef } from '@vureact/runtime-core';
-import './counter-a1b2c3.css';
+import './Counter-a1b2c3.css';
 
 // 根据 defineProps 和 defineEmits 推导
 type ICounterType = {

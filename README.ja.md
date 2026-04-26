@@ -75,7 +75,8 @@ my-app/
 │  ├─ main.ts
 ├─ package.json
 ├─ tsconfig.json
-└─ vureact.config.js
+├─ vite.config.ts
+└─ vureact.config.ts
 ```
 
 ### Step 1：インストール
@@ -218,7 +219,7 @@ my-project/
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   │   ├── Counter.tsx
-│   │   │   │   └── counter-[hash].css
+│   │   │   │   └── Counter-[hash].css
 │   │   │   └── App.tsx
 │   │   │   └── index.css
 │   │   │   └── main.tsx
@@ -232,7 +233,7 @@ my-project/
 │   │   └── Counter.vue
 │   └── main.ts            # Vue エントリファイル
 ├── ...
-└── vureact.config.js      # VuReact 設定ファイル
+└── vureact.config.ts      # VuReact 設定ファイル
 ```
 
 ### Step 6：生成結果との比較
@@ -242,7 +243,7 @@ my-project/
 ```tsx
 import { memo, useCallback, useMemo } from 'react';
 import { useComputed, useVRef } from '@vureact/runtime-core';
-import './counter-a1b2c3.css';
+import './Counter-a1b2c3.css';
 
 // defineProps と defineEmits から推論
 type ICounterType = {

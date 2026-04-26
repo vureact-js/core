@@ -76,6 +76,7 @@ my-app/
 │  └─ index.css
 ├─ package.json
 ├─ tsconfig.json
+├─ vite.config.ts
 └─ vureact.config.ts
 ```
 
@@ -217,7 +218,7 @@ my-project/
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   │   ├── Counter.tsx
-│   │   │   │   └── counter-[hash].css
+│   │   │   │   └── Counter-[hash].css
 │   │   │   └── App.tsx
 │   │   │   └── index.css
 │   │   │   └── main.tsx
@@ -275,7 +276,7 @@ const Counter = memo((props: ICounterType) => {
 
   return (
     <>
-      <section className="counter-card" data-css-a1b2c3>
+      <section className="Counter-card" data-css-a1b2c3>
         <h2 data-css-a1b2c3>{props.title || title.value}</h2>
         <p data-css-a1b2c3>Count: {count.value}</p>
         <button onClick={increment} data-css-a1b2c3>
