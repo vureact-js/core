@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-04-26
+
+### Fixed
+
+- **修复 `useWatch` 回调参数类型推导**：当 `source` 为未解包的 `Ref` 时，回调参数能自动推导为解包后的类型
+
+---
+
+[1.1.1]: https://github.com/vureact-js/core/compare/v1.1.0...v1.1.1
+
+---
+
 ## [1.1.0] - 2026-04-17
 
 ### Added
@@ -229,7 +241,8 @@ When releasing a new version:
 ---
 
 ```
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/vureact-js/core/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/vureact-js/core/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/vureact-js/core/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/vureact-js/core/compare/v1.0.0...HEAD

@@ -2,6 +2,8 @@ import { type DependencyList, RefObject, useCallback, useRef } from 'react';
 import isEqual from 'react-fast-compare';
 import { executeEffect } from '../shared/executeEffect';
 import type { Destructor, FlushTiming, OnCleanup } from '../shared/types';
+import type { ComputedRef } from '../state/useComputed';
+import type { WrapRef } from '../state/useVRef';
 import { unwrapRef } from '../state/useVRef';
 import { useFlushEffect } from './shared';
 
@@ -29,12 +31,33 @@ type ResolvedWatchSource<T> = {
 };
 
 /**
+ * 解包 ref/computed 类型，提取其内部值类型。
+ * 如果 T 不是 ref/computed 类型，则返回 T 自身。
+ *
+ * - RefState<T> / WrapRef<T> → T
+ * - ComputedRef<T> → T
+ * - 其他类型 → T (原样)
+ */
+type UnwrapRefSimple<T> = T extends ComputedRef<infer U> ? U : T extends WrapRef<infer U> ? U : T;
+
+/**
  * React adapter for Vue's watch API (manual dependencies mode).
+ *
+ * 当 source 传入一个 ref（如 useVRef 或 useComputed 的返回值）且
+ * 没有手动通过 `.value` 解包时，回调参数会自动推导为解包后的值类型。
+ *
+ * @example
+ *
+ * const countRef = useVRef(1);  // RefState<number>
+ * useWatch(countRef, (newVal) => {
+ *   // newVal 被推导为 number（而非 RefState<number>）
+ * });
+ *
  * @see https://runtime.vureact.top/guide/hooks/watch.html
  */
 export function useWatch<T>(
   source: WatchSource<T>,
-  fn: WatchCallback<T, T>,
+  fn: WatchCallback<UnwrapRefSimple<T>, UnwrapRefSimple<T>>,
   options?: WatchOptions,
 ): WatchStopHandle {
   const callbackRef = useRef(fn);
@@ -90,7 +113,13 @@ export function useWatch<T>(
         initializedRef.current = true;
 
         if (options?.immediate) {
-          runAndRegisterCleanup(callbackRef.current, nextValue, undefined, cleanupRef, runCleanup);
+          runAndRegisterCleanup(
+            callbackRef.current,
+            nextValue as any,
+            undefined,
+            cleanupRef,
+            runCleanup,
+          );
 
           if (options?.once) {
             onceTriggeredRef.current = true;
@@ -119,7 +148,13 @@ export function useWatch<T>(
         return;
       }
 
-      runAndRegisterCleanup(callbackRef.current, nextValue, previousValue, cleanupRef, runCleanup);
+      runAndRegisterCleanup(
+        callbackRef.current,
+        nextValue as any,
+        previousValue as any,
+        cleanupRef,
+        runCleanup,
+      );
 
       currentValueRef.current = nextValue;
 
