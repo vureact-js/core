@@ -39,5 +39,8 @@ const count = ref(1);
 const handleUpdate = () => {
   // 应替换成 props?.onUpdate({ value: count.value++ })
   emit('update', { value: count.value });
+
+  const update = 'update';
+  emit(update, { value: count.value });
 };
 </script>

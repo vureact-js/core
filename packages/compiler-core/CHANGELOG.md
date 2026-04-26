@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **重构 scoped 样式处理逻辑为模块化架构**：将 `postcss.ts` 单文件拆分为 `postcss/` 目录下的多个模块（`index.ts`、`selector.ts`、`standard.ts`、`deep.ts`、`utils.ts`、`types.ts`），提升代码可维护性和可扩展性
 - **优化 scoped 样式选择器处理逻辑，提高转换容错率**：改进选择器解析算法，增强对复杂 CSS 选择器场景的兼容性
+- **重构 `emit` 非字符串事件名使用计算属性**：当事件名为动态表达式时，使用计算属性访问 `props[eventName]?.()`，并输出警告信息
 
 ---
 

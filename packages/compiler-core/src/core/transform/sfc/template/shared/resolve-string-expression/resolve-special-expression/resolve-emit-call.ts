@@ -3,9 +3,9 @@ import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
 
 /**
- * 将模板中的 defineProps/defineEmits 宏调用， 替换为 [propField]?.xxx，并转为 React 风格的调用。
+ * 将模板中的 defineProps/defineEmits 宏调用， 替换为 [propField].xxx，并转为 React 风格的调用。
  *
- * 例如：emits('click', e) => [propField]?.onClick?.(e)
+ * 例如：emits('click', e) => [propField].onClick?.(e)
  */
 export function resolveEmitsCalls(input: string, ctx: ICompilationContext): string {
   const { reactiveBindings } = ctx.templateData;
@@ -30,6 +30,7 @@ export function resolveEmitsCalls(input: string, ctx: ICompilationContext): stri
   };
 
   const result = matchEmitCalls();
+
   if (!result) return input;
 
   const [, , eventName, args] = result;

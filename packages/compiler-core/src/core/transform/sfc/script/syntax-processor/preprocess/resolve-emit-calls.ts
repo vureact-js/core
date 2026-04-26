@@ -9,7 +9,8 @@ import { replaceNode } from '../../shared/babel-utils';
 
 /**
  * 转换 defineEmits 的返回值调用形式，
- * 如 emit('click', e) => props?.onClick(e)
+ * 如 emit('click', e) => props.onClick?.(e)
+ * 如 emit(eventName, e) => props[eventName]?.(e)
  */
 export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
   // fix: 事件名格式化：支持 update:xxx -> onUpdateXxx，并避免生成包含冒号的非法属性名
@@ -63,32 +64,36 @@ export function resolveEmitCalls(ctx: ICompilationContext): TraverseOptions {
 
       const [callee, ...args] = node.arguments;
 
-      const eventName = t.isStringLiteral(callee) ? formatEmitEventName(callee.value) : undefined;
+      let propCall: t.OptionalCallExpression;
 
-      if (!eventName) {
-        logger.warn(`Expected String type but got ${callee?.type}, expression will be removed`, {
-          file: filename,
-          source: scriptData.source,
-          loc: callee?.loc,
-        });
-        path.remove();
-        return;
+      if (t.isStringLiteral(callee)) {
+        // 字符串事件名：格式化为 onEventName 后通过静态属性访问
+        const eventName = formatEmitEventName(callee.value);
+        propCall = createPropCall(ctx.propField, t.identifier(eventName), args);
+      } else {
+        // re：非字符串事件名：使用计算属性访问，如 props[eventName]?.()
+        propCall = createPropCall(ctx.propField, callee, args, true);
+
+        // re：由于无法格式化为 React 风格的 onXxx 属性名，emit 调用可能无效
+        logger.error(
+          `Non-string event name cannot be converted to React onXxx style. The emit call will not work as expected.`,
+          {
+            file: filename,
+            source: scriptData.source,
+            loc: callee?.loc,
+          },
+        );
       }
-
-      // 创建相应的 props 调用表达式
-      // fix: 函数调用统一修改为可选的
-      const propCall = t.optionalCallExpression(
-        t.optionalMemberExpression(
-          t.identifier(ctx.propField),
-          t.identifier(eventName),
-          false,
-          true,
-        ),
-        args,
-        true,
-      );
 
       replaceNode(path, propCall, node);
     },
   };
+}
+
+function createPropCall(rootName: string, callee: any, args: any, computed = false) {
+  return t.optionalCallExpression(
+    t.memberExpression(t.identifier(rootName), callee as t.Expression, computed),
+    args,
+    true,
+  );
 }
