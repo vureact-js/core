@@ -1,4 +1,5 @@
 import { RUNTIME_PACKAGES } from '@consts/other';
+import { normalizePath } from '@shared/path';
 import fs from 'fs';
 import kleur from 'kleur';
 import path from 'path';
@@ -16,6 +17,13 @@ import {
 } from '../types';
 import { CacheManager } from './cache-manager';
 import { CompilationUnitProcessor } from './compilation-unit';
+
+interface FileScanResult {
+  assets: string[];
+  script: string[];
+  style: string[];
+  vue: string[];
+}
 
 export class FileProcessor {
   private skippedCount = 0;
@@ -96,7 +104,7 @@ export class FileProcessor {
     // 2. 校验缓存
     const cache =
       (this.fileCompiler.getIsCache() ? existingCache : undefined) ||
-      (await this.fileCompiler.loadCache(key));
+      (await this.cacheManager.loadCache(key));
 
     // 查找缓存记录
     const record = cache?.target.find((c: CacheMeta) => c.file === absPath);
@@ -279,5 +287,174 @@ export class FileProcessor {
    */
   resetSkippedCount(): void {
     this.skippedCount = 0;
+  }
+
+  /**
+   * 扫描项目中的编译文件和资产文件
+   * @param recursive 是否递归扫描子目录
+   * @param ignoreAssets 需要忽略的资产文件列表
+   */
+  scanFiles(): FileScanResult {
+    const { fileCompiler } = this;
+
+    const rootPath = fileCompiler.getProjectRoot();
+    const inputPath = fileCompiler.getInputPath();
+
+    const scriptExt = /\.(js|ts|jsx|tsx)$/i;
+    const styleExt = /\.(css|less|sass|scss)$/i;
+
+    const result: FileScanResult = {
+      assets: [],
+      script: [],
+      style: [],
+      vue: [],
+    };
+
+    const getInputStat = (path: string): fs.Stats | undefined => {
+      if (!fs.existsSync(path)) return;
+      return fs.statSync(path);
+    };
+
+    const resolveDirectory = (
+      file: string,
+      walk: (path: string) => void,
+      fallback: (path: string) => void,
+    ) => {
+      const directory = fs.readdirSync(file);
+
+      directory.forEach((p) => {
+        // 拼接文件的完整路径
+        const fullPath = path.resolve(file, p);
+        if (fileCompiler.shouldSkipPath(fullPath)) {
+          return;
+        }
+
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory() && fileCompiler.options.recursive !== false) {
+          walk(fullPath);
+          return;
+        }
+
+        fallback(fullPath);
+      });
+    };
+
+    // 扫描待编译文件
+    const scanCompilationFiles = (file: string, res: FileScanResult) => {
+      const stat = getInputStat(file);
+      if (!stat) return;
+
+      // 文件分类
+      const classifyFile = (filePath: string) => {
+        const fileExt = path.extname(filePath);
+
+        if (fileExt === '.vue') {
+          res.vue.push(filePath);
+          return;
+        }
+
+        if (scriptExt.test(fileExt)) {
+          res.script.push(filePath);
+          return;
+        }
+
+        if (styleExt.test(fileExt)) {
+          res.style.push(filePath);
+        }
+      };
+
+      // 单独文件直接进分类列表
+      if (stat.isFile()) {
+        classifyFile(file);
+        return;
+      }
+
+      // 处理文件目录
+      resolveDirectory(
+        file,
+        (path) => scanCompilationFiles(path, res),
+        (path) => classifyFile(path),
+      );
+    };
+
+    /**
+     * 判断单个文件是否可以归类为资产文件
+     */
+    const isAssetFile = (input: string): boolean => {
+      const fileExt = path.extname(input).toLowerCase();
+      const resolvedPath = normalizePath(fileCompiler.relativePath(input));
+      const baseName = path.basename(input).toLowerCase();
+      const exclusions = fileCompiler.getIgnoreAssets();
+
+      // 规则 A: 排除预设的冲突文件（适用于所有目录）
+      if (!fileCompiler.options.output?.ignoreAssets) {
+        // 检查完整相对路径或文件名是否匹配预设排除模式
+        const shouldExclude = Array.from(exclusions).some((pattern) => {
+          // 如果模式以点结尾（如 'tsconfig.'），检查文件名是否以该模式开头
+          if (pattern.endsWith('.')) {
+            return baseName.startsWith(pattern);
+          }
+
+          // 直接检查文件扩展名是否匹配
+          if (pattern.startsWith('.')) {
+            return fileExt === pattern;
+          }
+
+          // 否则检查完整相对路径或文件名是否完全匹配
+          return resolvedPath === pattern || baseName === pattern;
+        });
+
+        if (shouldExclude) return false;
+      } else {
+        // 规则 B: 如果指定了 ignoreAssets 则由用户控制
+        // 规则 C: Vue 文件全部封杀，绝对不作为 Asset 拷贝
+        if (exclusions.has(resolvedPath) || exclusions.has(baseName) || fileExt === '.vue') {
+          return false;
+        }
+      }
+
+      // 规则 D: 智能区分 src 目录与项目配置文件
+      const isInsideSrc = input.startsWith(inputPath + path.sep);
+
+      // 在 src 里面的 js/ts/less 等归编译管线处理，这里不拷贝
+      if (isInsideSrc && (scriptExt.test(fileExt) || styleExt.test(fileExt))) {
+        return false;
+      }
+
+      return true;
+    };
+
+    // 扫描资产文件
+    const scanAssetFiles = (input: string, res: FileScanResult) => {
+      const stat = getInputStat(input);
+
+      if (!stat || fileCompiler.shouldSkipPath(input)) {
+        return;
+      }
+
+      if (stat.isFile()) {
+        if (isAssetFile(input)) {
+          res.assets.push(input);
+        }
+        return;
+      }
+
+      // 处理文件目录
+      resolveDirectory(
+        input,
+        (path) => scanAssetFiles(path, res),
+        (path) => {
+          if (isAssetFile(path)) {
+            res.assets.push(path);
+          }
+        },
+      );
+    };
+
+    // 执行文件扫描
+    scanCompilationFiles(inputPath, result);
+    scanAssetFiles(rootPath, result);
+
+    return result;
   }
 }

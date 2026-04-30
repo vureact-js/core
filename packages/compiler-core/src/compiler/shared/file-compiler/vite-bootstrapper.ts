@@ -52,7 +52,8 @@ export class ViteBootstrapper {
 
     // 如果是单个文件，跳过 Vite 初始化
     if (this.isSingleFile()) {
-      console.info('Skipping Vite initialization for single file compilation');
+      console.info(kleur.dim('Skip Vite init for single file'));
+      console.info();
       return;
     }
 
@@ -63,18 +64,7 @@ export class ViteBootstrapper {
       return;
     }
 
-    try {
-      this.spinner.start('Bootstrapping Vite React environment...');
-      await this.resolveViteCreateApp();
-    } catch (err) {
-      console.error(
-        kleur.red('✖'),
-        'Failed to bootstrap Vite environment. Please check npm/network.\n',
-        err,
-      );
-      this.spinner.stop();
-      return;
-    }
+    await this.resolveViteCreateApp();
 
     // 智能剔除原项目中的 Vue 强绑定包，避免带到 React 环境
     const removeVuePackages = (deps: Record<string, any>) => {
@@ -125,7 +115,7 @@ export class ViteBootstrapper {
     // 写入新数据到 vite 项目的 package.json
     await this.fileCompiler.writeFileWithDir(outputPkgPath, JSON.stringify(newPkg, null, 2));
 
-    this.spinner.succeed('Standard Vite React environment initialized');
+    this.spinner.succeed('Initialized Vite React environment');
 
     return true;
   }

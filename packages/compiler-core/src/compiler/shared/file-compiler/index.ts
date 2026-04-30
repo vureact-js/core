@@ -31,28 +31,64 @@ export class FileCompiler extends BaseCompiler {
     new SetupManager(() => this);
   }
 
+  private printTitle() {
+    const purple = '\x1b[38;2;153;50;204m'; // #9932cc 的 RGB 值
+    const reset = '\x1b[0m';
+
+    console.info();
+    console.info();
+    console.info(`${purple}${kleur.bold('VUREACT')} v${this.version}${reset}`);
+    console.info();
+  }
+
+  private updateSpinner(text: string) {
+    this.spinner.stop();
+    this.spinner.start(text);
+  }
+
   /** 执行完整的编译流程 */
   async execute() {
-    console.info('\n\n', kleur.magenta(`${kleur.bold('VUREACT')} v${this.version}`), '\n');
-
-    const startTime = performance.now();
-
-    const rmWorkspace = async () => {
-      await this.rmFile(this.getWorkspaceDir());
-    };
+    this.printTitle();
 
     try {
+      // 当 cache 禁用时，编译前需清理可能存在的缓存文件
       if (!this.getIsCache()) {
-        await rmWorkspace();
+        // fix：https://github.com/vureact-js/core/issues/27
+        await this.rmFile(this.getCachePath());
       }
+    } catch (err) {
+      console.warn(kleur.yellow('⚠'), 'Failed to clear cache');
+      console.info();
+    }
 
-      await this.manager.viteBootstrapper.bootstrapIfNeeded();
+    const { viteBootstrapper, fileProcessor, cacheManager, pipelineManager, assetManager } =
+      this.manager;
 
-      const sfcCount = await this.runPipelineWithSpinner(CacheKey.SFC);
-      const scriptCount = await this.runPipelineWithSpinner(CacheKey.SCRIPT);
-      const styleCount = await this.runPipelineWithSpinner(CacheKey.STYLE);
-      const assetCount = await this.runPipelineWithSpinner(CacheKey.ASSET);
+    let startTime = 0;
 
+    try {
+      this.updateSpinner('Initializing Vite React env...');
+      await viteBootstrapper.bootstrapIfNeeded();
+
+      // 加载缓存
+      const cacheMap = await cacheManager.loadAllCache();
+
+      startTime = performance.now();
+
+      this.updateSpinner('Scanning files...');
+      const scanFiles = fileProcessor.scanFiles();
+
+      this.updateSpinner('Compiling Vue to React...');
+      const sfcCount = await pipelineManager.runSFC(scanFiles.vue, cacheMap);
+      const scriptCount = await pipelineManager.runScript(scanFiles.script, cacheMap);
+      const styleCount = await pipelineManager.runStyle(scanFiles.style, cacheMap);
+
+      this.updateSpinner('Copying assets...');
+      const assetCount = await assetManager.runAsset(scanFiles.assets, cacheMap);
+
+      this.updateSpinner('Almost done...');
+
+      await cacheManager.flushAllCache();
       await this.options.onSuccess?.();
 
       const endTime = calcElapsedTime(startTime);
@@ -60,16 +96,17 @@ export class FileCompiler extends BaseCompiler {
       this.printCoreLogs();
       this.showCompileStats(endTime, sfcCount, scriptCount, styleCount, assetCount);
     } catch (error) {
-      const endTime = calcElapsedTime(startTime);
-      await rmWorkspace();
+      this.spinner.stop();
 
-      console.error(kleur.red('✖'), `Build failed in ${endTime}`);
+      console.error(kleur.red('✖'), `Build failed in ${calcElapsedTime(startTime)}`);
       console.error(error);
 
-      // fix: 出错后需结束正在运行的进程
+      // 失败情况下删除整个输出目录
+      await this.rmFile(this.getWorkspaceDir());
+
+      // 出错后需结束当前进程
       process.exit(-1);
     } finally {
-      this.spinner.stop();
       this.resetSkippedCount();
     }
   }
@@ -128,46 +165,9 @@ export class FileCompiler extends BaseCompiler {
     return this.manager.assetManager.processAsset(filePath, existingCache);
   }
 
-  /** 批量保存缓存 */
-  async flushCache(key: CacheKey) {
-    await this.manager.cacheManager.flushCache(key);
-  }
-
   /** 删除指定路径对应的输出文件和缓存 */
   async removeOutputPath(targetPath: string, type: CacheKey) {
     return await this.manager.cleanupManager.removeOutputPath(targetPath, type);
-  }
-
-  private async runPipelineWithSpinner(name: CacheKey): Promise<number> {
-    const options = {
-      [CacheKey.SFC]: {
-        text: 'Compiling Vue files...',
-        pipeline: () => this.manager.pipelineManager.runSfcPipeline(),
-      },
-      [CacheKey.SCRIPT]: {
-        text: 'Compiling script files...',
-        pipeline: () => this.manager.pipelineManager.runScriptPipeline(),
-      },
-      [CacheKey.STYLE]: {
-        text: 'Compiling style files...',
-        pipeline: () => this.manager.pipelineManager.runStylePipeline(),
-      },
-      [CacheKey.ASSET]: {
-        text: 'Copying assets...',
-        pipeline: () => this.manager.assetManager.runAssetPipeline(),
-      },
-    };
-
-    const { text, pipeline } = options[name];
-
-    try {
-      this.spinner.start(text);
-      return await pipeline();
-    } catch (err) {
-      throw err;
-    } finally {
-      this.spinner.stop();
-    }
   }
 
   private showCompileStats(
@@ -178,29 +178,43 @@ export class FileCompiler extends BaseCompiler {
     assetCount: number,
   ) {
     this.spinner.succeed(`Build completed in ${endTime}`);
-    console.info();
 
     if (sfcCount || scriptCount || styleCount || assetCount) {
       const stats = [];
-      if (sfcCount) stats.push(`${sfcCount} SFC(s)`);
-      if (scriptCount) stats.push(`${scriptCount} script(s)`);
-      if (styleCount) stats.push(`${styleCount} style(s)`);
-      if (assetCount) stats.push(`${assetCount} asset(s)`);
+      if (sfcCount) stats.push(`${sfcCount} ${kleur.dim('SFC(s)')}`);
+      if (scriptCount) stats.push(`${scriptCount} ${kleur.dim('script(s)')}`);
+      if (styleCount) stats.push(`${styleCount} ${kleur.dim('style(s)')}`);
+      if (assetCount) stats.push(`${assetCount} ${kleur.dim('asset(s)')}`);
 
-      this.spinner.succeed(`Processed: ${stats.join(', ')}`);
+      this.spinner.succeed(`${kleur.bold('Processed')}: ${stats.join(', ')}`);
     }
 
     const skippedCount =
       this.manager.pipelineManager.getSkippedCount() + this.manager.assetManager.getSkippedCount();
 
     if (skippedCount) {
-      console.info(kleur.gray(`↷ Cached: ${kleur.white(skippedCount)} unchanged file(s)`));
+      console.info();
+      console.info(
+        kleur.gray(`↷ ${kleur.bold('Cached')}: ${kleur.white(skippedCount)} unchanged file(s)`),
+      );
       this.resetSkippedCount();
     }
 
     const dir = normalizePath(this.relativePath(this.getOuputPath()));
+
     console.info();
-    console.info(`📦 Output: ${dir}`);
+    console.info(`📦 ${kleur.bold('Output')}: ${kleur.cyan(dir)}`);
+    console.info();
+
+    console.info(`  >  cd ${dir}`);
+    console.info(`  >  npm install`);
+    console.info(`  >  npm run dev`);
+
+    console.info();
+    console.info(
+      kleur.dim('⭐ If you like VuReact, give us a star on GitHub:'),
+      kleur.gray(kleur.underline('https://github.com/vureact-js/core')),
+    );
     console.info();
   }
 

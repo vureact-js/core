@@ -8,17 +8,13 @@ import path from 'path';
 import { fileLock, FileLockOptions } from './file-lock-manager';
 import {
   CacheCheckResult,
-  CacheKey,
-  CacheList,
   CacheMeta,
   CompilationResult,
   CompilerOptions,
-  FileCacheMeta,
   FileMeta,
   LoadedCache,
   ScriptCompilationResult,
   SFCCompilationResult,
-  Vue2ReactCacheMeta,
 } from './types';
 
 export class Helper {
@@ -54,14 +50,6 @@ export class Helper {
   getInputPath(): string {
     const { input = 'src' } = this.compilerOpts;
     return path.resolve(this.getProjectRoot(), input);
-  }
-
-  /**
-   * 检查 input 路径是否是单个文件
-   */
-  isSingleFile(): boolean {
-    const inputPath = this.getInputPath();
-    return fs.existsSync(inputPath) && fs.statSync(inputPath).isFile();
   }
 
   /**
@@ -130,6 +118,14 @@ export class Helper {
    */
   getOutputPkgPath(): string {
     return path.join(this.getOuputPath(), 'package.json');
+  }
+
+  /**
+   * 获取缓存文件路径
+   */
+  getCachePath(): string {
+    const filename = '_metadata';
+    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
   }
 
   /**
@@ -273,134 +269,14 @@ export class Helper {
 
   async rmFile(filePath: string) {
     try {
-      await fs.promises.rm(filePath, { recursive: true, force: true });
+      if (fs.existsSync(filePath)) {
+        await fs.promises.rm(filePath, { recursive: true, force: true });
+      }
     } catch {}
-  }
-
-  /**
-   * 加载指定文件的缓存内容
-   * @param key 缓存键
-   */
-  async loadCache(key: CacheKey.SFC): Promise<LoadedCache<Vue2ReactCacheMeta>>;
-
-  async loadCache(
-    key: CacheKey.SCRIPT | CacheKey.STYLE | CacheKey.ASSET,
-  ): Promise<LoadedCache<FileCacheMeta>>;
-
-  async loadCache(
-    key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.STYLE | CacheKey.ASSET,
-  ): Promise<LoadedCache<Vue2ReactCacheMeta | FileCacheMeta>>;
-
-  async loadCache(key: CacheKey) {
-    const cacheFile = this.getCachePath();
-    const defaultData = this.createCacheData(key);
-
-    if (!fs.existsSync(cacheFile)) {
-      return defaultData;
-    }
-
-    try {
-      const content = await fs.promises.readFile(cacheFile, 'utf-8');
-      const data = JSON.parse(content) as CacheList;
-
-      return {
-        key,
-        target: data[key] || [],
-        source: data,
-      };
-    } catch {
-      return defaultData;
-    }
-  }
-
-  createCacheData(key: CacheKey): LoadedCache {
-    return {
-      key,
-      target: [],
-      source: {
-        [CacheKey.SFC]: [],
-        [CacheKey.SCRIPT]: [],
-        [CacheKey.STYLE]: [],
-        [CacheKey.ASSET]: [],
-      },
-    };
-  }
-
-  /**
-   * 获取缓存文件路径
-   */
-  getCachePath(): string {
-    const filename = '_metadata';
-    return path.resolve(this.getProjectRoot(), this.workspaceDir, 'cache', `${filename}.json`);
-  }
-
-  async saveCache(data?: LoadedCache) {
-    if (!this.getIsCache() || !data) {
-      return;
-    }
-
-    const getDefaultValue = (): CacheList => ({
-      [CacheKey.SFC]: [],
-      [CacheKey.SCRIPT]: [],
-      [CacheKey.STYLE]: [],
-      [CacheKey.ASSET]: [],
-    });
-
-    const cachePath = this.getCachePath();
-
-    // 使用文件锁确保并发安全
-    await fileLock.updateFile(cachePath, (currentData: CacheList | null) => {
-      const { key, target } = data;
-
-      // 如果当前数据为空，创建默认结构
-      const mergedData = currentData || getDefaultValue();
-
-      // 只更新指定key的缓存，保留其他key的数据
-      mergedData[key] = target as any[];
-
-      return mergedData;
-    });
   }
 
   genHash(content: string) {
     return genHashByXXH(content);
-  }
-
-  /**
-   * 扫描指定目录下的所有文件
-   * @param dir 目标目录
-   * @param filter 筛选指定的文件后缀名
-   */
-  scanFiles(dir: string, filter: (file: string) => boolean): string[] {
-    const results: string[] = [];
-
-    if (!fs.existsSync(dir)) {
-      return results;
-    }
-
-    const stats = fs.statSync(dir);
-
-    if (stats.isFile()) {
-      return filter(dir) ? [dir] : [];
-    }
-
-    const list = fs.readdirSync(dir);
-
-    for (const file of list) {
-      const fullPath = path.resolve(dir, file);
-
-      if (this.shouldSkipPath(fullPath)) continue;
-
-      const stat = fs.statSync(fullPath);
-
-      if (stat.isDirectory() && this.compilerOpts.recursive !== false) {
-        results.push(...this.scanFiles(fullPath, filter));
-      } else if (filter(fullPath)) {
-        results.push(fullPath);
-      }
-    }
-
-    return results;
   }
 
   getAbsPath(filePath: string): string {

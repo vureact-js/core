@@ -1,5 +1,7 @@
 import { ScriptUnit, SFCUnit, StyleUnit } from './compilation-unit';
 
+export type CacheMap = Record<CacheKey, LoadedCache>;
+
 export type LoadedCache<T = CacheMeta> = {
   key: CacheKey;
   target: T[];

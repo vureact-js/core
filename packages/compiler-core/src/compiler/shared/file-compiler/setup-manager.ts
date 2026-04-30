@@ -50,7 +50,6 @@ export class SetupManager {
     const manager = fileCompiler.manager;
 
     manager.cacheManager = new CacheManager(fileCompiler);
-    manager.cleanupManager = new CleanupManager(fileCompiler);
   }
 
   /**
@@ -58,6 +57,8 @@ export class SetupManager {
    */
   private setupManagedByBase(fileCompiler: FileCompiler) {
     const manager = fileCompiler.manager;
+
+    manager.cleanupManager = new CleanupManager(fileCompiler, manager.cacheManager);
 
     manager.fileProcessor = new FileProcessor(
       fileCompiler,
@@ -73,7 +74,17 @@ export class SetupManager {
     const manager = fileCompiler.manager;
 
     manager.viteBootstrapper = new ViteBootstrapper(fileCompiler, fileCompiler.options);
-    manager.pipelineManager = new PipelineManager(fileCompiler, manager.fileProcessor);
-    manager.assetManager = new AssetManager(fileCompiler, manager.cleanupManager);
+
+    manager.pipelineManager = new PipelineManager(
+      fileCompiler,
+      manager.fileProcessor,
+      manager.cleanupManager,
+    );
+
+    manager.assetManager = new AssetManager(
+      fileCompiler,
+      manager.cleanupManager,
+      manager.cacheManager,
+    );
   }
 }

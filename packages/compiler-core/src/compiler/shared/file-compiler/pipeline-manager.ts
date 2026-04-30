@@ -1,87 +1,62 @@
-import path from 'path';
 import { FileCompiler } from '.';
-import { CacheKey } from '../types';
+import { CacheKey, CacheMap } from '../types';
 import { CleanupManager } from './cleanup-manager';
 import { FileProcessor } from './file-processor';
 
 export class PipelineManager {
   private skippedCount = 0;
-  private cleanupManager: CleanupManager;
 
   constructor(
     private fileCompiler: FileCompiler,
     private fileProcessor: FileProcessor,
-  ) {
-    this.cleanupManager = new CleanupManager(fileCompiler);
-  }
+    private cleanupManager: CleanupManager,
+  ) {}
 
   /**
    * 运行 SFC 编译管线
    */
-  async runSfcPipeline(): Promise<number> {
-    return this.runCorePipeline(CacheKey.SFC);
+  async runSFC(files: string[], cacheMap: CacheMap): Promise<number> {
+    return this.runCore(files, CacheKey.SFC, cacheMap);
   }
 
   /**
    * 运行 Script 编译管线
    */
-  async runScriptPipeline(): Promise<number> {
-    return this.runCorePipeline(CacheKey.SCRIPT);
+  async runScript(files: string[], cacheMap: CacheMap): Promise<number> {
+    return this.runCore(files, CacheKey.SCRIPT, cacheMap);
   }
 
   /**
    * 运行 Style 编译管线
    */
-  async runStylePipeline(): Promise<number> {
-    return this.runCorePipeline(CacheKey.STYLE);
+  async runStyle(files: string[], cacheMap: CacheMap): Promise<number> {
+    return this.runCore(files, CacheKey.STYLE, cacheMap);
   }
+
   /**
    * 核心编译管线
    */
-  private async runCorePipeline(
+  private async runCore(
+    files: string[],
     key: CacheKey.SFC | CacheKey.SCRIPT | CacheKey.STYLE,
+    cacheMap: CacheMap,
   ): Promise<number> {
-    const inputPath = this.fileCompiler.getInputPath();
+    // 将传入的文件路径转换为绝对路径并存储到 Set 中，
+    // 用于后续清理时判断文件是否存在
+    const absPaths = new Set(files.map((f) => this.fileCompiler.getAbsPath(f)));
 
-    const scriptExtRegex = /\.(js|ts)$/i;
-    const styleExtRegex = /\.(css|less|sass|scss)$/i;
+    const cache = cacheMap[key];
 
-    const files = this.fileCompiler.scanFiles(inputPath, (p) => {
-      const ext = path.extname(p);
-
-      if (key === CacheKey.SFC) {
-        return ext === '.vue';
-      }
-
-      if (key === CacheKey.SCRIPT) {
-        return scriptExtRegex.test(ext);
-      }
-
-      if (key === CacheKey.STYLE) {
-        return styleExtRegex.test(ext);
-      }
-
-      return false;
-    });
-
-    // 加载缓存
-    const absFiles = new Set(files.map((f) => this.fileCompiler.getAbsPath(f)));
-
-    // fix: 即使当前类型已无文件，也需要清理历史产物与缓存
-    await this.cleanupManager.cleanupOldOutput(key, (c: any) => !absFiles.has(c.file));
+    // 基于已加载的内存缓存，清理不存在的文件对应的输出产物
+    // 直接从内存 cache 中移除条目，不同步写磁盘（flushCache 时会统一写回）
+    await this.cleanupManager.removeMatchedFromCache(key, cache, (c: any) => !absPaths.has(c.file));
 
     if (!files.length) return 0;
 
-    // fix: 在清理后重新加载缓存，避免把已删除条目写回
-    const cache = await this.fileCompiler.loadCache(key);
-
     // 使用 Promise.all 并行编译
     const compiled = await Promise.all(
-      files.map(async (f) => this.fileProcessor.processFile(key, f, cache)),
+      files.map((f) => this.fileProcessor.processFile(key, f, cache)),
     );
-
-    // 批量保存缓存
-    await this.fileCompiler.flushCache(key);
 
     return compiled.filter(Boolean).length;
   }
