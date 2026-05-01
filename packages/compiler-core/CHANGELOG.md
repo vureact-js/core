@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2026-05-03
+
+### Changed
+
+- **优化文件扫描效率**：编译期间只扫描一次源文件，各编译阶段共享扫描结果，避免重复遍历目录
+- **优化缓存读写性能**：重构缓存读写机制，编译期间只读写一次缓存文件，避免重复 I/O 操作，全量编译速度提升约 30-40%
+- **优化缓存清理逻辑**：不再每次清理时重复读写磁盘，改为内存操作，避免缓存数据不同步
+- **优化终端输出体验**：统一的步骤化进度提示，编译完成后显示后续操作指引及 GitHub star 请求
+
+### Fixed
+
+- **修复关闭编译缓存后，全量编译会删除工作区目录，导致输出文件与 Vite 运行环境被清空的问题**：优化清理逻辑，只删除缓存文件本身
+- **修复 CLI 启动时的包版本更新检查功能不生效**：修正更新检查逻辑，确保启动时正确检测并提示新版本
+
+### Removed
+
+- **移除每个单独编译过程中的重复文件扫描和缓存读写**：改为统一在编译开始时和开始后一次完成，各编译阶段共享结果
+
+---
+
+[1.8.0]: https://github.com/vureact-js/core/compare/v1.7.0...v1.8.0
+
+---
+
 ## [1.7.0] - 2026-04-26
 
 ### Added
@@ -594,8 +618,9 @@ When releasing a new version:
 
 ---
 
-```
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.7.0...HEAD
+```text
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/vureact-js/core/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/vureact-js/core/compare/v1.6.2...v1.7.0
 [1.6.2]: https://github.com/vureact-js/core/compare/v1.6.1...v1.6.2
 [1.6.1]: https://github.com/vureact-js/core/compare/v1.6.0...v1.6.1

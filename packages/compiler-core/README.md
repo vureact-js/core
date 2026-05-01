@@ -1,6 +1,8 @@
 # @vureact/compiler-core
 
-**写 Vue，交付生产级 React 代码** —— 让你在 Vue 3 心智下，编译出 React 18+ 应用的编译工具。
+**写 Vue，生成可维护的 React**
+
+它不仅适用于 Vue 3 到 React 项目的迁移，更致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出**可维护、可演进、生产就绪**的 React 代码。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)

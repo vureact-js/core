@@ -4,9 +4,9 @@
 
   <h1>VuReact</h1>
 
-**Write Vue, Ship Production-Ready React** — Build React 18+ apps with the Vue 3 mental model.
+**Write in Vue 3, compile to React 18+ code.**
 
-It's more than just a migration tool — it seamlessly blends Vue's excellent development mindset with the power of the React ecosystem, producing **maintainable, evolvable, production-ready** React code.
+It is not only suitable for migrating Vue 3 projects to React, but is also committed to seamlessly integrating Vue's excellent mental model with React's ecosystem capabilities, directly producing **maintainable, evolvable, and production-ready** React code from Vue code.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -23,13 +23,6 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
 </div>
 
 ---
-
-## 🪄 Playground
-
-Before you begin, you can first understand the complete process of how VuReact compiles a Vue project into a React project and successfully runs the page!
-
-- Customer Support Hub (Mixed)：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
-- CRM Admin Dashboard (Standard)：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
 
 ## 🎯 Core Philosophy
 
@@ -50,6 +43,13 @@ Furthermore, VuReact is not only suitable for migration scenarios but also for d
 **⚡ Excellent Developer Experience**：Vue mental model, seamless React dev; CLI build/watch, fast incremental compile, native-like
 
 **🌀 Innovative Exploration**：A new bridge between Vue and React at compile time
+
+## 🪄 Playground
+
+Before you begin, you can first understand the complete process of how VuReact compiles a Vue project into a React project and successfully runs the page!
+
+- Customer Support Hub (Mixed)：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
+- CRM Admin Dashboard (Standard)：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
 
 ## 📦 Quick Start
 

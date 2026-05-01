@@ -34,6 +34,7 @@ export default defineConfig({
     'minimatch',
     'xxhashjs',
     'postcss',
+    'postcss-selector-parser',
     'cac',
     'ora',
     'chokidar',

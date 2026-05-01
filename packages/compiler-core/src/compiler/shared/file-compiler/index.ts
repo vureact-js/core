@@ -70,6 +70,8 @@ export class FileCompiler extends BaseCompiler {
       this.updateSpinner('Initializing Vite React env...');
       await viteBootstrapper.bootstrapIfNeeded();
 
+      // feature：https://github.com/vureact-js/core/issues/28
+
       // 加载缓存
       const cacheMap = await cacheManager.loadAllCache();
 

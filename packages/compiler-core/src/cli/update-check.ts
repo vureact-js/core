@@ -40,6 +40,8 @@ export function checkForUpdates() {
     });
 
     // 检查更新（异步，结果会缓存）
+    // fix：https://github.com/vureact-js/core/issues/29
+    notifier.check();
     notifier.notify();
   } catch (error) {
     // 静默失败，不干扰正常功能
