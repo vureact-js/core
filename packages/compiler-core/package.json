@@ -35,6 +35,7 @@
     "jsx",
     "sfc",
     "veaury",
+    "vuera",
     "mitosis",
     "vue3-to-react",
     "vue-react",
@@ -51,14 +52,14 @@
   "homepage": "https://vureact.top",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vureact-js/core.git",
+    "url": "git+https://github.com/vureact-js/core.git",
     "directory": "packages/compiler-core"
   },
   "bugs": {
     "url": "https://github.com/vureact-js/core/issues"
   },
   "bin": {
-    "vureact": "./bin/vureact.js"
+    "vureact": "bin/vureact.js"
   },
   "scripts": {
     "build": "tsup",
