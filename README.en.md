@@ -57,12 +57,12 @@ If your team, product, or experiment is already using VuReact, we would love to 
 
 | Project | Scenario | Stage | Link |
 | --- | --- | --- | --- |
-| Your project could be the first public showcase | New build / migration pilot / hybrid stack | Collecting submissions | [Share your story](https://github.com/vureact-js/vureact-js/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
+| Your project could be the first public showcase | New build / migration pilot / hybrid stack | Collecting submissions | [Share your story](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
 
 You can submit a showcase through the issue templates:
 
-- [Share a "Who's Using VuReact" case](https://github.com/vureact-js/vureact-js/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
-- [Browse submitted showcase issues](https://github.com/vureact-js/vureact-js/issues?q=is%3Aissue%20label%3Ashowcase)
+- [Share a "Who's Using VuReact" case](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
+- [Browse submitted showcase issues](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
 
 Maintainers can periodically curate suitable submissions from these issues and add them here.
 
