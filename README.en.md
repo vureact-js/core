@@ -6,7 +6,7 @@
 
 **Write in Vue 3, compile to React 18+ code.**
 
-It is not only suitable for migrating Vue 3 projects to React, but is also committed to seamlessly integrating Vue's excellent mental model with React's ecosystem capabilities, directly producing **maintainable, evolvable, and production-ready** React code from Vue code.
+A **Vue-to-React** compiler that **fully compiles** Vue 3 SFC, scripts & styles into **pure React 18+ code** (no runtime bridge), covering core `<script setup>` features.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -24,25 +24,16 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
 
 ---
 
-## 🎯 Core Philosophy
-
-VuReact is not just a simple syntax conversion tool, but a **convention-based intelligent compilation platform**. We adhere to the principle of "controllability over full coverage," providing a **predictable, analyzable, and maintainable** engineering path for Vue to React migration through explicit compilation conventions.
-
-Furthermore, VuReact is not only suitable for migration scenarios but also for development scenarios where developers wish to enjoy **Vue's excellent mental model** while producing **React code**.
+*"VuReact seamlessly integrates Vue's mental model with React's ecosystem, directly converting Vue code into **maintainable, evolvable, and production-ready** React code."*
 
 ## ✨ Core Features
 
-**🧠 Semantic-aware**：Understand Vue 3 like a compiler, generate maintainable React 18+ like a pro
-
-**⚖️ Incremental Migration**：Start small, scale to full projects—no risky rewrites
-
-**🧭 Convention-driven**：Predictable transforms powered by clear conventions, not guesses
-
-**⚛️ Complete Feature Adaptation**：Vue features, fully mapped to React—zero runtime cost
-
-**⚡ Excellent Developer Experience**：Vue mental model, seamless React dev; CLI build/watch, fast incremental compile, native-like
-
-**🌀 Innovative Exploration**：A new bridge between Vue and React at compile time
+- **🧠 Semantic-level compilation, not text replacement**: Analyzes complete semantics of templates, `<script setup>`, Composition API, TS types, etc., generating idiomatic React code.
+- **🎯 Convention-first, controllable & maintainable**: Doesn't aim to "convert everything"; follows clear compilation conventions, ensuring predictable and analyzable output.
+- **📦 Progressive migration**: Migrates incrementally from single files to entire projects without the need for a full rewrite.
+- **⚛️ Full feature adaptation**: Core Vue features (reactivity, lifecycle, built-in components, routing) are fully adapted to React; `scoped`/`module` styles and Less/Sass are processed at compile time with zero runtime overhead.
+- **⚡ Intelligent dependency analysis**: Top-level functions automatically get `useCallback`, variable declarations get `useMemo`, and hook dependencies are tracked automatically.
+- **🛠️ Dual-mode CLI**: `vureact build` (fast incremental compilation) + `vureact watch` (file watching), offering near-native development experience.
 
 ## 🪄 Playground
 

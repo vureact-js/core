@@ -6,7 +6,7 @@
 
 **写 Vue，生成可维护的 React**
 
-它不仅适用于 Vue 3 到 React 项目的迁移，更致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出**可维护、可演进、生产就绪**的 React 代码。
+一个 **Vue 转 React** 编译工具，将 Vue 3 的 SFC、脚本和样式文件**完整编译为纯 React 18+ 组件与代码**（非运行时桥接），覆盖 `<script setup>` 核心全特性。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -24,25 +24,16 @@
 
 ---
 
-## 🎯 核心理念
+*“ VuReact 不是简单的语法转换工具，而是致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出**可维护、可演进、生产就绪**的 React 代码。”*
 
-VuReact 不是简单的语法转换工具，而是一个**基于约定的智能编译平台**。我们遵循"可控性优先于全覆盖"的原则，通过明确的编译约定，为 Vue 到 React 的迁移提供**可预测、可分析、可维护**的工程路径。
+## ✨ 核心亮点
 
-另外，VuReact **不仅适用于迁移场景**，也适用于那些希望**享受 Vue 优秀的心智模型**，同时**产出 React 代码**的开发场景。
-
-## ✨ 核心特性
-
-**🧠 语义感知**：深度理解Vue语法的完整语义结构，包括模板指令、script setup逻辑、组合式API和TypeScript类型等，智能生成符合React最佳实践的代码
-
-**⚖️ 渐进迁移**：支持从单文件到整个项目的可控渐进迁移，规避一次性大规模转换带来的技术债务和系统风险
-
-**🧭 约定驱动**：基于明确的语法约定而非启发式规则进行编译，确保转换行为的确定性、可分析性和可维护性，完整支持现代Vue语法
-
-**⚛️ 完整特性适配**：将响应式 API、生命周期、内置组件、路由等Vue核心特性完整适配到React，编译阶段完全处理scoped、module和样式语言等，实现零运行时开销
-
-**⚡ 优秀的开发体验**：延续 Vue 心智模型实现无感开发 React；提供 build/watch 双模式 CLI，支持极速增量编译与文件监听，让跨框架开发效率与体验达到原生级别
-
-**🌀 创新探索**：探索跨框架编译桥模式，允许Vue和React代码在编译层面共存，验证"Vue到React完整编译"的技术可行性
+- **🧠 语义级编译，不是字符替换**：分析模板、`<script setup>`、组合式 API、TS 类型等完整语义，生成符合 React 习惯的代码。
+- **🎯 约定优先，可控可维护**：不追求“什么都能转”，基于明确的编译约定，确保转换结果可预测、可分析。
+- **📦 渐进迁移**：从单文件到整个项目逐步推进，不需要一次性重写。
+- **⚛️ 完整特性适配**：响应式 API、生命周期、内置组件、路由等 Vue 核心特性完整适配到 React；`scoped`/`module` 样式和 Less/Sass 均在编译阶段处理，零运行时开销。
+- **⚡ 智能依赖分析**：顶层函数自动注入 `useCallback`，变量声明自动注入 `useMemo`，hooks 依赖自动追踪。
+- **🛠️ 双模式 CLI**：`vureact build`（极速增量编译）+ `vureact watch`（文件监听），开发体验接近原生。
 
 ## 🪄 在线案例演示
 

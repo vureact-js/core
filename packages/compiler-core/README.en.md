@@ -2,7 +2,7 @@
 
 **Write in Vue 3, compile to React 18+ code.**
 
-It is not only suitable for migrating Vue 3 projects to React, but is also committed to seamlessly integrating Vue's excellent mental model with React's ecosystem capabilities, directly producing **maintainable, evolvable, and production-ready** React code from Vue code.
+A **Vue-to-React** compiler that **fully compiles** Vue 3 SFC, scripts & styles into **pure React 18+ code** (no runtime bridge), covering core `<script setup>` features.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)

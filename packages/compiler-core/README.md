@@ -2,7 +2,7 @@
 
 **写 Vue，生成可维护的 React**
 
-它不仅适用于 Vue 3 到 React 项目的迁移，更致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出**可维护、可演进、生产就绪**的 React 代码。
+一个 **Vue 转 React** 编译工具，将 Vue 3 的 SFC、脚本和样式文件**完整编译为纯 React 18+ 组件与代码**（非运行时桥接），覆盖 `<script setup>` 核心全特性。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
