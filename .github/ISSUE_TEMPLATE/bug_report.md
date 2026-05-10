@@ -7,6 +7,7 @@ assignees: ''
 ---
 
 <!-- Thanks for taking the time to report an issue! Please fill out this template to help us understand and address the problem. -->
+<!-- Want to share a real-world VuReact project instead? Use the showcase template: https://github.com/vureact-js/vureact-js/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20 -->
 
 ## Description
 

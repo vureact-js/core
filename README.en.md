@@ -9,7 +9,7 @@
 It is not only suitable for migrating Vue 3 projects to React, but is also committed to seamlessly integrating Vue's excellent mental model with React's ecosystem capabilities, directly producing **maintainable, evolvable, and production-ready** React code from Vue code.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
-[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -50,6 +50,21 @@ Before you begin, you can first understand the complete process of how VuReact c
 
 - Customer Support Hub (Mixed)：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
 - CRM Admin Dashboard (Standard)：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
+
+## 🧩 Who's Using VuReact
+
+If your team, product, or experiment is already using VuReact, we would love to hear about it. This section is meant to surface real project names, use cases, migration stages, and public references so new users can quickly judge whether VuReact fits their engineering context.
+
+| Project | Scenario | Stage | Link |
+| --- | --- | --- | --- |
+| Your project could be the first public showcase | New build / migration pilot / hybrid stack | Collecting submissions | [Share your story](https://github.com/vureact-js/vureact-js/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
+
+You can submit a showcase through the issue templates:
+
+- [Share a "Who's Using VuReact" case](https://github.com/vureact-js/vureact-js/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
+- [Browse submitted showcase issues](https://github.com/vureact-js/vureact-js/issues?q=is%3Aissue%20label%3Ashowcase)
+
+Maintainers can periodically curate suitable submissions from these issues and add them here.
 
 ## 📦 Quick Start
 

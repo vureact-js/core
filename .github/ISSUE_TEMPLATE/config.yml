@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: 🧩 Share your project / 谁在用
+    url: https://github.com/vureact-js/vureact-js/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20
+    about: Share a real-world VuReact use case so we can feature it in the README
   - name: 📚 Documentation
     url: https://vureact-js.github.io/docs/
     about: Check out our documentation for guides and API references

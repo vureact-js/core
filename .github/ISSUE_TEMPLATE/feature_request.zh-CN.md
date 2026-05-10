@@ -7,6 +7,7 @@ assignees: ''
 ---
 
 <!-- 感谢你花时间提出功能建议！请填写此模板以帮助我们理解你的需求。 -->
+<!-- 如果你是想分享“谁在用”的真实案例，请改用这个模板：https://github.com/vureact-js/vureact-js/issues/new?template=showcase.zh-CN.md&title=%5BSHOWCASE%5D%20 -->
 
 ## 问题描述
 
