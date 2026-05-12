@@ -6,7 +6,9 @@
 
 **写 Vue，生成可维护的 React**
 
-一个 **Vue 转 React** 编译工具，将 Vue 3 的 SFC、脚本和样式文件**完整编译为纯 React 18+ 组件与代码**（非运行时桥接），覆盖 `<script setup>` 核心全特性。
+> 一个 Vue 转 React 编译工具链，将 Vue 3 的 SFC・Script・Style 完整编译为纯 React 18+ 组件与代码（非运行时桥接），覆盖 `<script setup>` 核心全特性。
+>
+> 致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出可维护、可演进、生产就绪的 React 代码。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -16,15 +18,39 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
+[在线演示](#️-在线演示) · [快速开始](#-快速开始) · [CLI 命令](#️-cli-命令) · [生态系统](#-生态系统) · [语义编译对照](https://www.vureact.top/guide/semantic-comparison/overview.html) · [FAQ](#常见问题) · [更新日志](https://www.vureact.top/guide/changelog.html)
+
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-[<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
-
+<a href="assets/hero_demo_3MB.mp4" title="观看项目展示视频">
+  <img src="assets/vureact_hero_demo.gif" alt="vureact 编译 Vue 到 React 展示动图" width="100%">
+</a>
 </div>
 
 ---
 
-*“ VuReact 不是简单的语法转换工具，而是致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出**可维护、可演进、生产就绪**的 React 代码。”*
+## 💡 为什么选 VuReact？
+
+它不是简单的语法转换工具，采用了一种与**传统迁移工具/运行时桥接**完全不同的工程化思路。如果你正在考虑将 Vue 项目迁移到 React，或者希望在 React 生态中继续使用 Vue 的开发体验，VuReact 提供了一个可控、可预测的解决方案。
+
+| 其他方案 | VuReact |
+|----------|---------|
+| 运行时套壳（双框架，性能差） | 编译时，产物纯 React |
+| 半成品转换（复杂语法报错） | 完整模板指令、Props、插槽、Composition API、scoped 样式、 TS 类型定义等 |
+| 依赖人工重写，成本高 | 可渐进迁移，逐模块编译 |
+
+👉 **深入了解请访问：**[为什么选择 VuReact？—— 不止是语法转换](https://www.vureact.top/guide/why.html)
+
+---
+
+## 🕹️ 在线演示
+
+在开始之前，你可以访问我们提供的 CodeSandbox 在线案例，了解 VuReact 将 Vue 编译为 React 项目，再到成功运行页面的完整流程！
+
+- [客户支持协同后台（混写）](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
+- [客户关系管理后台（标准）](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+
+---
 
 ## ✨ 核心亮点
 
@@ -35,27 +61,7 @@
 - **⚡ 智能依赖分析**：顶层函数自动注入 `useCallback`，变量声明自动注入 `useMemo`，hooks 依赖自动追踪。
 - **🛠️ 双模式 CLI**：`vureact build`（极速增量编译）+ `vureact watch`（文件监听），开发体验接近原生。
 
-## 🪄 在线案例演示
-
-在开始之前，你可以先了解 VuReact 将 Vue 项目编译为 React 项目，再到成功运行页面的完整流程！
-
-- 客户支持协同后台（混写）：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
-- 客户关系管理后台（标准）：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
-
-## 🧩 谁在用
-
-如果你的团队、产品或实验项目已在使用 VuReact，欢迎告诉我们。此处会优先收录真实项目名称、使用场景、迁移阶段和公开链接，帮助其他用户更快判断 VuReact 是否适合自己的工程场景。
-
-| 项目 | 场景 | 当前阶段 | 链接 |
-| --- | --- | --- | --- |
-| 等待你的项目加入 | 新项目 / 迁移试点 / 混合栈实践 | 招募中 | [提交使用案例](https://github.com/vureact-js/core/issues/new?template=showcase.zh-CN.md&title=%5BSHOWCASE%5D%20) |
-
-你可以通过 Issue 模板提交案例：
-
-- [提交「谁在用」案例](https://github.com/vureact-js/core/issues/new?template=showcase.zh-CN.md&title=%5BSHOWCASE%5D%20)
-- [查看已提交案例](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
-
-维护者会定期从这些案例中整理出适合公开展示的条目，更新到这里。
+---
 
 ## 📦 快速开始
 
@@ -323,9 +329,7 @@ CSS 文件内容：
 9. `less` 样式被编译为 css 代码
 10. `scoped` 样式会生成带哈希的 css 文件，并在元素上标注作用域属性
 
-## 📋 编译约定（必读）
-
-移步 [VuReact 编译约定](https://vureact.top/guide/specification.html) 查看具体内容！
+---
 
 ## 🛠️ CLI 命令
 
@@ -340,15 +344,29 @@ npx vureact watch
 npx vureact --help
 ```
 
+👉 **双模式 CLI 指南请访问：**[Build 增量编译](https://www.vureact.top/guide/incremental-compilation.html) | [Watch 监听模式](https://www.vureact.top/guide/watch-mode.html)
+
+---
+
+## 📋 编译约定（必读）
+
+移步 [VuReact 编译约定](https://vureact.top/guide/specification.html) 查看具体内容！
+
+---
+
 ## 常见问题
 
 请移步 [VuReact 常见问题](https://vureact.top/guide/faq.html)！
+
+---
 
 ## 🔗 生态系统
 
 - **[运行时适配包](https://runtime.vureact.top)**：提供 React 版的 Vue 核心 API
 - **[路由适配包](https://router.vureact.top)**：支持 Vue Router → React Router 转换
 - **[完整文档](https://vureact.top)**：详细的使用指南和 API 文档
+
+---
 
 ## 🎯 适用场景
 
@@ -364,24 +382,49 @@ npx vureact --help
 - **约定驱动**：需要遵守明确的编译约定
 - **现代语法**：专注于 Vue 3 Composition API 与 `<script setup>`
 
+---
+
 ## 🔎 仓库子包
 
 - [packages/compiler-core](./packages/compiler-core/)
 - [packages/runtime-core](./packages/runtime-core/)
 
+---
+
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！请先阅读 [贡献指南](CONTRIBUTING.zh.md)。
 
+---
+
 ## 📄 许可证
 
 MIT License © 2025 [Ruihong Zhong (Ryan John)](./LICENSE)
+
+---
 
 ## 🩷 赞助
 
 **VuReact 的持续发展离不开社区的支持，您的赞助将直接用于项目维护、功能开发和文档完善，帮助我们共同探索 Vue 到 React 编译的技术边界。**
 
 平台：[爱发电](https://afdian.com/a/vureact-js/plan)
+
+---
+
+## 🧩 谁在用
+
+如果你的团队、产品或实验项目已在使用 VuReact，欢迎告诉我们。此处会优先收录真实项目名称、使用场景、迁移阶段和公开链接，帮助其他用户更快判断 VuReact 是否适合自己的工程场景。
+
+| 项目 | 场景 | 当前阶段 | 链接 |
+| --- | --- | --- | --- |
+| 等待你的项目加入 | 新项目 / 迁移试点 / 混合栈实践 | 招募中 | [提交使用案例](https://github.com/vureact-js/core/issues/new?template=showcase.zh-CN.md&title=%5BSHOWCASE%5D%20) |
+
+你可以通过 Issue 模板提交案例：
+
+- [提交「谁在用」案例](https://github.com/vureact-js/core/issues/new?template=showcase.zh-CN.md&title=%5BSHOWCASE%5D%20)
+- [查看已提交案例](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
+
+维护者会定期从这些案例中整理出适合公开展示的条目，更新到这里。
 
 ---
 

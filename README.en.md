@@ -6,7 +6,9 @@
 
 **Write in Vue 3, compile to React 18+ code.**
 
-A **Vue-to-React** compiler that **fully compiles** Vue 3 SFC, scripts & styles into **pure React 18+ code** (no runtime bridge), covering core `<script setup>` features.
+> A Vue-to-React compiler that fully compiles Vue 3 SFC・Script・Style into pure React 18+ code (no runtime bridge), covering core `<script setup>` features.
+>
+> Seamlessly blends Vue’s mental model with the React ecosystem, turning Vue code directly into maintainable, evolvable, production-ready React code.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -16,15 +18,39 @@ A **Vue-to-React** compiler that **fully compiles** Vue 3 SFC, scripts & styles 
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
+[Playground](#️-playground) · [Quick Start](#-quick-start) · [CLI](#️-cli-commands) · [Ecosystem](#-ecosystem) · [Semantic Comparison](https://www.vureact.top/en/guide/semantic-comparison/overview.html) · [FAQ](#faq) · [Change Log](https://www.vureact.top/en/guide/changelog.html)
+
 English | [简体中文](./README.md) | [日本語](./README.ja.md)
 
-[<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
-
+  <a href="assets/hero_demo_3MB.mp4" title="Watch project demo video">
+    <img src="assets/vureact_hero_demo.gif" alt="VuReact compiling Vue to React demo GIF" width="100%">
+  </a>
 </div>
 
 ---
 
-*"VuReact seamlessly integrates Vue's mental model with React's ecosystem, directly converting Vue code into **maintainable, evolvable, and production-ready** React code."*
+## 💡 Why Choose VuReact?
+
+It is not a simple syntax conversion tool; it adopts an engineering approach that is completely different from **traditional migration tools/runtime bridging**. If you are considering migrating a Vue project to React, or wish to continue using the Vue development experience within the React ecosystem, VuReact provides a controllable and predictable solution.
+
+| Other Solutions | VuReact |
+|-----------------|---------|
+| Runtime wrapper (dual frameworks, poor performance) | Compile-time, pure React output |
+| Half-baked conversion (errors on complex syntax) | Full support for template directives, Props, Slots, Composition API, scoped styles, TS type definitions, etc. |
+| Relies on manual rewrite, high cost | Progressive migration, compile module by module |
+
+👉 **Learn more:** [Why VuReact? — More than a syntax converter](https://www.vureact.top/en/guide/why.html)
+
+---
+
+## 🕹️ Playground
+
+Before you start, you can visit our online CodeSandbox examples to see the complete process of VuReact compiling Vue into a React project and successfully running the page!
+
+- [Customer Support Hub (Mixed)](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
+- [CRM Admin Dashboard (Standard)](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+
+---
 
 ## ✨ Core Features
 
@@ -35,27 +61,7 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
 - **⚡ Intelligent dependency analysis**: Top-level functions automatically get `useCallback`, variable declarations get `useMemo`, and hook dependencies are tracked automatically.
 - **🛠️ Dual-mode CLI**: `vureact build` (fast incremental compilation) + `vureact watch` (file watching), offering near-native development experience.
 
-## 🪄 Playground
-
-Before you begin, you can first understand the complete process of how VuReact compiles a Vue project into a React project and successfully runs the page!
-
-- Customer Support Hub (Mixed)：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
-- CRM Admin Dashboard (Standard)：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
-
-## 🧩 Who's Using VuReact
-
-If your team, product, or experiment is already using VuReact, we would love to hear about it. This section is meant to surface real project names, use cases, migration stages, and public references so new users can quickly judge whether VuReact fits their engineering context.
-
-| Project | Scenario | Stage | Link |
-| --- | --- | --- | --- |
-| Your project could be the first public showcase | New build / migration pilot / hybrid stack | Collecting submissions | [Share your story](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
-
-You can submit a showcase through the issue templates:
-
-- [Share a "Who's Using VuReact" case](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
-- [Browse submitted showcase issues](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
-
-Maintainers can periodically curate suitable submissions from these issues and add them here.
+---
 
 ## 📦 Quick Start
 
@@ -322,9 +328,7 @@ CSS file content:
 9. Less styles are compiled to CSS code
 10. Scoped styles generate hashed CSS files and add scoped attributes to elements
 
-## 📋 Compilation Conventions (Important)
-
-For details, please refer to [VuReact Compilation Conventions](https://vureact.top/en/guide/specification.html).
+---
 
 ## 🛠️ CLI Commands
 
@@ -339,9 +343,21 @@ npx vureact watch
 npx vureact --help
 ```
 
+👉 **Dual-mode CLI Guide:**[Incremental Compilation](https://www.vureact.top/en/guide/incremental-compilation.html) | [Watch Mode](https://www.vureact.top/en/guide/watch-mode.html)
+
+---
+
+## 📋 Compilation Conventions (Important)
+
+For details, please refer to [VuReact Compilation Conventions](https://vureact.top/en/guide/specification.html).
+
+---
+
 ## FAQ
 
 Please visit [VuReact FAQ](https://vureact.top/en/guide/faq.html)!
+
+---
 
 ## 🔗 Ecosystem
 
@@ -357,6 +373,8 @@ Please visit [VuReact FAQ](https://vureact.top/en/guide/faq.html)!
   Detailed usage guides and API references.
   [https://vureact.top](https://vureact.top/en)
 
+---
+
 ## 🎯 Use Cases
 
 ### ✅ Recommended
@@ -371,19 +389,27 @@ Please visit [VuReact FAQ](https://vureact.top/en/guide/faq.html)!
 - **Convention-Driven**: Strict compilation conventions must be followed
 - **Modern Syntax Focus**: Focused on Vue 3 Composition API and `<script setup>`
 
+---
+
 ## 🔎 Repository Sub-Packages
 
 - [@vureact/compiler-core](packages/compiler-core)
 - [@vureact/runtime-core](packages/runtime-core)
+
+---
 
 ## 🤝 Contributing
 
 Issues and Pull Requests are welcome!
 Please read the contribution guide first: [CONTRIBUTING.md](CONTRIBUTING.md)
 
+---
+
 ## 📄 License
 
 MIT License © 2025 Ruihong Zhong (Ryan John)
+
+---
 
 ## 🩷 Sponsorship
 
@@ -391,6 +417,23 @@ VuReact’s continued development depends on community support.
 Your sponsorship directly supports maintenance, feature development, and documentation improvements, helping push the technical boundaries of Vue-to-React compilation.
 
 Platform: [afdian](https://afdian.com/a/vureact-js/plan)
+
+---
+
+## 🧩 Who's Using VuReact
+
+If your team, product, or experiment is already using VuReact, we would love to hear about it. This section is meant to surface real project names, use cases, migration stages, and public references so new users can quickly judge whether VuReact fits their engineering context.
+
+| Project | Scenario | Stage | Link |
+| --- | --- | --- | --- |
+| Your project could be the first public showcase | New build / migration pilot / hybrid stack | Collecting submissions | [Share your story](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
+
+You can submit a showcase through the issue templates:
+
+- [Share a "Who's Using VuReact" case](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
+- [Browse submitted showcase issues](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
+
+Maintainers can periodically curate suitable submissions from these issues and add them here.
 
 ---
 

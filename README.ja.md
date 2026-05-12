@@ -6,7 +6,9 @@
 
 **Vue を書き、保守可能な React を生成する**
 
-**Vue から React への完全コンパイルツール**。Vue 3 の SFC・Script・Style を**純粋な React 18+ コンポーネントとコードに完全コンパイル**（ランタイムブリッジ不要）、`<script setup>` のコア全機能に対応。
+> Vue から React への完全コンパイルツール。Vue 3 の SFC・Script・Style を純粋な React 18+ に完全コンパイル。ランタイム不要、`<script setup>` のコア全機能に対応。
+>
+> Vue の優れたメンタルモデルを React エコシステムと融合し、Vue コードから直接、保守可能で本番対応の React コードを生成します。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -16,15 +18,39 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
+[オンラインデモ](#️-オンラインデモ) · [クイックスタート](#-クイックスタート) · [CLI](#️-cli-コマンド) · [エコシステム](#-エコシステム) · [よくある質問](#よくある質問) · [更新ログ](https://www.vureact.top/guide/changelog.html)
+
 [English](./README.en.md) | [简体中文](./README.md) | 日本語
 
-[<video autoplay loop muted src="./assets/hero_demo_3MB.mp4"></video>](https://github.com/user-attachments/assets/ae3efac0-9576-42ea-8bbd-8dd5509947a8)
-
+  <a href="assets/hero_demo_3MB.mp4" title="プロジェクト紹介ビデオを見る">
+    <img src="assets/vureact_hero_demo.gif" alt="VuReact が Vue を React にコンパイルするデモGIF" width="100%">
+  </a>
 </div>
 
 ---
 
-*「 VuReact は構文変換を超え、Vue のメンタルモデルと React のエコシステムを融合し、Vue コードから**保守可能・進化可能・プロダクション対応**の React コードを生成します 」*
+## 💡 なぜ VuReact を選ぶのか？
+
+これは単なる構文変換ツールではなく、**従来の移行ツールやランタイムブリッジ**とは全く異なる工学的アプローチを採用しています。Vue プロジェクトを React に移行したい場合、または React エコシステムで引き続き Vue の開発体験を活用したい場合、VuReact は制御可能で予測可能なソリューションを提供します。
+
+| 他のアプローチ | VuReact |
+|--------------|---------|
+| ランタイムラッパー（二重フレームワーク、パフォーマンス低下） | コンパイル時、成果物は純粋な React |
+| 中途半端な変換（複雑な構文でエラー発生） | 完全なテンプレートディレクティブ、Props、スロット、Composition API、scoped スタイル、TS 型定義などに対応 |
+| 手動による書き換えが必要でコストが高い | 段階的な移行が可能、モジュール単位でコンパイル |
+
+👉 **詳細はこちら：** [なぜ VuReact を選ぶのか？—— 構文変換だけではない](https://www.vureact.top/guide/why.html)
+
+---
+
+## 🕹️ オンラインデモ
+
+実際に VuReact が Vue プロジェクトを React プロジェクトにコンパイルし、ページが正常に動作するまでの全プロセスを体験できます。
+
+- [カスタマーサポートハブ（混在記述）](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
+- [CRM管理画面（標準）](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+
+---
 
 ## ✨ 核心機能
 
@@ -35,27 +61,7 @@
 - **⚡ スマートな依存関係分析**：トップレベル関数には自動で `useCallback` を注入、変数宣言には自動で `useMemo` を注入、hooks の依存関係を自動追跡します。
 - **🛠️ デュアルモード CLI**：`vureact build`（超高速インクリメンタルコンパイル）+ `vureact watch`（ファイル監視）により、ネイティブに近い開発体験を提供します。
 
-## 🪄 オンラインデモ
-
-実際に VuReact が Vue プロジェクトを React プロジェクトにコンパイルし、ページが正常に動作するまでの全プロセスを体験できます。
-
-- カスタマーサポートハブ（混在記述）：<https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true>
-- CRM管理画面（標準）：<https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master>
-
-## 🧩 利用事例
-
-あなたのチーム、製品、または実験プロジェクトがすでに VuReact を使用している場合、ぜひお知らせください。このセクションでは、実際のプロジェクト名、使用シナリオ、移行段階、公開リンクを優先的に掲載し、後続の開発者が VuReact が自分のエンジニアリングシナリオに適しているかどうかを迅速に判断できるようにします。
-
-| プロジェクト | シナリオ | 現在の段階 | リンク |
-| --- | --- | --- | --- |
-| あなたのプロジェクトの参加をお待ちしています | 新規プロジェクト / 移行トライアル / ハイブリッドスタックの実践 | 募集中 | [使用事例を提出](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
-
-Issue テンプレートから事例を提出できます：
-
-- [「利用事例」を提出](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
-- [提出済みの事例を確認](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
-
-メンテナーは定期的にこれらの事例から公開表示に適したエントリを整理し、ここに更新します。
+---
 
 ## 📦 クイックスタート
 
@@ -323,9 +329,13 @@ CSS ファイルの内容：
 9. Less スタイルは css コードにコンパイル
 10. `scoped` スタイルはハッシュ付き css ファイルを生成し、要素にスコープ属性を付与
 
+---
+
 ## 📋 コンパイル規約（必読）
 
 詳細は [VuReact コンパイル規約](https://vureact.top/guide/specification.html) をご覧ください。
+
+---
 
 ## 🛠️ CLI コマンド
 
@@ -340,15 +350,21 @@ npx vureact watch
 npx vureact --help
 ```
 
+---
+
 ## よくある質問
 
 [VuReact FAQ](https://vureact.top/guide/faq.html) をご覧ください。
+
+---
 
 ## 🔗 エコシステム
 
 - **[ランタイムアダプテーションパッケージ](https://runtime.vureact.top)**：React 版の Vue コア API を提供
 - **[ルーティングアダプテーションパッケージ](https://router.vureact.top)**：Vue Router → React Router 変換をサポート
 - **[完全ドキュメント](https://vureact.top)**：詳細な利用ガイドと API ドキュメント
+
+---
 
 ## 🎯 適用シーン
 
@@ -364,24 +380,49 @@ npx vureact --help
 - **コンベンション駆動**：明確なコンパイル規約に従う必要あり
 - **モダン構文**：Vue 3 Composition API と `<script setup>` に特化
 
+---
+
 ## 🔎 リポジトリサブパッケージ
 
 - [packages/compiler-core](./packages/compiler-core/)
 - [packages/runtime-core](./packages/runtime-core/)
 
+---
+
 ## 🤝 コントリビューション
 
 Issue と Pull Request をお待ちしています。コントリビューションガイド（[CONTRIBUTING.md](CONTRIBUTING.md)）をご一読ください。
 
+---
+
 ## 📄 ライセンス
 
 MIT License © 2025 [Ruihong Zhong (Ryan John)](./LICENSE)
+
+---
 
 ## 🩷 スポンサーシップ
 
 **VuReact の継続的な発展はコミュニティのサポートに支えられています。いただいたスポンサーシップはプロジェクトのメンテナンス、機能開発、ドキュメント改善に直接使用され、Vue から React へのコンパイル技術の探求を共に前進させます。**
 
 プラットフォーム：[愛発電（afdian）](https://afdian.com/a/vureact-js/plan)
+
+---
+
+## 🧩 利用事例
+
+あなたのチーム、製品、または実験プロジェクトがすでに VuReact を使用している場合、ぜひお知らせください。このセクションでは、実際のプロジェクト名、使用シナリオ、移行段階、公開リンクを優先的に掲載し、後続の開発者が VuReact が自分のエンジニアリングシナリオに適しているかどうかを迅速に判断できるようにします。
+
+| プロジェクト | シナリオ | 現在の段階 | リンク |
+| --- | --- | --- | --- |
+| あなたのプロジェクトの参加をお待ちしています | 新規プロジェクト / 移行トライアル / ハイブリッドスタックの実践 | 募集中 | [使用事例を提出](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
+
+Issue テンプレートから事例を提出できます：
+
+- [「利用事例」を提出](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
+- [提出済みの事例を確認](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
+
+メンテナーは定期的にこれらの事例から公開表示に適したエントリを整理し、ここに更新します。
 
 ---
 
