@@ -1,22 +1,23 @@
 # @vureact/compiler-core
 
-**Write in Vue 3, compile to React 18+ code.**
+**Write in Vue, generate maintainable React.**
 
-A **Vue-to-React** compiler that **fully compiles** Vue 3 SFC, scripts & styles into **pure React 18+ code** (no runtime bridge), covering core `<script setup>` features.
+`@vureact/compiler-core` is the **CLI and core compiler package** of VuReact.  
+It compiles Vue 3 SFC, script, and style files into **pure React 18+ code**, making it suitable for progressive migration and for teams that want to keep Vue authoring conventions while targeting a React app.
 
-[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
+It is a **compile-time solution**, not a runtime bridge.
+
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
-[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 
 English | [简体中文](./README.md)
 
-## Introduction
+## Who this package is for
 
-`@vureact/compiler-core` is the core compilation package of VuReact, responsible for compiling Vue 3 SFC, script files, and style files into React 18+ JSX/TSX code ready for production.
+- Teams progressively migrating a Vue 3 codebase to React
+- Developers who want Vue-style authoring with React output
+- Projects that need a config-driven `build/watch` compilation workflow
 
 ## Installation
 
@@ -24,13 +25,16 @@ English | [简体中文](./README.md)
 npm install -D @vureact/compiler-core
 ```
 
-## Quick Start
+You can also use:
 
-👉 **Full tutorial: [VuReact Website - Quick Start](https://vureact.top/en/guide/quick-start.html)**
+```bash
+pnpm add -D @vureact/compiler-core
+yarn add -D @vureact/compiler-core
+```
 
-### Configuration Example
+## Minimal setup
 
-`vureact.config.ts`
+Create `vureact.config.ts` in your project root:
 
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
@@ -46,25 +50,82 @@ export default defineConfig({
 });
 ```
 
-### Commands
+This means:
 
-```bash
-npx vureact build      # Build project
-npx vureact watch      # Watch mode
+- compile the `src` directory
+- exclude the Vue entry file to avoid mount conflicts
+- output into `.vureact/react-app`
+- automatically prepare a runnable Vite React app
+
+If your project uses Vue Router, you will usually also add:
+
+```ts
+router: {
+  configFile: 'src/router/index.ts',
+}
 ```
 
-## Ecosystem
+## Usage
 
-- **[VuReact Runtime Core](https://runtime.vureact.top/en)**: React-compatible implementations of Vue core APIs
-- **[VuReact Router](https://router.vureact.top/en)**: Vue Router 4.x → React Router DOM 7.9+ conversion
+```bash
+# one-time build
+npx vureact build
 
-If necessary, you can choose [☣️ Mixed Coding](https://vureact.top/en/guide/mind-control-readme.html) to directly use the React ecosystem.
+# watch mode
+npx vureact watch
+```
 
-## FAQ
+If you prefer scripts, add them to `package.json`:
 
-👉 [FAQ](https://vureact.top/en/guide/faq.html)
+```json
+{
+  "scripts": {
+    "vr:build": "vureact build",
+    "vr:watch": "vureact watch"
+  }
+}
+```
 
-## 🔗 Links
+## What you get
+
+By default, VuReact generates:
+
+- `.vureact/cache` for compilation cache
+- `.vureact/react-app` for the React app output
+- `.tsx` / `.css` files that mirror your source structure
+
+You can then run the generated app directly:
+
+```bash
+cd .vureact/react-app
+npm install
+npm run dev
+```
+
+## What this package is not
+
+- It is not a Vue-in-React / React-in-Vue runtime bridge
+- It is not a zero-convention codemod for arbitrary Vue code
+- It works best in projects that follow VuReact compilation conventions
+
+## Related packages
+
+- [@vureact/runtime-core](https://runtime.vureact.top/en/) - React-side Vue runtime adaptation APIs
+- [@vureact/router](https://router.vureact.top/en/) - Vue Router to React Router adaptation
+
+## Documentation
+
+- [Quick Start](https://vureact.top/en/guide/quick-start.html)
+- [Key Configuration](https://vureact.top/en/guide/key-configuration.html)
+- [Watch Mode](https://vureact.top/en/guide/watch-mode.html)
+- [Incremental Compilation](https://vureact.top/en/guide/incremental-compilation.html)
+- [Progressive Migration Guide](https://vureact.top/en/guide/progressive-migration.html)
+- [Config API](https://vureact.top/en/api/config.html)
+- [FAQ](https://vureact.top/en/guide/faq.html)
+
+## Repository and license
 
 - GitHub: <https://github.com/vureact-js/core>
-- Documentation: <https://vureact.top/en>
+- Docs: <https://vureact.top/en>
+
+MIT License © 2025 Ruihong Zhong (Ryan John)

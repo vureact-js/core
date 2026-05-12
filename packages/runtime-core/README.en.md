@@ -1,113 +1,151 @@
 # @vureact/runtime-core
 
-**React Adaptation Layer for Vue 3 Built-in Components / React Hooks / Template Directive Toolset**
+**Bring Vue-style runtime capabilities to React.**
 
-[![npm version](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://vureact.top/)
-[![npm downloads](https://img.shields.io/npm/dm/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+`@vureact/runtime-core` is the **runtime adaptation package** of [VuReact](https://vureact.top/en/).  
+It provides Vue-style **reactive APIs, built-in component adaptations, and template directive utilities** for React applications. It is useful both for progressive migration and for teams that want to keep part of the Vue development experience inside React.
 
-A comprehensive React adaptation layer that empowers React applications with the powerful features of Vue 3. Leverage built-in components, reactive hooks, and template directive tools to bring Vue-style development experience to your React projects.
+[![Npm](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/runtime-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/main/LICENSE)
+[![React >=18](https://img.shields.io/badge/React->=18-61dafb)](https://reactjs.org/)
 
 English | [简体中文](./README.md)
 
-## What is it?
+## Who this package is for
 
-It's serves as a bridge between Vue 3 and React, enabling React developers to directly reuse Vue's well-proven built-in components (KeepAlive, Transition, Teleport), reactive APIs, and template directive paradigms without leaving the React technical ecosystem.
+- React developers who want Vue-style reactive APIs
+- Projects that need `KeepAlive`, `Transition`, `Teleport`, and similar Vue-style capabilities
+- Teams using `@vureact/compiler-core` and needing the runtime adaptation layer
+- Vue-to-React migration efforts that want to preserve part of the original authoring model
 
-The reactive implementation in this library is developed based on the mature [valtio](https://github.com/pmndrs/valtio) library from the React community.
+## What this package is not
 
-## What problems does it solve?
+- It is not the Vue compiler; for source transformation, use [@vureact/compiler-core](https://www.npmjs.com/package/@vureact/compiler-core)
+- It is not a direct port of the official Vue runtime into React
+- It is not a full compatibility layer for all Vue ecosystem libraries
 
-### 1. **Component Reusability**
-
-- Utilize Vue's battle-tested built-in components in React
-- Rapidly implement complex UI patterns such as component caching (KeepAlive), animation transitions (Transition), and portal rendering (Teleport)
-
-### 2. **Development Experience**
-
-- Enjoy Vue's intuitive reactive programming model in React
-- Use familiar Vue-style APIs like `useReactive`, `useWatch`, and lifecycle hooks
-- Write more concise JSX code with template directive tools (`vCls`, `vStyle`, `vOn`)
-
-### 3. **Migration & Integration**
-
-- Effortlessly migrate Vue components to the React tech stack
-- Seamlessly integrate Vue development paradigms into existing React applications
-- Reduce the learning curve for Vue developers to get started with React projects
-
-## Core Features
-
-- ✅ **Vue Built-in Components**: `<KeepAlive>`, `<Transition>`, `<Teleport>`, `<Suspense>`, etc.
-- ✅ **Reactive Hooks**: `useReactive`, `useWatch`, `useVRef`, `useComputed`, lifecycle hooks, and more
-- ✅ **Directive Toolset**: `vCls`, `vStyle`, `vOn`, `vKeyless`, etc., restoring Vue-style template syntax
-- ✅ **Comprehensive TypeScript Support**: Full type definitions, compatible with IntelliSense
-- ✅ **Lightweight & Redundancy-Free**: Minimal dependencies with optimized bundle size
-- ✅ **React 18+ Compatible**: Tailored for modern React applications
-
-## Applicable Scenarios
-
-- **React projects requiring Vue component paradigms**
-- **Teams with both Vue/React technical backgrounds**
-- **Applications needing component caching (KeepAlive)**
-- **Projects requiring advanced transition animation effects**
-- **Scenarios of migrating from Vue to React while retaining the original development paradigm**
-
-## Quick Start
-
-For more detailed tutorials, please visit [https://runtime.vureact.top](https://runtime.vureact.top/en).
-
-### Installation
+## Installation
 
 ```bash
-npm i @vureact/runtime-core
+npm install @vureact/runtime-core
 ```
+
+You can also use:
 
 ```bash
 pnpm add @vureact/runtime-core
-```
-
-```bash
 yarn add @vureact/runtime-core
 ```
 
-### Simple Example
+`react` and `react-dom` should satisfy `>=18.2.0`.
+
+## What this package provides
+
+### 1. Reactive hooks
+
+Common APIs include:
+
+- `useVRef`
+- `useReactive`
+- `useComputed`
+- `useWatch`
+- `useWatchEffect`
+
+Example:
 
 ```tsx
-import { KeepAlive, useVRef, useWatch } from '@vureact/runtime-core';
+import { useVRef, useWatch } from '@vureact/runtime-core';
 
-function App() {
+function Counter() {
   const count = useVRef(0);
 
   useWatch(count, (newVal, oldVal) => {
-    console.log(`Count changed: ${oldVal} → ${newVal}`);
+    console.log(oldVal, '->', newVal);
   });
 
-  return (
-    <KeepAlive include={['Counter']} max={5}>
-      <Counter value={count.value} onIncrement={() => count.value++} />
-    </KeepAlive>
-  );
+  return <button onClick={() => count.value++}>{count.value}</button>;
 }
+```
 
-function Counter(props: { value: number; onIncrement: () => any }) {
+### 2. Vue built-in component adaptations
+
+Common components include:
+
+- `KeepAlive`
+- `Transition`
+- `Teleport`
+- `Suspense`
+
+Example:
+
+```tsx
+import { KeepAlive } from '@vureact/runtime-core';
+
+function App() {
   return (
-    <>
-      <p>Current count: {props.value}</p>
-      <button onClick={props.onIncrement}>Increment</button>
-    </>
+    <KeepAlive include={['UserPanel']} max={5}>
+      <UserPanel />
+    </KeepAlive>
   );
 }
 ```
 
-## 🔗 Links
+### 3. Template directive utilities
 
-- [GitHub Repository](https://github.com/vureact-js/core)
-- [npm Package](https://www.npmjs.com/package/@vureact/runtime-core)
-- [Documentation](https://runtime.vureact.top/en)
-- [Issue Tracker](https://github.com/vureact-js/core/issues)
-- [Contributing Guidelines](../../CONTRIBUTING.md)
+You can use Vue-style helpers in JSX, such as:
 
-## 📄 License
+- `vCls`
+- `vStyle`
+- `vOn`
+- `vKeyless`
 
-MIT © [Ryan John](./LICENSE)
+Their goal is not to replicate Vue template syntax exactly, but to make some high-frequency patterns more ergonomic in React JSX.
+
+## When you would install it directly
+
+There are two common cases:
+
+1. You are using `@vureact/compiler-core` and need to run the compiled output
+2. You are not using the compiler, but still want Vue-style runtime capabilities in a React project
+
+In short, `compiler-core` handles compilation, while `runtime-core` handles runtime adaptation.
+
+## Common entry points
+
+Default entry:
+
+```ts
+import { useVRef, useWatch, KeepAlive } from '@vureact/runtime-core';
+```
+
+Category-based exports are also available:
+
+- `@vureact/runtime-core/adapter-hooks`
+- `@vureact/runtime-core/adapter-components`
+- `@vureact/runtime-core/adapter-utils`
+
+These are useful when you want imports grouped by capability.
+
+## Technical note
+
+The reactive implementation in this package is built on top of [valtio](https://github.com/pmndrs/valtio), which provides Proxy-based reactivity.
+
+## Related packages
+
+- [@vureact/compiler-core](https://vureact.top/en/) - Vue-to-React compiler and CLI
+- [@vureact/router](https://router.vureact.top/en/) - Vue Router to React Router adaptation
+
+## Documentation
+
+- [Runtime docs home](https://runtime.vureact.top/en/)
+- [Hooks guide](https://runtime.vureact.top/en/guide/hooks/)
+- [Built-in components guide](https://runtime.vureact.top/en/guide/components/)
+- [API docs](https://runtime.vureact.top/en/api/)
+
+## Repository and license
+
+- GitHub: <https://github.com/vureact-js/core>
+- Docs: <https://runtime.vureact.top/en>
+
+MIT License © 2025 Ruihong Zhong (Ryan John)

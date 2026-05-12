@@ -4,17 +4,17 @@
 
   <h1>VuReact</h1>
 
-**Vue を書き、保守可能な React を生成する**
+**Vue を書き、保守可能な React を生成する。**
 
-> Vue から React への完全コンパイルツール。Vue 3 の SFC・Script・Style を純粋な React 18+ に完全コンパイル。ランタイム不要、`<script setup>` のコア全機能に対応。
+> Vue から React へのコンパイルツールチェーン。Vue 3 の SFC・Script・Style を完全に純粋な React 18+ コンポーネントに変換します（ランタイムブリッジなし）。`<script setup>` の主要機能をすべてカバー。
 >
-> Vue の優れたメンタルモデルを React エコシステムと融合し、Vue コードから直接、保守可能で本番対応の React コードを生成します。
+> Vue のメンタルモデル + React エコシステムで、プロダクション対応の成果物を生成します。
 
-[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
+[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
@@ -65,7 +65,7 @@
 
 ## 📦 クイックスタート
 
-👉 **完全なチュートリアルはこちら：[VuReact - クイックスタート](https://vureact.top/guide/quick-start.html)**
+👉 **完全なチュートリアルはこちら：[VuReact - クイックスタート](https://vureact.top/en/guide/quick-start.html)**
 
 完了すると、以下の 4 点が明確になります：
 
@@ -192,7 +192,17 @@ export default defineConfig({
 });
 ```
 
-実際には `exclude` 以外のオプションはデフォルト値が使用されるため、追加設定は不要です。
+プロジェクトが Vue Router を使用している場合、通常は以下も追加します：
+
+```ts
+router: {
+  // Vue Router 設定エントリファイルの位置。
+  // React 生成物にルーティングアダプテーションコードを注入しやすくするため
+  configFile: 'src/router/index.ts',
+}
+```
+
+> 実際には `exclude` 以外のオプションはデフォルト値が使用されるため、追加設定は不要です。
 
 ### Step 4：コンパイルの実行
 
@@ -333,7 +343,7 @@ CSS ファイルの内容：
 
 ## 📋 コンパイル規約（必読）
 
-詳細は [VuReact コンパイル規約](https://vureact.top/guide/specification.html) をご覧ください。
+詳細は [VuReact コンパイル規約](https://vureact.top/en/guide/specification.html) をご覧ください。
 
 ---
 
@@ -354,15 +364,15 @@ npx vureact --help
 
 ## よくある質問
 
-[VuReact FAQ](https://vureact.top/guide/faq.html) をご覧ください。
+[VuReact FAQ](https://vureact.top/en/guide/faq.html) をご覧ください。
 
 ---
 
 ## 🔗 エコシステム
 
-- **[ランタイムアダプテーションパッケージ](https://runtime.vureact.top)**：React 版の Vue コア API を提供
-- **[ルーティングアダプテーションパッケージ](https://router.vureact.top)**：Vue Router → React Router 変換をサポート
-- **[完全ドキュメント](https://vureact.top)**：詳細な利用ガイドと API ドキュメント
+- **[ランタイムアダプテーションパッケージ](https://runtime.vureact.top/en)**：React 版の Vue コア API を提供
+- **[ルーティングアダプテーションパッケージ](https://router.vureact.top/en)**：Vue Router → React Router 変換をサポート
+- **[完全ドキュメント](https://vureact.top/en)**：詳細な利用ガイドと API ドキュメント
 
 ---
 

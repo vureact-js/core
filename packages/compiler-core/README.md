@@ -1,22 +1,23 @@
 # @vureact/compiler-core
 
-**写 Vue，生成可维护的 React**
+**写 Vue，生成可维护的 React。**
 
-一个 **Vue 转 React** 编译工具，将 Vue 3 的 SFC、脚本和样式文件**完整编译为纯 React 18+ 组件与代码**（非运行时桥接），覆盖 `<script setup>` 核心全特性。
+`@vureact/compiler-core` 是 VuReact 的 **CLI 与核心编译包**。  
+它用于将 Vue 3 的 SFC、脚本和样式文件编译为 **纯 React 18+ 代码**，适合渐进式迁移，以及“保持 Vue 心智模型、输出 React 工程”的场景。
 
-[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
+它是 **编译时方案**，不是运行时桥接。
+
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
-[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 
 简体中文 | [English](./README.en.md)
 
-## 简介
+## 这个包适合谁
 
-`@vureact/compiler-core` 是 VuReact 的核心编译包，负责将 Vue 3 单文件组件、脚本文件和样式文件**三位一体**编译为可直接用于生产环境的 React 18+ JSX/TSX 代码。
+- 正在把 Vue 3 项目渐进迁移到 React
+- 想继续按 Vue 约定写代码，但产出 React 工程
+- 需要基于配置文件执行 `build/watch` 编译流程
 
 ## 安装
 
@@ -24,13 +25,16 @@
 npm install -D @vureact/compiler-core
 ```
 
-## 快速开始
+也可以使用：
 
-👉 **完整教程请访问：[VuReact - 快速开始](https://vureact.top/guide/quick-start.html)**
+```bash
+pnpm add -D @vureact/compiler-core
+yarn add -D @vureact/compiler-core
+```
 
-### 配置示例
+## 最小配置
 
-`vureact.config.ts`
+在项目根目录新建 `vureact.config.ts`：
 
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
@@ -46,26 +50,82 @@ export default defineConfig({
 });
 ```
 
-### 编译命令
+这份配置的含义是：
 
-```bash
-npx vureact build      # 编译项目
-npx vureact watch      # 监听模式
+- 编译 `src` 目录
+- 排除 Vue 入口文件，避免和现有挂载逻辑冲突
+- 输出到 `.vureact/react-app`
+- 自动准备一个可运行的 Vite React 工程
+
+如果项目使用 Vue Router，通常还会补上：
+
+```ts
+router: {
+  configFile: 'src/router/index.ts',
+}
 ```
 
-## 生态集成
+## 使用方式
 
-- **[VuReact Runtime Core](https://runtime.vureact.top/)**：提供 React 版的 Vue 常用内置组件、核心 Composition API 等
-- **[VuReact Router](https://router.vureact.top/)**：支持 Vue Router 4.x → React Router DOM 7.9+ 转换
+```bash
+# 一次性编译
+npx vureact build
 
-如果确实需要，你可以选择 [☣️混合编写](https://vureact.top/guide/mind-control-readme.html)，以此直接使用 React 生态。
+# 监听模式
+npx vureact watch
+```
 
-## 常见问题
+如果你更喜欢脚本命令，也可以写进 `package.json`：
 
-👉 请查阅[官网 FAQ 章节](https://vureact.top/guide/faq.html)
+```json
+{
+  "scripts": {
+    "vr:build": "vureact build",
+    "vr:watch": "vureact watch"
+  }
+}
+```
 
-## 🔗 链接
+## 编译后会得到什么
 
-- GitHub：<https://github.com/vureact-js/core>
-- Gitee：<https://gitee.com/vureact-js/core>
-- 文档：<https://vureact.top>
+默认情况下，VuReact 会生成：
+
+- `.vureact/cache`：编译缓存
+- `.vureact/react-app`：React 工程产物
+- 与源目录结构对应的 `.tsx` / `.css` 文件
+
+进入产物目录后可直接运行：
+
+```bash
+cd .vureact/react-app
+npm install
+npm run dev
+```
+
+## 这个包不负责什么
+
+- 它不是 Vue in React / React in Vue 的运行时桥接层
+- 它不是对任意 Vue 代码都“零约定”生效的通用 codemod
+- 它更适合遵循 VuReact 编译约定的工程化项目
+
+## 相关包
+
+- [@vureact/runtime-core](https://runtime.vureact.top/)：React 版 Vue 运行时适配 API
+- [@vureact/router](https://router.vureact.top/)：Vue Router 到 React Router 的适配方案
+
+## 文档入口
+
+- [快速开始](https://vureact.top/guide/quick-start.html)
+- [关键配置](https://vureact.top/guide/key-configuration.html)
+- [监听模式](https://vureact.top/guide/watch-mode.html)
+- [增量编译](https://vureact.top/guide/incremental-compilation.html)
+- [渐进式迁移指南](https://vureact.top/guide/progressive-migration.html)
+- [配置 API](https://vureact.top/api/config.html)
+- [FAQ](https://vureact.top/guide/faq.html)
+
+## 仓库与许可证
+
+- GitHub: <https://github.com/vureact-js/core>
+- 文档: <https://vureact.top>
+
+MIT License © 2025 Ruihong Zhong (Ryan John)

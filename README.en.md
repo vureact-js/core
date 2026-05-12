@@ -4,17 +4,17 @@
 
   <h1>VuReact</h1>
 
-**Write in Vue 3, compile to React 18+ code.**
+**Write in Vue, generate maintainable React.**
 
-> A Vue-to-React compiler that fully compiles Vue 3 SFC・Script・Style into pure React 18+ code (no runtime bridge), covering core `<script setup>` features.
+> A Vue-to-React compilation toolchain that fully converts Vue 3 SFC・Script・Style into pure React 18+ code (non-runtime bridge), covering all core features of `<script setup>`.
 >
-> Seamlessly blends Vue’s mental model with the React ecosystem, turning Vue code directly into maintainable, evolvable, production-ready React code.
+> Vue mental model + React ecosystem, producing production-ready engineering artifacts.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
@@ -192,6 +192,18 @@ export default defineConfig({
   },
 });
 ```
+
+If the project uses Vue Router, it is usually also added:
+
+```ts
+router: {
+  // Location of the Vue Router config entry file, 
+  // to facilitate injecting router adaptation code into React output
+  configFile: 'src/router/index.ts',
+}
+```
+
+> In fact, except for `exclude`, which needs to be specified manually, all other options use the default values in the sample configuration and do not require extra configuration.
 
 ### Step 4: Execute Compilation
 

@@ -4,17 +4,17 @@
 
   <h1>VuReact</h1>
 
-**写 Vue，生成可维护的 React**
+**写 Vue，生成可维护的 React。**
 
-> 一个 Vue 转 React 编译工具链，将 Vue 3 的 SFC・Script・Style 完整编译为纯 React 18+ 组件与代码（非运行时桥接），覆盖 `<script setup>` 核心全特性。
+> Vue 转 React 编译工具链，将 Vue 3 SFC・Script・Style 完整转为纯 React 18+ 组件（非运行时桥接），覆盖 `<script setup>` 核心全特性。
 >
-> 致力于将 Vue 优秀的心智模型与 React 生态能力无缝融合，用 Vue 代码直接产出可维护、可演进、生产就绪的 React 代码。
+> Vue 心智模型 + React 生态，产出生产就绪的工程化产物。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
@@ -22,9 +22,9 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-<a href="assets/hero_demo_3MB.mp4" title="观看项目展示视频">
-  <img src="assets/vureact_hero_demo.gif" alt="vureact 编译 Vue 到 React 展示动图" width="100%">
-</a>
+  <a href="assets/hero_demo_3MB.mp4" title="观看项目展示视频">
+    <img src="assets/vureact_hero_demo.gif" alt="vureact 编译 Vue 到 React 展示动图" width="100%">
+  </a>
 </div>
 
 ---
@@ -192,7 +192,16 @@ export default defineConfig({
 });
 ```
 
-实际上，除了 `exclude` 需要手动指定外，其他选项均采用示例配置中的默认值，无需额外配置。
+如果项目使用 Vue Router，通常还会补上：
+
+```ts
+router: {
+  // Vue Router 配置入口文件位置，便于注入路由适配代码至 React 产物 
+  configFile: 'src/router/index.ts',
+}
+```
+
+> 实际上，除了 `exclude` 需要手动指定外，其他选项均采用示例配置中的默认值，无需额外配置。
 
 ### Step 4：执行编译
 

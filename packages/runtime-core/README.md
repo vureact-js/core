@@ -1,113 +1,148 @@
 # @vureact/runtime-core
 
-**Vue 3 内置组件 / React 钩子 / 模板指令工具集 的 React 适配层**
+**把 Vue 风格的运行时能力带到 React。**
 
-[![npm version](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://vureact.top/)
-[![npm downloads](https://img.shields.io/npm/dm/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
+`@vureact/runtime-core` 是 [VuReact](https://vureact.top/) 的 **运行时适配包**。  
+它为 React 应用提供 Vue 风格的 **响应式 API、内置组件适配、模板指令工具**，适合渐进迁移，也适合希望在 React 中保留部分 Vue 开发体验的项目。
 
-一套全面的 React 适配层，将 Vue 3 的强大特性赋能至 React 应用中。通过内置组件、响应式钩子和模板指令工具，让你的 React 项目拥有 Vue 风格的开发体验。
+[![Npm](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/runtime-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/main/LICENSE)
+[![React >=18](https://img.shields.io/badge/React->=18-61dafb)](https://reactjs.org/)
 
 简体中文 | [English](./README.en.md)
 
-## 简介
+## 这个包适合谁
 
-这是 Vue 3 与 React 之间的桥梁，让 React 开发者无需脱离 React 技术生态，就能直接复用 Vue 优秀的内置组件（KeepAlive、Transition、Teleport）、响应式 API 以及模板指令范式。
+- 想在 React 中使用 Vue 风格响应式 API
+- 需要 `KeepAlive`、`Transition`、`Teleport` 等 Vue 内置能力
+- 正在配合 `@vureact/compiler-core` 使用运行时适配 API
+- 正在做 Vue → React 迁移，希望保留一部分原有开发范式
 
-本库使用 [Valtio](https://github.com/pmndrs/valtio) 作为响应式引擎，提供高性能的 Proxy-based 响应式系统。
+## 这个包不负责什么
 
-## 说明
+- 它不是 Vue 编译器；源码转换请使用 [@vureact/compiler-core](https://www.npmjs.com/package/@vureact/compiler-core)
+- 它不是 Vue 官方运行时在 React 中的直接移植
+- 它不是对所有 Vue 生态库的完整兼容层
 
-### 1. **组件复用性**
-
-- 在 React 中使用 Vue 经过实战验证的内置组件
-- 快速实现组件缓存（KeepAlive）、动画过渡（Transition）、端口渲染（Teleport）等复杂 UI 模式
-
-### 2. **开发体验**
-
-- 在 React 中享受 Vue 直观的响应式编程模型
-- 使用熟悉的 Vue 风格 API，如 `useReactive`、`useWatch` 以及生命周期钩子
-- 借助模板指令工具（`vCls`、`vStyle`、`vOn`）编写更简洁的 JSX 代码
-
-### 3. **迁移与集成**
-
-- 轻松将 Vue 组件迁移至 React 技术栈
-- 在已有 React 应用中无缝融入 Vue 开发范式
-- 降低 Vue 开发者上手 React 项目的学习成本
-
-## 核心特性
-
-- ✅ **Vue 内置组件**：`<KeepAlive>`、`<Transition>`、`<Teleport>`、`<Suspense>` 等
-- ✅ **响应式钩子**：`useReactive`、`useWatch`、`useVRef`、`useComputed` 和生命周期钩子等
-- ✅ **指令工具集**：`vCls`、`vStyle`、`vOn`、`vKeyless` 等，还原 Vue 风格模板语法
-- ✅ **完备 TypeScript 支持**：全量类型定义，兼容智能提示（IntelliSense）
-- ✅ **轻量无冗余**：依赖极简，打包体积经过优化
-- ✅ **适配 React 18+**：为现代 React 应用量身打造
-
-## 适用场景
-
-- **需要 Vue 组件范式的 React 项目**
-- **团队成员兼具 Vue/React 技术背景**
-- **需实现组件缓存（KeepAlive）的应用**
-- **需要高级过渡动画效果的项目**
-- **从 Vue 迁移至 React 且希望保留原有开发范式的场景**
-
-## 快速上手
-
-### 安装
-
-更多详细教程请访问 [https://runtime.vureact.top](https://runtime.vureact.top)。
+## 安装
 
 ```bash
-npm i @vureact/runtime-core
+npm install @vureact/runtime-core
 ```
+
+也可以使用：
 
 ```bash
 pnpm add @vureact/runtime-core
-```
-
-```bash
 yarn add @vureact/runtime-core
 ```
 
-### 简易示例
+`react` 和 `react-dom` 需要满足 `>=18.2.0`。
+
+## 这个包提供什么
+
+### 1. 响应式 Hooks
+
+常见 API 包括：
+
+- `useVRef`
+- `useReactive`
+- `useComputed`
+- `useWatch`
+- `useWatchEffect`
+
+示例：
 
 ```tsx
-import { KeepAlive, useVRef, useWatch } from '@vureact/runtime-core';
+import { useVRef, useWatch } from '@vureact/runtime-core';
 
-function App() {
+function Counter() {
   const count = useVRef(0);
 
   useWatch(count, (newVal, oldVal) => {
-    console.log(`计数发生变化：${oldVal} → ${newVal}`);
+    console.log(oldVal, '->', newVal);
   });
 
-  return (
-    <KeepAlive include={['Counter']} max={5}>
-      <Counter value={count.value} onIncrement={() => count.value++} />
-    </KeepAlive>
-  );
+  return <button onClick={() => count.value++}>{count.value}</button>;
 }
+```
 
-function Counter(props: { value: number; onIncrement: () => any }) {
+### 2. Vue 内置组件适配
+
+常见组件包括：
+
+- `KeepAlive`
+- `Transition`
+- `Teleport`
+- `Suspense`
+
+示例：
+
+```tsx
+import { KeepAlive } from '@vureact/runtime-core';
+
+function App() {
   return (
-    <>
-      <p>当前计数：{props.value}</p>
-      <button onClick={props.onIncrement}>增加</button>
-    </>
+    <KeepAlive include={['UserPanel']} max={5}>
+      <UserPanel />
+    </KeepAlive>
   );
 }
 ```
 
-## 🔗 链接
+### 3. 模板指令工具
 
-- [GitHub 仓库](https://github.com/vureact-js/core)
-- [npm 包](https://www.npmjs.com/package/@vureact/runtime-core)
-- [文档](https://runtime.vureact.top)
-- [问题跟踪](https://github.com/vureact-js/core/issues)
-- [贡献指南](../../CONTRIBUTING.zh.md)
+可以在 JSX 中使用一些 Vue 风格辅助工具，例如：
 
-## 📄 许可证
+- `vCls`
+- `vStyle`
+- `vOn`
+- `vKeyless`
 
-MIT © [Ryan John](./LICENSE)
+它们的目标不是复制 Vue 模板语法，而是让某些高频模式在 React JSX 中更顺手。
+
+## 什么时候会单独安装它
+
+有两种常见情况：
+
+1. 你正在使用 `@vureact/compiler-core`，需要运行编译产物
+2. 你没有使用编译器，但希望在 React 项目中直接使用 Vue 风格运行时能力
+
+换句话说，`compiler-core` 负责“编译”，`runtime-core` 负责“运行时适配”。
+
+## 常用导出入口
+
+默认入口：
+
+```ts
+import { useVRef, useWatch, KeepAlive } from '@vureact/runtime-core';
+```
+
+此外也提供分类导出：
+
+- `@vureact/runtime-core/adapter-hooks`
+- `@vureact/runtime-core/adapter-components`
+- `@vureact/runtime-core/adapter-utils`
+
+适合在你希望按能力分组引用时使用。
+
+## 技术说明
+
+本库的响应式实现基于 [valtio](https://github.com/pmndrs/valtio)，用于提供 Proxy 驱动的响应式能力。
+
+## 相关包
+
+- [@vureact/compiler-core](https://vureact.top/)：Vue 到 React 的编译器与 CLI
+- [@vureact/router](https://router.vureact.top/)：Vue Router 到 React Router 的适配方案
+
+## 文档入口
+
+- [Runtime 文档首页](https://runtime.vureact.top/)
+
+## 仓库与许可证
+
+- GitHub: <https://github.com/vureact-js/core>
+- 文档: <https://runtime.vureact.top>
+
+MIT License © 2025 Ruihong Zhong (Ryan John)
