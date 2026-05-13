@@ -31,7 +31,12 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
 
 ## 💡 Why Choose VuReact?
 
-It is not a simple syntax conversion tool; it adopts an engineering approach that is completely different from **traditional migration tools/runtime bridging**. If you are considering migrating a Vue project to React, or wish to continue using the Vue development experience within the React ecosystem, VuReact provides a controllable and predictable solution.
+It's not a simple syntax replacement or runtime bridging tool, but an **engineering-oriented migration solution**. Unlike the design philosophy of traditional tools, it **orderly transforms** Vue's "mental model" into **maintainable React artifacts**, suitable for teams planning to migrate Vue projects to React or use Vue to produce React components.
+
+- Traditional "syntax replacement + manual fix": **String replacement with errors on complex syntax, frequent online crashes, hard-to-maintain artifacts**, usually requiring a full one-time migration with high risk.
+- New AI rewriting: **Unpredictable conversion results, inevitable hallucination and hidden pitfalls, high subsequent rework costs**.
+
+In contrast, VuReact emphasizes **a controllable and verifiable migration process**, supporting **gradual module-by-module migration, verification of compiled artifacts, and rollback when necessary**, thereby minimizing migration risks and maximizing the maintainability of the final output.
 
 | Other Solutions | VuReact |
 |-----------------|---------|
