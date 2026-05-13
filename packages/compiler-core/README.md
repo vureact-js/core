@@ -19,7 +19,9 @@
 - 想继续按 Vue 约定写代码，但产出 React 工程
 - 需要基于配置文件执行 `build/watch` 编译流程
 
-## 安装
+## 使用方式
+
+### 1. 安装
 
 ```bash
 npm install -D @vureact/compiler-core
@@ -32,9 +34,21 @@ pnpm add -D @vureact/compiler-core
 yarn add -D @vureact/compiler-core
 ```
 
-## 最小配置
+### 2. 创建配置文件
 
 在项目根目录新建 `vureact.config.ts`：
+
+```ts
+import { defineConfig } from '@vureact/compiler-core';
+
+export default defineConfig({
+  exclude: ['src/main.ts'], // 排除 Vue 入口文件
+});
+```
+
+如果你只想用默认工作区和输出目录，这样就够了。
+
+如果需要显式指定输出配置，可以写成：
 
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
@@ -50,13 +64,6 @@ export default defineConfig({
 });
 ```
 
-这份配置的含义是：
-
-- 编译 `src` 目录
-- 排除 Vue 入口文件，避免和现有挂载逻辑冲突
-- 输出到 `.vureact/react-app`
-- 自动准备一个可运行的 Vite React 工程
-
 如果项目使用 Vue Router，通常还会补上：
 
 ```ts
@@ -65,7 +72,40 @@ router: {
 }
 ```
 
-## 使用方式
+### 3. 先从单文件试点
+
+如果你想先验证一个组件能否稳定转换，可以先只编译单个 SFC：
+
+```ts
+export default defineConfig({
+  input: './src/your-component.vue',
+  exclude: ['src/main.ts'],
+});
+```
+
+这适合：
+
+- 先验证编译约定
+- 先看生成结果
+- 先小范围试点，而不是直接全仓推进
+
+### 4. 再扩展到整个项目
+
+当单文件试点通过后，再把 `input` 指向目录：
+
+```ts
+export default defineConfig({
+  input: './src',
+  exclude: ['src/main.ts'],
+});
+```
+
+这会递归处理目录下的 Vue / Script / Style 文件。
+
+> 注意：VuReact 优先支持基于 `<script setup>` 的现代 Vue 3 写法。  
+> 如果你的项目使用 Vue Router，请同时查看 [路由适配指南](https://vureact.top/guide/router-adaptation.html)。
+
+### 5. 执行编译
 
 ```bash
 # 一次性编译
@@ -86,13 +126,28 @@ npx vureact watch
 }
 ```
 
-## 编译后会得到什么
+### 6. 查看输出结果
 
 默认情况下，VuReact 会生成：
 
 - `.vureact/cache`：编译缓存
 - `.vureact/react-app`：React 工程产物
 - 与源目录结构对应的 `.tsx` / `.css` 文件
+
+目录大致如下：
+
+```txt
+vue-project/
+├── .vureact/
+│   ├── cache/
+│   ├── react-app/
+│   │   ├── src/
+│   │   ├── package.json
+│   │   ├── vite.config.ts
+├── src/
+├── package.json
+└── vureact.config.ts
+```
 
 进入产物目录后可直接运行：
 
@@ -101,6 +156,11 @@ cd .vureact/react-app
 npm install
 npm run dev
 ```
+
+如果你想更系统地了解 build/watch 的差异，可以继续阅读：
+
+- [监听模式](https://vureact.top/guide/watch-mode.html)
+- [增量编译](https://vureact.top/guide/incremental-compilation.html)
 
 ## 这个包不负责什么
 

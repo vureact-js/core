@@ -1,14 +1,15 @@
 <div align="center"><a name="readme-top"></a>
 
-  <img height="180" src="./assets/logo.png" />
+ <img height="180" src="./assets/logo.png" />
 
-  <h1>VuReact</h1>
+ <h1>VuReact</h1>
 
-**Write in Vue, generate maintainable React.**
+**Write Vue, generate maintainable React.**
 
-> A Vue-to-React compilation toolchain that fully converts Vue 3 SFC・Script・Style into pure React 18+ code (non-runtime bridge), covering all core features of `<script setup>`.
+> A compile-time toolchain that converts Vue 3 SFCs (script, template, style)
+> into pure React 18+ components — not a runtime bridge.
 >
-> Vue mental model + React ecosystem, producing production-ready engineering artifacts.
+> Full support for `<script setup>` and Composition API for progressive migration.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -18,440 +19,209 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-[Playground](#️-playground) · [Quick Start](#-quick-start) · [CLI](#️-cli-commands) · [Ecosystem](#-ecosystem) · [Semantic Comparison](https://www.vureact.top/en/guide/semantic-comparison/overview.html) · [FAQ](#faq) · [Change Log](https://www.vureact.top/en/guide/changelog.html)
+[Online Playground](#️-online-playground-no-install) · [Quick Start](#-quick-start) · [CLI](#️-cli) · [Use Cases](#-use-cases) · [Ecosystem](#️-ecosystem) · [Semantic Comparison](https://vureact.top/en/guide/semantic-comparison/overview.html) · [Changelog](https://vureact.top/en/guide/changelog.html)
 
-English | [简体中文](./README.md) | [日本語](./README.ja.md)
+简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/hero_demo_3MB.mp4" title="Watch project demo video">
-    <img src="assets/vureact_hero_demo.gif" alt="VuReact compiling Vue to React demo GIF" width="100%">
-  </a>
+ <a href="assets/hero_demo_3MB.mp4" title="Project demo video">
+  <img src="assets/vureact_hero_demo.gif" alt="VuReact demo converting Vue to React" width="100%">
+ </a>
 </div>
 
 ---
 
-## 💡 Why Choose VuReact?
+## 💡 Why VuReact?
 
-It's not a simple syntax replacement or runtime bridging tool, but an **engineering-oriented migration solution**. Unlike the design philosophy of traditional tools, it **orderly transforms** Vue's "mental model" into **maintainable React artifacts**, suitable for teams planning to migrate Vue projects to React or use Vue to produce React components.
+Existing solutions either wrap a runtime (bad perf, harder debugging) or provide partial conversions that fail on advanced syntax. VuReact is a compile-time approach: output is plain React code with no Vue runtime dependency, enabling progressive migration.
 
-- Traditional "syntax replacement + manual fix": **String replacement with errors on complex syntax, frequent online crashes, hard-to-maintain artifacts**, usually requiring a full one-time migration with high risk.
-- New AI rewriting: **Unpredictable conversion results, inevitable hallucination and hidden pitfalls, high subsequent rework costs**.
+| Other Approaches | VuReact |
+|---|---|
+| Runtime wrappers (dual frameworks, poor performance, large bundles) | Compile-time output — pure React, incremental, per-module migration |
+| Partial converters (fail on complex syntax) | Full support for template directives, props, slots, Composition API, scoped styles, and TypeScript typings |
+| AI-based rewrites (unpredictable, require heavy manual review) | Deterministic AST-based transforms — predictable and auditable output |
 
-In contrast, VuReact emphasizes **a controllable and verifiable migration process**, supporting **gradual module-by-module migration, verification of compiled artifacts, and rollback when necessary**, thereby minimizing migration risks and maximizing the maintainability of the final output.
-
-| Other Solutions | VuReact |
-|-----------------|---------|
-| Runtime wrapper (dual frameworks, poor performance) | Compile-time, pure React output |
-| Half-baked conversion (errors on complex syntax) | Full support for template directives, Props, Slots, Composition API, scoped styles, TS type definitions, etc. |
-| Relies on manual rewrite, high cost | Progressive migration, compile module by module |
-
-👉 **Learn more:** [Why VuReact? — More than a syntax converter](https://www.vureact.top/en/guide/why.html)
+👉 **Learn more:** [Why VuReact? — more than syntax transformation](https://vureact.top/en/guide/why.html)
 
 ---
 
-## 🕹️ Playground
+## 🕹️ Online Playground (no install)
 
-Before you start, you can visit our online CodeSandbox examples to see the complete process of VuReact compiling Vue into a React project and successfully running the page!
+Try the full Vue → React compilation flow in 30 seconds:
 
-- [Customer Support Hub (Mixed)](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
-- [CRM Admin Dashboard (Standard)](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+- [Customer Support Hub (mixed-example)](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
+- [CRM Admin Backend (standard example)](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+
+> Examples are hosted on CodeSandbox and start automatically — please allow a moment to load.
 
 ---
 
 ## ✨ Core Features
 
-- **🧠 Semantic-level compilation, not text replacement**: Analyzes complete semantics of templates, `<script setup>`, Composition API, TS types, etc., generating idiomatic React code.
-- **🎯 Convention-first, controllable & maintainable**: Doesn't aim to "convert everything"; follows clear compilation conventions, ensuring predictable and analyzable output.
-- **📦 Progressive migration**: Migrates incrementally from single files to entire projects without the need for a full rewrite.
-- **⚛️ Full feature adaptation**: Core Vue features (reactivity, lifecycle, built-in components, routing) are fully adapted to React; `scoped`/`module` styles and Less/Sass are processed at compile time with zero runtime overhead.
-- **⚡ Intelligent dependency analysis**: Top-level functions automatically get `useCallback`, variable declarations get `useMemo`, and hook dependencies are tracked automatically.
-- **🛠️ Dual-mode CLI**: `vureact build` (fast incremental compilation) + `vureact watch` (file watching), offering near-native development experience.
+- **Semantic, not string-based transforms:** analyzes templates, `<script setup>`, Composition API and TS types to generate idiomatic React code.
+- **Convention-first, controllable & maintainable:** not trying to convert everything — follows explicit compilation rules for predictable output.
+- **Incremental migration:** convert single files or whole projects progressively, no full rewrite required.
+- **Comprehensive feature adaptation:** reactive APIs, lifecycle, built-ins, routing, scoped/module styles, Less/Sass handled at compile time with zero runtime overhead.
+- **Automatic dependency inference:** top-level functions are automatically wrapped with `useCallback`, objects/values are memoized via `useMemo`, and hook dependencies are tracked.
+- **Dual-mode CLI:** `vureact build` (fast incremental builds) and `vureact watch` (watch mode) for a near-native developer experience.
 
 ---
 
-## 📦 Quick Start
+## 🚀 Quick Start
 
-👉 **Full tutorial: [VuReact Website - Quick Start](https://vureact.top/en/guide/quick-start.html)**
+> **Official quick-start guide:** [VuReact Quick Start](https://vureact.top/en/guide/quick-start.html)
 
-After completion, you will clearly understand three things:
+### Install
 
-1. Under what conventions input SFCs can be stably converted
-2. What the compiled directory structure looks like
-3. The semantic correspondence between the output TSX and the original SFC
-4. The compiler automatically analyzes and appends dependencies, eliminating the need to manually manage React hooks dependencies
-
-### Step 0: Prepare the Directory
-
-First, set up a minimal project (illustration):
-
-```txt
-my-app/
-├─ src/
-│  ├─ components/
-│  │  └─ Counter.vue
-│  ├─ App.vue
-│  ├─ main.ts
-│  └─ index.css
-├─ package.json
-├─ tsconfig.json
-├─ vite.config.ts
-└─ vureact.config.ts
-```
-
-### Step 1: Installation
-
-Install the VuReact compiler in your Vue project:
+In your Vue 3 project, install:
 
 ```bash
-# Using npm
-npm install -D @vureact/compiler-core
-
-# Using yarn
-yarn add -D @vureact/compiler-core
-
-# Using pnpm
-pnpm add -D @vureact/compiler-core
+npm i -D @vureact/compiler-core
 ```
 
-### Step 2: Write the Input SFC
+### Create a config file
 
-`src/components/Counter.vue`
-
-```html
-<template>
-  <section class="counter-card">
-    <h2>{{ props.title || title }}</h2>
-    <p>Count: {{ count }}</p>
-    <button @click="increment">+1</button>
-    <button @click="methods.decrease">-1</button>
-  </section>
-</template>
-
-<script setup lang="ts">
-  // @vr-name: Counter (Note: Tells the compiler what component name to generate)
-  import { computed, ref } from 'vue';
-
-  // You can also use macros to define component names
-  defineOptions({ name: 'Counter' });
-
-  // Define props
-  const props = defineProps<{ title?: string }>();
-
-  // Define emits
-  const emits = defineEmits<{
-    (e: 'change'): void;
-    (e: 'update', value: number): number;
-  }>();
-
-  const step = ref(1);
-  const count = ref(0);
-  const title = computed(() => `Counter x${step.value}`);
-
-  const increment = () => {
-    count.value += step.value;
-    emits('update', count.value);
-  };
-
-  const methods = {
-    decrease() {
-      count.value -= step.value;
-    },
-  };
-</script>
-
-<style lang="less" scoped>
-  @border-color: #ddd;
-  @border-radius: 8px;
-  @padding-base: 12px;
-
-  .counter-card {
-    border: 1px solid @border-color;
-    border-radius: @border-radius;
-    padding: @padding-base;
-  }
-</style>
-```
-
-### Step 3: Configure the Compiler
-
-`vureact.config.ts`
+Create `vureact.config.ts` in the project root:
 
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
-
 export default defineConfig({
-  // Input path containing Vue files to compile; single file 'xxx.vue' is allowed
-  input: './src',
-
-  // Exclude Vue entry files to avoid semantic conflicts
-  exclude: ['src/main.ts'],
-
-  output: {
-    // Workspace directory to store compilation output and cache
-    workspace: '.vureact',
-
-    // Output directory name
-    outDir: 'react-app',
-
-    // Automatically initialize Vite React environment
-    bootstrapVite: true,
-  },
+ input: '', // input path: single file or directory
+ exclude: ['src/main.ts'],
+ output: {
+   workspace: '.vureact',
+   outDir: 'react-app',
+   bootstrapVite: true,
+ },
 });
 ```
 
-If the project uses Vue Router, it is usually also added:
+### Convert a single Vue component
 
 ```ts
-router: {
-  // Location of the Vue Router config entry file, 
-  // to facilitate injecting router adaptation code into React output
-  configFile: 'src/router/index.ts',
+{
+ input: './src/your-component.vue',
 }
 ```
 
-> In fact, except for `exclude`, which needs to be specified manually, all other options use the default values in the sample configuration and do not require extra configuration.
+### Convert a whole project
 
-### Step 4: Execute Compilation
+```ts
+{
+ input: './src',
+}
+```
 
-#### Method 1: Use the npx command
+> Note: components must use `<script setup>` (otherwise compilation will error). If you use Vue Router, see the [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html).
 
-Run in the root directory:
+### Run the compiler
 
 ```bash
 npx vureact build
 ```
 
-#### Method 2: Use npm scripts
+The compilation output is placed under `.vureact/react-app`, containing the converted React app and related config (package.json, vite config, etc.).
 
-Add script commands to `package.json`:
-
-```json
-"scripts": {
-  "watch": "vureact watch",
-  "build": "vureact build"
-}
-```
-
-```bash
-npm run build
-```
-
-### Step 5: View the Output Directory Tree
-
-Compiled directory (illustration):
+Project layout example:
 
 ```txt
-my-project/
-├── .vureact/              # Workspace (generated)
-│   ├── cache/             # Compilation cache
-│   ├── react-app/         # Generated React code
+vue-project/
+├── .vureact/
+│   ├── cache/
+│   ├── react-app/
 │   │   ├── src/
-│   │   │   ├── components/
-│   │   │   │   ├── Counter.tsx
-│   │   │   │   └── Counter-[hash].css
-│   │   │   └── App.tsx
-│   │   │   └── index.css
-│   │   │   └── main.tsx
-│   │   └── package.json
-│   │   └── tsconfig.json
-│   │   └── vite.config.ts
-│   │   └── ...
-│   │
-├── src/                   # Original Vue code
-│   ├── components/
-│   │   └── Counter.vue
-│   └── main.ts            # Vue entry file
-├── ...
-└── vureact.config.js      # VuReact configuration file
+│   │   ├── package.json
+│   │   ├── vite.config.ts
+├── src/
+├── package.json
+└── vureact.config.ts
 ```
-
-### Step 6: Compare the Generated Results
-
-Below is a typical formatted output (slightly simplified for illustration; the actual hash and property names are subject to local output):
-
-```tsx
-import { memo, useCallback, useMemo } from 'react';
-import { useComputed, useVRef } from '@vureact/runtime-core';
-import './Counter-a1b2c3.css';
-
-// Derived from defineProps and defineEmits
-type ICounterType = {
-  title?: string;
-  onChange: () => void;
-  onUpdate: (value: number) => number;
-};
-
-// Component wrapped with memo
-const Counter = memo((props: ICounterType) => {
-  // ref/computed converted to equivalent adaptation APIs
-  const step = useVRef(1);
-  const count = useVRef(0);
-  const title = useComputed(() => `Counter x${step.value}`);
-
-  // Automatically analyze dependencies of top-level arrow functions and append useCallback optimization
-  const increment = useCallback(() => {
-    count.value += step.value;
-    props.onUpdate?.(count.value); // emits conversion
-  }, [count.value, step.value, props.onUpdate]);
-
-  // Automatically analyze dependencies in top-level objects and append useMemo optimization
-  const methods = useMemo(
-    () => ({
-      decrease() {
-        count.value -= step.value;
-      },
-    }),
-    [count.value, step.value],
-  );
-
-  return (
-    <>
-      <section className="Counter-card" data-css-a1b2c3>
-        <h2 data-css-a1b2c3>{props.title || title.value}</h2>
-        <p data-css-a1b2c3>Count: {count.value}</p>
-        <button onClick={increment} data-css-a1b2c3>
-          +1
-        </button>
-        <button onClick={methods.decrease} data-css-a1b2c3>
-          -1
-        </button>
-      </section>
-    </>
-  );
-});
-
-export default Counter;
-```
-
-CSS file content:
-
-```css
-.counter-card[data-css-a1b2c3] {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 12px;
-}
-```
-
-## Key Observations
-
-1. The special comment `// @vr-name: Counter` defines the component name
-2. `defineProps` and `defineEmits` are converted to TS component types
-3. Non-pure UI display components are wrapped with `memo` by default
-4. `ref` / `computed` are converted to runtime adaptation APIs (`useVRef` / `useComputed`)
-5. Template event callbacks generate React-semantic `onClick`
-6. Top-level arrow functions have their dependencies automatically analyzed and `useCallback` is injected where applicable
-7. Top-level variable declarations have their dependencies automatically analyzed and `useMemo` is injected where applicable
-8. The `.value` suffix is added to original `ref` state values in JSX
-9. Less styles are compiled to CSS code
-10. Scoped styles generate hashed CSS files and add scoped attributes to elements
 
 ---
 
-## 🛠️ CLI Commands
+## 🛠️ CLI
 
 ```bash
-# Build project
+# full/incremental build
 npx vureact build
 
-# Watch mode
+# watch mode for development
 npx vureact watch
 
-# Show help
+# show version
+npx vureact -v
+
+# help
 npx vureact --help
 ```
 
-👉 **Dual-mode CLI Guide:**[Incremental Compilation](https://www.vureact.top/en/guide/incremental-compilation.html) | [Watch Mode](https://www.vureact.top/en/guide/watch-mode.html)
+👉 See the build/watch guides: [Incremental Compilation](https://vureact.top/en/guide/incremental-compilation.html) | [Watch Mode](https://vureact.top/en/guide/watch-mode.html)
 
 ---
 
-## 📋 Compilation Conventions (Important)
+## 💬 Feedback & Community
 
-For details, please refer to [VuReact Compilation Conventions](https://vureact.top/en/guide/specification.html).
-
----
-
-## FAQ
-
-Please visit [VuReact FAQ](https://vureact.top/en/guide/faq.html)!
+- Problems? See the [FAQ](https://vureact.top/en/guide/faq.html) or open an [Issue](https://github.com/vureact-js/core/issues).
+- Share your experience on [Discussions](https://github.com/vureact-js/core/discussions).
 
 ---
 
-## 🔗 Ecosystem
+## ✅ Use Cases
 
-- **Runtime Adapter Package**
-  Provides React-compatible implementations of Vue core APIs.
-  [https://runtime.vureact.top](https://runtime.vureact.top/en/)
+### Recommended
 
-- **Router Adapter Package**
-  Supports Vue Router → React Router transformation.
-  [https://router.vureact.top](https://router.vureact.top/en/)
+- **New projects**: author Vue-style components under VuReact conventions.
+- **Incremental migration**: migrate by directory or module.
+- **Hybrid apps**: co-existence of Vue and React components.
 
-- **Full Documentation**
-  Detailed usage guides and API references.
-  [https://vureact.top](https://vureact.top/en)
+### Caveats
 
----
-
-## 🎯 Use Cases
-
-### ✅ Recommended
-
-- **New Projects**: Write Vue-style components directly following VuReact conventions
-- **Progressive Migration**: Migrate by directory or module incrementally
-- **Hybrid Development**: Allow Vue and React components to coexist
-
-### ⚠️ Notes
-
-- **Controllability First**: Current versions prioritize controllable engineering scenarios
-- **Convention-Driven**: Strict compilation conventions must be followed
-- **Modern Syntax Focus**: Focused on Vue 3 Composition API and `<script setup>`
+- **Controllability first:** current focus is engineering scenarios prioritizing predictability.
+- **Convention-driven:** compilation relies on clear conventions.
+- **Modern syntax:** targets Vue 3 Composition API and `<script setup>`.
 
 ---
 
-## 🔎 Repository Sub-Packages
+## 📦 Repository Packages
 
-- [@vureact/compiler-core](packages/compiler-core)
-- [@vureact/runtime-core](packages/runtime-core)
+- [packages/compiler-core](./packages/compiler-core/)
+- [packages/runtime-core](./packages/runtime-core/)
+
+---
+
+## ♻️ Ecosystem
+
+- **[VuReact Runtime](https://runtime.vureact.top)** — lightweight React-side implementations of Vue core APIs.
+- **[VuReact Router](https://router.vureact.top)** — adapter layer that maps Vue Router patterns to React Router.
 
 ---
 
 ## 🤝 Contributing
 
-Issues and Pull Requests are welcome!
-Please read the contribution guide first: [CONTRIBUTING.md](CONTRIBUTING.md)
+Contributions welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## 📄 License
 
-MIT License © 2025 Ruihong Zhong (Ryan John)
+MIT License © 2025 [Ruihong Zhong (Ryan John)](./LICENSE)
 
 ---
 
 ## 🩷 Sponsorship
 
-VuReact’s continued development depends on community support.
-Your sponsorship directly supports maintenance, feature development, and documentation improvements, helping push the technical boundaries of Vue-to-React compilation.
+VuReact is community-supported. Sponsorships fund maintenance, feature work and docs.
 
-Platform: [afdian](https://afdian.com/a/vureact-js/plan)
-
----
-
-## 🧩 Who's Using VuReact
-
-If your team, product, or experiment is already using VuReact, we would love to hear about it. This section is meant to surface real project names, use cases, migration stages, and public references so new users can quickly judge whether VuReact fits their engineering context.
-
-| Project | Scenario | Stage | Link |
-| --- | --- | --- | --- |
-| Your project could be the first public showcase | New build / migration pilot / hybrid stack | Collecting submissions | [Share your story](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20) |
-
-You can submit a showcase through the issue templates:
-
-- [Share a "Who's Using VuReact" case](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
-- [Browse submitted showcase issues](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
-
-Maintainers can periodically curate suitable submissions from these issues and add them here.
+Platform: [Afdian](https://afdian.com/a/vureact-js/plan)
 
 ---
 
-**VuReact — Validating the feasibility of full Vue-to-React compilation through innovative compilation architecture and runtime adaptation, achieving unprecedented transformation depth and engineering completeness.**
+## 🧩 Who's using VuReact
+
+We are collecting the first showcase entries — if you tried VuReact, please submit a case:
+
+- [Submit a showcase](https://github.com/vureact-js/core/issues/new?template=showcase.md&title=%5BSHOWCASE%5D%20)
+- [See submitted showcases](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
+
+---
+
+*VuReact — validating the feasibility of full Vue→React compilation via an innovative compiler architecture and runtime adapters.*
