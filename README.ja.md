@@ -22,9 +22,11 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
- <a href="assets/hero_demo_3MB.mp4" title="プロジェクトデモ動画">
-  <img src="assets/vureact_hero_demo.gif" alt="Vue を React に変換する VuReact のデモ" width="100%">
- </a>
+  <a href="assets/vureact_showcase.mp4" title="展示ビデオを見る">
+    <img src="assets/vureact_showcase.gif" alt="vureact ターミナル操作デモを見る" width="100%">
+  </a>
+
+  [展示ビデオを見る](assets/vureact_showcase.mp4) · [ターミナル操作デモを見る](assets/vureact_showcase.gif)
 </div>
 
 ---
