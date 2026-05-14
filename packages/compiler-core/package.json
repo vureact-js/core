@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.8.0",
-  "description": "⚡ Write in Vue 3, compile to React 18+ code.",
+  "version": "1.8.1",
+  "description": "🌀 Write in Vue 3, compile to React 18+ output.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
@@ -49,7 +49,7 @@
     "progressive-migration",
     "automated-refactoring"
   ],
-  "homepage": "https://vureact.top",
+  "homepage": "https://github.com/vureact-js/core#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vureact-js/core.git",
