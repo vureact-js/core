@@ -6,10 +6,10 @@
 
 **Write Vue, generate maintainable React.**
 
-> A compile-time toolchain that converts Vue 3 SFCs (script, template, style)
+> A Vue-to-React compile-time toolchain that converts Vue 3 SFC・Script・Style
 > into pure React 18+ components — not a runtime bridge.
 >
-> Full support for `<script setup>` and Composition API for progressive migration.
+> Prioritizes `<script setup>` with broad core feature coverage, and supports progressive migration and hybrid development.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -68,7 +68,9 @@ Try the full Vue → React compilation flow in 30 seconds:
 
 ## 🚀 Quick Start
 
-> **Official quick-start guide:** [VuReact Quick Start](https://vureact.top/en/guide/quick-start.html)
+> 💡 **Official guide from scratch:** [VuReact Quick Start](https://vureact.top/en/guide/quick-start.html)
+>
+> 💡 **Hybrid migration walkthrough:** [Customer Support Hub (Vue + React)](https://vureact.top/en/guide/customer-support-hub)
 
 ### Install
 
@@ -85,15 +87,21 @@ Create `vureact.config.ts` in the project root:
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
 export default defineConfig({
- input: '', // input path: single file or directory
- exclude: ['src/main.ts'],
- output: {
-   workspace: '.vureact',
-   outDir: 'react-app',
-   bootstrapVite: true,
- },
+  input: '', // input path: single file or directory
+  exclude: ['src/main.ts'], // exclude the Vue entry and files that should not be compiled
+  output: {
+    workspace: '.vureact',
+    outDir: 'react-app',
+    bootstrapVite: true,
+  },
+  onSuccess: async () => {
+    console.log('Compilation succeeded!');
+    // You can do extra work here, such as filesystem changes or calling other tools
+  },
 });
 ```
+
+> 💡 More configuration options: [Config API](https://vureact.top/en/api/config.html)
 
 ### Convert a single Vue component
 
@@ -111,7 +119,7 @@ export default defineConfig({
 }
 ```
 
-> Note: components must use `<script setup>` (otherwise compilation will error). If you use Vue Router, see the [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html).
+> 💡 Note: if your project uses Vue Router, see the [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html) for the required setup.
 
 ### Run the compiler
 
@@ -119,22 +127,25 @@ export default defineConfig({
 npx vureact build
 ```
 
-The compilation output is placed under `.vureact/react-app`, containing the converted React app and related config (package.json, vite config, etc.).
+The generated `.vureact/react-app` directory contains the converted components and the related dependency/config setup.
 
 Project layout example:
 
 ```txt
 vue-project/
 ├── .vureact/
-│   ├── cache/
-│   ├── react-app/
-│   │   ├── src/
-│   │   ├── package.json
-│   │   ├── vite.config.ts
-├── src/
-├── package.json
-└── vureact.config.ts
+│   ├── cache/             # compilation cache
+│   ├── react-app/         # generated React app
+│   │   ├── src/           # converted React source
+│   │   ├── package.json   # React app dependencies
+│   │   ├── vite.config.ts # Vite config
+│   │
+├── src/                   # original Vue source
+├── package.json           # original project dependencies
+└── vureact.config.ts      # config file
 ```
+
+> 💡 If you see compilation warnings, follow the hints and adjust your source. Reading the [Compilation Conventions](https://vureact.top/en/guide/specification.html) and [Best Practices](https://vureact.top/en/guide/best-practices.html) will help you write Vue code that converts more smoothly.
 
 ---
 
@@ -161,7 +172,10 @@ npx vureact --help
 ## 💬 Feedback & Community
 
 - Problems? See the [FAQ](https://vureact.top/en/guide/faq.html) or open an [Issue](https://github.com/vureact-js/core/issues).
+- Questions about router adaptation? See the [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html).
+- Page styles look wrong? See the [style troubleshooting solution](https://vureact.top/en/guide/faq.html#q35-how-to-fix-missing-or-broken-page-styles).
 - Share your experience on [Discussions](https://github.com/vureact-js/core/discussions).
+- Want to support the project? A ⭐ helps more people discover it.
 
 ---
 
@@ -195,6 +209,15 @@ npx vureact --help
 
 ---
 
+## 🙏 Special Thanks
+
+The runtime adaptation layer was inspired and supported by the following projects:
+
+- [valtio](https://github.com/pmndrs/valtio) — Vue-style reactive API ideas and Proxy-based implementation on the React side
+- [react-transition-group](https://github.com/reactjs/react-transition-group#readme) — React transition animation components
+
+---
+
 ## 🤝 Contributing
 
 Contributions welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -224,4 +247,4 @@ We are collecting the first showcase entries — if you tried VuReact, please su
 
 ---
 
-*VuReact — validating the feasibility of full Vue→React compilation via an innovative compiler architecture and runtime adapters.*
+*VuReact — exploring the feasibility of full Vue-to-React compilation through an innovative compiler architecture and runtime adaptation, aiming for unprecedented transformation depth and engineering completeness.*

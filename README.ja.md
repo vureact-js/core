@@ -8,7 +8,7 @@
 
 > Vue 3 の SFC・Script・Style を、ランタイムブリッジを使わずに純粋な React 18+ コンポーネントへコンパイルするツールチェーンです。
 >
-> `<script setup>` と Composition API を優先サポートし、段階的な移行を想定しています。
+> `<script setup>` を優先的にサポートし、主要機能を広くカバーします。段階的な移行やハイブリッド開発にも対応します。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -67,7 +67,9 @@
 
 ## 🚀 クイックスタート
 
-> **公式クイックスタート:** [VuReact Quick Start](https://vureact.top/en/guide/quick-start.html)
+> 💡 **ゼロから始める公式ガイド:** [VuReact Quick Start](https://vureact.top/en/guide/quick-start.html)
+>
+> 💡 **ハイブリッド移行の実践例:** [Customer Support Hub (Vue + React)](https://vureact.top/en/guide/customer-support-hub)
 
 ### インストール
 
@@ -84,15 +86,21 @@ npm i -D @vureact/compiler-core
 ```ts
 import { defineConfig } from '@vureact/compiler-core';
 export default defineConfig({
- input: '', // 入力パス（単一ファイルまたはディレクトリ）
- exclude: ['src/main.ts'],
- output: {
-   workspace: '.vureact',
-   outDir: 'react-app',
-   bootstrapVite: true,
- },
+  input: '', // 入力パス（単一ファイルまたはディレクトリ）
+  exclude: ['src/main.ts'], // Vue エントリとコンパイル対象外ファイルを除外
+  output: {
+    workspace: '.vureact',
+    outDir: 'react-app',
+    bootstrapVite: true,
+  },
+  onSuccess: async () => {
+    console.log('コンパイル成功！');
+    // ここでファイル操作や他ツール呼び出しなどの追加処理を行えます
+  },
 });
 ```
+
+> 💡 そのほかの設定項目は [Config API](https://vureact.top/en/api/config.html) を参照してください。
 
 ### 単一コンポーネントを変換
 
@@ -110,7 +118,7 @@ export default defineConfig({
 }
 ```
 
-> 注意: コンポーネントは `<script setup>` を使用する必要があります（そうでない場合はエラーになります）。Vue Router を使用する場合は [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html) を参照してください。
+> 💡 注意: Vue Router を使用する場合は、必要な設定のために [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html) を参照してください。
 
 ### コンパイラ実行
 
@@ -118,22 +126,25 @@ export default defineConfig({
 npx vureact build
 ```
 
-変換結果は `.vureact/react-app` に出力され、変換後の React アプリや設定ファイル（package.json、vite.config など）が含まれます。
+自動生成される `.vureact/react-app` ディレクトリには、変換後のコンポーネントと関連する依存関係・設定が含まれます。
 
 プロジェクト構成例：
 
 ```txt
 vue-project/
 ├── .vureact/
-│   ├── cache/
-│   ├── react-app/
-│   │   ├── src/
-│   │   ├── package.json
-│   │   ├── vite.config.ts
-├── src/
-├── package.json
-└── vureact.config.ts
+│   ├── cache/             # コンパイルキャッシュ
+│   ├── react-app/         # 変換後の React アプリ
+│   │   ├── src/           # 変換後の React ソース
+│   │   ├── package.json   # React アプリ依存
+│   │   ├── vite.config.ts # Vite 設定
+│   │
+├── src/                   # 元の Vue ソース
+├── package.json           # 元プロジェクトの依存
+└── vureact.config.ts      # 設定ファイル
 ```
+
+> 💡 コンパイル警告が出た場合は、メッセージに従って修正してください。[Compilation Conventions](https://vureact.top/en/guide/specification.html) と [Best Practices](https://vureact.top/en/guide/best-practices.html) を読むと、変換しやすい Vue コードを書きやすくなります。
 
 ---
 
@@ -160,7 +171,10 @@ npx vureact --help
 ## 💬 フィードバックとコミュニティ
 
 - 問題があれば [FAQ](https://vureact.top/en/guide/faq.html) を確認、または [Issue](https://github.com/vureact-js/core/issues) を提出してください。
+- ルーター適合に関する疑問は [router adaptation guide](https://vureact.top/en/guide/router-adaptation.html) を参照してください。
+- ページスタイルが崩れる場合は [style troubleshooting solution](https://vureact.top/en/guide/faq.html#q35-how-to-fix-missing-or-broken-page-styles) を確認してください。
 - ご意見は [Discussions](https://github.com/vureact-js/core/discussions) で共有してください。
+- プロジェクトを応援したい場合は、⭐ を付けてもらえると助かります。
 
 ---
 
@@ -194,6 +208,15 @@ npx vureact --help
 
 ---
 
+## 🙏 特別謝辞
+
+ランタイム適応レイヤーの開発は、以下のプロジェクトから着想と支援を受けています。
+
+- [valtio](https://github.com/pmndrs/valtio) — React 側における Vue 風リアクティブ API と Proxy 実装
+- [react-transition-group](https://github.com/reactjs/react-transition-group#readme) — React のトランジションアニメーションコンポーネント
+
+---
+
 ## 🤝 コントリビュート
 
 貢献歓迎です。詳細は [CONTRIBUTING.md](CONTRIBUTING.md) をご確認ください。
@@ -223,4 +246,4 @@ VuReact はコミュニティに支えられています。スポンサーはメ
 
 ---
 
-*VuReact — コンパイラの設計とランタイム適合を通じて、Vue→React フルコンパイルの実現可能性を検証します。*
+*VuReact — 革新的なコンパイラ設計とランタイム適応を通じて、Vue から React への完全コンパイルの可能性を探り、これまでにない変換深度とエンジニアリングの完成度を目指します。*

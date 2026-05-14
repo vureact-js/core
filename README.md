@@ -69,7 +69,7 @@
 
 > 💡 **从零开始的官方指南：**[VuReact 快速入门](https://vureact.top/guide/quick-start.html)
 >
-> 💡 **完整的项目迁移跟练：**[客户支持协同后台（混写）](https://vureact.top/guide/customer-support-hub)
+> 💡 **混合项目迁移实践：**[客户支持协同后台（Vue + React）](https://vureact.top/guide/customer-support-hub)
 
 ### 安装
 
@@ -87,14 +87,20 @@ npm i -D @vureact/compiler-core
 import { defineConfig } from '@vureact/compiler-core';
 export default defineConfig({
  input: '', // 输入路径，支持单文件或目录
- exclude: ['src/main.ts'], // 排除 Vue 入口文件
+ exclude: ['src/main.ts'], // 排除 Vue 入口与不参与编译的文件
  output: {
    workspace: '.vureact',
    outDir: 'react-app',
    bootstrapVite: true,
+ },
+ onSuccess: async () => {
+   console.log('编译成功！');
+   // 这里可以执行额外的操作，比如操作文件系统、调用其他工具等
  },  
 });
 ```
+
+> 💡 更多配置项详见： [配置 API](https://vureact.top/api/config.html)
 
 ### 1️⃣ 转换单个 Vue 组件
 
@@ -115,7 +121,7 @@ export default defineConfig({
 }
 ```
 
-> 💡 注意：如果你的项目使用了 Vue Router，请查看 [路由适配指南](https://vureact.top/guide/router-adaptation.html)。
+> 💡 注意：若项目使用了 Vue Router，请查看 [路由适配指南](https://vureact.top/guide/router-adaptation.html) 进行配置。
 
 ### 🤖 执行编译转换
 
@@ -123,7 +129,7 @@ export default defineConfig({
 npx vureact build
 ```
 
-生成的 `.vureact/react-app` 目录里，包含了转换后的组件和相关依赖配置等。
+自动生成的 `.vureact/react-app` 目录里，包含了转换后的组件和相关依赖配置等。
 
 项目结构大致示例：
 
@@ -140,6 +146,8 @@ vue-project/
 ├── package.json           # 原始项目依赖
 └── vureact.config.ts      # 配置文件
 ```
+
+> 💡 若出现编译告警，请按提示修改。阅读 [编译约定](https://vureact.top/guide/specification.html) | [最佳实践](https://vureact.top/guide/best-practices.html) 有助于你写出更适合转换的 Vue 代码。
 
 ---
 
@@ -166,6 +174,8 @@ npx vureact --help
 ## 💬 反馈与交流
 
 - 遇到问题？[查看 FAQ](https://vureact.top/guide/faq.html) 或 [提交 Issue](https://github.com/vureact-js/core/issues)
+- 路由适配有疑问？[查看路由适配指南](https://vureact.top/guide/router-adaptation.html)
+- 页面样式异常？[查看解决方案](https://vureact.top/guide/faq.html#q35-页面样式异常或丢失如何解决)
 - 使用感受？来 [Discussions](https://github.com/vureact-js/core/discussions) 聊聊
 - 想支持我们？点个 ⭐ 让更多人看到这个项目
 
@@ -201,6 +211,15 @@ npx vureact --help
 
 ---
 
+## 🙏 特别鸣谢
+
+Runtime 适配层的开发得到了以下项目的启发和支持：
+
+- [valtio](https://github.com/pmndrs/valtio) — React 的 Vue 风格响应式 API 和 Proxy 实现
+- [react-transition-group](https://github.com/reactjs/react-transition-group#readme) — React 过渡动画组件
+
+---
+
 ## 🤝 贡献
 
 欢迎提交 Issue 和 Pull Request！请先阅读 [贡献指南](CONTRIBUTING.zh.md)。
@@ -228,7 +247,7 @@ MIT License © 2025 [Ruihong Zhong (Ryan John)](./LICENSE)
 - [提交「谁在用」案例](https://github.com/vureact-js/core/issues/new?template=showcase.zh-CN.md&title=%5BSHOWCASE%5D%20)
 - [查看已提交案例](https://github.com/vureact-js/core/issues?q=is%3Aissue%20label%3Ashowcase)
 
-我们会定期从这些案例中整理出适合公开展示的条目，展示到这里。
+我们会定期从这些案例中整理出适合公开展示的条目。
 
 ---
 
