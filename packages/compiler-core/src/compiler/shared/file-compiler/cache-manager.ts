@@ -69,9 +69,7 @@ export class CacheManager {
 
       if (!updates?.length) continue;
 
-      const activeFiles = new Set(updates.map((u) => u.unit.file));
-
-      const entries = (this.cachedData![key] || []).filter((c) => activeFiles.has(c.file));
+      const entries = [...(this.cachedData![key] || [])];
 
       updates.forEach(({ unit, meta }) => {
         const idx = entries.findIndex((c) => c.file === unit.file);
@@ -169,9 +167,7 @@ export class CacheManager {
     }
 
     // 合并待更新数据到 cachedData
-    const activeFiles = new Set(updates.map((u) => u.unit.file));
-    let entries = (this.cachedData || this.getEmptyList())[key] || [];
-    entries = entries.filter((c: any) => activeFiles.has(c.file));
+    const entries = [...(((this.cachedData || this.getEmptyList())[key] || []) as any[])];
 
     updates.forEach(({ unit, meta }) => {
       const idx = entries.findIndex((c: any) => c.file === unit.file);

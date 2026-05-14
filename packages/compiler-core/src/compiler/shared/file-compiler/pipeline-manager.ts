@@ -73,5 +73,6 @@ export class PipelineManager {
    */
   resetSkippedCount(): void {
     this.skippedCount = 0;
+    this.fileProcessor.resetSkippedCount();
   }
 }
