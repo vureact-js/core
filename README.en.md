@@ -23,9 +23,11 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
- <a href="assets/hero_demo_3MB.mp4" title="Project demo video">
-  <img src="assets/vureact_hero_demo.gif" alt="VuReact demo converting Vue to React" width="100%">
- </a>
+  <a href="assets/vureact_showcase.mp4" title="Watch Showcase Video">
+    <img src="assets/vureact_showcase.gif" alt="vureact terminal demo" width="100%">
+  </a>
+
+  [Watch Showcase Video](assets/vureact_showcase.mp4) · [View Terminal Demo](assets/vureact_showcase.gif)
 </div>
 
 ---

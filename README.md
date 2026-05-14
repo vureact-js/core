@@ -22,9 +22,11 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/hero_demo_3MB.mp4" title="观看项目展示视频">
-    <img src="assets/vureact_hero_demo.gif" alt="vureact 编译 Vue 到 React 展示动图" width="100%">
+  <a href="assets/vureact_showcase.mp4" title="观看展示视频">
+    <img src="assets/vureact_showcase.gif" alt="vureact 终端交互演示" width="100%">
   </a>
+
+  [观看展示视频](assets/vureact_showcase.mp4) · [查看终端交互演示](assets/vureact_showcase.gif)
 </div>
 
 ---
