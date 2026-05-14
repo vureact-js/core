@@ -190,8 +190,10 @@ npx vureact --help
 ### Caveats
 
 - **Controllability first:** current focus is engineering scenarios prioritizing predictability.
-- **Convention-driven:** compilation relies on clear conventions.
+- **Convention-driven:** [compilation relies](https://vureact.top/en/guide/specification.html) on clear conventions.
 - **Modern syntax:** targets Vue 3 Composition API and `<script setup>`.
+
+> Optionally, use [Hybrid Authoring](https://vureact.top/en/guide/mind-control-readme.html) to leverage React ecosystem capabilities within a Vue project.
 
 ---
 
@@ -204,8 +206,8 @@ npx vureact --help
 
 ## ♻️ Ecosystem
 
-- **[VuReact Runtime](https://runtime.vureact.top)** — lightweight React-side implementations of Vue core APIs.
-- **[VuReact Router](https://router.vureact.top)** — adapter layer that maps Vue Router patterns to React Router.
+- **[VuReact Runtime](https://runtime.vureact.top/en)** — lightweight React-side implementations of Vue core APIs.
+- **[VuReact Router](https://router.vureact.top/en)** — adapter layer that maps Vue Router patterns to React Router.
 
 ---
 

@@ -189,8 +189,10 @@ npx vureact --help
 ### 注意点
 
 - **可制御性優先**: 予測可能性を重視した設計。
-- **約定駆動**: 明確なコンパイル規約に従う必要あり。
+- **約定駆動**: 明確な[コンパイル規約](https://vureact.top/en/guide/specification.html)に従う必要あり。
 - **モダン構文重視**: Vue 3 Composition API と `<script setup>` を前提とする。
+
+> オプション [☣️ハイブリッド開発](https://vureact.top/en/guide/mind-control-readme.html)で、Vue プロジェクトに直接 React エコシステムの機能を導入できます。
 
 ---
 
@@ -203,8 +205,8 @@ npx vureact --help
 
 ## ♻️ エコシステム
 
-- **[VuReact Runtime](https://runtime.vureact.top)** — React 側での軽量な Vue API 実装。
-- **[VuReact Router](https://router.vureact.top)** — Vue Router 風の構文を React Router にマッピングするアダプター。
+- **[VuReact Runtime](https://runtime.vureact.top/en)** — React 側での軽量な Vue API 実装。
+- **[VuReact Router](https://router.vureact.top/en)** — Vue Router 風の構文を React Router にマッピングするアダプター。
 
 ---
 

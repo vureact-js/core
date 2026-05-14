@@ -18,7 +18,7 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-[在线体验](#️-在线体验无需安装) · [快速开始](#-快速开始) · [CLI 命令](#️-cli-命令) · [适用场景](#-适用场景) · [生态系统](#️-生态系统) · [语义编译对照](https://www.vureact.top/guide/semantic-comparison/overview.html) · [更新日志](https://www.vureact.top/guide/changelog.html)
+[在线体验](#️-在线体验无需安装) · [快速开始](#-快速开始) · [CLI 命令](#️-cli-命令) · [适用场景](#-适用场景) · [生态集成](#️-生态集成) · [语义编译对照](https://vureact.top/guide/semantic-comparison/overview.html) · [更新日志](https://vureact.top/guide/changelog.html)
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
@@ -39,7 +39,7 @@
 | 半成品转换（复杂语法报错） | 完整模板指令、Props、插槽、Composition API、scoped 样式、 TS 类型定义等 |
 | AI 改写（结果不确定，代码基于猜测，需人工二次审核） | 确定性编译，基于 AST 静态转换，结果可预测、可追溯 |
 
-👉 **深入了解请访问：**[为什么选择 VuReact？—— 不止是语法转换](https://www.vureact.top/guide/why.html)
+👉 **深入了解请访问：**[为什么选择 VuReact？—— 不止是语法转换](https://vureact.top/guide/why.html)
 
 ---
 
@@ -167,7 +167,7 @@ npx vureact -v
 npx vureact --help
 ```
 
-👉 **build/watch 指南详见：**[Build 增量编译](https://www.vureact.top/guide/incremental-compilation.html) | [Watch 监听模式](https://www.vureact.top/guide/watch-mode.html)
+👉 **build/watch 指南详见：**[Build 增量编译](https://vureact.top/guide/incremental-compilation.html) | [Watch 监听模式](https://vureact.top/guide/watch-mode.html)
 
 ---
 
@@ -183,17 +183,19 @@ npx vureact --help
 
 ## 🎯 适用场景
 
-### ✅ 推荐使用
+### 推荐使用
 
 - **新项目开发**：直接按照 VuReact 约定编写 Vue 风格的组件
 - **渐进式迁移**：支持按目录、模块逐步迁移
 - **混合开发**：允许 Vue 和 React 组件在项目中并存
 
-### ⚠️ 注意事项
+### 注意事项
 
 - **优先可控**：服务于可控工程场景
-- **约定驱动**：需要遵守明确的编译约定
+- **约定驱动**：需要遵守明确的[编译约定](https://vureact.top/guide/specification.html)
 - **现代语法**：专注于 Vue 3 Composition API 与 `<script setup>`
+
+> 可选 [☣️混合编写](https://vureact.top/guide/mind-control-readme.html)，Vue 项目直接引入 React 生态能力。
 
 ---
 
@@ -204,10 +206,10 @@ npx vureact --help
 
 ---
 
-## ♻️ 生态系统
+## ♻️ 生态集成
 
 - **[VuReact Runtime](https://runtime.vureact.top)**：提供轻量级 React 版的 Vue 核心组件 & API
-- **[VuReact Router](https://router.vureact.top)**：基于 React Router 的 Vue Router 风格适配层
+- **[VuReact Router](https://router.vureact.top)**：基于 React Router DOM 的 Vue Router 风格适配层
 
 ---
 
