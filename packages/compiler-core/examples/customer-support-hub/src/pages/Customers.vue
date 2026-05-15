@@ -31,7 +31,9 @@
           placeholder="选择客户查看详情"
           @change="onDetailSelect"
         />
-        <AntButton type="primary" :disabled="!detailId" @click="openDetailByButton">查看详情</AntButton>
+        <AntButton type="primary" :disabled="!detailId" @click="openDetailByButton"
+          >查看详情</AntButton
+        >
       </AntSpace>
     </PagePanel>
 
@@ -101,7 +103,11 @@
             <AntInput :value="draft.category" @change="onDraftCategory" />
           </AntFormItem>
           <AntFormItem label="优先级">
-            <AntSelect :value="draft.priority" :options="priorityOptions" @change="onDraftPriority" />
+            <AntSelect
+              :value="draft.priority"
+              :options="priorityOptions"
+              @change="onDraftPriority"
+            />
           </AntFormItem>
           <AntFormItem label="摘要">
             <AntInput :value="draft.summary" @change="onDraftSummary" />
@@ -114,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: CustomersPage
+// @vr-name: Customers
 import {
   Button as AntButton,
   Card as AntCard,

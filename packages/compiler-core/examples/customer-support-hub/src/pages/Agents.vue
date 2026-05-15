@@ -31,7 +31,12 @@
           :options="ticketOptions"
           @change="onTicketChange"
         />
-        <AntButton type="primary" :disabled="!selectedAgentId || !selectedTicketId" @click="submitAssign">分配工单</AntButton>
+        <AntButton
+          type="primary"
+          :disabled="!selectedAgentId || !selectedTicketId"
+          @click="submitAssign"
+          >分配工单</AntButton
+        >
       </AntSpace>
     </PagePanel>
 
@@ -83,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: AgentsPage
+// @vr-name: Agents
 import {
   Button as AntButton,
   Divider as AntDivider,
@@ -118,7 +123,15 @@ const performanceBands = ref<any[]>([]);
 const selectedTrendAgentId = ref('');
 const trendAgentName = ref('');
 const trendAgentTeam = ref('');
-const weeklyTrend = ref<Array<{ date: string; handled: number; response: number; qualityScore: number; efficiency: number }>>([]);
+const weeklyTrend = ref<
+  Array<{
+    date: string;
+    handled: number;
+    response: number;
+    qualityScore: number;
+    efficiency: number;
+  }>
+>([]);
 
 const columns = [
   { title: '坐席', dataIndex: 'name', key: 'name' },

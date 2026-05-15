@@ -1,7 +1,9 @@
 ﻿<template>
   <section class="login-page">
     <AntCard class-name="login-card" :bordered="false" title="登录客户支持协同台">
-      <AntTypographyParagraph type="secondary">演示账号默认填充，可直接进入系统。</AntTypographyParagraph>
+      <AntTypographyParagraph type="secondary"
+        >演示账号默认填充，可直接进入系统。</AntTypographyParagraph
+      >
 
       <AntForm layout="vertical" @finish="submit">
         <AntFormItem label="邮箱" name="email">
@@ -12,7 +14,13 @@
           <AntInputPassword :value="password" placeholder="至少 3 位" @change="onPassword" />
         </AntFormItem>
 
-        <AntAlert v-if="error" :message="error" type="error" show-icon style="margin-bottom: 12px" />
+        <AntAlert
+          v-if="error"
+          :message="error"
+          type="error"
+          show-icon
+          style="margin-bottom: 12px"
+        />
 
         <AntButton type="primary" html-type="submit" block :loading="loading">登录</AntButton>
       </AntForm>
@@ -21,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: SupportLogin
+// @vr-name: Login
 import {
   Alert as AntAlert,
   Button as AntButton,
