@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: CrmOpsPortal
+// @vr-name: App
 import { computed, onMounted, provide, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {

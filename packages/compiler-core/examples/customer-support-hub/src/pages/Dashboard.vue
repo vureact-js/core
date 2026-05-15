@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: SupportDashboard
+// @vr-name: Dashboard
 import { Col as AntCol, Row as AntRow, Table as AntTable } from 'antd';
 import { onMounted, ref } from 'vue';
 import EmptyState from '../components/EmptyState.vue';

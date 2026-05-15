@@ -5,19 +5,37 @@
         <AntRow :gutter="[12, 0]">
           <AntCol :xs="24" :md="12">
             <AntFormItem label="首次响应时限（分钟）">
-              <AntInputNumber :value="sla.firstResponseMinutes" :min="5" :max="360" style="width: 100%" @change="onFirstResponse" />
+              <AntInputNumber
+                :value="sla.firstResponseMinutes"
+                :min="5"
+                :max="360"
+                style="width: 100%"
+                @change="onFirstResponse"
+              />
             </AntFormItem>
           </AntCol>
 
           <AntCol :xs="24" :md="12">
             <AntFormItem label="最终解决时限（分钟）">
-              <AntInputNumber :value="sla.resolveMinutes" :min="30" :max="1440" style="width: 100%" @change="onResolve" />
+              <AntInputNumber
+                :value="sla.resolveMinutes"
+                :min="30"
+                :max="1440"
+                style="width: 100%"
+                @change="onResolve"
+              />
             </AntFormItem>
           </AntCol>
 
           <AntCol :xs="24" :md="12">
             <AntFormItem label="预警阈值（%）">
-              <AntInputNumber :value="sla.warningThresholdPercent" :min="1" :max="100" style="width: 100%" @change="onThreshold" />
+              <AntInputNumber
+                :value="sla.warningThresholdPercent"
+                :min="1"
+                :max="100"
+                style="width: 100%"
+                @change="onThreshold"
+              />
             </AntFormItem>
           </AntCol>
 
@@ -50,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: SupportSettings
+// @vr-name: Settings
 import {
   Button as AntButton,
   Col as AntCol,

@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-// @vr-name: CustomerSupportHub
+// @vr-name: App
 import {
   Avatar as AntAvatar,
   Breadcrumb as AntBreadcrumb,
