@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.8.1",
-  "description": "🌀 Write in Vue 3, compile to React 18+ output.",
+  "version": "1.8.3",
+  "description": "🌀 Write in Vue 3, compile to React 18+.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
@@ -63,7 +63,8 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "tsx watch"
+    "test": "tsx watch",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"

@@ -338,14 +338,6 @@ export class Helper {
     logger.clear();
   }
 
-  printCompileInfo(file: string, duration: string) {
-    this.print(
-      kleur.green('Compiled'),
-      kleur.dim(normalizePath(this.relativePath(file))),
-      kleur.gray(`(${duration})`),
-    );
-  }
-
   print(...message: any[]) {
     if (this.compilerOpts.watch) {
       const time = new Date().toLocaleTimeString();

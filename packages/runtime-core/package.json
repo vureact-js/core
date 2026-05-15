@@ -78,6 +78,7 @@
   },
   "scripts": {
     "build": "rimraf dist && rollup -c --bundleConfigAsCjs",
+    "prepublishOnly": "npm run build",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"

@@ -67,7 +67,7 @@ export class FileCompiler extends BaseCompiler {
     let startTime = 0;
 
     try {
-      this.updateSpinner('Initializing Vite React env...');
+      this.updateSpinner('Initializing environment...');
       await viteBootstrapper.bootstrapIfNeeded();
 
       // feature：https://github.com/vureact-js/core/issues/28
