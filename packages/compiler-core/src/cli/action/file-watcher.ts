@@ -16,7 +16,7 @@ export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
   const watcher = chokidar.watch(cmpHelper.getInputPath(), {
     ignored: cmpHelper.getExcludes(),
     persistent: true,
-    ignoreInitial: true, // 初始扫描已由 compiler.execute 完成
+    ignoreInitial: true,
   });
 
   watcher.on('all', async (event, filePath) => {
@@ -44,6 +44,7 @@ export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
 
   const onRecompile = async (event: 'add' | 'change', filePath: string) => {
     const ext = path.extname(filePath);
+    const relativePath = normalizePath(cmpHelper.relativePath(filePath));
 
     if (ext in processors) {
       spinner.start('Recompiling...');
@@ -53,20 +54,23 @@ export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
       const unit = await fn(filePath);
 
       cmpHelper.printCoreLogs();
-      cmpHelper.printCompileInfo(filePath, calcElapsedTime(startTime));
 
-      // 调用编译器 onChange 方法
+      // fix: 只当编译产出才打印 Compiled，缓存命中会明确打印 Cached。
       if (unit) {
+        cmpHelper.print(
+          kleur.green('compiled'),
+          kleur.dim(relativePath),
+          kleur.gray(`(${calcElapsedTime(startTime)})`),
+        );
         await config.onChange?.(event, unit);
+      } else {
+        cmpHelper.print(kleur.gray('cached'), kleur.dim(relativePath));
       }
     } else {
       spinner.start('Updating assets...');
       await compiler.processAsset(filePath);
 
-      cmpHelper.print(
-        kleur.blue('Copied Asset'),
-        kleur.dim(normalizePath(cmpHelper.relativePath(filePath))),
-      );
+      cmpHelper.print(kleur.blue('Copied Asset'), kleur.dim(relativePath));
     }
 
     spinner.stop();
@@ -74,19 +78,16 @@ export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
 
   const onRemoveFile = async (type: 'unlink' | 'unlinkDir', filePath: string) => {
     const ext = path.extname(filePath);
+    const relativePath = normalizePath(cmpHelper.relativePath(filePath));
 
     const scriptExtRegex = /\.(js|ts)$/i;
     const styleExtRegex = /\.(css|less|sass|scss)$/i;
 
-    const removeFile = async (type: CacheKey) => {
-      await compiler.removeOutputPath(filePath, type);
-      cmpHelper.print(
-        kleur.yellow('Removed'),
-        kleur.dim(normalizePath(cmpHelper.relativePath(filePath))),
-      );
+    const removeFile = async (cacheKey: CacheKey) => {
+      await compiler.removeOutputPath(filePath, cacheKey);
+      cmpHelper.print(kleur.yellow('Removed'), kleur.dim(relativePath));
     };
 
-    // 单个文件删除
     if (type === 'unlink') {
       if (ext === '.vue') {
         await removeFile(CacheKey.SFC);
@@ -107,8 +108,6 @@ export function setupWatcher(compiler: VuReact, config: CompilerOptions) {
       return;
     }
 
-    // 文件夹删除：尝试同时清理 Vue 产物和 资产产物
-    // 这里不需要判断 isVue，因为文件夹本身不带后缀
     if (type === 'unlinkDir') {
       await removeFile(CacheKey.SFC);
       await removeFile(CacheKey.SCRIPT);

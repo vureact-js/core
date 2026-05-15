@@ -150,6 +150,11 @@ export class FileProcessor {
       }
 
       await this.cacheManager.updateCacheIncrementally(processed, key);
+
+      // fix: watch 场景直接调用 processFile 时，当前文件缓存需要立即同步到磁盘
+      if (this.fileCompiler.getIsCache() && !existingCache) {
+        await this.cacheManager.flushCache(key);
+      }
     }
 
     return processed;

@@ -115,7 +115,7 @@ export class ViteBootstrapper {
     // 写入新数据到 vite 项目的 package.json
     await this.fileCompiler.writeFileWithDir(outputPkgPath, JSON.stringify(newPkg, null, 2));
 
-    this.spinner.succeed('Initialized Vite React environment');
+    this.spinner.succeed('Vite React environment initialized');
 
     return true;
   }

@@ -2,7 +2,6 @@ import { ParseResult } from '@babel/parser';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { REACT_API_MAP } from '@consts/react-api-map';
-import { logger } from '@src/shared/logger';
 import { ScriptBlockIR } from '@transform/sfc/script';
 import { camelCase } from '@utils/camelCase';
 import { capitalize } from '@utils/capitalize';
@@ -93,9 +92,6 @@ function resolveComponentName(ctx: ICompilationContext): t.Identifier {
     // 没有设置组件名则回退到文件名/随机名
     const defaultName = basename(filename).split('.')[0] || `FC${genHashByXXH(filename)}`;
     name = capitalize(camelCase(defaultName));
-    logger.warn(`Unnamed component detected. Using file name: <${name}>`, {
-      file: filename,
-    });
   }
 
   scriptData.declaredOptions.name = name;
