@@ -22,11 +22,13 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/vureact-showcase (3.7MB)" title="观看展示视频">
-    <img src="assets/vureact-showcase(1280x720).gif" alt="vureact 终端交互演示" width="100%">
+  <a href="assets/vureact-showcase(3.7MB)" title="观看展示视频">
+    <img src="assets/vureact-showcase(800x450).gif" alt="vureact 终端交互演示" width="100%">
   </a>
 
-  Vue项目 → `vureact build` → React应用 · [观看展示视频](assets/vureact-showcase(3.7MB)) · [查看终端交互演示](assets/vureact-showcase(1280x720).gif)
+  VuReact 实战：Vue 3 SFC → React 18+ 组件编译演示。
+  
+  [观看展示视频](assets/vureact-showcase(3.7MB)) · [查看高清动图](assets/vureact-showcase(1280x720).gif)
 </div>
 
 ---

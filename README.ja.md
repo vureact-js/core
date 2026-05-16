@@ -22,11 +22,13 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/vureact-showcase (3.7MB)" title="展示ビデオを見る">
-    <img src="assets/vureact-showcase(1280x720).gif" alt="vureact ターミナル操作デモを見る" width="100%">
+  <a href="assets/vureact-showcase(3.7MB)" title="展示ビデオを見る">
+    <img src="assets/vureact-showcase(800x450).gif" alt="vureact ターミナル操作デモを見る" width="100%">
   </a>
 
-  Vueプロジェクト → `vureact build` → Reactアプリケーション · [展示ビデオを見る](assets/vureact-showcase(3.7MB)) · [ターミナル操作デモを見る](assets/vureact-showcase(1280x720).gif)
+  VuReact 実践：Vue 3 SFC → React 18+ コンポーネントのコンパイルデモ。
+  
+  [展示ビデオを見る](assets/vureact-showcase(3.7MB)) · [高画質アニメーションを見る](assets/vureact-showcase(1280x720).gif)
 </div>
 
 ---
