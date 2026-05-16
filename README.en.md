@@ -23,11 +23,11 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/vureact_showcase.mp4" title="Watch Showcase Video">
-    <img src="assets/vureact_showcase.gif" alt="vureact terminal demo" width="100%">
+  <a href="assets/vureact-showcase (3.7MB)" title="Watch Showcase Video">
+    <img src="assets/vureact-showcase(1280x720).gif" alt="vureact terminal demo" width="100%">
   </a>
 
-  [Watch Showcase Video](assets/vureact_showcase.mp4) · [View Terminal Demo](assets/vureact_showcase.gif)
+  Vue project → `vureact build` → React application · [Watch Showcase Video](assets/vureact-showcase(3.7MB)) · [View Terminal Demo](assets/vureact-showcase(1280x720).gif)
 </div>
 
 ---

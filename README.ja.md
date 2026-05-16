@@ -22,11 +22,11 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/vureact_showcase.mp4" title="展示ビデオを見る">
-    <img src="assets/vureact_showcase.gif" alt="vureact ターミナル操作デモを見る" width="100%">
+  <a href="assets/vureact-showcase (3.7MB)" title="展示ビデオを見る">
+    <img src="assets/vureact-showcase(1280x720).gif" alt="vureact ターミナル操作デモを見る" width="100%">
   </a>
 
-  [展示ビデオを見る](assets/vureact_showcase.mp4) · [ターミナル操作デモを見る](assets/vureact_showcase.gif)
+  Vueプロジェクト → `vureact build` → Reactアプリケーション · [展示ビデオを見る](assets/vureact-showcase(3.7MB)) · [ターミナル操作デモを見る](assets/vureact-showcase(1280x720).gif)
 </div>
 
 ---
