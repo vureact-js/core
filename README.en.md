@@ -23,11 +23,13 @@
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
-  <a href="assets/vureact_showcase.mp4" title="Watch Showcase Video">
-    <img src="assets/vureact_showcase.gif" alt="vureact terminal demo" width="100%">
+  <a href="assets/vureact-showcase(3.7MB).mp4" title="Watch Showcase Video">
+    <img src="assets/vureact-showcase(800x450).gif" alt="vureact terminal demo" width="100%">
   </a>
 
-  [Watch Showcase Video](assets/vureact_showcase.mp4) · [View Terminal Demo](assets/vureact_showcase.gif)
+  VuReact in action: Vue 3 SFC → React 18+ component compilation demo.
+
+  [Watch Showcase Video](assets/vureact-showcase(3.7MB).mp4) · [View High-Resolution GIF](assets/vureact-showcase(1280x720).gif)
 </div>
 
 ---
