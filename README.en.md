@@ -19,9 +19,9 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-[Online Playground](#️-online-playground-no-install) · [Quick Start](#-quick-start) · [CLI](#️-cli) · [Use Cases](#-use-cases) · [Ecosystem](#️-ecosystem) · [Semantic Comparison](https://vureact.top/en/guide/semantic-comparison/overview.html) · [Changelog](https://vureact.top/en/guide/changelog.html)
+[Online Playground](#️-online-playground-no-install) · [Quick Start](#-quick-start) · [Use Cases](#-use-cases) · [Ecosystem](#️-ecosystem) · [Compilation Conventions](https://vureact.top/en/guide/specification.html) · [Semantic Comparison](https://vureact.top/en/guide/semantic-comparison/overview.html) · [Changelog](https://vureact.top/en/guide/changelog.html)
 
-简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
+English | [简体中文](./README.md) | [日本語](./README.ja.md)
 
   <a href="assets/vureact-showcase(3.7MB).mp4" title="Watch Showcase Video">
     <img src="assets/vureact-showcase(800x450).gif" alt="vureact terminal demo" width="100%">
@@ -31,6 +31,25 @@
 
   [Watch Showcase Video](assets/vureact-showcase(3.7MB).mp4) · [View High-Resolution GIF](assets/vureact-showcase(1280x720).gif)
 </div>
+
+---
+
+## 📖 Table of Contents
+
+- [💡 Why VuReact?](#-why-vureact)
+- [🕹️ Online Playground (no install)](#️-online-playground-no-install)
+- [✨ Core Features](#-core-features)
+- [🚀 Quick Start](#-quick-start)
+- [🛠️ CLI](#️-cli)
+- [💬 Feedback & Community](#-feedback--community)
+- [✅ Use Cases](#-use-cases)
+- [📦 Repository Packages](#-repository-packages)
+- [♻️ Ecosystem](#️-ecosystem)
+- [🙏 Special Thanks](#-special-thanks)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [🩷 Sponsorship](#-sponsorship)
+- [🧩 Who's using VuReact](#-whos-using-vureact)
 
 ---
 

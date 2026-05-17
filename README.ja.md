@@ -18,9 +18,9 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-[オンラインで試す](#️-オンラインプレイグラウンドインストール不要) · [クイックスタート](#-クイックスタート) · [CLI](#️-cli) · [利用シーン](#-利用シーン) · [エコシステム](#️-エコシステム) · [比較（セマンティック）](https://vureact.top/en/guide/semantic-comparison/overview.html) · [更新履歴](https://vureact.top/en/guide/changelog.html)
+[オンラインで試す](#️-オンラインプレイグラウンドインストール不要) · [クイックスタート](#-クイックスタート) · [利用シーン](#-利用シーン) · [エコシステム](#️-エコシステム) · [コンパイル約定](https://vureact.top/en/guide/specification.html) · [比較（セマンティック）](https://vureact.top/en/guide/semantic-comparison/overview.html) · [更新履歴](https://vureact.top/en/guide/changelog.html)
 
-简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
+日本語 | [English](./README.en.md) | [简体中文](./README.md)
 
   <a href="assets/vureact-showcase(3.7MB).mp4" title="展示ビデオを見る">
     <img src="assets/vureact-showcase(800x450).gif" alt="vureact ターミナル操作デモを見る" width="100%">
@@ -30,6 +30,25 @@
   
   [展示ビデオを見る](assets/vureact-showcase(3.7MB).mp4) · [高画質アニメーションを見る](assets/vureact-showcase(1280x720).gif)
 </div>
+
+---
+
+## 📖 目次
+
+- [💡 なぜ VuReact を選ぶか](#-なぜ-vureact-を選ぶか)
+- [🕹️ オンラインプレイグラウンド（インストール不要）](#️-オンラインプレイグラウンドインストール不要)
+- [✨ コア機能](#-コア機能)
+- [🚀 クイックスタート](#-クイックスタート)
+- [🛠️ CLI](#️-cli)
+- [💬 フィードバックとコミュニティ](#-フィードバックとコミュニティ)
+- [✅ 利用シーン](#-利用シーン)
+- [📦 リポジトリパッケージ](#-リポジトリパッケージ)
+- [♻️ エコシステム](#️-エコシステム)
+- [🙏 特別謝辞](#-特別謝辞)
+- [🤝 コントリビュート](#-コントリビュート)
+- [📄 ライセンス](#-ライセンス)
+- [🩷 スポンサー](#-スポンサー)
+- [🧩 事例募集](#-事例募集)
 
 ---
 
