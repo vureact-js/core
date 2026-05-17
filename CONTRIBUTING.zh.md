@@ -1,319 +1,169 @@
 # 贡献指南
 
-感谢您有兴趣为 Vureact Core 做出贡献！本文档提供了贡献项目的指南和说明。
+感谢你为 VuReact Core 做出贡献。本文档聚焦这个仓库里实际采用的贡献流程，而不是通用的开源模板说明。
 
-## 🎯 项目概述
+## 开始之前
 
-Vureact Core 是一个将 Vue 3 语法编译为可运行的 React 18+ 代码的下一代编译器框架。项目包含两个主要包：
+请先确认本地环境符合当前工作区要求：
 
-### @vureact/compiler-core
-
-一个 Vue 3 到 React 的编译器，将 Vue 单文件组件（SFCs）转换为带有 JSX/TSX 的 React 组件。
-
-### @vureact/runtime-core
-
-Vue 3 内置组件、响应式 API 和模板指令工具的 React 适配器。
-
-## 🚀 快速开始
-
-### 先决条件
-
-- Node.js >= 14.0.0
-- pnpm >= 8.0.0（推荐）
+- Node.js `>= 19.0.0`
+- 推荐使用 pnpm `10+`
 - Git
 
-### 开发环境设置
+本仓库是一个 pnpm workspace，主要包含两个包：
 
-1. **在 GitHub 上 Fork 仓库**
-2. **本地克隆你的 Fork**：
+- `@vureact/compiler-core`
+- `@vureact/runtime-core`
+
+提交代码前，也请阅读[行为准则](./CODE_OF_CONDUCT.zh.md)，并了解所有贡献均按 [MIT License](./LICENSE) 发布。
+
+## 先选择合适的协作入口
+
+如果变更影响较大，请先讨论，再开始实现。
+
+以下类型的改动，必须先创建或参与 Issue / Discussion 再动手写代码：
+
+- 新功能
+- 破坏性变更
+- 架构调整
+- 大型重构
+
+请优先使用仓库现有的 GitHub 模板和渠道：
+
+- Bug 反馈： [`.github/ISSUE_TEMPLATE/bug_report.zh-CN.md`](./.github/ISSUE_TEMPLATE/bug_report.zh-CN.md)
+- 功能请求： [`.github/ISSUE_TEMPLATE/feature_request.zh-CN.md`](./.github/ISSUE_TEMPLATE/feature_request.zh-CN.md)
+- 使用案例分享： [`.github/ISSUE_TEMPLATE/showcase.zh-CN.md`](./.github/ISSUE_TEMPLATE/showcase.zh-CN.md)
+- 使用问题与求助： GitHub Discussions 或项目文档
+
+如果只是简单的错别字修复或直接明了的文档改进，可以直接提交 Pull Request。
+
+## 本地准备
+
+1. 先在 GitHub 上 Fork 仓库。
+2. 克隆你的 Fork 并进入工作区：
 
    ```bash
-   git clone https://github.com/你的用户名/core.git
+   git clone https://github.com/YOUR_USERNAME/core.git
    cd core
    ```
 
-3. **安装依赖**：
+3. 安装依赖：
 
    ```bash
    pnpm install
    ```
 
-4. **构建包**：
+4. 构建你将要修改的包：
 
    ```bash
    pnpm build:compiler-core
    pnpm build:runtime-core
    ```
 
-5. **运行测试**以确保一切正常：
+5. 基于上游最新默认分支创建你的工作分支。
 
-   ```bash
-   # 运行 runtime-core 测试
-   pnpm test:adapter-hooks
-   pnpm test:adapter-utils
-   pnpm test:adapter-components
-   ```
+## 开始修改
 
-## 📝 开发流程
+请尽量让每次改动保持聚焦，方便审查和回归验证。
 
-### 分支策略
+- 遵循现有代码风格和目录结构。
+- 如果行为发生变化，请同步更新文档。
+- 如果改动影响行为，请补充或更新测试。
+- 不要把无关重构混进同一个 Pull Request。
 
-- `master`: 稳定的生产分支
-- `develop`: 开发分支（如果存在）
-- 功能分支：`feature/描述`
-- 修复分支：`fix/issue编号-描述`
-- 文档分支：`docs/主题`
+如果你的改动同时影响两个包，请在 PR 描述里明确说明它们之间的关系，方便评审确认联动影响。
 
-### 创建功能分支
+## 验证改动
 
-```bash
-git checkout -b feature/你的功能名称
-```
+请运行与你修改范围相匹配的检查。相比笼统地写“全部测试通过”，我们更鼓励你提供范围明确的定向验证结果。
 
-### 进行更改
+### 格式检查
 
-1. **编写代码**，遵循我们的编码标准
-2. **为新功能添加测试**
-3. **如果需要，更新文档**
-4. **本地运行测试**
-5. **检查代码风格**：
-
-   ```bash
-   pnpm format:check
-   ```
-
-### 提交指南
-
-我们遵循[约定式提交](https://www.conventionalcommits.org/zh-hans/)规范：
-
-```
-<类型>[可选 范围]: <描述>
-
-[可选 正文]
-
-[可选 脚注]
-```
-
-**类型：**
-
-- `feat`: 新功能
-- `fix`: 错误修复
-- `docs`: 文档更改
-- `style`: 代码风格更改（格式化等）
-- `refactor`: 代码重构
-- `test`: 添加或更新测试
-- `chore`: 维护任务
-- `build`: 构建系统更改
-- `ci`: CI 配置更改
-
-**范围（示例）：**
-
-- `compiler-core`: 编译器包的更改
-- `runtime-core`: 运行时包的更改
-- `adapter-hooks`: 适配器钩子的更改
-- `adapter-utils`: 适配器工具的更改
-- `adapter-components`: 适配器组件的更改
-- `cli`: CLI 工具的更改
-
-**示例：**
-
-```
-feat(compiler-core): 添加 SFC 模板编译
-fix(runtime-core): 修正 KeepAlive 组件行为
-docs: 更新 API 文档
-```
-
-## 🔧 项目结构
-
-```
-core/
-├── packages/
-│   ├── compiler-core/          # Vue 到 React 编译器
-│   │   ├── src/               # 源代码
-│   │   │   ├── compiler/      # 编译器实现
-│   │   │   ├── parser/        # Vue SFC 解析器
-│   │   │   ├── transform/     # AST 转换
-│   │   │   ├── codegen/       # 代码生成
-│   │   │   ├── utils/         # 工具函数
-│   │   │   └── cli/           # 命令行界面
-│   │   ├── __tests__/         # 测试文件
-│   │   └── package.json       # 包配置
-│   └── runtime-core/          # 运行时适配器
-│       ├── src/               # 源代码
-│       │   ├── adapter-components/  # Vue 内置组件
-│       │   ├── adapter-hooks/       # Vue 风格钩子
-│       │   ├── adapter-utils/       # 指令工具
-│       │   └── shared/              # 共享工具
-│       ├── __tests__/         # 测试文件
-│       └── package.json       # 包配置
-├── package.json              # 根包配置
-└── pnpm-workspace.yaml      # 工作区配置
-```
-
-## 📖 编码标准
-
-### TypeScript
-
-- 使用严格的 TypeScript 配置
-- 提供适当的类型定义
-- 尽可能避免使用 `any` 类型
-- 使用接口定义对象形状
-
-### 代码风格
-
-- 使用 2 空格缩进
-- 使用分号
-- 字符串使用单引号
-- 遵循 Prettier 配置
-
-### 文档
-
-- 使用 JSDoc 注释记录公共 API
-- 添加功能时更新 README 文件
-- 为复杂功能添加示例
-
-## 🧪 测试
-
-### 编写测试
-
-- 彻底测试公共 API
-- 测试边界情况和错误条件
-- 模拟外部依赖
-- 使用描述性的测试名称
-
-### 测试结构
-
-```typescript
-describe('组件名称', () => {
-  it('应该做某事', () => {
-    // 准备
-    // 执行
-    // 断言
-  });
-});
-```
-
-### 运行测试
+在工作区根目录运行 Prettier 检查：
 
 ```bash
-# 运行 compiler-core 测试
-cd packages/compiler-core
-pnpm test
+pnpm format:check
+```
 
-# 运行 runtime-core 测试
-cd packages/runtime-core
-pnpm test
+### `runtime-core`
 
-# 运行特定测试套件
+根据你修改的区域，运行对应的根脚本：
+
+```bash
 pnpm test:adapter-hooks
 pnpm test:adapter-utils
 pnpm test:adapter-components
 ```
 
-## 🔄 拉取请求流程
-
-1. **确保你的分支是最新的**：
-
-   ```bash
-   git fetch origin
-   git rebase origin/main
-   ```
-
-2. **运行所有检查**：
-
-   ```bash
-   pnpm build:compiler-core
-   pnpm build:runtime-core
-   pnpm format:check
-   # 运行相关测试
-   ```
-
-3. **在 GitHub 上创建拉取请求**：
-   - 使用清晰、描述性的标题
-   - 引用相关的问题
-   - 提供详细的描述
-   - UI 更改请包含截图
-
-4. **PR 审查流程**：
-   - 及时处理审查意见
-   - 保持提交内容专注且逻辑清晰
-   - 如果需要，压缩提交
-   - 确保 CI 通过
-
-5. **批准后**：
-   - 维护者将合并你的 PR
-   - 你的更改将包含在下一个版本中
-
-## 🐛 报告问题
-
-### 错误报告
-
-报告错误时，请包括：
-
-1. **描述**：问题的清晰描述
-2. **重现步骤**：逐步说明
-3. **预期行为**：你期望发生的事情
-4. **实际行为**：实际发生的事情
-5. **环境**：Node.js 版本、操作系统等
-6. **代码示例**：最小可重现代码
-
-### 功能请求
-
-对于功能请求，请：
-
-1. **描述**你试图解决的问题
-2. **解释为什么**需要这个功能
-3. **提供示例**说明如何使用
-4. **考虑**你尝试过的替代方案
-
-## 🏗️ 构建和打包
-
-### 开发构建
+同时建议运行相关构建：
 
 ```bash
-# 构建 compiler-core
-pnpm build:compiler-core
-
-# 构建 runtime-core
 pnpm build:runtime-core
 ```
 
-### 生产构建
+### `compiler-core`
 
-- Compiler-core 使用 `tsup` 进行构建
-- Runtime-core 使用 `rollup` 进行构建
+至少运行包构建：
 
-### 版本控制
+```bash
+pnpm build:compiler-core
+```
 
-我们遵循[语义化版本控制](https://semver.org/lang/zh-CN/)：
+如果改动涉及解析、转换、代码生成，或 watch/build 行为，请额外运行该区域最相关的定向验证。当前仓库还没有为 `compiler-core` 提供一个统一覆盖所有场景的顶层自动化测试命令，因此请在 PR 中明确写出你实际执行了哪些验证。
 
-- **主版本号**：不兼容的 API 修改
-- **次版本号**：向下兼容的功能性新增
-- **修订号**：向下兼容的问题修正
+## 提交 Commit 并创建 PR
 
-## 🤝 社区
+建议使用清晰的提交信息，并遵循 Conventional Commits：
 
-### 获取帮助
+```text
+<type>[optional scope]: <description>
+```
 
-- [GitHub Issues](https://github.com/vureact-js/core/issues) 用于错误报告
-- 首先查看现有文档
+本仓库最常用的类型包括：
 
-### 认可
+- `feat`
+- `fix`
+- `docs`
+- `refactor`
+- `test`
+- `build`
+- `ci`
+- `chore`
 
-所有贡献者将在以下方面得到认可：
+示例：
 
-- 发布说明
-- 贡献者列表
-- 项目文档
+```text
+feat(compiler-core): improve scoped style transform output
+fix(runtime-core): correct adapter hook update timing
+docs: rewrite contribution guide
+```
 
-## 📄 许可证
+提交 Pull Request 之前，请确认：
 
-通过为 Vureact Core 做出贡献，你同意你的贡献将根据项目的[MIT 许可证](LICENSE)进行许可。
+- 已按需要 rebase 或合并上游最新默认分支
+- 本次改动相关的构建与验证已在本地通过
+- 如果有用户可见行为变化，相关文档已同步更新
 
-## 🙏 感谢
+创建 PR 时，请遵循现有模板：
 
-感谢你考虑为 Vureact Core 做出贡献。你的努力有助于让这个项目对 Vue 和 React 社区的每个人都变得更好！
+- PR 模板： [`.github/PULL_REQUEST_TEMPLATE/pull_request_template.zh-CN.md`](./.github/PULL_REQUEST_TEMPLATE/pull_request_template.zh-CN.md)
 
----
+PR 描述中应至少包含：
 
-_需要帮助？在 GitHub 上提出问题！_
+- 关联的 Issue
+- 受影响的包
+- 你实际运行过的验证步骤
+- 仅在确有帮助时附上截图
+
+## 评审预期
+
+评审者可能会要求你补充背景、缩小改动范围，或增加验证说明。这些要求的目标是保持项目长期可维护。
+
+为了让评审更顺畅：
+
+- 保持 PR 聚焦
+- 对反馈给出明确更新
+- 主动说明取舍和已知后续工作
+- 除非确有必要，不要用 force-push 抹掉讨论上下文
+
+如果你不确定应该由谁评审，可以参考仓库中的 [CODEOWNERS](./.github/CODEOWNERS)。
