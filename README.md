@@ -18,7 +18,7 @@
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
-[在线体验](#️-在线体验无需安装) · [快速开始](#-快速开始) · [生态集成](#️-生态集成) · [适用场景](#-适用场景) · [编译约定](https://vureact.top/guide/specification.html) · [转换对照](https://vureact.top/guide/semantic-comparison/overview.html) · [更新日志](https://vureact.top/guide/changelog.html)
+[在线体验](#️-在线体验无需安装) · [快速开始](#-快速开始) · [适用场景](#-适用场景) · [生态集成](#️-生态集成) · [编译约定](https://vureact.top/guide/specification.html) · [转换对照](https://vureact.top/guide/semantic-comparison/overview.html) · [更新日志](https://vureact.top/guide/changelog.html)
 
 简体中文 | [English](./README.en.md) | [日本語](./README.ja.md)
 
@@ -41,7 +41,7 @@
 - [🚀 快速开始](#-快速开始)
 - [🛠️ CLI 命令](#️-cli-命令)
 - [💬 反馈与交流](#-反馈与交流)
-- [🎯 适用场景](#-适用场景)
+- [✅ 适用场景](#-适用场景)
 - [📦 仓库子包](#-仓库子包)
 - [♻️ 生态集成](#️-生态集成)
 - [🙏 特别鸣谢](#-特别鸣谢)
@@ -204,13 +204,14 @@ npx vureact --help
 
 ---
 
-## 🎯 适用场景
+## ✅ 适用场景
 
 ### 推荐使用
 
-- **新项目开发**：直接按照 VuReact 约定编写 Vue 风格的组件
-- **渐进式迁移**：支持按目录、模块逐步迁移
-- **混合开发**：允许 Vue 和 React 组件在项目中并存
+- 项目需从 Vue 3 渐进式迁移到 React，但不想从头重写，优先寻找现有解决方案
+- 部分开发者以 Vue 为主技术栈，习惯其心智模型，认为 React 的额外负担比 Vue 更重
+- 后端开发者不想学习双框架，Vue 上手快、符合直觉，不愿接触 React
+- 转换后的 React 需完全脱离 Vue 运行时，避免双框架运行时所带来的性能和体积问题
 
 ### 注意事项
 

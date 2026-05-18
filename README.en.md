@@ -206,9 +206,10 @@ npx vureact --help
 
 ### Recommended
 
-- **New projects**: author Vue-style components under VuReact conventions.
-- **Incremental migration**: migrate by directory or module.
-- **Hybrid apps**: co-existence of Vue and React components.
+- Projects need to migrate incrementally from Vue 3 to React, but do not want to rewrite from scratch, preferring to find existing solutions first.
+- Some developers use Vue as their primary technology stack, are accustomed to its mental model, and consider React's overhead to be heavier than Vue's.
+- Backend developers do not want to learn both frameworks; Vue is quick to pick up and intuitive, and they are reluctant to engage with React.
+- The converted React code must completely detach from the Vue runtime to avoid performance and bundle size issues caused by a dual-framework runtime.
 
 ### Caveats
 
