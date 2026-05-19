@@ -32,11 +32,22 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
   [Watch Showcase Video](assets/vureact-showcase(3.7MB).mp4) · [View High-Resolution GIF](assets/vureact-showcase(1280x720).gif)
 </div>
 
+## 💡 Why VuReact?
+
+Existing solutions either wrap a runtime (bad perf, harder debugging) or provide partial conversions that fail on advanced syntax. VuReact is a compile-time approach: output is plain React code with no Vue runtime dependency, enabling progressive migration.
+
+| Other Approaches | VuReact |
+|---|---|
+| Runtime wrappers (dual frameworks, poor performance, large bundles) | Compile-time output — pure React, incremental, per-module migration |
+| Partial converters (fail on complex syntax) | Full support for template directives, props, slots, Composition API, scoped styles, and TypeScript typings |
+| AI-based rewrites (unpredictable, require heavy manual review) | Deterministic AST-based transforms — predictable and auditable output |
+
+👉 **Learn more:** [Why VuReact? — more than syntax transformation](https://vureact.top/en/guide/why.html)
+
 ---
 
 ## 📖 Table of Contents
 
-- [💡 Why VuReact?](#-why-vureact)
 - [🕹️ Online Playground (no install)](#️-online-playground-no-install)
 - [✨ Core Features](#-core-features)
 - [🚀 Quick Start](#-quick-start)
@@ -50,20 +61,6 @@ English | [简体中文](./README.md) | [日本語](./README.ja.md)
 - [📄 License](#-license)
 - [🩷 Sponsorship](#-sponsorship)
 - [🧩 Who's using VuReact](#-whos-using-vureact)
-
----
-
-## 💡 Why VuReact?
-
-Existing solutions either wrap a runtime (bad perf, harder debugging) or provide partial conversions that fail on advanced syntax. VuReact is a compile-time approach: output is plain React code with no Vue runtime dependency, enabling progressive migration.
-
-| Other Approaches | VuReact |
-|---|---|
-| Runtime wrappers (dual frameworks, poor performance, large bundles) | Compile-time output — pure React, incremental, per-module migration |
-| Partial converters (fail on complex syntax) | Full support for template directives, props, slots, Composition API, scoped styles, and TypeScript typings |
-| AI-based rewrites (unpredictable, require heavy manual review) | Deterministic AST-based transforms — predictable and auditable output |
-
-👉 **Learn more:** [Why VuReact? — more than syntax transformation](https://vureact.top/en/guide/why.html)
 
 ---
 
