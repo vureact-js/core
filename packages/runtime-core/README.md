@@ -1,50 +1,50 @@
 # @vureact/runtime-core
 
-**把 Vue 风格的运行时能力带到 React。**
+**Bring Vue-style runtime capabilities to React.**
 
-`@vureact/runtime-core` 是 [VuReact](https://vureact.top/) 的 **运行时适配包**。  
-它为 React 应用提供 Vue 风格的 **响应式 API、内置组件适配、模板指令工具**，适合渐进迁移，也适合希望在 React 中保留部分 Vue 开发体验的项目。
+`@vureact/runtime-core` is the **runtime adaptation package** of [VuReact](https://vureact.top/en/).  
+It provides Vue-style **reactive APIs, built-in component adaptations, and template directive utilities** for React applications. It is useful both for progressive migration and for teams that want to keep part of the Vue development experience inside React.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/runtime-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/main/LICENSE)
 [![React >=18](https://img.shields.io/badge/React->=18-61dafb)](https://reactjs.org/)
 
-简体中文 | [English](./README.en.md)
+English | [简体中文](./README-zh-CN.md)
 
-## 这个包适合谁
+## Who this package is for
 
-- 想在 React 中使用 Vue 风格响应式 API
-- 需要 `KeepAlive`、`Transition`、`Teleport` 等 Vue 内置能力
-- 正在配合 `@vureact/compiler-core` 使用运行时适配 API
-- 正在做 Vue → React 迁移，希望保留一部分原有开发范式
+- React developers who want Vue-style reactive APIs
+- Projects that need `KeepAlive`, `Transition`, `Teleport`, and similar Vue-style capabilities
+- Teams using `@vureact/compiler-core` and needing the runtime adaptation layer
+- Vue-to-React migration efforts that want to preserve part of the original authoring model
 
-## 这个包不负责什么
+## What this package is not
 
-- 它不是 Vue 编译器；源码转换请使用 [@vureact/compiler-core](https://www.npmjs.com/package/@vureact/compiler-core)
-- 它不是 Vue 官方运行时在 React 中的直接移植
-- 它不是对所有 Vue 生态库的完整兼容层
+- It is not the Vue compiler; for source transformation, use [@vureact/compiler-core](https://www.npmjs.com/package/@vureact/compiler-core)
+- It is not a direct port of the official Vue runtime into React
+- It is not a full compatibility layer for all Vue ecosystem libraries
 
-## 安装
+## Installation
 
 ```bash
 npm install @vureact/runtime-core
 ```
 
-也可以使用：
+You can also use:
 
 ```bash
 pnpm add @vureact/runtime-core
 yarn add @vureact/runtime-core
 ```
 
-`react` 和 `react-dom` 需要满足 `>=18.2.0`。
+`react` and `react-dom` should satisfy `>=18.2.0`.
 
-## 这个包提供什么
+## What this package provides
 
-### 1. 响应式 Hooks
+### 1. Reactive hooks
 
-常见 API 包括：
+Common APIs include:
 
 - `useVRef`
 - `useReactive`
@@ -52,7 +52,7 @@ yarn add @vureact/runtime-core
 - `useWatch`
 - `useWatchEffect`
 
-示例：
+Example:
 
 ```tsx
 import { useVRef, useWatch } from '@vureact/runtime-core';
@@ -68,16 +68,16 @@ function Counter() {
 }
 ```
 
-### 2. Vue 内置组件适配
+### 2. Vue built-in component adaptations
 
-常见组件包括：
+Common components include:
 
 - `KeepAlive`
 - `Transition`
 - `Teleport`
 - `Suspense`
 
-示例：
+Example:
 
 ```tsx
 import { KeepAlive } from '@vureact/runtime-core';
@@ -91,58 +91,61 @@ function App() {
 }
 ```
 
-### 3. 模板指令工具
+### 3. Template directive utilities
 
-可以在 JSX 中使用一些 Vue 风格辅助工具，例如：
+You can use Vue-style helpers in JSX, such as:
 
 - `vCls`
 - `vStyle`
 - `vOn`
 - `vKeyless`
 
-它们的目标不是复制 Vue 模板语法，而是让某些高频模式在 React JSX 中更顺手。
+Their goal is not to replicate Vue template syntax exactly, but to make some high-frequency patterns more ergonomic in React JSX.
 
-## 什么时候会单独安装它
+## When you would install it directly
 
-有两种常见情况：
+There are two common cases:
 
-1. 你正在使用 `@vureact/compiler-core`，需要运行编译产物
-2. 你没有使用编译器，但希望在 React 项目中直接使用 Vue 风格运行时能力
+1. You are using `@vureact/compiler-core` and need to run the compiled output
+2. You are not using the compiler, but still want Vue-style runtime capabilities in a React project
 
-换句话说，`compiler-core` 负责“编译”，`runtime-core` 负责“运行时适配”。
+In short, `compiler-core` handles compilation, while `runtime-core` handles runtime adaptation.
 
-## 常用导出入口
+## Common entry points
 
-默认入口：
+Default entry:
 
 ```ts
 import { useVRef, useWatch, KeepAlive } from '@vureact/runtime-core';
 ```
 
-此外也提供分类导出：
+Category-based exports are also available:
 
 - `@vureact/runtime-core/adapter-hooks`
 - `@vureact/runtime-core/adapter-components`
 - `@vureact/runtime-core/adapter-utils`
 
-适合在你希望按能力分组引用时使用。
+These are useful when you want imports grouped by capability.
 
-## 技术说明
+## Technical note
 
-本库的响应式实现基于 [valtio](https://github.com/pmndrs/valtio)，用于提供 Proxy 驱动的响应式能力。
+The reactive implementation in this package is built on top of [valtio](https://github.com/pmndrs/valtio), which provides Proxy-based reactivity.
 
-## 相关包
+## Related packages
 
-- [@vureact/compiler-core](https://vureact.top/)：Vue 到 React 的编译器与 CLI
-- [@vureact/router](https://router.vureact.top/)：Vue Router 到 React Router 的适配方案
+- [@vureact/compiler-core](https://vureact.top/en/) - Vue-to-React compiler and CLI
+- [@vureact/router](https://router.vureact.top/en/) - Vue Router to React Router adaptation
 
-## 文档入口
+## Documentation
 
-- [Runtime 文档首页](https://runtime.vureact.top/)
+- [Runtime docs home](https://runtime.vureact.top/en/)
+- [Hooks guide](https://runtime.vureact.top/en/guide/hooks/)
+- [Built-in components guide](https://runtime.vureact.top/en/guide/components/)
+- [API docs](https://runtime.vureact.top/en/api/)
 
-## 仓库与许可证
+## Repository and license
 
 - GitHub: <https://github.com/vureact-js/core>
-- 文档: <https://runtime.vureact.top>
+- Docs: <https://runtime.vureact.top/en>
 
 MIT License © 2025 Ruihong Zhong (Ryan John)

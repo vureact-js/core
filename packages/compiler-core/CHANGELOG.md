@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **修复 watch 模式改回初始内容后 React 端未触发热更新的问题**：优化缓存校验，文件恢复初始状态时能正确识别变化并同步产物
-- **移除组件名文件名回退的多余警告**：未显式声明名称时按文件名推导组件名属于正常兜底，不再输出 warning 日志
+- **Fixed React HMR not being triggered in watch mode after restoring a file to its initial content**: improved cache validation so reverting a file to its original state is still recognized as a change and the generated output is updated correctly.
+- **Removed unnecessary warnings for component-name fallback to the filename**: inferring the component name from the filename is now treated as a normal fallback when no explicit name is declared, so no warning is emitted.
 
 ---
 
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **修复增量编译时部分缓存数据丢失的问题**：改进增量编译的缓存持久化逻辑，确保数据完整保存，避免增量编译功能失效
+- **Fixed partial cache data loss during incremental compilation**: improved cache persistence logic to ensure complete data is saved and incremental compilation keeps working reliably.
 
 ---
 
@@ -34,19 +34,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **优化文件扫描效率**：编译期间只扫描一次源文件，各编译阶段共享扫描结果，避免重复遍历目录
-- **优化缓存读写性能**：重构缓存读写机制，编译期间只读写一次缓存文件，避免重复 I/O 操作，全量编译速度提升约 30-40%
-- **优化缓存清理逻辑**：不再每次清理时重复读写磁盘，改为内存操作，避免缓存数据不同步
-- **优化终端输出体验**：统一的步骤化进度提示，编译完成后显示后续操作指引及 GitHub star 请求
+- **Improved file scanning efficiency**: source files are scanned only once per compilation, and all compilation stages share the same scan results to avoid repeated directory traversal.
+- **Improved cache read/write performance**: refactored the cache read/write flow so cache files are read and written only once per compilation, reducing repeated I/O and improving full-build speed by about 30-40%.
+- **Improved cache cleanup logic**: cleanup now operates in memory instead of repeatedly reading and writing disk state, avoiding cache desynchronization.
+- **Improved terminal output experience**: added unified step-by-step progress output and follow-up instructions, including a GitHub star prompt after compilation completes.
 
 ### Fixed
 
-- **修复关闭编译缓存后，全量编译会删除工作区目录，导致输出文件与 Vite 运行环境被清空的问题**：优化清理逻辑，只删除缓存文件本身
-- **修复 CLI 启动时的包版本更新检查功能不生效**：修正更新检查逻辑，确保启动时正确检测并提示新版本
+- **Fixed full compilation deleting the workspace directory when compilation cache was disabled**: cleanup now removes only the cache files themselves, preventing generated output files and the Vite runtime environment from being wiped.
+- **Fixed package update checks not working when the CLI starts**: corrected the update-check logic so new versions are properly detected and reported on startup.
 
 ### Removed
 
-- **移除每个单独编译过程中的重复文件扫描和缓存读写**：改为统一在编译开始时和开始后一次完成，各编译阶段共享结果
+- **Removed repeated file scanning and cache read/write work from individual compilation phases**: these tasks are now performed centrally before and after compilation, and the results are shared across stages.
 
 ---
 
@@ -58,25 +58,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **新增 `:deep()` 转换支持**：支持深度选择器的编译转换，覆盖多种复杂场景（多参数、嵌套等），确保样式穿透至子组件
-- **新增 `:slotted()` 转换支持**：支持插槽选择器的编译转换，允许样式作用域精确作用于插槽内容
-- **新增 `:global()` 转换支持**：支持全局选择器的编译转换，允许在 scoped 样式中声明全局样式规则
+- **Added `:deep()` transform support**: supports deep-selector compilation across complex cases, including multiple arguments and nesting, so styles can penetrate child components correctly.
+- **Added `:slotted()` transform support**: supports slot selector compilation so scoped styles can target slot content precisely.
+- **Added `:global()` transform support**: supports global selector compilation so global style rules can be declared inside scoped styles.
 
 ### Fixed
 
-- **修复 scoped 样式转换时 `data-css-*` 属性未全面覆盖到组件 DOM 元素的问题**：完善作用域属性注入逻辑，确保所有可样式化的 DOM 元素均正确标注作用域属性
-- **修复 scoped 样式转换时 hash 属性错误作用于伪类/伪元素/属性选择器，导致样式失效的问题**：优化选择器解析逻辑，避免将 `scopeId` 错误注入到 `:hover`、`::before`、`[attr]` 等非元素选择器上
-- **修复文件 ID 不存在时无默认值的问题**：改进文件 ID 兜底策略，默认使用时间戳
-- **修复顶层变量被 `useMemo` 优化后，未从 React 中导入该 Hook 的问题**：完善依赖导入逻辑，确保 `useMemo` 被正确引入，避免页面报错
-- **修复对 `v-on` 需包裹函数的识别与处理有误的问题**：优化函数体表达式识别逻辑，确保生成正确的 JSX 语法
-- **修复组件 props 未被作为 Hook 依赖项收集的问题**：完善依赖分析逻辑，确保对 props 的所有访问都能被正确收集为依赖项
+- **Fixed incomplete `data-css-*` scope attribute coverage on component DOM elements during scoped-style transforms**: improved scope-attribute injection so all styleable DOM elements receive the proper scope marker.
+- **Fixed scoped-style hash attributes being incorrectly injected into pseudo-classes, pseudo-elements, and attribute selectors, causing styles to break**: improved selector parsing to avoid injecting `scopeId` into non-element selectors such as `:hover`, `::before`, and `[attr]`.
+- **Fixed missing default fallback when the file ID is absent**: improved fallback behavior to use a timestamp by default.
+- **Fixed missing React `useMemo` imports after top-level variables were optimized into `useMemo`**: improved dependency import injection to ensure `useMemo` is imported correctly.
+- **Fixed incorrect detection and handling of `v-on` cases that require function wrapping**: improved function-body expression recognition to generate valid JSX.
+- **Fixed component props not being collected as Hook dependencies**: improved dependency analysis so all prop accesses are collected correctly.
 
 ### Changed
 
-- **重构 scoped 样式处理逻辑为模块化架构**：将 `postcss.ts` 单文件拆分为 `postcss/` 目录下的多个模块（`index.ts`、`selector.ts`、`standard.ts`、`deep.ts`、`utils.ts`、`types.ts`），提升代码可维护性和可扩展性
-- **优化 scoped 样式选择器处理逻辑，提高转换容错率**：改进选择器解析算法，增强对复杂 CSS 选择器场景的兼容性
-- **重构 `emit` 调用非字符串事件名使用计算属性**：当事件名为动态表达式时，使用计算属性访问 `props[eventName]?.()`，并输出警告信息
-- **重构依赖分析器模块，拆分为多个子模块**：将依赖分析器按职责拆分为独立子模块，提升代码组织性和可维护性
+- **Refactored scoped-style handling into a modular architecture**: split `postcss.ts` into multiple modules under `postcss/` (`index.ts`, `selector.ts`, `standard.ts`, `deep.ts`, `utils.ts`, and `types.ts`) to improve maintainability and extensibility.
+- **Improved scoped-style selector processing and transform tolerance**: enhanced selector parsing for better support across complex CSS selector cases.
+- **Refactored non-string event-name `emit` calls to use computed property access**: dynamic event names now compile to `props[eventName]?.()` and emit a warning.
+- **Refactored the dependency analyzer into multiple submodules**: split responsibilities into smaller modules to improve organization and maintainability.
 
 ---
 
@@ -88,12 +88,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **修复 `<template>` 标签上的 `:key` 属性在多个子元素场景下无法正确处理的问题**：当 `<template>` 标签包含多个子元素时，编译器无法确定应该将 `:key` 属性转移到哪个子元素。现在会发出明确的警告信息，提示用户 `<template>` 应该只有一个子元素，否则无法正确转移 key 属性
-- **修复 `<template>` 标签上的 `:key` 属性被错误地转移到不支持 key 的节点类型的问题**：当 `<template>` 的第一个子元素是 `<template>` 或 `<slot>` 等不支持 key 属性的节点类型时，编译器会跳过 key 转移，甚至可能奔溃报错，避免将 key 属性错误地应用到这些特殊节点上
+- **Fixed `:key` on `<template>` not being handled correctly when the template contains multiple children**: the compiler now emits a clear warning when it cannot determine which child should receive the transferred `key`, and tells users that `<template>` should contain only one child in this case.
+- **Fixed `:key` on `<template>` being incorrectly moved onto node types that do not support `key`**: when the first child is another `<template>`, a `<slot>`, or another unsupported node type, key transfer is skipped to avoid crashes or invalid output.
 
 ### Changed
 
-- **提升运行时适配包的版本号至当前最新**：同步更新运行时适配包版本，确保版本一致性
+- **Raised the runtime adapter package version to the latest available version**: synchronized runtime package versions for consistency.
 
 ---
 
@@ -105,8 +105,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **简化 defineAsyncComponent 预处理逻辑**：仅检查不支持的 hydrate 选项
-- **增加适配器映射**：添加 `defineAsyncComponent` 到适配器映射名单
+- **Simplified `defineAsyncComponent` preprocessing**: now only checks unsupported `hydrate` options.
+- **Expanded adapter mapping**: added `defineAsyncComponent` to the adapter mapping list.
 
 ---
 
@@ -118,20 +118,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **新增 SFC 元数据收集功能**：在解析阶段收集组件定义的 props、emits 和 options 元数据
-- **新增 `useAttrs` 转换支持**：将 Vue 的 `useAttrs()` 调用转换为 React 的 props，并在 TypeScript 环境下自动断言为 `Record` 类型，以隔离原有 props 的类型提示
-- **新增 TypeScript 交叉类型支持**：当组件使用 `useAttrs` 时，自动为 props 类型增加 `Record` 交叉类型，确保类型完整性
+- **Added SFC metadata collection**: component `props`, `emits`, and `options` metadata are now collected during parsing.
+- **Added `useAttrs` transform support**: Vue `useAttrs()` calls are transformed to React props and automatically asserted to a `Record` type in TypeScript to isolate original prop type hints.
+- **Added TypeScript intersection-type support**: when a component uses `useAttrs`, the props type is automatically extended with a `Record` intersection to preserve complete typing.
 
 ### Changed
 
-- **重构脚本元数据收集逻辑**：将解析阶段的脚本元数据收集重构为模块化方案，提升代码可维护性和扩展性
+- **Refactored script metadata collection into a modular parsing-stage solution**: improves maintainability and extensibility.
 
 ### Fixed
 
-- **修复 import 注入与顶部注释位置冲突问题**：优化导入语句注入逻辑，确保与文件顶部的现有注释正确对齐
-- **修复特定指令的 `<template>` 节点错误迁移问题**：改进模板节点处理逻辑，避免将带有特定指令的 `<template>` 节点直接迁移到 React 产物中
-- **修复 `<template>` 节点的 `:key` 属性未正确转移问题**：确保 `<template>` 上的 `:key` 属性被正确转移到其第一个子节点
-- **修复 SFC 顶层 TypeScript 类型声明中函数字段类型错误问题**：修正类型处理逻辑，避免将函数类型字段错误地当成 slot 处理为 `ReactNode` 类型
+- **Fixed conflicts between injected imports and top-of-file comments**: improved import injection to preserve alignment with existing leading comments.
+- **Fixed incorrect migration of `<template>` nodes with specific directives**: improved template-node handling to avoid moving such nodes directly into generated React output.
+- **Fixed `:key` on `<template>` not being transferred correctly**: the `:key` attribute is now moved to the first child node correctly.
+- **Fixed function-field type handling in top-level SFC TypeScript declarations**: function fields are no longer incorrectly treated as slots and rewritten as `ReactNode`.
 
 ---
 
@@ -143,11 +143,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **修复传统 `<script>` 语法支持问题**：传统语法转换不完整，产出不可运行的 React 代码，调整为在编译期直接抛出清晰错误
+- **Fixed support for classic `<script>` syntax**: rather than producing incomplete, non-runnable React output, unsupported classic-script cases now fail clearly at compile time.
 
 ### Changed
 
-- **移除传统语法的残缺处理逻辑**：使用传统语法的项目将无法编译，但避免了运行时错误
+- **Removed incomplete handling for classic script syntax**: projects using classic syntax can no longer compile, but this avoids broken runtime behavior.
 
 ---
 
@@ -159,15 +159,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **修复产物代码中的注释语句位置混乱问题**：改进代码生成逻辑，确保注释位置正确对齐
-- **修复当 Babel 的 minified 选项关闭后，产物组件的 import 模块名丢失字符串引号的问题**：优化 Babel 配置处理，确保模块导入语句格式正确
-- **修复值为简单字面量且非 const 声明也被静态提升的问题**：改进静态提升逻辑，避免对非 const 声明的字面量进行错误提升
-- **修复产物中部分注入到顶部的 import 与已存在的顶部注释位置冲突的问题**：优化导入注入逻辑，确保与现有注释位置兼容
+- **Fixed misplaced comments in generated output**: improved code generation so comment positions stay aligned correctly.
+- **Fixed missing string quotes around imported module names when Babel minification was disabled**: improved Babel config handling so import syntax remains valid.
+- **Fixed simple literal values being hoisted even when the declaration was not `const`**: improved static-hoisting logic to avoid incorrect hoisting.
+- **Fixed conflicts between some injected top-level imports and existing leading comments**: improved import insertion so it remains compatible with existing comment placement.
 
 ### Changed
 
-- **移除组件产物中无用的 @vr 特殊注释**：清理编译产物，移除不再需要的特殊标记注释
-- **不再默认压缩脚本产物的内容**：调整默认编译行为，保留脚本产物的可读性以便于调试
+- **Removed unused `@vr` special comments from generated component output**: cleaned up generated code by removing no-longer-needed marker comments.
+- **Stopped minifying script output by default**: adjusted default compilation behavior to keep generated scripts more readable for debugging.
 
 ---
 
@@ -179,27 +179,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **新增 `output.packageJson` 配置选项**：支持对产物 `package.json` 内容进行自定义配置，提供更灵活的产物管理
+- **Added `output.packageJson` configuration**: allows custom configuration of the generated `package.json` for more flexible output management.
 
 ### Fixed
 
-- **修复部分事件名未规范化与事件处理函数包裹问题**：改进事件处理逻辑，确保事件名格式统一和函数正确包裹
-- **修复非 SFC 脚本文件未跳过 slot 顶层类型改写问题**：优化类型处理逻辑，避免对非 SFC 文件进行不必要的类型改写
-- **修复脚本文件被注入 `React.memo` 导入的问题**：改进导入注入逻辑，避免错误注入 React 优化 API
-- **修复初始化 Vite 失败但终端进程未结束问题**：改进错误处理机制，确保进程在初始化失败时正确退出
-- **修复脚本文件被注入 `dir` 工具包导入的问题**：优化导入分析，避免错误注入工具包导入
-- **修复适配器把同名局部变量识别为 Vue API 的问题**：改进 Vue API 识别逻辑，避免与局部变量冲突
-- **修复 HTML 动态属性值为字符串类型时的格式转换错误**：改进属性值处理，确保字符串类型属性正确转换
-- **修复 HTML 的 `data-*` 为动态属性时，未转换成小驼峰格式**：改进动态属性处理，确保 `data-*` 属性正确转换为小驼峰格式
-- **修复 HTML 属性值为模板字面量时，被编译为纯文本的问题**：改进属性值处理逻辑，确保模板字面量正确保留
+- **Fixed partial event-name normalization and event-handler wrapping behavior**: improved event handling so names are normalized consistently and handlers are wrapped correctly.
+- **Fixed slot top-level type rewriting not being skipped for non-SFC script files**: improved type handling so non-SFC files do not receive unnecessary slot rewrites.
+- **Fixed `React.memo` imports being injected into plain script files**: improved import injection to avoid injecting React optimization APIs incorrectly.
+- **Fixed process not exiting after Vite bootstrap initialization failed**: improved error handling so the process exits correctly on initialization failure.
+- **Fixed `dir` utility imports being injected into script files**: improved import analysis to avoid injecting incorrect utility imports.
+- **Fixed adapters mistaking same-named local variables for Vue APIs**: improved Vue API recognition to avoid collisions with local bindings.
+- **Fixed format conversion for dynamic HTML attribute values of string type**: improved attribute handling so string-valued dynamic attributes are converted correctly.
+- **Fixed dynamic HTML `data-*` attributes not being converted to camelCase**: improved dynamic-attribute handling so `data-*` attributes are rewritten correctly.
+- **Fixed template literals in HTML attribute values being compiled as plain text**: improved attribute-value handling so template literals are preserved properly.
 
 ### Changed
 
-- **不再对 SFC style 块的 `@import` 发出警告**：简化样式导入处理，减少不必要的警告信息
-- **优化需要运行时 import 注入的处理逻辑**：改进运行时导入注入机制，提升编译效率和代码质量
-- **`vue-router` 导入不再删除，映射为 `@vureact-router` 且保留类型导入**：改进路由导入处理，确保类型信息完整保留
-- **提升运行时适配包的版本号至当前最新**：同步更新运行时适配包版本，确保版本一致性
-- **优化作用域样式 ID 注入逻辑**：避免向纯结构元素等不需要样式的元素注入 `scopeId`
+- **Stopped warning on `@import` inside SFC style blocks**: simplified style-import handling and reduced unnecessary warnings.
+- **Improved runtime-import injection handling**: optimized runtime import injection for better compilation quality and efficiency.
+- **Stopped removing `vue-router` imports**: they are now mapped to `@vureact-router` while preserving type imports.
+- **Raised the runtime adapter package version to the latest available version**: synchronized runtime package versions for consistency.
+- **Improved scoped-style ID injection logic**: avoids injecting `scopeId` into purely structural elements and other elements that do not require styling.
 
 ---
 
@@ -211,48 +211,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **新增 React 产物入口文件注入路由提供器**：自动在编译后的 React 项目中注入路由提供器，简化路由配置
-- **新增文件锁读写机制**：基于 `proper-lockfile` 实现跨进程文件锁，解决并发编译场景下的数据混乱问题
-- **新增支持在 `bootstrapVite` 选项中指定 Vite 版本和 React 版本**：允许用户自定义 Vite 和 React 的安装版本
-- **新增全量编译失败后自动移除工作区产物**：编译失败时自动清理不完整的输出，保持工作区干净
-- **新增支持 TypeScript 类型的 vureact 配置文件**：支持 `vureact.config.ts` 配置文件，提供更好的类型提示
-- **新增批量缓存更新功能**：优化缓存管理，支持批量更新和清理缓存记录
-- **新增 SetupManager 架构**：重构编译器管理器依赖注入，提供更清晰的依赖管理
-- **新增配置加载器和合并器**：分离配置加载逻辑，支持更灵活的配置合并策略
+- **Added automatic router provider injection into generated React entry files**: simplifies routing setup in compiled React projects.
+- **Added file-lock read/write support**: uses `proper-lockfile` for cross-process file locking to prevent data corruption during concurrent compilation.
+- **Added support for specifying Vite and React versions inside `bootstrapVite`**: allows custom installation versions for Vite and React.
+- **Added automatic workspace cleanup after full compilation failure**: removes incomplete output automatically to keep the workspace clean.
+- **Added TypeScript support for VuReact config files**: supports `vureact.config.ts` with better type hints.
+- **Added batch cache-update support**: improves cache management with batch update and cleanup behavior.
+- **Added the `SetupManager` architecture**: refactors compiler-manager dependency injection for clearer dependency management.
+- **Added config loaders and mergers**: separates config loading logic and enables more flexible config merge strategies.
 
 ### Fixed
 
-- **修复未初始化 Vite 时导致项目构建失败问题**：改进 Vite 初始化流程，提供更好的错误处理
-- **修复被优化为 `useMemo` 的顶层变量声明，其内部依赖收集不精确**：改进依赖分析器，只收集引用的根变量
-- **修复被优化为 `useMemo` 的顶层变量声明，在其他地方使用时未被识别为可收集的依赖**：优化依赖识别逻辑
-- **修复编译器 CLI 选项总是覆盖用户配置**：改进配置合并策略，CLI 选项只覆盖必要的路径相关配置
-- **修复首次编译出现 JSON 解析报错问题**：改进缓存文件读取，提供更好的错误恢复
-- **修复并发编译场景下，多个进程操作同一文件导致数据混乱**：通过文件锁机制确保数据一致性
-- **修复每次执行全量编译，都有一部分缓存数据丢失，导致增量编译功能失效**：改进缓存持久化逻辑
-- **修复关闭 Vite 初始化导致未创建工作区目录**：确保工作区目录始终被正确创建
-- **修复每次编译时静态资产的拷贝没有经过缓存优化**：改进资产管理器缓存逻辑
-- **修复删除原样式文件后，对应产物文件未被删除**：完善清理管理器，支持样式文件清理
-- **修复当删除文件并重新编译后，缓存记录未更新**：改进缓存更新机制
-- **修复静态资产无改动但重复构建仍出现已处理了多少文件，且无改动资产未计入缓存数**：优化资产处理统计
-- **修复删除样式文件后，没有同步删除对应产物文件和缓存记录**：完善样式文件清理流程
+- **Fixed project build failures when Vite was not initialized**: improved the Vite bootstrap flow and error handling.
+- **Fixed imprecise dependency collection inside top-level declarations optimized into `useMemo`**: the dependency analyzer now collects only referenced root variables.
+- **Fixed top-level declarations optimized into `useMemo` not being recognized as collectible dependencies elsewhere**: improved dependency recognition logic.
+- **Fixed CLI options always overriding user configuration**: improved config merging so CLI options override only the required path-related settings.
+- **Fixed JSON parse errors on the first compilation**: improved cache-file reads and error recovery.
+- **Fixed data corruption when multiple processes operated on the same files during concurrent compilation**: file locking now ensures consistency.
+- **Fixed partial cache data loss on every full compilation, which broke incremental compilation**: improved cache persistence logic.
+- **Fixed workspace directories not being created when Vite bootstrap was disabled**: the workspace is now always created correctly.
+- **Fixed static asset copies bypassing cache optimization on every compilation**: improved asset-manager cache behavior.
+- **Fixed generated output files not being removed after deleting the original style files**: improved cleanup handling for style files.
+- **Fixed cache records not being updated after deleting files and recompiling**: improved cache update behavior.
+- **Fixed unchanged static assets still being counted repeatedly as processed during rebuilds, while unchanged assets were not counted as cached**: improved asset-processing statistics.
+- **Fixed cache records and generated output not being removed after style files were deleted**: improved style cleanup behavior.
 
 ### Changed
 
-- **优化外部 import 不再作为依赖被收集**：减少不必要的依赖收集，提升编译性能
-- **优化函数内部的依赖收集不再把所有外部函数都无条件收集**：只收集已分析过的函数，减少误判
-- **优化对对象访问形式的依赖添加一层可选链保护**：防止运行时的空值访问导致崩溃
-- **优化 CLI 只保留路径相关的必要选项**：简化 CLI 接口，移除行为相关配置
-- **优化对静态资产的缓存维护流程**：改进资产缓存管理，提升性能
-- **优化全量编译后的 CLI 统计信息**：提供更清晰的编译统计报告
-- **优化依赖分析器**：重构路由配置，提升编译质量，减少不必要的 `useCallback` 包装
-- **优化编译器架构**：引入模块化类型和函数式配置，提升代码可维护性
+- **Stopped collecting external imports as dependencies**: reduces unnecessary dependency collection and improves compile performance.
+- **Improved function-scope dependency collection so not every external function is collected unconditionally**: now only analyzed functions are collected, reducing false positives.
+- **Added optional-chaining protection for object-access dependencies**: avoids runtime crashes caused by nullish access.
+- **Simplified CLI options to path-related essentials only**: removed behavior-related configuration from the CLI interface.
+- **Improved cache maintenance for static assets**: refactored asset cache handling for better performance.
+- **Improved CLI statistics after full compilation**: provides clearer compilation summaries.
+- **Improved the dependency analyzer**: refactored route configuration handling, improved output quality, and reduced unnecessary `useCallback` wrapping.
+- **Improved compiler architecture**: introduced modular types and functional configuration for better maintainability.
 
 ### Removed
 
-- **移除在项目工程中自动输出路由适配指南的功能**：简化输出，路由配置现在通过注入提供器实现
-- **移除 CLI 所有与行为相关的配置选项**：简化 CLI 接口，只保留必要的路径配置
-- **移除编译器 templates 目录**：删除不再使用的路由配置模板文件
-- **移除大量冗长注释，简化类和方法文档**：保持代码简洁，提高可读性
+- **Removed automatic output of router adaptation guides inside generated projects**: routing is now configured through injected providers instead.
+- **Removed all behavior-related CLI configuration options**: the CLI now keeps only essential path configuration.
+- **Removed the compiler `templates` directory**: deleted unused router template files.
+- **Removed many long comments and simplified class/method documentation**: keeps the codebase cleaner and easier to read.
 
 ---
 
@@ -264,23 +264,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 新增 CLI 更新检查功能，启动时自动检查新版本
-- 新增路由配置说明文档，使用路由时自动生成配置指南
-- 新增对 `update-notifier` 依赖的支持
+- **Added CLI update checks**: new versions are checked automatically when the CLI starts.
+- **Added route configuration documentation**: usage guides are generated automatically when routing is enabled.
+- **Added support for the `update-notifier` dependency**.
 
 ### Fixed
 
-- 修复 `v-for` 循环中 ref 变量访问，自动添加 `.value` 后缀
-- 修复事件调用转换，统一改为可选调用（`onClick?.()`）
-- 修复依赖分析中的可选链保护，避免 ref.value 访问导致的运行时错误
-- 修复缓存管理，避免存储样式源码，减少缓存体积
-- 修复 CLI 构建配置，确保正确的 shebang 注入
+- **Fixed ref variable access inside `v-for` loops**: `.value` is now appended automatically where required.
+- **Fixed event-call transforms**: event calls are now normalized to optional invocation (`onClick?.()`).
+- **Fixed optional-chaining protection in dependency analysis**: prevents runtime errors caused by `ref.value` access.
+- **Fixed cache management to avoid storing raw style source code**: reduces cache size.
+- **Fixed CLI build configuration to ensure the correct shebang is injected**.
 
 ### Changed
 
-- 优化示例项目结构，移除旧的示例项目
-- 更新 README 文档，改进项目描述和徽章布局
-- 优化编译管线执行流程，改进错误处理和进度显示
+- **Improved the example project layout**: removed old example projects.
+- **Updated the README**: improved the project description and badge layout.
+- **Improved compilation pipeline execution**: better error handling and progress reporting.
 
 ---
 
@@ -292,16 +292,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- 修复 `provide` 转换逻辑，改进 Provider 组件的属性处理
-- 修复事件调用转换，统一将事件调用变为可选的（`onClick?.()`）
-- 修复 `v-model` 转换中的事件名生成逻辑
-- 修复模板中 `template` 和 `slot` 出口节点不应注入 `scopeId` 的问题
-- 修复插槽作用域参数类型定义，支持包含连字符等非法标识符的字段
-- 修复 `ReactNode` 等类型导入，确保正确添加 `type` 修饰符
-- 修复 Vue Router 历史模式 API 的适配映射
-- 修复 `emit` 事件名格式化，支持 `update:xxx` -> `onUpdateXxx` 转换
-- 修复 `provide` 处理顺序，确保在重命名之前收集并移除原始调用
-- 修复样式作用域属性注入逻辑，避免在特定节点上错误注入
+- **Fixed `provide` transform logic**: improved prop handling for the generated Provider component.
+- **Fixed event-call transforms**: all event calls are now rewritten to optional invocation form (`onClick?.()`).
+- **Fixed event-name generation in `v-model` transforms**.
+- **Fixed `scopeId` injection on `template` and `slot` outlet nodes in templates**: these nodes no longer receive invalid scope markers.
+- **Fixed slot-scope parameter typing**: now supports fields with hyphens and other non-identifier names.
+- **Fixed imports for types such as `ReactNode`**: the `type` modifier is now injected correctly.
+- **Fixed Vue Router history-mode API adapter mappings**.
+- **Fixed `emit` event-name formatting**: supports transforms such as `update:xxx` -> `onUpdateXxx`.
+- **Fixed `provide` transform ordering**: original calls are now collected and removed before renaming occurs.
+- **Fixed scope-attribute injection logic**: avoids incorrect injection on specific node types.
 
 ---
 
@@ -313,10 +313,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 新增对 `defineExpose` 宏 API 的转换处理
-- 新增使用 `defineExpose` 的场景下，通过 `React.forwardRef` 包装组件
-- 优化 API 适配处理
-- 优化对组件 ref 的处理
+- **Added transform support for the `defineExpose` macro API**.
+- **Added `React.forwardRef` wrapping for components that use `defineExpose`**.
+- **Improved API adaptation handling**.
+- **Improved component ref handling**.
 
 ---
 
@@ -326,9 +326,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 2026-03-05
 
-### Fiexd
+### Fixed
 
-- 修复当样式预处理启用时，样式文件里导入的 `.less`/`.scss` 文件后缀没有替换成 `.css`
+- **Fixed imported `.less` and `.scss` file extensions not being rewritten to `.css` when style preprocessing was enabled**.
 
 ---
 
@@ -340,8 +340,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- 新增单独对 style 文件的编译处理，如 `.less` 和 `.sass` 等
-- 支持对文件内 import 的样式文件，如 `.scss` 等替换成 `.css`
+- **Added standalone compilation support for style files** such as `.less` and `.sass`.
+- **Added support for rewriting imported style files such as `.scss` to `.css`**.
 
 ---
 
@@ -351,10 +351,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.4] - 2026-03-05
 
-### Fiexd
+### Fixed
 
-- 修复当是默认插槽且没有参数，或者是非作用域插槽（没有参数），则使用 ReactNode 类型
-- 修复当 ignoreAssets 选项没有配置时，预设的排除列表没有生效
+- **Fixed slot typing so default slots without parameters, and non-scoped slots, use `ReactNode`**.
+- **Fixed preset ignore lists not taking effect when `ignoreAssets` was not configured**.
 
 ---
 
@@ -364,10 +364,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.3] - 2026-03-04
 
-### Fiexd
+### Fixed
 
-- 修复只有当 Vue 组件有 props 时，编译后的 TSX 组件才返回组件函数参数
-- 修复 Vue 模板编译到 JSX 时，文本中的特殊字符没有被正确处理
+- **Fixed generated TSX components so function parameters are emitted only when the original Vue component actually has props**.
+- **Fixed special characters in template text not being handled correctly during Vue-template-to-JSX compilation**.
 
 ---
 
@@ -379,7 +379,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- 修复 VUE_PACKAGES 常量配置，添加 `@vureact/compiler-core` 到排除列表，避免将其带到 React 项目中
+- **Fixed the `VUE_PACKAGES` constant configuration**: added `@vureact/compiler-core` to the exclusion list so it is not carried into generated React projects.
 
 ---
 
@@ -395,7 +395,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- 修复生产环境CLI入口文件引用错误
+- **Fixed incorrect production CLI entry references**.
 
 ### Docs
 
@@ -410,203 +410,203 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-03-03
 
-### 🚩 里程碑版本：VuReact 1.0.0 —— "心灵控制"
+### 🚩 Milestone Release: VuReact 1.0.0 — "Mind Control"
 
-这是 VuReact 的第一个先行版本，代号"心灵控制"。此版本标志着 Vue 到 React 编译从概念验证走向工程实践的重要里程碑。
+This is the first preview release of VuReact, codenamed "Mind Control." It marks an important milestone in moving Vue-to-React compilation from proof of concept into engineering practice.
 
-### ✨ 核心特性
+### ✨ Core Features
 
-- **完整的编译流水线架构**：基于 Babel 和 Vue SFC 编译器的现代化编译架构
-- **Vue 3 SFC 全面支持**：完整支持 `<template>`、`<script setup>`、`<style>` 三部分编译
-- **TypeScript 无缝迁移**：完整保留类型定义，自动生成 React 组件类型接口
-- **零运行时样式系统**：编译时处理 scoped/module 样式，生成静态 CSS 文件
-- **响应式系统智能适配**：`ref`、`computed`、`watch`、`reactive` 等 Vue 3 API 的 React Hooks 适配
+- **Complete compilation pipeline architecture**: a modern compiler architecture built on Babel and the Vue SFC compiler.
+- **Comprehensive Vue 3 SFC support**: full compilation support for `<template>`, `<script setup>`, and `<style>`.
+- **Seamless TypeScript migration**: preserves type definitions and generates React component prop types automatically.
+- **Zero-runtime styling system**: processes scoped and module styles at compile time and outputs static CSS files.
+- **Intelligent reactive-system adaptation**: adapts Vue 3 APIs such as `ref`, `computed`, `watch`, and `reactive` into React Hooks.
 
 ### Added
 
-#### 编译器核心功能
+#### Compiler Core
 
-- **文件编译器 (`FileCompiler`)**：支持单文件和批量编译，提供统一的编译接口
-- **配置系统**：支持 `vureact.config.js` 配置文件，可自定义编译选项
-- **插件系统架构**：预留插件接口，支持自定义转换规则
-- **智能缓存机制**：基于文件哈希的增量编译，大幅提升编译速度
-- **错误恢复机制**：优雅的错误处理和恢复，避免单文件错误影响整体编译
+- **File compiler (`FileCompiler`)**: supports both single-file and batch compilation through a unified interface.
+- **Configuration system**: supports `vureact.config.js` for custom compilation behavior.
+- **Plugin-system architecture**: reserves plugin hooks for custom transform rules.
+- **Intelligent cache mechanism**: hash-based incremental compilation for substantially faster builds.
+- **Error recovery**: graceful error handling and recovery so single-file failures do not break the whole compilation run.
 
-#### 模板转换能力
+#### Template Transforms
 
-- **Vue 模板到 JSX 转换**：完整支持 Vue 模板语法到 React JSX 的转换
-- **指令系统支持**：`v-if`、`v-else`、`v-else-if`、`v-for`、`v-model`、`v-show`、`v-on`、`v-bind` 等指令转换
-- **事件系统转换**：`@click`、`@input` 等事件监听器转换为 React 事件系统
-- **插槽系统适配**：Vue 插槽（默认插槽、具名插槽、作用域插槽）转换为 React children/props
-- **动态组件支持**：`<component :is="...">` 转换为 React 动态组件
+- **Vue template to JSX transforms**: full support for converting Vue template syntax into React JSX.
+- **Directive support**: transforms for `v-if`, `v-else`, `v-else-if`, `v-for`, `v-model`, `v-show`, `v-on`, `v-bind`, and more.
+- **Event-system transforms**: converts listeners such as `@click` and `@input` into React's event model.
+- **Slot-system adaptation**: converts default, named, and scoped Vue slots into React children/props patterns.
+- **Dynamic component support**: transforms `<component :is="...">` into React dynamic-component patterns.
 
-#### 脚本转换能力
+#### Script Transforms
 
-- **`<script setup>` 语法支持**：完整支持 Vue 3 `<script setup>` 语法糖
-- **Composition API 转换**：`defineProps`、`defineEmits`、`defineExpose` 等编译宏转换
-- **响应式 API 适配**：
-  - `ref()` → `useState()` / `useRef()`
-  - `computed()` → `useMemo()`
-  - `watch()` → `useEffect()` + 依赖追踪
-  - `reactive()` → 自定义响应式 Hook
-- **生命周期钩子映射**：Vue 生命周期钩子转换为 React 生命周期
-- **Provide/Inject 转换**：Vue 依赖注入系统转换为 React Context
+- **`<script setup>` support**: full support for Vue 3 `<script setup>` syntax sugar.
+- **Composition API transforms**: support for compiler macros such as `defineProps`, `defineEmits`, and `defineExpose`.
+- **Reactive API adaptation**:
+  - `ref()` -> `useState()` / `useRef()`
+  - `computed()` -> `useMemo()`
+  - `watch()` -> `useEffect()` + dependency tracking
+  - `reactive()` -> custom reactive hooks
+- **Lifecycle hook mapping**: Vue lifecycle hooks are mapped into React lifecycle behavior.
+- **Provide/Inject transforms**: converts Vue dependency injection into React Context patterns.
 
-#### 样式处理能力
+#### Style Processing
 
-- **Scoped CSS 支持**：自动生成唯一选择器，实现样式隔离
-- **CSS Modules 支持**：`.module.css`、`.module.scss`、`.module.less` 文件支持
-- **预处理器集成**：内置 Sass、Less、Stylus 支持
-- **PostCSS 处理**：支持 PostCSS 插件链
-- **样式提取**：将样式从 SFC 中提取为独立的 CSS 文件
+- **Scoped CSS support**: automatically generates unique selectors for style isolation.
+- **CSS Modules support**: supports `.module.css`, `.module.scss`, and `.module.less`.
+- **Preprocessor integration**: built-in Sass, Less, and Stylus support.
+- **PostCSS processing**: supports PostCSS plugin chains.
+- **Style extraction**: extracts styles from SFCs into standalone CSS files.
 
-#### CLI 工具链
+#### CLI Tooling
 
-- **`vureact build` 命令**：一次性编译整个项目
-- **`vureact watch` 命令**：监听文件变化，实时编译
-- **进度指示器**：使用 `ora` 提供友好的编译进度反馈
-- **彩色输出**：使用 `kleur` 提供高可读性的彩色终端输出
-- **配置文件自动发现**：自动查找项目中的 `vureact.config.js`
+- **`vureact build` command**: one-shot compilation for an entire project.
+- **`vureact watch` command**: watches files and recompiles on change.
+- **Progress indicators**: uses `ora` for friendly compile progress feedback.
+- **Colorized output**: uses `kleur` for readable terminal output.
+- **Automatic config discovery**: finds `vureact.config.js` automatically in the project.
 
-#### 工程化支持
+#### Engineering Support
 
-- **Vite 项目集成**：自动初始化标准 React + TypeScript + Vite 项目结构
-- **混合开发模式**：支持 Vue 和 React 组件在同一项目中并存和互操作
-- **依赖分析**：智能分析 import 依赖，确保正确的导入路径转换
-- **路径别名支持**：支持 Webpack/Vite 路径别名配置
-- **资源文件处理**：图片、字体等静态资源文件的复制和处理
+- **Vite project integration**: automatically bootstraps a standard React + TypeScript + Vite project layout.
+- **Hybrid development mode**: allows Vue and React components to coexist and interoperate in one project.
+- **Dependency analysis**: analyzes import dependencies intelligently to rewrite import paths correctly.
+- **Path alias support**: supports Webpack and Vite path alias configuration.
+- **Asset handling**: copies and processes images, fonts, and other static assets.
 
 ### Changed
 
-#### 架构改进
+#### Architecture Improvements
 
-- **模块化架构重构**：将编译器拆分为核心模块、CLI 模块、工具模块
-- **类型系统强化**：使用 TypeScript 严格模式，提供完整的类型定义
-- **构建系统优化**：使用 `tsup` 进行构建，支持 ESM 和 CJS 双格式输出
-- **依赖管理优化**：精确控制依赖版本，减少包体积
+- **Modular architecture refactor**: split the compiler into core, CLI, and utility modules.
+- **Stronger type system**: uses TypeScript strict mode and provides comprehensive type definitions.
+- **Build system optimization**: uses `tsup` and outputs both ESM and CJS formats.
+- **Dependency management optimization**: controls dependency versions precisely to reduce package size.
 
-#### 性能优化
+#### Performance Improvements
 
-- **编译速度提升**：通过缓存和并行处理优化编译性能
-- **内存使用优化**：改进 AST 处理，减少内存占用
-- **增量编译优化**：基于内容哈希的智能缓存失效策略
+- **Faster compilation**: improves performance through caching and parallel processing.
+- **Lower memory usage**: improves AST processing to reduce memory overhead.
+- **Better incremental compilation**: uses content-hash-based cache invalidation.
 
-#### 开发者体验
+#### Developer Experience
 
-- **错误信息改进**：提供更详细、可操作的错误信息和代码位置提示
-- **警告系统**：非致命问题提供警告而非错误，允许继续编译
-- **调试支持**：提供详细的调试日志选项
-- **文档完善**：提供完整的 API 文档和使用示例
+- **Better error messages**: provides more detailed and actionable diagnostics with code locations.
+- **Warning system**: non-fatal problems now surface as warnings instead of hard failures where possible.
+- **Debug support**: adds more detailed debug logging options.
+- **Documentation improvements**: provides fuller API docs and usage examples.
 
 ### Fixed
 
-#### 模板转换修复
+#### Template Transform Fixes
 
-- **复杂嵌套模板**：修复多层 `v-if`、`v-for` 嵌套的转换问题
-- **条件渲染边界情况**：修复 `v-if` 与 `v-else` 配合使用的边界情况
-- **列表渲染 Key**：自动为 `v-for` 生成的元素添加合适的 `key` 属性
-- **事件修饰符**：修复 `.stop`、`.prevent`、`.self` 等事件修饰符的处理
-- **动态属性绑定**：修复 `:class`、`:style` 动态绑定的转换
+- **Complex nested templates**: fixed transform issues in deeply nested `v-if` and `v-for` scenarios.
+- **Conditional rendering edge cases**: fixed edge cases involving `v-if` used together with `v-else`.
+- **List rendering keys**: automatically adds appropriate `key` props to elements generated from `v-for`.
+- **Event modifiers**: fixed handling for modifiers such as `.stop`, `.prevent`, and `.self`.
+- **Dynamic bindings**: fixed transforms for `:class`, `:style`, and similar dynamic bindings.
 
-#### 脚本转换修复
+#### Script Transform Fixes
 
-- **类型推导改进**：改进 TypeScript 类型在转换过程中的保留和推导
-- **泛型组件支持**：修复泛型 Vue 组件转换为 React 组件的问题
-- **异步组件处理**：修复 `defineAsyncComponent` 的转换
-- **自定义指令**：修复自定义指令的基本支持
-- **全局属性访问**：修复 `$attrs`、`$slots`、`$emit` 等全局属性的访问
+- **Type inference improvements**: improved preservation and inference of TypeScript types during transforms.
+- **Generic component support**: fixed Vue generic component transforms into React.
+- **Async component handling**: fixed transforms for `defineAsyncComponent`.
+- **Custom directives**: fixed baseline support for custom directives.
+- **Global property access**: fixed access to globals such as `$attrs`, `$slots`, and `$emit`.
 
-#### 样式处理修复
+#### Style Processing Fixes
 
-- **Scoped CSS 选择器**：修复复杂选择器在 scoped 模式下的生成
-- **深度选择器**：修复 `::v-deep`、`:deep()` 等深度选择器的处理
-- **CSS 变量支持**：修复 CSS 自定义变量的传递和处理
-- **媒体查询**：修复包含媒体查询的样式处理
-- **样式优先级**：确保转换后的样式保持正确的优先级顺序
+- **Scoped CSS selectors**: fixed generation for complex selectors under scoped mode.
+- **Deep selectors**: fixed handling for `::v-deep`, `:deep()`, and similar patterns.
+- **CSS variable support**: fixed CSS custom-property propagation and handling.
+- **Media queries**: fixed processing for styles containing media queries.
+- **Style priority**: ensures generated styles preserve the correct cascade order.
 
-#### 工程问题修复
+#### Engineering Fixes
 
-- **导入路径解析**：修复相对路径和别名路径的解析问题
-- **循环依赖检测**：改进循环依赖的检测和处理
-- **文件编码处理**：正确处理不同编码的源文件
-- **行尾符一致性**：确保生成文件的行尾符一致性
+- **Import path resolution**: fixed relative-path and alias-path resolution.
+- **Circular dependency detection**: improved detection and handling of circular dependencies.
+- **File encoding handling**: correctly handles source files with different encodings.
+- **Line-ending consistency**: ensures generated files use consistent line endings.
 
 ### Security
 
-#### 依赖安全
+#### Dependency Security
 
-- **定期依赖更新**：所有生产依赖更新到最新安全版本
-- **开发依赖管理**：开发工具链保持最新稳定版本
-- **安全审计**：使用 npm audit 定期进行安全审计
+- **Regular dependency updates**: all production dependencies were updated to the latest secure versions.
+- **Development dependency management**: development tooling stays on the latest stable versions.
+- **Security audits**: uses `npm audit` regularly.
 
-#### 代码安全
+#### Code Security
 
-- **输入验证**：对所有用户输入进行严格的验证和清理
-- **路径遍历防护**：防止路径遍历攻击
-- **代码注入防护**：确保生成的代码安全无注入漏洞
+- **Input validation**: validates and sanitizes all user inputs strictly.
+- **Path traversal protection**: protects against path traversal.
+- **Code-injection prevention**: ensures generated code is free from injection vulnerabilities.
 
-#### 构建安全
+#### Build Security
 
-- **源码完整性**：确保构建过程不引入恶意代码
-- **发布验证**：严格的发布前验证流程
-- **签名验证**：考虑未来添加发布包签名验证
+- **Source integrity**: ensures the build process does not introduce malicious code.
+- **Release verification**: adds a strict pre-release validation flow.
+- **Signature verification planning**: considers future package-signing support.
 
-### 🔧 技术栈详情
+### 🔧 Tech Stack Details
 
-#### 核心依赖
+#### Core Dependencies
 
-- **@vue/compiler-sfc**: Vue 3 SFC 解析器，用于解析 `.vue` 文件
-- **@babel/parser**: Babel 解析器，用于解析 JavaScript/TypeScript
-- **@babel/traverse**: Babel AST 遍历器，用于代码转换
-- **@babel/generator**: Babel 代码生成器，用于生成目标代码
-- **postcss**: CSS 处理工具，用于样式转换和优化
+- **@vue/compiler-sfc**: parses Vue 3 SFC files.
+- **@babel/parser**: parses JavaScript and TypeScript.
+- **@babel/traverse**: traverses Babel ASTs for transforms.
+- **@babel/generator**: generates target code from transformed ASTs.
+- **postcss**: processes and optimizes styles.
 
-#### 开发工具
+#### Development Tooling
 
-- **TypeScript**: 类型安全的开发体验
-- **tsup**: 极速构建工具，支持 ESM/CJS 双格式
-- **tsx**: TypeScript 执行环境，用于开发和测试
+- **TypeScript**: type-safe development.
+- **tsup**: fast build tooling with dual ESM/CJS output.
+- **tsx**: TypeScript execution environment for development and testing.
 
-#### CLI 工具
+#### CLI Tooling
 
-- **cac**: 轻量级 CLI 框架
-- **ora**: 优雅的终端 spinner
-- **kleur**: 终端彩色输出
-- **chokidar**: 高效的文件监听库
+- **cac**: lightweight CLI framework.
+- **ora**: terminal spinner.
+- **kleur**: colored terminal output.
+- **chokidar**: efficient file watching.
 
-#### 样式处理
+#### Style Processing
 
-- **sass**: Sass/SCSS 预处理器
-- **less**: Less 预处理器
-- **autoprefixer**: 自动添加 CSS 前缀
+- **sass**: Sass/SCSS preprocessor.
+- **less**: Less preprocessor.
+- **autoprefixer**: automatic CSS vendor-prefix handling.
 
-### 📁 项目结构
+### 📁 Project Structure
 
 ```txt
 compiler-core/
 ├── src/
-│   ├── cli/                    # CLI 命令行工具
-│   │   ├── index.ts           # CLI 入口
-│   │   ├── action.ts          # 命令执行逻辑
-│   │   └── option.ts          # 命令行选项解析
-│   ├── compiler/              # 编译器核心
-│   │   ├── index.ts           # 编译器主入口
-│   │   ├── context/           # 编译上下文
-│   │   └── shared/            # 共享编译逻辑
-│   │       ├── base-compiler.ts  # 基础编译器
-│   │       ├── file-compiler.ts  # 文件编译器
-│   │       ├── define-config.ts  # 配置定义
-│   │       └── types.ts       # 类型定义
-│   ├── plugins/               # 插件系统（预留）
-│   ├── shared/                # 共享工具
-│   ├── utils/                 # 工具函数
-│   └── consts/                # 常量定义
-├── examples/                  # 示例项目
-│   ├── 01-messy-vue-sfc/     # 复杂 Vue 项目示例
-│   └── 02-vite-vue3-standard/ # 标准 Vite Vue 项目
-├── lib/                       # 构建输出目录
-├── bin/                       # CLI 可执行文件
-└── package.json              # 项目配置
+│   ├── cli/                    # CLI command tooling
+│   │   ├── index.ts           # CLI entry
+│   │   ├── action.ts          # command execution logic
+│   │   └── option.ts          # CLI option parsing
+│   ├── compiler/              # compiler core
+│   │   ├── index.ts           # compiler entry
+│   │   ├── context/           # compilation context
+│   │   └── shared/            # shared compilation logic
+│   │       ├── base-compiler.ts  # base compiler
+│   │       ├── file-compiler.ts  # file compiler
+│   │       ├── define-config.ts  # config definitions
+│   │       └── types.ts       # type definitions
+│   ├── plugins/               # plugin system (reserved)
+│   ├── shared/                # shared utilities
+│   ├── utils/                 # helper functions
+│   └── consts/                # constants
+├── examples/                  # example projects
+│   ├── 01-messy-vue-sfc/      # complex Vue project example
+│   └── 02-vite-vue3-standard/ # standard Vite Vue project
+├── lib/                       # build output
+├── bin/                       # CLI executables
+└── package.json              # project config
 ```
 
 ---
