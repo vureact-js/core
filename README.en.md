@@ -4,7 +4,7 @@
 
  <h1>VuReact</h1>
 
-**Write Vue, generate maintainable React.**
+**Write Vue. Get Pure React.**
 
 > Automate Vue to React compilation tool, fully converting Vue 3 SFC・Script・Style into pure React 18+ components (no runtime bridging)
 >
