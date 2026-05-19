@@ -6,10 +6,9 @@
 
 **Write Vue, generate maintainable React.**
 
-> A Vue-to-React compile-time toolchain that converts Vue 3 SFC・Script・Style
-> into pure React 18+ components — not a runtime bridge.
+> Automate Vue to React compilation tool, fully converting Vue 3 SFC・Script・Style into pure React 18+ components (no runtime bridging)
 >
-> Prioritizes `<script setup>` with broad core feature coverage, and supports progressive migration and hybrid development.
+> Covers the core features of `<script setup>`, supporting incremental migration and hybrid development
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
