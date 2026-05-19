@@ -6,9 +6,9 @@
 
 **写 Vue，生成可维护的 React。**
 
-> Vue 转 React 编译工具链，将 Vue 3 SFC・Script・Style 完整转为纯 React 18+ 组件（非运行时桥接）
+> 自动化 Vue 转 React 编译工具，将 Vue 3 SFC・Script・Style 完整转为纯 React 18+ 组件（非运行时桥接）
 >
-> 优先支持 `<script setup>` 覆盖核心全特性，支持渐进式迁移和混合开发
+> 覆盖 `<script setup>` 核心全特性，支持渐进式迁移和混合开发
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
