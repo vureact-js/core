@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **修复 `useWatch` 回调参数类型推导**：当 `source` 为未解包的 `Ref` 时，回调参数能自动推导为解包后的类型
+- **Fixed callback parameter type inference for `useWatch`**: when `source` is an unwrapped `Ref`, callback parameters are now inferred automatically as the unwrapped value type.
 
 ---
 
@@ -21,14 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **新增 `defineAsyncComponent` 适配器工具**：完整的异步组件支持，包含类型定义和测试用例
-- **重构 `Suspense` 组件为目录结构**：将 Suspense 组件重构为模块化目录结构，添加上下文支持
-- **新增 Suspense 子组件**：添加 `Suspense/Content.tsx` 和 `Suspense/Fallback.tsx` 组件，提供更灵活的 Suspense 使用方式
+- **Added a `defineAsyncComponent` adapter utility**: full async-component support, including type definitions and test coverage.
+- **Refactored `Suspense` into a directory-based module structure**: split the component into a modular layout and added context support.
+- **Added `Suspense` subcomponents**: introduced `Suspense/Content.tsx` and `Suspense/Fallback.tsx` for more flexible Suspense usage patterns.
 
 ### Changed
 
-- **优化 package.json 描述和关键词**：更新项目描述，添加更多相关关键词，提升可发现性
-- **重构构建脚本**：将 `clean` 和 `build` 命令合并为单个 `build` 命令，简化构建流程
+- **Improved the `package.json` description and keywords**: updated package metadata to improve discoverability.
+- **Refactored build scripts**: merged the old `clean` and `build` commands into a single `build` command to simplify the build flow.
 
 ---
 
@@ -40,14 +40,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **重构 README 文件结构**：将中文设为主要语言，英文作为备选版本，优化文档组织结构
-- **添加 npm 包徽章**：在 README 中添加版本、下载量、许可证和 React 版本徽章，提升项目可信度
-- **更新作者信息**：将作者信息从 "Ryan John" 更新为 "Ruihong Zhong (Ryan John)"
-- **优化项目主页链接**：移除主页链接中的语言后缀，统一使用主域名
+- **Refactored the README structure**: made Chinese the primary language version and English the alternate version, improving documentation organization.
+- **Added npm package badges**: included version, download count, license, and React version badges in the README to improve package credibility.
+- **Updated author information**: changed the author field from "Ryan John" to "Ruihong Zhong (Ryan John)".
+- **Improved project homepage links**: removed language suffixes from homepage URLs and standardized on the root domain.
 
 ### Fixed
 
-- **修复 repository.directory 配置**：将目录路径从 `tree/master/packages/runtime-core` 修正为 `packages/runtime-core`
+- **Fixed `repository.directory` configuration**: changed the path from `tree/master/packages/runtime-core` to `packages/runtime-core`.
 
 ---
 
@@ -57,153 +57,153 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-03-04
 
-### 🚀 里程碑版本：@vureact/runtime-core 1.0.0 —— 从 Beta 到正式版
+### 🚀 Milestone Release: @vureact/runtime-core 1.0.0 — From Beta to Stable
 
-这是 @vureact/runtime-core 的第一个正式版本，标志着从 Beta 版本到生产就绪版本的重要里程碑。
+This is the first stable release of `@vureact/runtime-core`, marking the transition from beta to production-ready status.
 
 ### Added
 
-#### 核心响应式系统
+#### Core Reactive System
 
-- **完整的 Vue 3 响应式 API 适配**：基于 Valtio 实现高性能的 Proxy-based 响应式系统
-- **响应式钩子集合**：
-  - `useReactive` / `useShallowReactive`：深度/浅层响应式对象
-  - `useVRef` / `useShallowRefState`：响应式引用
-  - `useComputed`：计算属性
-  - `useWatch`：响应式监听
-  - `useToVRef` / `useToVRefs`：响应式引用转换
-  - `useToRaw`：获取响应式对象的原始值
-  - `useReadonly` / `useShallowReadonly`：只读响应式对象
-- **响应式工具函数**：
-  - `wrapRef` / `unwrapRef`：引用包装和解包
-  - `collectProxyAccess`：代理访问收集
-  - 响应式代理相关的通用工具函数
+- **Complete Vue 3 reactive API adaptation**: a high-performance proxy-based reactive system powered by Valtio.
+- **Reactive hook collection**:
+  - `useReactive` / `useShallowReactive`: deep and shallow reactive objects
+  - `useVRef` / `useShallowRefState`: reactive references
+  - `useComputed`: computed values
+  - `useWatch`: reactive watchers
+  - `useToVRef` / `useToVRefs`: reactive ref conversions
+  - `useToRaw`: access to raw values behind reactive objects
+  - `useReadonly` / `useShallowReadonly`: readonly reactive objects
+- **Reactive utility helpers**:
+  - `wrapRef` / `unwrapRef`: ref wrapping and unwrapping
+  - `collectProxyAccess`: proxy access collection
+  - shared proxy-related utility helpers
 
-#### Vue 内置组件适配
+#### Vue Built-in Component Adapters
 
-- **`<KeepAlive>` 组件**：Vue 风格的组件缓存，支持 `include`、`exclude`、`max` 属性
-- **`<Transition>` 组件**：基于 react-transition-group 的过渡动画组件
-- **`<Teleport>` 组件**：React Portal 的 Vue 风格封装
-- **`<Suspense>` 组件**：异步组件加载支持
+- **`<KeepAlive>`**: Vue-style component caching with `include`, `exclude`, and `max` support.
+- **`<Transition>`**: transition component built on top of `react-transition-group`.
+- **`<Teleport>`**: Vue-style wrapper around React Portal.
+- **`<Suspense>`**: support for async component loading.
 
-#### 模板指令工具集
+#### Template Directive Utilities
 
-- **`vCls`**：Vue 风格的 class 绑定工具
-- **`vStyle`**：Vue 风格的 style 绑定工具
-- **`vOn`**：Vue 风格的事件绑定工具
-- **`vKeyless`**：无 key 渲染工具
+- **`vCls`**: Vue-style class binding utility.
+- **`vStyle`**: Vue-style style binding utility.
+- **`vOn`**: Vue-style event binding utility.
+- **`vKeyless`**: utility for keyless rendering.
 
-#### 适配器架构
+#### Adapter Architecture
 
-- **模块化导出结构**：
-  - 主包：`@vureact/runtime-core`
-  - 适配器组件：`@vureact/runtime-core/adapter-components`
-  - 适配器钩子：`@vureact/runtime-core/adapter-hooks`
-  - 适配器工具：`@vureact/runtime-core/adapter-utils`
-- **完整的 TypeScript 支持**：全量类型定义，兼容 IntelliSense
+- **Modular export structure**:
+  - main package: `@vureact/runtime-core`
+  - adapter components: `@vureact/runtime-core/adapter-components`
+  - adapter hooks: `@vureact/runtime-core/adapter-hooks`
+  - adapter utilities: `@vureact/runtime-core/adapter-utils`
+- **Complete TypeScript support**: full type definitions with IntelliSense compatibility.
 
 ### Changed
 
-#### 架构优化
+#### Architecture Improvements
 
-- **从 Beta 版本升级**：版本号从 `1.0.0-beta` 升级到 `1.0.0`
-- **依赖优化**：
-  - 使用 `valtio` 作为响应式引擎，替代原有的 `use-immer`、`immer`、`freeze-mutate`
-  - 添加 `freeze-mutate` 和 `klona` 用于不可变数据操作
-  - 使用 `react-fast-compare` 进行快速对象比较
-  - 使用 `react-transition-group` 支持过渡动画
-- **API 命名规范化**：
-  - `useRefState` 重命名为 `useVRef`
-  - `useToRefState` 重命名为 `useToVRef`
-  - `useToRefStates` 重命名为 `useToVRefs`
-  - `useCtx` 重命名为 `useInject`
-  - `ContextProvider` / `CtxProvider` 重命名为 `Provider`
+- **Upgraded from beta**: version number moved from `1.0.0-beta` to `1.0.0`.
+- **Dependency updates**:
+  - adopted `valtio` as the reactive engine, replacing earlier `use-immer`, `immer`, and `freeze-mutate` usage
+  - added `freeze-mutate` and `klona` for immutable data operations
+  - adopted `react-fast-compare` for fast object comparison
+  - adopted `react-transition-group` for transition support
+- **API naming normalization**:
+  - `useRefState` -> `useVRef`
+  - `useToRefState` -> `useToVRef`
+  - `useToRefStates` -> `useToVRefs`
+  - `useCtx` -> `useInject`
+  - `ContextProvider` / `CtxProvider` -> `Provider`
 
-#### 性能优化
+#### Performance Improvements
 
-- **响应式系统优化**：基于 Valtio 的高性能响应式实现
-- **依赖收集优化**：精确的依赖追踪，避免不必要的重渲染
-- **内存使用优化**：改进代理对象的内存管理
+- **Reactive-system optimization**: high-performance reactivity powered by Valtio.
+- **Dependency collection optimization**: more precise dependency tracking to avoid unnecessary rerenders.
+- **Memory usage optimization**: improved memory handling for proxy objects.
 
-#### 开发者体验
+#### Developer Experience
 
-- **完整的测试套件**：为所有核心功能提供全面的单元测试
-- **示例项目**：提供丰富的使用示例
-- **文档完善**：完整的 API 文档和使用指南
+- **Complete test suite**: comprehensive unit test coverage for all core capabilities.
+- **Example projects**: rich usage examples for common scenarios.
+- **Improved documentation**: complete API docs and usage guides.
 
 ### Fixed
 
-#### 响应式系统修复
+#### Reactive System Fixes
 
-- **修复浅代理循环引用问题**：修复当访问浅代理的源对象时造成的循环引用
-- **修复代理元数据处理**：优化 `createProxy` 增强处理逻辑
-- **修复类型定义**：完善所有响应式 API 的类型定义
+- **Fixed circular-reference issues with shallow proxies**: resolved circular references caused by accessing the source object of a shallow proxy.
+- **Fixed proxy metadata handling**: improved enhancement logic around `createProxy`.
+- **Fixed type definitions**: completed type coverage across all reactive APIs.
 
-#### 组件适配修复
+#### Component Adapter Fixes
 
-- **修复组件生命周期**：确保 Vue 生命周期正确映射到 React 生命周期
-- **修复 Props 处理**：优化 Props 检测和类型推导
-- **修复事件系统**：确保事件监听器正确工作
+- **Fixed component lifecycle mapping**: ensured Vue lifecycle behavior maps correctly onto React lifecycle behavior.
+- **Fixed prop handling**: improved prop detection and type inference.
+- **Fixed event system behavior**: ensured event listeners work correctly.
 
-#### 工具函数修复
+#### Utility Fixes
 
-- **移除冗余工具**：清理不再使用的工具函数如 `isProxy`、`isRefState`、`setProxyMeta`
-- **优化工具函数导入**：统一工具函数的导入路径
+- **Removed redundant utilities**: cleaned up unused helpers such as `isProxy`, `isRefState`, and `setProxyMeta`.
+- **Improved utility imports**: standardized utility import paths.
 
-### 🔧 技术栈详情
+### 🔧 Tech Stack Details
 
-#### 核心依赖
+#### Core Dependencies
 
-- **valtio**: React 社区成熟的 Proxy-based 响应式库
-- **react-transition-group**: React 过渡动画库
-- **react-fast-compare**: 快速对象比较工具
-- **freeze-mutate**: 不可变数据操作工具
-- **klona**: 深度克隆工具
+- **valtio**: a mature proxy-based reactive library from the React ecosystem
+- **react-transition-group**: React transition animation library
+- **react-fast-compare**: fast object comparison utility
+- **freeze-mutate**: immutable data operation utility
+- **klona**: deep clone utility
 
-#### 开发工具
+#### Development Tooling
 
-- **TypeScript**: 类型安全的开发体验
-- **Rollup**: 模块打包工具，支持 ESM/CJS 双格式
-- **Jest**: 测试框架，提供完整的测试覆盖
+- **TypeScript**: type-safe development experience
+- **Rollup**: bundler with dual ESM/CJS output
+- **Jest**: test framework with full test coverage
 
-#### 兼容性
+#### Compatibility
 
-- **React 18+**: 专为现代 React 应用设计
-- **TypeScript 4.9+**: 完整的类型支持
-- **ESM/CJS 双格式**: 支持现代和传统模块系统
+- **React 18+**: designed for modern React applications
+- **TypeScript 4.9+**: full type support
+- **Dual ESM/CJS output**: supports both modern and traditional module systems
 
-### 📦 包结构
+### 📦 Package Structure
 
 ```txt
 @vureact/runtime-core/
-├── dist/                      # 构建输出
-│   ├── cjs/                  # CommonJS 格式
-│   ├── esm/                  # ES Module 格式
-│   └── types/                # TypeScript 类型定义
+├── dist/                      # build output
+│   ├── cjs/                   # CommonJS format
+│   ├── esm/                   # ES Module format
+│   └── types/                 # TypeScript type definitions
 ├── src/
-│   ├── adapter-components/   # 适配器组件
+│   ├── adapter-components/    # adapter components
 │   │   ├── KeepAlive.tsx
 │   │   ├── Transition.tsx
 │   │   ├── Teleport.tsx
 │   │   └── Suspense.tsx
-│   ├── adapter-hooks/        # 适配器钩子
+│   ├── adapter-hooks/         # adapter hooks
 │   │   ├── useReactive.ts
 │   │   ├── useVRef.ts
 │   │   ├── useComputed.ts
 │   │   ├── useWatch.ts
 │   │   └── lifecycle.ts
-│   ├── adapter-utils/        # 适配器工具
+│   ├── adapter-utils/         # adapter utilities
 │   │   ├── vCls.ts
 │   │   ├── vStyle.ts
 │   │   ├── vOn.ts
 │   │   └── vKeyless.ts
-│   └── shared/               # 共享工具
-│       ├── hooks/            # 共享钩子
-│       ├── utils/            # 工具函数
-│       └── consts/           # 常量定义
-├── examples/                 # 示例代码
-├── __tests__/               # 测试文件
-└── package.json             # 项目配置
+│   └── shared/                # shared utilities
+│       ├── hooks/             # shared hooks
+│       ├── utils/             # utility helpers
+│       └── consts/            # constant definitions
+├── examples/                  # sample code
+├── __tests__/                 # test files
+└── package.json               # package config
 ```
 
 ---
@@ -240,7 +240,7 @@ When releasing a new version:
 
 ---
 
-```
+```text
 [Unreleased]: https://github.com/vureact-js/core/compare/v1.1.1...HEAD
 [1.1.1]: https://github.com/vureact-js/core/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/vureact-js/core/compare/v1.0.1...v1.1.0
