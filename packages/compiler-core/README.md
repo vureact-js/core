@@ -1,6 +1,6 @@
 # @vureact/compiler-core
 
-**Write in Vue, generate maintainable React.**
+**Write Vue. Get Pure React.**
 
 `@vureact/compiler-core` is the **CLI and core compiler package** of VuReact.  
 It compiles Vue 3 SFC, script, and style files into **pure React 18+ code**, making it suitable for progressive migration and for teams that want to keep Vue authoring conventions while targeting a React app.
