@@ -4,11 +4,11 @@
 
  <h1>VuReact</h1>
 
-**Vue を書いて、メンテナブルな React を生成する。**
+**Vue 書いて、メンテナブルな React を生成。**
 
-> Vue 3 の SFC・Script・Style を、ランタイムブリッジを使わずに純粋な React 18+ コンポーネントへコンパイルするツールチェーンです。
+> Vue→React 移行のためのコンパイラツールチェーン。
 >
-> `<script setup>` を優先的にサポートし、主要機能を広くカバーします。段階的な移行やハイブリッド開発にも対応します。
+> Vue 3 SFC・Script・Style をランタイムなしで純粋な React へ変換。`<script setup>` ・段階的移行・混在開発に対応。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
