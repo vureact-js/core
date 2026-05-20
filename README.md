@@ -4,11 +4,12 @@
 
   <h1>VuReact</h1>
 
-**写 Vue，生成可维护的 React。**
+**写 Vue，输出可维护的 React。**
 
-> 自动化 Vue 转 React 编译工具，将 Vue 3 SFC・Script・Style 完整转为纯 React 18+ 组件（非运行时桥接）
+> 一个面向 Vue 到 React 迁移、兼具「用 Vue 写 React」双重能力的编译工具链。
 >
-> 覆盖 `<script setup>` 核心全特性，支持渐进式迁移和混合开发
+> 将 Vue 3 SFCs・Scripts・Styles 完整转为纯 React（非运行时桥接），
+> 覆盖 `<script setup>` 核心全特性，支持渐进式迁移和混合开发。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
@@ -26,7 +27,7 @@
     <img src="assets/vureact-showcase(800x450).gif" alt="vureact 终端交互演示" width="100%">
   </a>
 
-  VuReact 实战：Vue 3 SFC → React 18+ 组件编译演示。
+  演示效果（左 Vue 项目 → 右生成 React 应用）
   
   [观看展示视频](assets/vureact-showcase(3.7MB).mp4) · [查看高清动图](assets/vureact-showcase(1280x720).gif)
 </div>
