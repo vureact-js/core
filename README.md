@@ -56,6 +56,7 @@
 - [✅ 适用场景](#-适用场景)
 - [📦 仓库子包](#-仓库子包)
 - [♻️ 生态集成](#️-生态集成)
+- [⚙️ 处理流程](#️-处理流程)
 - [🙏 特别鸣谢](#-特别鸣谢)
 - [🤝 贡献](#-贡献)
 - [📄 许可证](#-许可证)
@@ -232,6 +233,29 @@ npx vureact --help
 
 - **[VuReact Runtime](https://runtime.vureact.top)**：提供轻量级 React 版的 Vue 核心组件 & API
 - **[VuReact Router](https://router.vureact.top)**：基于 React Router DOM 的 Vue Router 风格适配层
+
+---
+
+## ⚙️ 处理流程
+
+VuReact 的处理流程分为编译时和运行时两个主要阶段，通过清晰的分工实现从 Vue 到 React 的转换。
+
+```mermaid
+flowchart LR
+    A[Vue SFC / Script 输入] --> B[语法解析]
+    B --> C[语义分析]
+    C --> D[约定校验]
+    D --> E[依赖收集 / Hook 合规重建]
+    E --> F[React JSX / TSX 产物]
+    F --> G[Runtime 语义适配]
+    G --> H[Router / 工程集成]
+```
+
+**编译时（确定性）**：解析 Vue SFC / Script、校验约定、分析依赖，生成贴近 React 实践的 TSX。
+
+**运行时（语义适配）**：提供 Vue 风格 API（如 `useVRef`、`KeepAlive` 等），补齐编译无法抹平的框架差异，并集成路由层，确保迁移覆盖完整工程。
+
+👉 **深入了解请访问：**[VuReact 设计理念](https://vureact.top/guide/philosophy.html)
 
 ---
 
