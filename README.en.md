@@ -56,6 +56,7 @@ Existing solutions either wrap a runtime (bad perf, harder debugging) or provide
 - [✅ Use Cases](#-use-cases)
 - [📦 Repository Packages](#-repository-packages)
 - [♻️ Ecosystem](#️-ecosystem)
+- [⚙️ Processing Flow](#️-processing-flow)
 - [🙏 Special Thanks](#-special-thanks)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
@@ -229,6 +230,29 @@ npx vureact --help
 
 - **[VuReact Runtime](https://runtime.vureact.top/en)** — lightweight React-side implementations of Vue core APIs.
 - **[VuReact Router](https://router.vureact.top/en)** — adapter layer that maps Vue Router patterns to React Router.
+
+---
+
+## ⚙️ Processing Flow
+
+VuReact's processing flow is divided into two main stages: compilation and runtime, achieving the conversion from Vue to React through clear division of labor.
+
+```mermaid
+flowchart LR
+    A[Vue SFC / Script Input] --> B[Parsing]
+    B --> C[Semantic Analysis]
+    C --> D[Convention Validation]
+    D --> E[Dependency Collection / Hook Compliance]
+    E --> F[React JSX / TSX Output]
+    F --> G[Runtime Semantic Adaptation]
+    G --> H[Router / Project Integration]
+```
+
+**Compilation (Deterministic)**: Parse Vue SFC / Script, validate conventions, analyze dependencies, and generate TSX that closely follows React practices.
+
+**Runtime (Semantic Adaptation)**: Provide Vue-style APIs (such as `useVRef`, `KeepAlive` and etc.), fill in framework discrepancies that the compiler cannot resolve, and integrate the routing layer to ensure the migration covers the entire project.
+
+👉 **Learn more:** [VuReact Philosophy](https://vureact.top/en/guide/philosophy.html)
 
 ---
 

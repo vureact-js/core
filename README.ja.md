@@ -55,6 +55,7 @@
 - [✅ 利用シーン](#-利用シーン)
 - [📦 リポジトリパッケージ](#-リポジトリパッケージ)
 - [♻️ エコシステム](#️-エコシステム)
+- [⚙️ 処理流程](#️-処理流程)
 - [🙏 特別謝辞](#-特別謝辞)
 - [🤝 コントリビュート](#-コントリビュート)
 - [📄 ライセンス](#-ライセンス)
@@ -228,6 +229,29 @@ npx vureact --help
 
 - **[VuReact Runtime](https://runtime.vureact.top/en)** — React 側での軽量な Vue API 実装。
 - **[VuReact Router](https://router.vureact.top/en)** — Vue Router 風の構文を React Router にマッピングするアダプター。
+
+---
+
+## ⚙️ 処理流程
+
+VuReact の処理流程は、コンパイル時と実行時の2つの主要な段階に分かれ、明確な役割分担によって Vue から React への変換を実現します。
+
+```mermaid
+flowchart LR
+    A[Vue SFC / Script 入力] --> B[構文解析]
+    B --> C[意味解析]
+    C --> D[約定検証]
+    D --> E[依存関係収集 / Hook 準拠再構築]
+    E --> F[React JSX / TSX 出力]
+    F --> G[Runtime 意味適応]
+    G --> H[Router / エンジニアリング統合]
+```
+
+**コンパイル時（決定論的）**：Vue SFC / Script を解析し、規約を検証し、依存関係を分析して、React の実践に沿った TSX を生成します。
+
+**実行時（セマンティック適応）**：Vue スタイルの API（`useVRef`、`KeepAlive` など）を提供し、コンパイルでは埋められないフレームワークの違いを補完し、ルーティング層を統合して、移行が完全なプロジェクトをカバーすることを保証します。
+
+👉 **詳細:** [VuReact デザイン理念](https://vureact.top/en/guide/philosophy.html)
 
 ---
 
