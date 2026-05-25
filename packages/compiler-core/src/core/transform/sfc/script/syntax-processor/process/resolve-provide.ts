@@ -4,6 +4,7 @@ import * as t from '@babel/types';
 import { ICompilationContext, ProvideData } from '@compiler/context/types';
 import { ADAPTER_RULES } from '@consts/adapters-map';
 import { VUE_API_MAP } from '@consts/vue-api-map';
+import { logger } from '@shared/logger';
 import { recordImport } from '@transform/shared';
 import { isCalleeNamed } from '../../shared/babel-utils';
 
@@ -14,21 +15,38 @@ type ArgumentType = t.Expression | t.SpreadElement | t.ArgumentPlaceholder;
  * 在生成阶段根据 AST 生成对应结构的 CtxProvider 适配组件
  */
 export function resolveProvide(ctx: ICompilationContext): TraverseOptions {
+  const { filename, scriptData, inputType } = ctx;
+
   // 仅跳过纯样式文件，脚本输入也允许处理 provide
-  if (ctx.inputType === 'style') return {};
+  if (inputType !== 'sfc') {
+    return {};
+  }
 
   return {
     CallExpression(path) {
       const { node } = path;
 
+      // 不允许在 script 文件中使用 provide
+      if (inputType.startsWith('script')) {
+        logger.error('provide() call found outside of SFC <script setup> context.', {
+          file: filename,
+          source: scriptData.source,
+          loc: node.loc,
+        });
+        return;
+      }
+
       // 检查是否为 provide 调用（兼容已被重命名为 Provider 的场景）
       const providerTarget = ADAPTER_RULES.runtime[VUE_API_MAP.provide]?.target;
+
       const isProvideCall =
-        isCalleeNamed(node, VUE_API_MAP.provide) || (providerTarget && isCalleeNamed(node, providerTarget));
+        isCalleeNamed(node, VUE_API_MAP.provide) ||
+        (providerTarget && isCalleeNamed(node, providerTarget));
+
       if (!isProvideCall) return;
 
       // 获取编译上下文中的 provide 数据
-      const { provide } = ctx.scriptData;
+      const { provide } = scriptData;
 
       // 提取 provide 的参数：key 和 value
       const [key, value] = node.arguments;
