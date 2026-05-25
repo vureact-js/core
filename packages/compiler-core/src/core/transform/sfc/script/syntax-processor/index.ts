@@ -1,7 +1,12 @@
 import { ParseResult as BabelParseResult, traverse } from '@babel/core';
 import { TraverseOptions } from '@babel/traverse';
 import { ICompilationContext } from '@compiler/context/types';
-import { resolveASTChunks, resolveRuntimeImports, resolveSfcCssImport } from './postprocess';
+import {
+  resolveASTChunks,
+  resolveRuntimeImports,
+  resolveSfcCssImport,
+  resolveVueTypeAsAny,
+} from './postprocess';
 import {
   resolveCompIProps,
   resolveDefineAsyncComponent,
@@ -75,7 +80,12 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
     },
 
     postprocess: {
-      applyBabel: [resolveRuntimeImports, resolveASTChunks],
+      applyBabel: [
+        // 该 resolver 需确保放在所有类型处理之后，移除之前
+        resolveVueTypeAsAny,
+        resolveRuntimeImports,
+        resolveASTChunks,
+      ],
       excludeBabel: [resolveSfcCssImport],
     },
   });
