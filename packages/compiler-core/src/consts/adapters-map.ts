@@ -246,7 +246,8 @@ export const ADAPTER_RULES: AdapterRulesMap = {
       type: 'rename',
     },
     dirOn: {
-      target: 'dir.On',
+      // fix: https://github.com/vureact-js/core/issues/49
+      target: 'dir.on',
       package: PACKAGE_NAME.runtime,
       type: 'rename',
     },
