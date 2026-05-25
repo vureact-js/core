@@ -11,7 +11,7 @@ export const RUNTIME_PACKAGES = {
   },
   runtime: {
     name: PACKAGE_NAME.runtime,
-    version: '^1.1.0',
+    version: '^1.1.1',
   },
 } as const;
 
