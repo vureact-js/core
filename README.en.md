@@ -11,7 +11,7 @@
 > It converts Vue 3 SFCs, scripts, and styles into pure React without a runtime bridge, with full
 > `<script setup>` support and progressive migration.
 
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&color=magenta)](https://github.com/vureact-js/core)
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&color=magenta)](https://github.com/vureact-js/core/stargazers)
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
