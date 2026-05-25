@@ -1,26 +1,45 @@
-﻿import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import Fuse from 'fuse.js';
 import { appStore } from '../store/useAppStore';
 import {
   agents as seedAgents,
+  conversationMessages as seedConversationMessages,
+  conversations as seedConversations,
   customers as seedCustomers,
+  draftReplies as seedDraftReplies,
+  escalationRecords as seedEscalationRecords,
+  internalNotes as seedInternalNotes,
   knowledgeBase as seedKb,
   tickets as seedTickets,
   type Agent,
+  type ChannelType,
+  type Conversation,
+  type ConversationMessage,
+  type ConversationQueue,
+  type ConversationStatus,
   type Customer,
+  type DraftReply,
+  type EscalationRecord,
+  type InternalNote,
   type KnowledgeArticle,
   type Ticket,
   type TicketEscalationMeta,
+  type TicketPriority,
 } from './mock';
 
 const delay = (ms = 160) => new Promise((resolve) => setTimeout(resolve, ms));
-const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v));
+const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 const store = {
   tickets: clone(seedTickets),
   customers: clone(seedCustomers),
   agents: clone(seedAgents),
   knowledgeBase: clone(seedKb),
+  conversations: clone(seedConversations),
+  conversationMessages: clone(seedConversationMessages),
+  internalNotes: clone(seedInternalNotes),
+  escalationRecords: clone(seedEscalationRecords),
+  draftReplies: clone(seedDraftReplies),
 };
 
 const authKey = 'support-hub-user';
@@ -64,15 +83,29 @@ export type CustomerDetail = Customer & {
   satisfactionHistory: Array<{ month: string; score: number }>;
 };
 
+export type ConversationQuery = {
+  channel?: 'all' | ChannelType;
+  queue?: 'all' | ConversationQueue;
+  status?: 'all' | ConversationStatus;
+  keyword?: string;
+};
+
+export type ConversationDetail = Conversation & {
+  messages: ConversationMessage[];
+  linkedTicket: Ticket | null;
+  suggestedAgents: Agent[];
+  draftReply: DraftReply | null;
+};
+
 type TicketTimelineItem = {
   id: string;
   time: string;
   title: string;
   detail?: string;
-  kind: 'created' | 'response' | 'status' | 'escalation' | 'assign';
+  kind: 'created' | 'response' | 'status' | 'escalation' | 'assign' | 'collab';
 };
 
-const makeTimelineId = () => Math.random().toString(36).slice(2, 10);
+const makeId = (prefix: string) => `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 
 const ticketTimelineStore: Record<string, TicketTimelineItem[]> = {};
 
@@ -83,10 +116,17 @@ const toStatusLabel = (status: Ticket['status']) => {
   return '已关闭';
 };
 
+const toConversationStatusLabel = (status: ConversationStatus) => {
+  if (status === 'unassigned') return '待分配';
+  if (status === 'processing') return '处理中';
+  if (status === 'pending') return '待客户回复';
+  return '待升级';
+};
+
 const seedTimelineForTicket = (ticket: Ticket): TicketTimelineItem[] => {
   const items: TicketTimelineItem[] = [
     {
-      id: makeTimelineId(),
+      id: makeId('tl'),
       time: ticket.createdAt,
       title: '工单创建',
       detail: '工单已进入待处理队列',
@@ -96,7 +136,7 @@ const seedTimelineForTicket = (ticket: Ticket): TicketTimelineItem[] => {
 
   if (ticket.firstResponseAt) {
     items.push({
-      id: makeTimelineId(),
+      id: makeId('tl'),
       time: ticket.firstResponseAt,
       title: '首次响应',
       detail: `${ticket.owner} 已开始处理`,
@@ -106,7 +146,7 @@ const seedTimelineForTicket = (ticket: Ticket): TicketTimelineItem[] => {
 
   if (ticket.escalation) {
     items.push({
-      id: makeTimelineId(),
+      id: makeId('tl'),
       time: ticket.escalation.at,
       title: `工单升级 L${ticket.escalation.level}`,
       detail: ticket.escalation.reason,
@@ -114,9 +154,20 @@ const seedTimelineForTicket = (ticket: Ticket): TicketTimelineItem[] => {
     });
   }
 
+  const linkedCount = store.conversations.filter((item) => item.linkedTicketId === ticket.id).length;
+  if (linkedCount) {
+    items.push({
+      id: makeId('tl'),
+      time: ticket.createdAt,
+      title: '关联会话同步',
+      detail: `已关联 ${linkedCount} 条多渠道会话`,
+      kind: 'collab',
+    });
+  }
+
   if (ticket.resolvedAt) {
     items.push({
-      id: makeTimelineId(),
+      id: makeId('tl'),
       time: ticket.resolvedAt,
       title: `状态变更：${toStatusLabel(ticket.status)}`,
       detail: '处理流程进入收尾阶段',
@@ -138,7 +189,7 @@ const appendTicketTimeline = (
   const now = dayjs().format('YYYY-MM-DD HH:mm');
   const list = ticketTimelineStore[ticketId] || [];
   list.push({
-    id: makeTimelineId(),
+    id: makeId('tl'),
     time: entry.time || now,
     title: entry.title,
     detail: entry.detail,
@@ -149,19 +200,139 @@ const appendTicketTimeline = (
 
 function setUser(user: User | null) {
   if (typeof localStorage !== 'undefined') {
-    if (user) localStorage.setItem(authKey, JSON.stringify(user));
-    else localStorage.removeItem(authKey);
+    if (user) {
+      localStorage.setItem(authKey, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(authKey);
+    }
   }
 
   if (user) appStore.getState().login(user);
   else appStore.getState().logout();
 }
 
+const getAgentById = (id?: string) => store.agents.find((item) => item.id === id);
+const getTicketById = (id?: string) => store.tickets.find((item) => item.id === id);
+const stripUndefined = <T extends Record<string, any>>(patch: T) =>
+  Object.fromEntries(Object.entries(patch).filter(([, value]) => value !== undefined)) as Partial<T>;
+
+const upsertDraftReply = (draft: DraftReply) => {
+  const index = store.draftReplies.findIndex((item) => item.conversationId === draft.conversationId);
+  if (index === -1) store.draftReplies.unshift(draft);
+  else store.draftReplies[index] = draft;
+};
+
+const pushConversationSystemMessage = (conversationId: string, content: string) => {
+  store.conversationMessages.push({
+    id: makeId('msg'),
+    conversationId,
+    sender: 'system',
+    author: '系统',
+    sentAt: dayjs().format('YYYY-MM-DD HH:mm'),
+    content,
+  });
+};
+
+const updateConversation = (conversationId: string, patch: Partial<Conversation>) => {
+  const index = store.conversations.findIndex((item) => item.id === conversationId);
+  if (index === -1) throw new Error('会话不存在');
+
+  const current = store.conversations[index]!;
+  const safePatch = stripUndefined(patch);
+  const next = {
+    ...current,
+    ...safePatch,
+    latestAt: safePatch.latestAt || dayjs().format('YYYY-MM-DD HH:mm'),
+  };
+  store.conversations[index] = next;
+  return next;
+};
+
+const syncTicketRelatedConversations = (ticketId: string, patch: Partial<Conversation>) => {
+  const safePatch = stripUndefined(patch);
+  store.conversations = store.conversations.map((item) => {
+    if (item.linkedTicketId !== ticketId) return item;
+    return {
+      ...item,
+      ...safePatch,
+      latestAt: safePatch.latestAt || item.latestAt,
+    };
+  });
+};
+
+function ticketCountByAgent(agentName: string) {
+  return store.tickets.filter(
+    (ticket) => ticket.owner === agentName && (ticket.status === 'open' || ticket.status === 'processing'),
+  ).length;
+}
+
+function buildChannelSummary() {
+  return ['chat', 'email', 'phone', 'social'].map((channel) => {
+    const rows = store.conversations.filter((item) => item.channel === channel);
+    return {
+      channel,
+      total: rows.length,
+      unassigned: rows.filter((item) => item.status === 'unassigned').length,
+      pending: rows.filter((item) => item.status === 'pending').length,
+      escalated: rows.filter((item) => item.status === 'escalated').length,
+    };
+  }) as Array<{
+    channel: ChannelType;
+    total: number;
+    unassigned: number;
+    pending: number;
+    escalated: number;
+  }>;
+}
+
+function buildPendingConversations() {
+  return store.conversations
+    .filter((item) => item.status === 'pending' || item.status === 'unassigned')
+    .sort((a, b) => dayjs(b.latestAt).valueOf() - dayjs(a.latestAt).valueOf())
+    .slice(0, 8)
+    .map((item) => ({
+      id: item.id,
+      customerName: item.customerName,
+      subject: item.subject,
+      channel: item.channel,
+      queue: item.queue,
+      status: item.status,
+      latestAt: item.latestAt,
+    }));
+}
+
+function buildHotspotCustomers() {
+  return store.customers
+    .map((customer) => {
+      const ticketCount = store.tickets.filter((item) => item.customerId === customer.id).length;
+      const escalations = store.escalationRecords.filter((item) => {
+        const ticket = getTicketById(item.ticketId);
+        return ticket?.customerId === customer.id;
+      }).length;
+      const activeConversations = store.conversations.filter(
+        (item) =>
+          item.customerId === customer.id &&
+          (item.status === 'processing' || item.status === 'escalated' || item.status === 'pending'),
+      ).length;
+
+      return {
+        id: customer.id,
+        name: customer.name,
+        riskScore: Math.max(0, 100 - customer.healthScore) + escalations * 8 + activeConversations * 3,
+        ticketCount,
+        escalations,
+        activeConversations,
+      };
+    })
+    .sort((a, b) => b.riskScore - a.riskScore)
+    .slice(0, 6);
+}
+
 export function getAuthUser(): User | null {
   const stateUser = appStore.getState().session.user as User | null;
   if (stateUser) return stateUser;
-
   if (typeof localStorage === 'undefined') return null;
+
   const raw = localStorage.getItem(authKey);
   if (!raw) return null;
 
@@ -197,17 +368,13 @@ export async function logout() {
   setUser(null);
 }
 
-function ticketCountByAgent(agentName: string) {
-  return store.tickets.filter((t) => t.owner === agentName && (t.status === 'open' || t.status === 'processing')).length;
-}
-
 export async function fetchDashboardSummary() {
   await delay();
 
-  const openCount = store.tickets.filter((t) => t.status === 'open').length;
-  const processingCount = store.tickets.filter((t) => t.status === 'processing').length;
+  const openCount = store.tickets.filter((item) => item.status === 'open').length;
+  const processingCount = store.tickets.filter((item) => item.status === 'processing').length;
   const resolvedToday = store.tickets.filter(
-    (t) => t.resolvedAt && dayjs(t.resolvedAt).isAfter(dayjs().subtract(1, 'day')),
+    (item) => item.resolvedAt && dayjs(item.resolvedAt).isAfter(dayjs().subtract(1, 'day')),
   ).length;
 
   const now = dayjs();
@@ -218,7 +385,7 @@ export async function fetchDashboardSummary() {
   }).length;
 
   const todoTickets = [...store.tickets]
-    .filter((t) => t.status === 'open' || t.status === 'processing')
+    .filter((item) => item.status === 'open' || item.status === 'processing')
     .sort((a, b) => dayjs(a.dueAt).valueOf() - dayjs(b.dueAt).valueOf())
     .slice(0, 8)
     .map((item) => ({
@@ -249,6 +416,9 @@ export async function fetchDashboardSummary() {
     todoTickets,
     agentWorkload,
     recentActivities: appStore.getState().activities,
+    channelSummary: buildChannelSummary(),
+    pendingConversations: buildPendingConversations(),
+    hotspotCustomers: buildHotspotCustomers(),
   });
 }
 
@@ -304,6 +474,16 @@ export async function fetchTickets(query?: TicketQuery) {
   return clone({ list, total, page, pageSize });
 }
 
+export async function fetchTicketOptions() {
+  await delay(80);
+  return clone(
+    store.tickets.slice(0, 24).map((item) => ({
+      value: item.id,
+      label: `${item.id} | ${item.title}`,
+    })),
+  );
+}
+
 export async function fetchTicketDetail(id: string) {
   await delay(120);
   const ticket = store.tickets.find((item) => item.id === id);
@@ -314,9 +494,7 @@ export async function fetchTicketDetail(id: string) {
 export async function fetchTicketTimeline(id: string) {
   await delay(80);
   const list = ticketTimelineStore[id] || [];
-  return clone(
-    [...list].sort((a, b) => dayjs(b.time).valueOf() - dayjs(a.time).valueOf()),
-  ) as TicketTimelineItem[];
+  return clone([...list].sort((a, b) => dayjs(b.time).valueOf() - dayjs(a.time).valueOf())) as TicketTimelineItem[];
 }
 
 export async function fetchTicketSlaSnapshot(id: string) {
@@ -347,24 +525,55 @@ export async function fetchTicketSlaSnapshot(id: string) {
   });
 }
 
+export async function fetchTicketConversations(ticketId: string) {
+  await delay(80);
+  return clone(
+    store.conversations
+      .filter((item) => item.linkedTicketId === ticketId)
+      .sort((a, b) => dayjs(b.latestAt).valueOf() - dayjs(a.latestAt).valueOf()),
+  ) as Conversation[];
+}
+
+export async function fetchTicketInternalNotes(ticketId: string) {
+  await delay(80);
+  return clone(
+    store.internalNotes
+      .filter((item) => item.ticketId === ticketId)
+      .sort((a, b) => dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf()),
+  ) as InternalNote[];
+}
+
+export async function fetchTicketEscalationRecords(ticketId: string) {
+  await delay(80);
+  return clone(
+    store.escalationRecords
+      .filter((item) => item.ticketId === ticketId)
+      .sort((a, b) => dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf()),
+  ) as EscalationRecord[];
+}
+
 export async function updateTicketStatus(id: string, status: Ticket['status']) {
   await delay(120);
   const index = store.tickets.findIndex((item) => item.id === id);
   if (index === -1) throw new Error('工单不存在');
 
   const next: Ticket = {
-    ...store.tickets[index],
+    ...store.tickets[index]!,
     status,
     resolvedAt: status === 'resolved' || status === 'closed' ? dayjs().format('YYYY-MM-DD HH:mm') : undefined,
   };
   store.tickets[index] = next;
+
+  if (status === 'resolved' || status === 'closed') {
+    syncTicketRelatedConversations(id, { status: 'processing', unread: 0 });
+  }
 
   appendTicketTimeline(next.id, {
     kind: 'status',
     title: `状态变更：${toStatusLabel(status)}`,
     detail: `执行人：${getAuthUser()?.name || '系统'}`,
   });
-  appStore.getState().appendActivity(`工单 ${next.id} 状态更新为 ${status}`);
+  appStore.getState().appendActivity(`工单 ${next.id} 状态更新为 ${toStatusLabel(status)}`);
   return clone(next);
 }
 
@@ -386,6 +595,13 @@ export async function claimTicket(payload: { ticketId: string; agentId?: string 
   };
 
   store.tickets[index] = next;
+  syncTicketRelatedConversations(next.id, {
+    status: 'processing',
+    ownerId: agent?.id,
+    ownerName: owner,
+    unread: 0,
+  });
+
   appendTicketTimeline(next.id, {
     kind: 'assign',
     title: '工单接单',
@@ -418,6 +634,28 @@ export async function escalateTicket(payload: {
   };
 
   store.tickets[index] = next;
+  const relatedConversation = store.conversations.find((item) => item.linkedTicketId === next.id);
+
+  store.escalationRecords.unshift({
+    id: makeId('esc'),
+    ticketId: next.id,
+    level: escalation.level,
+    reason: escalation.reason,
+    createdAt: escalation.at,
+    owner: next.owner,
+    channel: relatedConversation?.channel,
+    conversationId: relatedConversation?.id,
+  });
+
+  if (relatedConversation) {
+    updateConversation(relatedConversation.id, {
+      status: 'escalated',
+      priority: 'high',
+      unread: 0,
+    });
+    pushConversationSystemMessage(relatedConversation.id, `会话已同步升级为 L${escalation.level}，等待值班主管处理。`);
+  }
+
   appendTicketTimeline(next.id, {
     kind: 'escalation',
     time: escalation.at,
@@ -441,6 +679,260 @@ export async function assignTicket(payload: { ticketId: string; agentId: string 
   });
   appStore.getState().appendActivity(`工单 ${next.id} 已分配给 ${agent.name}`);
   return clone(next);
+}
+
+export async function fetchConversations(query?: ConversationQuery) {
+  await delay(120);
+  let result = [...store.conversations];
+
+  if (query?.channel && query.channel !== 'all') {
+    result = result.filter((item) => item.channel === query.channel);
+  }
+
+  if (query?.queue && query.queue !== 'all') {
+    result = result.filter((item) => item.queue === query.queue);
+  }
+
+  if (query?.status && query.status !== 'all') {
+    result = result.filter((item) => item.status === query.status);
+  }
+
+  const keyword = (query?.keyword || '').trim();
+  if (keyword) {
+    const fuse = new Fuse(result, {
+      threshold: 0.3,
+      keys: ['id', 'subject', 'customerName', 'summary', 'tags', 'ownerName'],
+    });
+    result = fuse.search(keyword).map((item) => item.item);
+  }
+
+  const groups = {
+    unassigned: result.filter((item) => item.status === 'unassigned'),
+    processing: result.filter((item) => item.status === 'processing'),
+    pending: result.filter((item) => item.status === 'pending'),
+    escalated: result.filter((item) => item.status === 'escalated'),
+  };
+
+  return clone({
+    list: result.sort((a, b) => dayjs(b.latestAt).valueOf() - dayjs(a.latestAt).valueOf()),
+    groups,
+    total: result.length,
+  }) as {
+    list: Conversation[];
+    groups: Record<'unassigned' | 'processing' | 'pending' | 'escalated', Conversation[]>;
+    total: number;
+  };
+}
+
+export async function fetchConversationDetail(id: string) {
+  await delay(120);
+  const conversation = store.conversations.find((item) => item.id === id);
+  if (!conversation) throw new Error('会话不存在');
+
+  const linkedTicket = conversation.linkedTicketId
+    ? store.tickets.find((item) => item.id === conversation.linkedTicketId) || null
+    : null;
+  const draftReply = store.draftReplies.find((item) => item.conversationId === id) || null;
+  const suggestedAgents = store.agents.filter((item) => item.skills.includes(conversation.channel)).slice(0, 5);
+
+  return clone({
+    ...conversation,
+    linkedTicket,
+    draftReply,
+    suggestedAgents,
+    messages: store.conversationMessages
+      .filter((item) => item.conversationId === id)
+      .sort((a, b) => dayjs(a.sentAt).valueOf() - dayjs(b.sentAt).valueOf()),
+  }) as ConversationDetail;
+}
+
+export async function convertConversationToTicket(payload: {
+  conversationId: string;
+  title: string;
+  priority: TicketPriority;
+}) {
+  await delay(140);
+  const conversation = store.conversations.find((item) => item.id === payload.conversationId);
+  if (!conversation) throw new Error('会话不存在');
+
+  if (conversation.linkedTicketId) {
+    const existed = getTicketById(conversation.linkedTicketId);
+    if (!existed) throw new Error('关联工单不存在');
+    return clone(existed);
+  }
+
+  const id = `TK-${1001 + store.tickets.length}`;
+  const now = dayjs();
+  const owner = conversation.ownerName || getAuthUser()?.name || store.agents[0]!.name;
+
+  const ticket: Ticket = {
+    id,
+    title: payload.title,
+    customerId: conversation.customerId,
+    customer: conversation.customerName,
+    category: '多渠道协同',
+    owner,
+    priority: payload.priority,
+    status: 'open',
+    createdAt: now.format('YYYY-MM-DD HH:mm'),
+    dueAt: now.add(payload.priority === 'high' ? 12 : 24, 'hour').format('YYYY-MM-DD HH:mm'),
+    summary: `由 ${conversation.channel} 渠道会话 ${conversation.id} 转工单生成。`,
+  };
+
+  store.tickets.unshift(ticket);
+  updateConversation(conversation.id, {
+    linkedTicketId: ticket.id,
+    status: 'processing',
+    priority: payload.priority,
+    ownerName: owner,
+  });
+  pushConversationSystemMessage(conversation.id, `会话已创建工单 ${ticket.id}，后续处理将同步回工单详情。`);
+  ticketTimelineStore[ticket.id] = [
+    {
+      id: makeId('tl'),
+      time: ticket.createdAt,
+      title: '工单创建',
+      detail: `由会话 ${conversation.id} 转换而来`,
+      kind: 'created',
+    },
+    {
+      id: makeId('tl'),
+      time: ticket.createdAt,
+      title: '关联会话同步',
+      detail: `已关联渠道 ${conversation.channel}`,
+      kind: 'collab',
+    },
+  ];
+
+  appStore.getState().appendActivity(`会话 ${conversation.id} 已转为工单 ${ticket.id}`);
+  return clone(ticket);
+}
+
+export async function mergeConversationToTicket(payload: { conversationId: string; ticketId: string }) {
+  await delay(120);
+  const conversation = store.conversations.find((item) => item.id === payload.conversationId);
+  const ticket = store.tickets.find((item) => item.id === payload.ticketId);
+  if (!conversation) throw new Error('会话不存在');
+  if (!ticket) throw new Error('目标工单不存在');
+
+  updateConversation(conversation.id, {
+    linkedTicketId: ticket.id,
+    status: 'processing',
+    ownerName: ticket.owner,
+    priority: ticket.priority,
+  });
+  pushConversationSystemMessage(conversation.id, `会话已并入工单 ${ticket.id}，后续由 ${ticket.owner} 跟进。`);
+  appendTicketTimeline(ticket.id, {
+    kind: 'collab',
+    title: '会话并入工单',
+    detail: `关联会话：${conversation.id}`,
+  });
+  appStore.getState().appendActivity(`会话 ${conversation.id} 已并入工单 ${ticket.id}`);
+  return clone(ticket);
+}
+
+export async function assignConversations(payload: { ids: string[]; agentId: string }) {
+  await delay(140);
+  const agent = getAgentById(payload.agentId);
+  if (!agent) throw new Error('坐席不存在');
+
+  const updated = payload.ids.map((id) => {
+    const next = updateConversation(id, {
+      ownerId: agent.id,
+      ownerName: agent.name,
+      status: 'processing',
+      unread: 0,
+    });
+    pushConversationSystemMessage(id, `会话已转派给 ${agent.name}，队列归属 ${agent.team}。`);
+    return next;
+  });
+
+  appStore.getState().appendActivity(`已批量转派 ${payload.ids.length} 条会话给 ${agent.name}`);
+  return clone(updated) as Conversation[];
+}
+
+export async function markConversationPending(payload: { id: string; reason: string }) {
+  await delay(120);
+  const next = updateConversation(payload.id, {
+    status: 'pending',
+    waitingReason: payload.reason,
+  });
+  upsertDraftReply({
+    conversationId: payload.id,
+    content: '',
+    pendingReason: payload.reason,
+    mentions: [],
+    internalOnly: false,
+  });
+  pushConversationSystemMessage(payload.id, `会话已挂起，等待客户补充：${payload.reason}`);
+  appStore.getState().appendActivity(`会话 ${payload.id} 已挂起等待客户回复`);
+  return clone(next);
+}
+
+export async function setConversationPriority(payload: {
+  id: string;
+  priority: TicketPriority;
+  reason?: string;
+}) {
+  await delay(120);
+  const next = updateConversation(payload.id, {
+    priority: payload.priority,
+    status: payload.priority === 'high' ? 'escalated' : undefined,
+  });
+  pushConversationSystemMessage(
+    payload.id,
+    payload.priority === 'high'
+      ? `会话已标记为高优先，原因：${payload.reason || '需要跨团队快速协同'}`
+      : `会话优先级已调整为 ${payload.priority}`,
+  );
+  appStore.getState().appendActivity(`会话 ${payload.id} 优先级调整为 ${payload.priority}`);
+  return clone(next);
+}
+
+export async function saveConversationDraft(payload: DraftReply) {
+  await delay(80);
+  upsertDraftReply(payload);
+  appStore.getState().appendActivity(`会话 ${payload.conversationId} 的草稿已保存`);
+  return clone(payload);
+}
+
+export async function appendInternalNote(payload: {
+  ticketId: string;
+  content: string;
+  mentions?: string[];
+  type?: InternalNote['type'];
+}) {
+  await delay(120);
+  const ticket = getTicketById(payload.ticketId);
+  if (!ticket) throw new Error('工单不存在');
+
+  const note: InternalNote = {
+    id: makeId('note'),
+    ticketId: payload.ticketId,
+    author: getAuthUser()?.name || '系统',
+    createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+    type: payload.type || 'sync',
+    content: payload.content,
+    mentions: payload.mentions || [],
+  };
+
+  store.internalNotes.unshift(note);
+  appendTicketTimeline(payload.ticketId, {
+    kind: 'collab',
+    title: '新增内部备注',
+    detail: note.content.slice(0, 40),
+  });
+  appStore.getState().appendActivity(`工单 ${payload.ticketId} 新增内部备注`);
+  return clone(note);
+}
+
+export async function fetchChannelSummary() {
+  await delay(80);
+  return clone({
+    summary: buildChannelSummary(),
+    pendingConversations: buildPendingConversations(),
+    hotspotCustomers: buildHotspotCustomers(),
+  });
 }
 
 export async function fetchKnowledgeArticles(query?: KnowledgeQuery) {
@@ -499,9 +991,9 @@ export async function fetchSlaBoard(): Promise<{
     const total = dayjs(ticket.dueAt).diff(dayjs(ticket.createdAt), 'minute');
     const spent = now.diff(dayjs(ticket.createdAt), 'minute');
     const ratio = total > 0 ? Math.min(100, Math.max(0, Math.round((spent / total) * 100))) : 0;
-
     const isDone = ticket.status === 'resolved' || ticket.status === 'closed';
-    const risk: 'risk' | 'safe' | 'done' = isDone ? 'done' : ratio >= cfg.warningThresholdPercent || !!ticket.escalation ? 'risk' : 'safe';
+    const risk: 'risk' | 'safe' | 'done' =
+      isDone ? 'done' : ratio >= cfg.warningThresholdPercent || !!ticket.escalation ? 'risk' : 'safe';
 
     return {
       id: ticket.id,
@@ -580,7 +1072,7 @@ export async function fetchCustomers(query?: CustomerQuery) {
   const list = result.slice(start, start + pageSize).map((item) => ({
     ...item,
     activeTicketCount: store.tickets.filter(
-      (t) => t.customerId === item.id && (t.status === 'open' || t.status === 'processing'),
+      (ticket) => ticket.customerId === item.id && (ticket.status === 'open' || ticket.status === 'processing'),
     ).length,
   }));
 
@@ -618,9 +1110,7 @@ export async function fetchCustomerRiskScore(customerId: string) {
   if (!customer) throw new Error('客户不存在');
 
   const relatedTickets = store.tickets.filter((item) => item.customerId === customerId);
-  const activeTickets = relatedTickets.filter(
-    (item) => item.status === 'open' || item.status === 'processing',
-  );
+  const activeTickets = relatedTickets.filter((item) => item.status === 'open' || item.status === 'processing');
   const highPriorityOpen = activeTickets.filter((item) => item.priority === 'high').length;
   const overdueOpen = activeTickets.filter((item) => dayjs(item.dueAt).isBefore(dayjs())).length;
 
@@ -659,7 +1149,6 @@ export async function createTicketFromCustomer(payload: {
 
   const id = `TK-${1001 + store.tickets.length}`;
   const now = dayjs();
-
   const ticket: Ticket = {
     id,
     title: payload.title,
@@ -677,7 +1166,7 @@ export async function createTicketFromCustomer(payload: {
   store.tickets.unshift(ticket);
   ticketTimelineStore[ticket.id] = [
     {
-      id: makeTimelineId(),
+      id: makeId('tl'),
       time: ticket.createdAt,
       title: '工单创建',
       detail: '由客户页快捷入口发起',
@@ -691,7 +1180,6 @@ export async function createTicketFromCustomer(payload: {
 
 export async function fetchAgents(query?: { status?: 'all' | Agent['status']; keyword?: string }) {
   await delay(100);
-
   let result = [...store.agents].map((agent) => ({
     ...agent,
     currentLoad: ticketCountByAgent(agent.name),
@@ -806,10 +1294,23 @@ export async function fetchTags(): Promise<string[]> {
   return Array.from(tags).map((tag) => String(tag));
 }
 
+export {
+  toConversationStatusLabel,
+  toStatusLabel,
+};
+
 export type {
-  Ticket,
-  KnowledgeArticle,
-  Customer,
   Agent,
+  ChannelType,
+  Conversation,
+  ConversationMessage,
+  ConversationQueue,
+  ConversationStatus,
+  Customer,
+  DraftReply,
+  EscalationRecord,
+  InternalNote,
+  KnowledgeArticle,
+  Ticket,
   TicketEscalationMeta,
 };

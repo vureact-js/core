@@ -9,7 +9,7 @@
         collapsible
         @collapse="onCollapse"
         width="224"
-        class="shell-sider"
+        class-name="shell-sider"
       >
         <div class="brand">
           <AntTypographyTitle :level="4" class-name="title">Support Hub</AntTypographyTitle>
@@ -79,6 +79,7 @@ const userInitial = computed(() => userName.value.slice(0, 1).toUpperCase());
 
 const menuItems = [
   { key: '/dashboard', label: '总览' },
+  { key: '/conversations', label: '会话中心' },
   { key: '/tickets', label: '工单列表' },
   { key: '/customers', label: '客户管理' },
   { key: '/agents', label: '坐席管理' },

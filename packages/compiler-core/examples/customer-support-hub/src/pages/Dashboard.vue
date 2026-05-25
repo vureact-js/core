@@ -41,6 +41,47 @@
       </AntCol>
     </AntRow>
 
+    <AntRow :gutter="[12, 12]">
+      <AntCol :xs="24" :xl="8">
+        <PagePanel title="渠道分布">
+          <AntTable
+            :columns="channelColumns"
+            :data-source="summary.channelSummary"
+            :pagination="false"
+            row-key="channel"
+            size="small"
+          />
+        </PagePanel>
+      </AntCol>
+
+      <AntCol :xs="24" :xl="8">
+        <PagePanel title="待回复会话">
+          <template #extra>
+            <RouterLink to="/conversations">进入会话中心</RouterLink>
+          </template>
+          <AntTable
+            :columns="conversationColumns"
+            :data-source="summary.pendingConversations"
+            :pagination="false"
+            row-key="id"
+            size="small"
+          />
+        </PagePanel>
+      </AntCol>
+
+      <AntCol :xs="24" :xl="8">
+        <PagePanel title="升级热点客户">
+          <AntTable
+            :columns="customerColumns"
+            :data-source="summary.hotspotCustomers"
+            :pagination="false"
+            row-key="id"
+            size="small"
+          />
+        </PagePanel>
+      </AntCol>
+    </AntRow>
+
     <PagePanel title="最近动态">
       <template #extra>
         <RouterLink to="/tickets">查看工单</RouterLink>
@@ -68,6 +109,9 @@ const summary = ref({
   slaRisk: 0,
   todoTickets: [] as any[],
   agentWorkload: [] as any[],
+  channelSummary: [] as any[],
+  pendingConversations: [] as any[],
+  hotspotCustomers: [] as any[],
   recentActivities: [] as { id: string; text: string; time: string }[],
 });
 
@@ -84,6 +128,27 @@ const workloadColumns = [
   { title: '状态', dataIndex: 'status', key: 'status' },
   { title: '负载', dataIndex: 'load', key: 'load' },
   { title: '今日处理', dataIndex: 'handledToday', key: 'handledToday' },
+];
+
+const channelColumns = [
+  { title: '渠道', dataIndex: 'channel', key: 'channel' },
+  { title: '总量', dataIndex: 'total', key: 'total' },
+  { title: '待分配', dataIndex: 'unassigned', key: 'unassigned' },
+  { title: '待升级', dataIndex: 'escalated', key: 'escalated' },
+];
+
+const conversationColumns = [
+  { title: '会话号', dataIndex: 'id', key: 'id' },
+  { title: '客户', dataIndex: 'customerName', key: 'customerName' },
+  { title: '队列', dataIndex: 'queue', key: 'queue' },
+  { title: '状态', dataIndex: 'status', key: 'status' },
+];
+
+const customerColumns = [
+  { title: '客户', dataIndex: 'name', key: 'name' },
+  { title: '风险分', dataIndex: 'riskScore', key: 'riskScore' },
+  { title: '升级数', dataIndex: 'escalations', key: 'escalations' },
+  { title: '活跃会话', dataIndex: 'activeConversations', key: 'activeConversations' },
 ];
 
 onMounted(async () => {
