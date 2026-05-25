@@ -1,6 +1,7 @@
 ﻿import type { RouteRecordRaw } from 'vue-router';
 import App from '../App.vue';
 import Agents from '../pages/Agents.vue';
+import ConversationCenter from '../pages/ConversationCenter.vue';
 import Customers from '../pages/Customers.vue';
 import Dashboard from '../pages/Dashboard.vue';
 import KnowledgeBase from '../pages/KnowledgeBase.vue';
@@ -17,6 +18,7 @@ export default [
     children: [
       { path: '', redirect: '/dashboard' },
       { path: 'dashboard', name: 'dashboard', component: Dashboard, meta: { title: '总览' } },
+      { path: 'conversations', name: 'conversations', component: ConversationCenter, meta: { title: '会话中心' } },
       { path: 'tickets', name: 'tickets', component: TicketsList, meta: { title: '工单列表' } },
       { path: 'tickets/:id', name: 'ticket-detail', component: TicketDetail, meta: { title: '工单详情' } },
       { path: 'customers', name: 'customers', component: Customers, meta: { title: '客户管理' } },

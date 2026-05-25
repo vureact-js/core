@@ -6,11 +6,12 @@
 
 **Write Vue. Get Pure React.**
 
-> A compiler toolchain for migrating from Vue to React — and for writing React with Vue syntax.
+> A complete solution for Vue-to-React migration and hybrid development.
 >
 > It converts Vue 3 SFCs, scripts, and styles into pure React without a runtime bridge, with full
 > `<script setup>` support and progressive migration.
 
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&color=magenta)](https://github.com/vureact-js/core)
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)

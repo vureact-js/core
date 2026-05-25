@@ -148,6 +148,7 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
   const value = ir.value;
   const valueContent = value.content;
   const mergedItems = value.merge;
+  const rule = ADAPTER_RULES.runtime;
 
   const setNameIdentifier = (target: typeof nameExp, valueName: string) => {
     target.content = valueName;
@@ -165,7 +166,15 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
 
   const createRuntimeCall = (fnName: string, args: Array<string | undefined | null>) => {
     const fnArgs = args.filter(Boolean).join(',');
-    return `${fnName}(${fnArgs})`;
+
+    // 检查传递的值是否为 undefined
+    const valIsUndef = fnName === rule.dirOn!.target && args?.[1] === 'undefined';
+
+    // 当值为 undefined 时，使用 never 兜底断言整个 dir.xx()
+    const isTs = ctx.scriptData.lang.startsWith('ts');
+    const safeTypeAssertion = isTs ? (valIsUndef ? 'as never' : '') : '';
+
+    return `${fnName}(${fnArgs}) ${safeTypeAssertion}`;
   };
 
   const applyRuntimeExpression = (
@@ -178,20 +187,20 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
       setNameIdentifier(nameExp, nameIdentifier);
     }
 
-    const dir = ADAPTER_RULES.runtime.dir!;
+    const dir = rule.dir!;
     recordImport(ctx, dir.package, dir.target);
     setValueExpression(value.babelExp, expression, isStringLiteral);
   };
 
   if (ir.isKeyLessVBind) {
-    const dirKeyless = ADAPTER_RULES.runtime.dirKeyless!;
+    const dirKeyless = rule.dirKeyless!;
     const expression = createRuntimeCall(dirKeyless.target, [valueContent]);
     applyRuntimeExpression(expression, false);
     return;
   }
 
   if (isClassAttr(name) && !value.isStringLiteral && !valueContent.startsWith(STYLE_MODULE_NAME)) {
-    const dirCls = ADAPTER_RULES.runtime.dirCls!;
+    const dirCls = rule.dirCls!;
     const arg = mergedItems?.join(',') || wrapSingleQuotes(valueContent);
     const expression = createRuntimeCall(dirCls.target, [arg]);
 
@@ -203,7 +212,7 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
     isStyleAttr(name) &&
     (!isSimpleStyle(valueContent) || mergedItems?.some((item) => !isSimpleStyle(item)))
   ) {
-    const dirStyle = ADAPTER_RULES.runtime.dirStyle!;
+    const dirStyle = rule.dirStyle!;
     const arg = mergedItems?.join(',') || valueContent;
     const expression = createRuntimeCall(dirStyle.target, [arg]);
 
@@ -212,7 +221,7 @@ export function resolvePropAsBabelExp(ir: PropsIR, ctx: ICompilationContext) {
   }
 
   if (ir.type === PropTypes.EVENT && ir.modifiers?.length) {
-    const dirOn = ADAPTER_RULES.runtime.dirOn!;
+    const dirOn = rule.dirOn!;
     const eventName = wrapSingleQuotes((ir as any).__vOnEvName || name, ir.isStatic);
     const expression = createRuntimeCall(dirOn.target, [eventName, valueContent]);
 

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.4] - 2026-05-25
+
+### Fixed
+
+- 修复模板修饰符事件没有表达式时，模板解析直接崩溃 [#43](https://github.com/vureact-js/core/issues/43)
+- 修复 `<slot>` 搭配 v-else 时，slot props 解析崩溃 [#44](https://github.com/vureact-js/core/issues/44)
+- 修复 JSX children 构建对异常 children 形态缺乏容错 [#45](https://github.com/vureact-js/core/issues/45)
+- 修复当 provide() 内部使用 computed() 会漏转为 React 产物 [#46](https://github.com/vureact-js/core/issues/46)
+- 修复 Vue 类型的 import 在编译后被移除，但代码中对应类型引用未移除，导致 TS 类型错误 [#47](https://github.com/vureact-js/core/issues/47)
+- 修复在依赖分析中（如 watchEffect），对代码中的混合了可选链的对象访问，未添加可选链保护导致崩溃的问题 [#48](https://github.com/vureact-js/core/issues/48)
+- 修复编译器在处理模板特殊事件时，生成了错误的运行时方法 dir.On，导致页面奔溃的问题 [#49](https://github.com/vureact-js/core/issues/49)
+
+---
+
+[1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4
+
+---
+
 ## [1.8.3] - 2026-05-15
 
 ### Fixed

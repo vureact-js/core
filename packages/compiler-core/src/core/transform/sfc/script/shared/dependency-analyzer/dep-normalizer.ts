@@ -127,7 +127,12 @@ export function normalizeMemberForCallSite(
 /**
  * 为多级成员链添加可选链保护：
  * 例如 a.b.c => a?.b?.c
- * 如果已经是可选链或只有一级，则直接返回
+ * 如果只有一级（没有嵌套成员访问），则直接返回。
+ *
+ * 注意：对于已经是 OptionalMemberExpression 的节点，仍需递归检查其内部链，
+ * 因为可能存在混合链（如 detail.value.draftReply?.content），其中间层
+ * （detail.value.draftReply）是 MemberExpression 而非 OptionalMemberExpression。
+ * 此时最外层的可选链无法保护中间层的空值访问，必须递归补全。
  */
 export function ensureOptionalForMemberChain(
   node: t.MemberExpression | t.OptionalMemberExpression,
@@ -136,14 +141,31 @@ export function ensureOptionalForMemberChain(
     return node;
   }
 
-  // 已经是可选链则直接返回
-  if (t.isOptionalMemberExpression(node) && node.optional) {
-    return node;
-  }
+  // fix: https://github.com/vureact-js/core/issues/48
+  const rebuildWithOptionalChain = (
+    node: t.MemberExpression | t.OptionalMemberExpression,
+  ): t.MemberExpression | t.OptionalMemberExpression => {
+    // 重建具有可选链保护的成员表达式节点
+    const safeObject = ensureOptionalForMemberChain(node.object as any);
 
-  const object = t.cloneNode(node.object as t.Expression, true);
-  const property = t.cloneNode(node.property, true) as t.Expression | t.Identifier;
-  return t.optionalMemberExpression(object, property, node.computed, true);
+    // 如果 object 已经被递归处理，用处理后的 object 重建当前节点
+    if (safeObject !== node.object) {
+      const property = t.cloneNode(node.property, true) as t.Expression | t.Identifier;
+      return t.optionalMemberExpression(safeObject, property, node.computed, true);
+    }
+
+    // object 无需修改（内部链已全部是可选链），但当前节点如果是 MemberExpression 则转为可选链
+    if (t.isMemberExpression(node)) {
+      const object = t.cloneNode(node.object as t.Expression, true);
+      const property = t.cloneNode(node.property, true) as t.Expression | t.Identifier;
+      return t.optionalMemberExpression(object, property, node.computed, true);
+    }
+
+    // 当前节点已是 OptionalMemberExpression 且内部链无需修改，直接返回
+    return node;
+  };
+
+  return rebuildWithOptionalChain(node);
 }
 
 /**

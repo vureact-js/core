@@ -18,14 +18,19 @@ export function resolveVOn(
   nodeIR: ElementNodeIR,
 ) {
   const arg = directive.arg as SimpleExpressionNode;
-  const exp = directive.exp as SimpleExpressionNode;
+  const exp = directive.exp as SimpleExpressionNode | undefined;
 
   const modifiers = directive.modifiers.map((item) => item.content);
   const captureIndex = resolveCaptureModifier(modifiers);
 
   const eventName = resolveEventName(arg.content, captureIndex);
-  const handler = resolveHandler(exp.content.trim(), ctx, modifiers);
 
+  // fix: https://github.com/vureact-js/core/issues/43
+  // 兼容 `@click.stop` 这类仅带修饰符、不带表达式的事件写法。
+  // 运行时修饰符工具可以正确处理 `undefined` handler，因此这里兜底为 `undefined`。
+  const handlerContent = exp?.content?.trim() || 'undefined';
+
+  const handler = resolveHandler(handlerContent, ctx, modifiers);
   const originalVueEventName = modifiers.length ? `${arg.content}.${modifiers.join('.')}` : '';
   const eventIR = createPropsIR(directive.rawName!, eventName, handler);
 

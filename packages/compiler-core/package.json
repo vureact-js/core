@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.8.3",
-  "description": "🌀 Write Vue. Get Pure React.",
+  "version": "1.8.4",
+  "description": "Migrate Vue to React, or write React in Vue syntax.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",

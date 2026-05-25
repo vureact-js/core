@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.4] - 2026-05-25
+
+### Fixed
+
+- Fixed template parser crash when modifier events had no expression [#43](https://github.com/vureact-js/core/issues/43)
+- Fixed `<slot>` with `v-else` causing slot props parsing crash [#44](https://github.com/vureact-js/core/issues/44)
+- Fixed JSX children builder lacking tolerance for abnormal children shapes [#45](https://github.com/vureact-js/core/issues/45)
+- Fixed `provide()` using `computed()` internally not being converted to React output [#46](https://github.com/vureact-js/core/issues/46)
+- Fixed Vue type imports being removed after compilation but corresponding type references in code not being removed, causing TS type errors [#47](https://github.com/vureact-js/core/issues/47)
+- Fixed dependency analysis (e.g., `watchEffect`) missing optional chaining protection for object access mixed with optional chaining, causing crashes [#48](https://github.com/vureact-js/core/issues/48)
+- Fixed compiler generating incorrect runtime method `dir.On` when handling special template events, causing page crashes [#49](https://github.com/vureact-js/core/issues/49)
+
+---
+
+[1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4
+
+---
+
 ## [1.8.3] - 2026-05-15
 
 ### Fixed
@@ -644,7 +662,8 @@ When releasing a new version:
 ---
 
 ```text
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.8.3...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.8.4...HEAD
+[1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4
 [1.8.3]: https://github.com/vureact-js/core/compare/v1.8.1...v1.8.3
 [1.8.1]: https://github.com/vureact-js/core/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/vureact-js/core/compare/v1.7.0...v1.8.0
