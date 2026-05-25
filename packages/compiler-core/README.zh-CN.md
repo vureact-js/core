@@ -1,11 +1,7 @@
 # @vureact/compiler-core
 
-**写 Vue，生成可维护的 React。**
-
-`@vureact/compiler-core` 是 VuReact 的 **CLI 与核心编译包**。  
-它用于将 Vue 3 的 SFC、脚本和样式文件编译为 **纯 React 18+ 代码**，适合渐进式迁移，以及“保持 Vue 心智模型、输出 React 工程”的场景。
-
-它是 **编译时方案**，不是运行时桥接。
+`@vureact/compiler-core` 是一个面向 Vue 到 React 迁移、兼具「用 Vue 写 React」双重能力的编译工具，VuReact 的 **CLI 与核心编译包**。  
+它用于将 Vue 3 SFCs・Scripts・Styles 完整转为纯 React（非运行时桥接）代码并输出工程化产物，覆盖 `<script setup>` 核心全特性，支持渐进式迁移和混合开发。
 
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
@@ -15,11 +11,16 @@
 
 ## 这个包适合谁
 
-- 正在把 Vue 3 项目渐进迁移到 React
-- 想继续按 Vue 约定写代码，但产出 React 工程
-- 需要基于配置文件执行 `build/watch` 编译流程
+- 项目需从 Vue 3 渐进式迁移到 React，但不想从头重写，优先寻找现有解决方案
+- 部分开发者以 Vue 为主技术栈，习惯其心智模型，认为 React 的额外负担比 Vue 更重
+- 后端开发者不想学习双框架，Vue 上手快、符合直觉，不愿接触 React
+- 转换后的 React 需完全脱离 Vue 运行时，避免双框架运行时所带来的性能和体积问题
 
 ## 使用方式
+
+> 💡 **从零开始的官方指南：**[VuReact 快速入门](https://vureact.top/guide/quick-start.html)
+>
+> 💡 **混合项目迁移实践：**[客户支持协同后台（Vue + React）](https://vureact.top/guide/customer-support-hub)
 
 ### 1. 安装
 
