@@ -1,6 +1,6 @@
 # @vureact/compiler-core
 
-`@vureact/compiler-core` is a compiler toolchain for migrating from Vue to React — and for writing React with Vue 3 syntax. **CLI and core compiler package** of VuReact.  
+`@vureact/compiler-core` is a complete solution for Vue-to-React migration and hybrid development. **CLI and core compiler package** of VuReact.  
 
 It is used to fully convert Vue 3 SFCs, Scripts, and Styles into pure React (non-runtime bridge) code and output engineered artifacts, covering all core features of `<script setup>`, and supporting progressive migration and hybrid development.
 
