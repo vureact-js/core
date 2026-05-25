@@ -1,6 +1,6 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "🌀 Write Vue. Get Pure React.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
