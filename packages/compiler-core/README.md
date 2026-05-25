@@ -1,11 +1,8 @@
 # @vureact/compiler-core
 
-**Write Vue. Get Pure React.**
+`@vureact/compiler-core` is a compiler toolchain for migrating from Vue to React — and for writing React with Vue 3 syntax. **CLI and core compiler package** of VuReact.  
 
-`@vureact/compiler-core` is the **CLI and core compiler package** of VuReact.  
-It compiles Vue 3 SFC, script, and style files into **pure React 18+ code**, making it suitable for progressive migration and for teams that want to keep Vue authoring conventions while targeting a React app.
-
-It is a **compile-time solution**, not a runtime bridge.
+It is used to fully convert Vue 3 SFCs, Scripts, and Styles into pure React (non-runtime bridge) code and output engineered artifacts, covering all core features of `<script setup>`, and supporting progressive migration and hybrid development.
 
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
@@ -15,11 +12,16 @@ English | [简体中文](./README.zh-CN.md)
 
 ## Who this package is for
 
-- Teams progressively migrating a Vue 3 codebase to React
-- Developers who want Vue-style authoring with React output
-- Projects that need a config-driven `build/watch` compilation workflow
+- Projects need to migrate incrementally from Vue 3 to React, but do not want to rewrite from scratch, preferring to find existing solutions first.
+- Some developers use Vue as their primary technology stack, are accustomed to its mental model, and consider React's overhead to be heavier than Vue's.
+- Backend developers do not want to learn both frameworks; Vue is quick to pick up and intuitive, and they are reluctant to engage with React.
+- The converted React code must completely detach from the Vue runtime to avoid performance and bundle size issues caused by a dual-framework runtime.
 
 ## Usage
+
+> 💡 **Official guide from scratch:** [VuReact Quick Start](https://vureact.top/en/guide/quick-start.html)
+>
+> 💡 **Hybrid migration walkthrough:** [Customer Support Hub (Vue + React)](https://vureact.top/en/guide/customer-support-hub)
 
 ### 1. Install
 
