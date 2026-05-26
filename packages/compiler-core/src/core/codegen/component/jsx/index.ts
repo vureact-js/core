@@ -7,7 +7,7 @@ export function buildJSX(
   nodeIR: TemplateBlockIR | null,
   ctx: ICompilationContext,
 ): JSXChild | null {
-  if (!nodeIR?.children.length) {
+  if (!nodeIR?.children.length && ctx.inputType !== 'sfc') {
     return null;
   }
 
