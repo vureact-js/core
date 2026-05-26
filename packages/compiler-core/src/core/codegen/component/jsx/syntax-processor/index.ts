@@ -21,13 +21,17 @@ export type JsxProcessor = (
   state: JsxBuildState,
 ) => void;
 
-export function buildJSXChild(nodeIR: TemplateBlockIR, ctx: ICompilationContext): JSXChild | null {
+export function buildJSXChild(
+  nodeIR: TemplateBlockIR | null,
+  ctx: ICompilationContext,
+): JSXChild | null {
+  const templateIR = nodeIR || { children: [] };
   const state: JsxBuildState = {
     rootChildren: [],
     result: null,
   };
 
-  jsxBuilder(nodeIR, ctx, state, {
+  jsxBuilder(templateIR, ctx, state, {
     preprocess: [],
     process: [buildJsxChildrenProcessor],
     postprocess: [buildRootJsxProcessor],
