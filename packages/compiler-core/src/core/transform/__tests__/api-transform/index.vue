@@ -1,7 +1,3 @@
-<template>
-  <div>213</div>
-</template>
-
 <script setup>
 import {
   computed,
