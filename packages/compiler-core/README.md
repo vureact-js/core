@@ -4,6 +4,7 @@
 
 It is used to fully convert Vue 3 SFCs, Scripts, and Styles into pure React (non-runtime bridge) code and output engineered artifacts, covering all core features of `<script setup>`, and supporting progressive migration and hybrid development.
 
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&color=magenta)](https://github.com/vureact-js/core/stargazers)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)

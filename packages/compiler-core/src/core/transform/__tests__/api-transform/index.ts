@@ -1,9 +1,7 @@
-import { generate } from '@babel/generator';
 import { createCompilationCtx } from '@compiler/context';
-import { parseSFC } from '@core/parse';
 import { logger } from '@shared/logger';
 import { getDirname } from '@shared/path';
-import { transform } from '@src/core/transform/sfc';
+import { generate, parseSFC, transform } from '@src/core';
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 
@@ -23,7 +21,7 @@ function testTransformApi() {
   console.timeEnd('testTransformApi transform duration');
   console.log();
 
-  const code = generate(result.script.statement.local!).code;
+  const code = generate(result, ctx.data).code;
 
   writeFileSync(path.join(__dirname, './preview.jsx'), code, 'utf-8');
 

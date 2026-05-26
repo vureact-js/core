@@ -1,5 +1,14 @@
 <script setup>
-import { computed, onBeforeMount, onUpdated, reactive, ref, watch, watchEffect } from 'vue';
+import {
+  computed,
+  onBeforeMount,
+  onUpdated,
+  provide,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 
 const count = ref(1);
 const state = reactive({ count: 1 });
@@ -30,5 +39,10 @@ watchEffect;
 watchEffect((onCleanup) => {
   onCleanup(() => {});
   result.value;
+});
+
+provide(batchActionContextKey, {
+  queue: computed(() => filters.value.queue),
+  status: computed(() => filters.value.status),
 });
 </script>
