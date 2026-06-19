@@ -16,5 +16,5 @@ node_modules/
 
 *.log
 .DS_Store
-pnpm-lock.yaml
+# pnpm-lock.yaml 应提交到仓库，确保 CI 依赖一致
 bundles-size.html

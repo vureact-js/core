@@ -1,0 +1,10 @@
+[
+  {
+    "level": "error",
+    "message": "Non-string event name cannot be converted to React onXxx style. The emit call will not work as expected.",
+    "file": "__fixtures__/transform/macro-call/input.vue",
+    "line": 33,
+    "column": 7,
+    "source": "\nimport { ref } from 'vue';\n\ninterface SomeTypes {\n  name: string;\n  class?: () => string;\n  click: () => any;\n  change: (v: string) => string;\n}\n\nconst props = defineProps<{ title: string }>();\n\nconst emit = defineEmits<{\n  (e: 'change'): void;\n  (e: 'update', arg: { value: number }, d?: number): number;\n}>();\n\ndefineSlots<{\n  default?: () => any;\n  header?: (props: { title: string }) => any;\n  footer?: (props: { year: number }) => any;\n  item?: (props: { id: number; name: string }) => any;\n}>();\n\nconst count = ref(1);\n\n// 应分析依赖，得到 props?.onUpdate\nconst handleUpdate = () => {\n  // 应替换成 props?.onUpdate({ value: count.value++ })\n  emit('update', { value: count.value });\n\n  const update = 'update';\n  emit(update, { value: count.value });\n};\n"
+  }
+]

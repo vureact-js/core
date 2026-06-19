@@ -1,0 +1,10 @@
+[
+  {
+    "level": "error",
+    "message": "The useVRef hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/analyze-deps/input.vue",
+    "line": 34,
+    "column": 16,
+    "source": "\nimport { reactive, ref } from 'vue';\n\nconst count = ref(0);\nconst foo = ref(0);\nconst state = reactive({ foo: 'bar', bar: { c: 1 } });\n\n// 应分析箭头函数中的依赖并转成 useCallback\nconst fn1 = () => {\n  count.value += state.bar.c;\n  console.log(count.value);\n};\n\n// 应被忽略\nconst fn = () => {};\n\n// 应分析\nconst fn2 = () => {\n  // 应溯源，并收集 foo.value\n  const c = foo.value;\n  fn();\n  // 应忽略局部箭头函数\n  const fn4 = () => {\n    state.bar.c--;\n    c + count.value;\n  };\n};\n\n// 应分析\nconst fn3 = () => {\n  foo.value++;\n\n  // 应忽略函数内部的创建的响应式变量\n  const state = ref('fake');\n\n  // 应忽略与外部响应式变量 count 同名的\n  const count = state.value + 'yoxi';\n  count.charAt(1);\n};\n\n// 普通函数应忽略\nfunction fn4() {\n  const t = state.foo;\n\n  // 应忽略\n  return () => {\n    state.foo = 'barr';\n  };\n}\n\n// @ts-ignore\ncallback(() => {\n  // 回调函数应忽略\n  count.value++;\n});\n\n// 类/普通对象的方法成员应忽略\nclass Foo {\n  bar = () => {\n    count.value;\n  };\n}\n\nconst methods = {\n  fn: () => {\n    state.foo;\n\n    const fn = () => {\n      foo.value;\n    };\n  },\n};\n\nconst objRef = ref({ a: 1, b: { c: 1 } });\nconst listRef = ref([1, 2, 3]);\n\nconst chainFn = () => {\n  state.foo;\n  count.value;\n  objRef.value.a;\n};\n\nconst dynamicFn = () => {\n  // @ts-ignore\n  state[Date.now()];\n  // @ts-ignore\n  foo?.[count.value];\n  objRef.value.b.c;\n};\n\nconst aliasA = state.foo;\nconst aliasB = aliasA;\nconst aliasC = aliasB;\n\n// 应分析并溯源 aliasC，最终收集 state.foo\nconst traceFn = () => {\n  aliasC;\n};\n\nconst { foo: stateFoo } = state;\nconst [first] = listRef.value;\n\n// 应分析\nconst destructureFn = () => {\n  stateFoo; // 溯源并收集到 state\n  first; // 溯源并收集到 listRef.value\n};\n\nconst bad = Date.now() + 1;\n// 应忽略\nconst badFn = () => {\n  bad;\n};\n"
+  }
+]

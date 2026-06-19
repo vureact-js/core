@@ -6,6 +6,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "build:compiler-core": "pnpm -F @vureact/compiler-core build",
     "build:runtime-core": "pnpm -F @vureact/runtime-core build",
+    "test:compiler-core": "pnpm -F @vureact/compiler-core test",
     "test:adapter-hooks": "pnpm -F @vureact/runtime-core test -- adapter-hooks",
     "test:adapter-utils": "pnpm -F @vureact/runtime-core test -- adapter-utils",
     "test:adapter-components": "pnpm -F @vureact/runtime-core test -- adapter-components"

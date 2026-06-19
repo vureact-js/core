@@ -63,8 +63,10 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "tsx watch",
-    "prepublishOnly": "npm run build"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build && npm run test:coverage"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"

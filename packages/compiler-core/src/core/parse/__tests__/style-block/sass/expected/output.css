@@ -1,0 +1,50 @@
+.container {
+  padding: 12px;
+  background-color: rgb(228, 242.025974026, 255);
+}
+.container .title {
+  color: #1890ff;
+  font-size: 24px;
+}
+.container .title:hover {
+  text-decoration: underline;
+}
+.container .content {
+  margin-top: 12px;
+  border: 1px solid rgb(0, 118.4415584416, 228);
+  border-radius: 4px;
+  padding: 6px;
+}
+.container .button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.container .button-group .btn-primary {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.container .button-group .btn-primary:hover {
+  background-color: rgb(0, 118.4415584416, 228);
+}
+.container .button-group .btn-secondary {
+  background-color: rgb(177, 217.5194805195, 255);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.container .button-group .btn-secondary:hover {
+  background-color: rgb(126, 193.012987013, 255);
+}
+.container .button-group .btn-secondary {
+  color: rgb(0, 91.9480519481, 177);
+  border: 1px solid rgb(0, 118.4415584416, 228);
+}

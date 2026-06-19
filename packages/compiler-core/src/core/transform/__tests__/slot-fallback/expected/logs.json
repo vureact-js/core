@@ -1,0 +1,18 @@
+[
+  {
+    "level": "warning",
+    "message": "Avoid using dynamic slot names, as they generate complex JSX prop expressions.",
+    "file": "__fixtures__/transform/slot-fallback/input.vue",
+    "line": 13,
+    "column": 22,
+    "source": "<template>\n  <slot>\n    <div>默认内容</div>\n    <div>我测</div>\n  </slot>\n\n  <button type=\"submit\">\n    <slot name=\"submit-text\"> Submit </slot>\n  </button>\n\n  <!-- 顺便测一下动态插槽名 -->\n  <base-layout>\n    <template v-slot:[dynamicSlotName]> ... </template>\n\n    <!-- 缩写为 -->\n    <template #[dynamicName]> ... </template>\n  </base-layout>\n</template>\n\n<script setup></script>\n"
+  },
+  {
+    "level": "warning",
+    "message": "Avoid using dynamic slot names, as they generate complex JSX prop expressions.",
+    "file": "__fixtures__/transform/slot-fallback/input.vue",
+    "line": 16,
+    "column": 16,
+    "source": "<template>\n  <slot>\n    <div>默认内容</div>\n    <div>我测</div>\n  </slot>\n\n  <button type=\"submit\">\n    <slot name=\"submit-text\"> Submit </slot>\n  </button>\n\n  <!-- 顺便测一下动态插槽名 -->\n  <base-layout>\n    <template v-slot:[dynamicSlotName]> ... </template>\n\n    <!-- 缩写为 -->\n    <template #[dynamicName]> ... </template>\n  </base-layout>\n</template>\n\n<script setup></script>\n"
+  }
+]
