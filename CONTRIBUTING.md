@@ -85,6 +85,20 @@ Run Prettier checks from the workspace root:
 pnpm format:check
 ```
 
+### `compiler-core`
+
+Run the test suite:
+
+```bash
+pnpm test:compiler-core
+```
+
+Run the relevant package build as well:
+
+```bash
+pnpm build:compiler-core
+```
+
 ### `runtime-core`
 
 Use the root scripts for the affected area:
@@ -100,16 +114,6 @@ Run the relevant package build as well:
 ```bash
 pnpm build:runtime-core
 ```
-
-### `compiler-core`
-
-At minimum, run the package build:
-
-```bash
-pnpm build:compiler-core
-```
-
-If your change affects parsing, transforms, code generation, or watch/build behavior, also run the most relevant area-specific verification available in that part of the package. The repository does not currently expose one single top-level automated test command for all `compiler-core` scenarios, so document exactly what you ran in the PR.
 
 ## Commit and Open a PR
 

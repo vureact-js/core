@@ -85,6 +85,20 @@
 pnpm format:check
 ```
 
+### `compiler-core`
+
+运行测试套件：
+
+```bash
+pnpm test:compiler-core
+```
+
+运行包构建：
+
+```bash
+pnpm build:compiler-core
+```
+
 ### `runtime-core`
 
 根据你修改的区域，运行对应的根脚本：
@@ -100,16 +114,6 @@ pnpm test:adapter-components
 ```bash
 pnpm build:runtime-core
 ```
-
-### `compiler-core`
-
-至少运行包构建：
-
-```bash
-pnpm build:compiler-core
-```
-
-如果改动涉及解析、转换、代码生成，或 watch/build 行为，请额外运行该区域最相关的定向验证。当前仓库还没有为 `compiler-core` 提供一个统一覆盖所有场景的顶层自动化测试命令，因此请在 PR 中明确写出你实际执行了哪些验证。
 
 ## 提交 Commit 并创建 PR
 
