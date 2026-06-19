@@ -43,7 +43,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Run tests with coverage
-        run: pnpm --filter @vureact/compiler-core test -- --coverage
+        run: pnpm --filter @vureact/compiler-core test:coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
