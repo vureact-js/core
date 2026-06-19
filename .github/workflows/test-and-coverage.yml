@@ -1,0 +1,45 @@
+name: Compiler Test & Coverage
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/compiler-core/src/**'
+      - 'packages/compiler-core/jest.config.cjs'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'packages/compiler-core/src/**'
+      - 'packages/compiler-core/jest.config.cjs'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests with coverage
+        run: pnpm --filter @vureact/compiler-core test -- --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: packages/compiler-core/coverage
+          flags: compiler-core
+          name: compiler-core-coverage
+          fail_ci_if_error: false
