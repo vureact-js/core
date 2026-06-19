@@ -1,8 +1,7 @@
-import assert from 'node:assert/strict';
+import { describe, expect, jest, test } from '@jest/globals';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import test from 'node:test';
 import { logger } from '@shared/logger';
 import { FileCompiler } from '..';
 
@@ -37,73 +36,74 @@ function createCompiler(root: string) {
   });
 }
 
-test('watch mode recompiles when a Vue file is restored to its initial content', async () => {
-  const initialSource = `<template><div>{{ label }}</div></template>
+describe('FileCompiler watch mode regressions', () => {
+  test('recompiles when a Vue file is restored to its initial content', async () => {
+    const consoleInfoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+    const initialSource = `<template><div>{{ label }}</div></template>
 <script setup lang="ts">
 const label = 'initial'
 </script>
 `;
-  const changedSource = `<template><div>{{ label }}</div></template>
+    const changedSource = `<template><div>{{ label }}</div></template>
 <script setup lang="ts">
 const label = 'changed'
 </script>
 `;
 
-  const { root, vueFile } = await createTempProject(initialSource);
+    const { root, vueFile } = await createTempProject(initialSource);
 
-  try {
-    const buildCompiler = createCompiler(root);
-    await buildCompiler.execute();
+    try {
+      const buildCompiler = createCompiler(root);
+      await buildCompiler.execute();
 
-    const watchCompiler = createCompiler(root);
-    await writeFile(vueFile, changedSource, 'utf-8');
+      const watchCompiler = createCompiler(root);
+      await writeFile(vueFile, changedSource, 'utf-8');
 
-    const changedUnit = await watchCompiler.processSFC(vueFile);
-    assert.ok(changedUnit?.output, 'changed source should compile in watch mode');
+      const changedUnit = await watchCompiler.processSFC(vueFile);
+      expect(changedUnit?.output).toBeTruthy();
 
-    const outputFile = changedUnit!.output!.jsx.file;
-    const changedOutput = await readFile(outputFile, 'utf-8');
-    assert.match(changedOutput, /changed/);
+      const outputFile = changedUnit!.output!.jsx.file;
+      const changedOutput = await readFile(outputFile, 'utf-8');
+      expect(changedOutput).toMatch(/changed/);
 
-    await writeFile(vueFile, initialSource, 'utf-8');
+      await writeFile(vueFile, initialSource, 'utf-8');
 
-    const restoredUnit = await watchCompiler.processSFC(vueFile);
-    assert.ok(restoredUnit?.output, 'restoring initial source should still recompile in watch mode');
+      const restoredUnit = await watchCompiler.processSFC(vueFile);
+      expect(restoredUnit?.output).toBeTruthy();
 
-    const restoredOutput = await readFile(outputFile, 'utf-8');
-    assert.match(restoredOutput, /initial/);
-    assert.doesNotMatch(restoredOutput, /changed/);
-  } finally {
-    await rm(root, { recursive: true, force: true });
-  }
-});
-
-test('component name fallback does not emit unnamed-component warnings', () => {
-  logger.clear();
-
-  const compiler = new FileCompiler({
-    output: {
-      bootstrapVite: false,
-    },
+      const restoredOutput = await readFile(outputFile, 'utf-8');
+      expect(restoredOutput).toMatch(/initial/);
+      expect(restoredOutput).not.toMatch(/changed/);
+    } finally {
+      consoleInfoSpy.mockRestore();
+      await rm(root, { recursive: true, force: true });
+    }
   });
 
-  const source = `<template><div>Hello</div></template>
+  test('component name fallback does not emit unnamed-component warnings', () => {
+    logger.clear();
+
+    const compiler = new FileCompiler({
+      output: {
+        bootstrapVite: false,
+      },
+    });
+
+    const source = `<template><div>Hello</div></template>
 <script setup lang="ts">
 const count = 1
 </script>
 `;
 
-  const result = compiler.compile(source, path.join('fixtures', 'account-overview.vue'));
-  const warnings = logger
-    .getLogs()
-    .filter((log) => log.level === 'warning')
-    .map((log) => log.message);
+    const result = compiler.compile(source, path.join('fixtures', 'account-overview.vue'));
+    const warnings = logger
+      .getLogs()
+      .filter((log) => log.level === 'warning')
+      .map((log) => log.message);
 
-  assert.match(result.code, /const AccountOverview = memo/);
-  assert.equal(
-    warnings.some((message) => message.includes('Unnamed component detected')),
-    false,
-  );
+    expect(result.code).toMatch(/const AccountOverview = memo/);
+    expect(warnings.some((message) => message.includes('Unnamed component detected'))).toBe(false);
 
-  logger.clear();
+    logger.clear();
+  });
 });
