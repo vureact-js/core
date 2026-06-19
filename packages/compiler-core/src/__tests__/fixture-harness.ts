@@ -229,13 +229,18 @@ function resolveLogOutput(): OutputFile | undefined {
  * 使日志内容在纯文本文件中可读。
  */
 function stripAnsiFromLog<T extends Record<string, any> & { message: string }>(log: T): T {
-  const result = { ...log };
+  const result: Record<string, any> = { ...log };
 
   if (typeof result.message === 'string') {
     result.message = stripAnsi(result.message);
   }
 
-  return result;
+  // 统一 source 字段的换行符，避免 Windows (CRLF) 与 Linux (LF) 差异导致测试失败
+  if (typeof result.source === 'string') {
+    result.source = normalizeNewlines(result.source);
+  }
+
+  return result as T;
 }
 
 /**
