@@ -65,7 +65,7 @@
     "build": "tsup",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage && node scripts/write-coverage-badge.cjs",
+    "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run build && npm run test:coverage"
   },
   "peerDependencies": {
