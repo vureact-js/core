@@ -16,6 +16,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # 确保 Git 在 Linux CI 中不会将换行符转换为 CRLF
+  GIT_CONFIG_PARAMETERS: 'core.autocrlf=input'
+
 jobs:
   test:
     runs-on: ubuntu-latest
