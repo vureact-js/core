@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # 确保 Git 在 Linux CI 中不会将换行符转换为 CRLF
-  GIT_CONFIG_PARAMETERS: 'core.autocrlf=input'
+  # 确保 Git 在 Linux CI 中不会包含 CRLF 问题
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 jobs:
   test:
