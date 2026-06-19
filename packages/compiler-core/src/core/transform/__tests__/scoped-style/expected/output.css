@@ -1,0 +1,79 @@
+/* 日常用法 */
+.my-class[data-css-3ef28f3b] {
+  color: red;
+  font-size: 16px;
+}
+
+/* 嵌套选择器 */
+.parent[data-css-3ef28f3b] {
+  .child[data-css-3ef28f3b] {
+    background: blue;
+  }
+
+  > .direct-child[data-css-3ef28f3b] {
+    border: 1px solid;
+  }
+
+  & .sibling[data-css-3ef28f3b] {
+    margin: 10px;
+  }
+}
+
+/* 复杂写法 */
+.component[data-css-3ef28f3b] {
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &.active {
+    font-weight: bold;
+  }
+
+  .global-class {
+    color: green;
+  }
+
+  & .nested-component {
+    background: yellow;
+  }
+
+  .slotted-content {
+    display: flex;
+  }
+
+  &:not(:first-child) {
+    margin-top: 20px;
+  }
+
+  &:nth-child(2n) {
+    background: #f0f0f0;
+  }
+
+  &::before {
+    content: '→';
+  }
+
+  &::placeholder {
+    color: gray;
+  }
+}
+
+.parent[data-css-3ef28f3b] .btn{color:red}
+
+.parent[data-css-3ef28f3b] .btn{color:red}
+
+.parent[data-css-3ef28f3b] > .btn{color:red}
+
+[data-css-3ef28f3b] .btn{color:red}
+
+.a[data-css-3ef28f3b] .x, .a[data-css-3ef28f3b] .y{color:red}
+
+.component[data-css-3ef28f3b] {
+  & .nested-component {
+    background: yellow;
+  }
+}
+
+input[data-css-3ef28f3b][type='checkbox'] {
+  padding: 6px;
+}

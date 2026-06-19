@@ -1,0 +1,58 @@
+[
+  {
+    "level": "error",
+    "message": "The useVRef hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 15,
+    "column": 14,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  },
+  {
+    "level": "error",
+    "message": "The useVRef hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 16,
+    "column": 16,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  },
+  {
+    "level": "error",
+    "message": "The useComputed hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 19,
+    "column": 20,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  },
+  {
+    "level": "error",
+    "message": "The useReactive hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 22,
+    "column": 14,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  },
+  {
+    "level": "error",
+    "message": "The useWatchEffect hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 34,
+    "column": 0,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  },
+  {
+    "level": "error",
+    "message": "The useMounted hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 39,
+    "column": 0,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  },
+  {
+    "level": "error",
+    "message": "The useUnmounted hook must be called at the top level, not inside loops, conditions, or nested functions.",
+    "file": "__fixtures__/transform/script-only/input.ts",
+    "line": 43,
+    "column": 0,
+    "source": "// 测试 Vue Composition API 转换为 React Hooks\r\n// 注意，这样的写法转成 React 完全不符合规则，仅测试用。\r\n\r\nimport { computed, onMounted, onUnmounted, reactive, ref, watchEffect } from 'vue';\r\n\r\n// 测试 defineProps 和 defineEmits\r\nconst props = defineProps({\r\n  title: String,\r\n  count: Number,\r\n});\r\n\r\nconst emit = defineEmits(['update', 'delete']);\r\n\r\n// 测试 ref\r\nconst count = ref(0);\r\nconst message = ref('Hello');\r\n\r\n// 测试 computed\r\nconst doubleCount = computed(() => count.value * 2);\r\n\r\n// 测试 reactive\r\nconst state = reactive({\r\n  name: 'Test',\r\n  items: [1],\r\n});\r\n\r\n// 测试函数\r\nfunction increment() {\r\n  count.value++;\r\n  state.items.push(count.value);\r\n}\r\n\r\n// 测试 watchEffect\r\nwatchEffect(() => {\r\n  console.log('Count changed:', count.value);\r\n});\r\n\r\n// 测试生命周期\r\nonMounted(() => {\r\n  console.log('Component mounted');\r\n});\r\n\r\nonUnmounted(() => {\r\n  console.log('Component unmounted');\r\n});\r\n\r\nfunction handleUpdate() {\r\n  emit('update', { value: count.value });\r\n}\r\n\r\n// 导出供测试\r\nexport { count, doubleCount, emit, handleUpdate, increment, message, props, state };\r\n"
+  }
+]
