@@ -39,6 +39,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vureact-js/core
           directory: packages/compiler-core/coverage
           flags: compiler-core
           name: compiler-core-coverage
