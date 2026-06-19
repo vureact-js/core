@@ -12,6 +12,10 @@ on:
       - 'packages/compiler-core/src/**'
       - 'packages/compiler-core/jest.config.cjs'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,9 +29,15 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
-          cache-dependency-path: 'pnpm-lock.yaml'
+          node-version: 22
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
