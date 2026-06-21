@@ -430,3 +430,37 @@ export function cleanNodeComments(node: t.Node) {
   node.innerComments = null;
   node.trailingComments = null;
 }
+
+/**
+ * 将运行时 JS 类型转为 TS 类型
+ */
+export function mapRuntimeTypeToTSType(value: t.Identifier): t.TSType | undefined {
+  switch (value.name) {
+    case 'String':
+      return t.tsStringKeyword();
+
+    case 'Number':
+      return t.tsNumberKeyword();
+
+    case 'Boolean':
+      return t.tsBooleanKeyword();
+
+    case 'Object':
+      return t.tsTypeLiteral([]);
+
+    case 'Array':
+      return t.tsArrayType(t.tsAnyKeyword());
+
+    case 'Function':
+      return t.tsFunctionType(null, [], t.tsTypeAnnotation(t.tsAnyKeyword()));
+
+    case 'Symbol':
+      return t.tsSymbolKeyword();
+
+    case 'BigInt':
+      return t.tsBigIntKeyword();
+
+    default:
+      return t.tsAnyKeyword();
+  }
+}

@@ -2,6 +2,7 @@ import { NodePath } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { logger } from '@shared/logger';
+import { mapRuntimeTypeToTSType } from '../../../shared/babel-utils';
 
 /**
  * 解决 defineProps TS 类型注释
@@ -179,35 +180,4 @@ function resolveRuntimeUnionType(value: t.ArrayExpression): t.TSType {
   if (types.length === 1) return types[0]!;
 
   return t.tsUnionType(types);
-}
-
-function mapRuntimeTypeToTSType(value: t.Identifier): t.TSType | undefined {
-  switch (value.name) {
-    case 'String':
-      return t.tsStringKeyword();
-
-    case 'Number':
-      return t.tsNumberKeyword();
-
-    case 'Boolean':
-      return t.tsBooleanKeyword();
-
-    case 'Object':
-      return t.tsTypeLiteral([]);
-
-    case 'Array':
-      return t.tsArrayType(t.tsAnyKeyword());
-
-    case 'Function':
-      return t.tsFunctionType(null, [], t.tsTypeAnnotation(t.tsAnyKeyword()));
-
-    case 'Symbol':
-      return t.tsSymbolKeyword();
-
-    case 'BigInt':
-      return t.tsBigIntKeyword();
-
-    default:
-      return t.tsAnyKeyword();
-  }
 }
