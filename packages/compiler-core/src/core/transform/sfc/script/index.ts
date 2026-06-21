@@ -18,8 +18,6 @@ export interface ScriptBlockIR {
   };
 }
 
-const SCRIPT_IR_KEY = '__vureact_script_block_ir';
-
 export function resolveScript(
   ast: BabelParseResult | undefined,
   ctx: ICompilationContext,
@@ -44,7 +42,7 @@ export function resolveScript(
 }
 
 export function getScriptIR(ctx: ICompilationContext): ScriptBlockIR {
-  const ir = (ctx.scriptData as any)[SCRIPT_IR_KEY] as ScriptBlockIR | undefined;
+  const ir = ctx.scriptData.__vureact_script_block_ir as ScriptBlockIR | undefined;
 
   if (!ir) {
     throw new Error('Script IR is not initialized for current compilation context');
@@ -54,7 +52,7 @@ export function getScriptIR(ctx: ICompilationContext): ScriptBlockIR {
 }
 
 function setScriptIR(ctx: ICompilationContext, ir: ScriptBlockIR): void {
-  (ctx.scriptData as any)[SCRIPT_IR_KEY] = ir;
+  ctx.scriptData.__vureact_script_block_ir = ir;
 }
 
 function createScriptIR(): ScriptBlockIR {
