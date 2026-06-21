@@ -64,6 +64,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:fixture": "jest --no-coverage compiler-fixtures -t",
     "prepublishOnly": "npm run build && npm run test:coverage"
   },
   "peerDependencies": {
@@ -97,6 +98,6 @@
     "xxhashjs": "^0.2.2"
   },
   "engines": {
-    "node": ">=19.0.0"
+    "node": ">=20.19.0"
   }
 }
