@@ -21,3 +21,10 @@ export function createUseImperativeHandle(
 ): t.CallExpression {
   return t.callExpression(t.identifier(REACT_API_MAP.useImperativeHandle), [refId, init]);
 }
+
+export function createUseEffect(body: t.Expression, deps?: t.ArrayExpression): t.CallExpression {
+  return t.callExpression(t.identifier(REACT_API_MAP.useEffect), [
+    t.arrowFunctionExpression([], body),
+    deps ?? t.arrayExpression([]),
+  ]);
+}
