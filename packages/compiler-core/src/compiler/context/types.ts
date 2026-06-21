@@ -12,7 +12,7 @@ export interface ICompilationContext {
 
   /**
    * 函数组件的 prop 参数名
-   * @default '$props'
+   * @default 'props'
    */
   propField: string;
 
@@ -81,6 +81,11 @@ export interface ICompilationContext {
       name?: string;
       inheritAttrs?: boolean;
     };
+
+    /**
+     * 使用时手动类型断言为 `ScriptBlockIR`
+     */
+    __vureact_script_block_ir: any;
   };
 
   styleData: {

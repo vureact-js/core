@@ -65,6 +65,7 @@ export class CompilationContext {
         },
         declaredOptions: {},
         source: '',
+        __vureact_script_block_ir: undefined,
       },
 
       styleData: {
