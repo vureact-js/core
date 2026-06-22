@@ -65,6 +65,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:fixture": "jest --no-coverage compiler-fixtures -t",
+    "test:fixture-update": "node -e \"process.env.UPDATE_COMPILER_CORE_FIXTURES='1'; require('child_process').execSync('jest --no-coverage compiler-fixtures -t ' + (process.argv[1] || ''), { stdio: 'inherit', shell: true })\"",
     "prepublishOnly": "npm run build && npm run test:coverage"
   },
   "peerDependencies": {
