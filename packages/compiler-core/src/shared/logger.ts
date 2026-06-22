@@ -29,6 +29,7 @@ interface PrintOptions {
   errors?: boolean;
   warnings?: boolean;
   info?: boolean;
+  _testMode?: boolean;
 }
 
 export class Logger {
@@ -199,14 +200,15 @@ export class Logger {
 
   printAll(opts?: PrintOptions): void {
     if (this.logs.length === 0) {
-      console.log('No logs to display.');
+      !opts?._testMode && console.log('No logs to display.');
       return;
     }
 
     const orderedLogs = this.getOrderedLogs(opts);
 
     for (const log of orderedLogs) {
-      console.log();
+      !opts?._testMode && console.log();
+
       console.log(this.formatHeader(log));
 
       const context = this.formatContext(log);
@@ -214,11 +216,12 @@ export class Logger {
         console.log(context);
       }
 
-      console.log();
+      !opts?._testMode && console.log();
     }
 
     this.printSummary();
-    console.log();
+
+    !opts?._testMode && console.log();
   }
 
   clear(): void {

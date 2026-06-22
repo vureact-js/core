@@ -118,10 +118,14 @@ export function runCompilerFixture(testCase: CompilerFixtureCase) {
   }
 
   const expectedDirectory = path.join(testCase.directory, 'expected');
+
   if (UPDATE_EXPECTED) {
     // 更新模式：直接将当前输出覆盖 expected 目录
     writeOutputs(expectedDirectory, outputs);
   }
+
+  logger.printAll({ _testMode: true });
+  logger.clear();
 
   // jest 断言：每个输出文件都必须与 expected 目录中的预期文件完全一致
   for (const output of outputs) {
@@ -132,8 +136,6 @@ export function runCompilerFixture(testCase: CompilerFixtureCase) {
     const expected = fs.readFileSync(expectedPath, 'utf-8');
     expect(normalizeNewlines(output.code)).toBe(normalizeNewlines(expected));
   }
-
-  logger.clear();
 }
 
 /**
