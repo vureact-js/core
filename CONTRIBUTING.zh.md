@@ -106,9 +106,15 @@ pnpm test:compiler-core
 
 ```bash
 cd packages/compiler-core
+
 pnpm test:fixture "<任意 __tests__ 目录下的测试文件夹名称>"
 # 例如：pnpm test:fixture "define-model"
+
+# 可强制更新预期输出文件
+pnpm test:fixture-update "<同上的占位文本>"
 ```
+
+> 若出现 `[vureact]` 相关告警属于正常现象，因为这些告警是由有意引入的边界情况所触发，而非 Jest 测试错误。
 
 运行包构建：
 

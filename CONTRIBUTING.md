@@ -106,9 +106,15 @@ Run specific module tests:
 
 ```bash
 cd packages/compiler-core
+
 pnpm test:fixture "<name of the test folder under any __tests__ directory>"
 # example: pnpm test:fixture "define-model"
+
+# Force update expected output files
+pnpm test:fixture-update "<same as above>"
 ```
+
+> If you see `[vureact]` related warnings, it is normal. These warnings are triggered by intentionally introduced edge cases, not by Jest test errors.
 
 Run the relevant package build as well:
 
