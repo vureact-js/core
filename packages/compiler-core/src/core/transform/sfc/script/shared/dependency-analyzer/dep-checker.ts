@@ -1,4 +1,4 @@
-import { Binding, NodePath } from '@babel/traverse';
+import { Binding } from '@babel/traverse';
 import * as t from '@babel/types';
 import { getReactiveStateApis } from '@shared/reactive-utils';
 import { getVariableDeclaratorPath } from '../babel-utils';
@@ -6,8 +6,8 @@ import { isReactiveBinding } from './binding-utils';
 
 /**
  * 判断绑定是否合格：
- * 1. 是否是 import 进来的
- * 2. 是否是 reactive/ref 等 API 声明的
+ * 1. 是否是 reactive/ref 等 API 声明的
+ * 2. 是否是 hook 等 API 声明的
  * 3. 是否是函数声明
  */
 export function isEligibleBindingSource(binding: Binding): boolean {
@@ -30,6 +30,7 @@ export function isEligibleBindingSource(binding: Binding): boolean {
     t.isIdentifier(nodeInit.callee) &&
     reactiveStateApis.has(nodeInit.callee.name);
 
+  // 判断是否为 hook 调用绑定（如 useXxx()）
   const isHookCallVarBinding =
     !!declaratorPath && t.isCallExpression(nodeInit) && isHookLikeCallee(nodeInit.callee);
 
