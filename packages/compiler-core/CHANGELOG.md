@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2026-06-23
+
+### Added
+
+- Added `defineModel` macro API transform support: compiles Vue 3's `defineModel()` into a combination of React `props`, `useVRef()`, and `useUpdated()` to enable automatic synchronization of `v-model` two-way binding. Only supports `type`, `default`, `required` options and custom prop name [#56](https://github.com/vureact-js/core/issues/56)
+
+[1.9.0]: https://github.com/vureact-js/core/compare/v1.8.5...v1.9.0
+
+---
+
 ## [1.8.5] - 2026-05-27
 
 ### Fixed
@@ -674,7 +684,8 @@ When releasing a new version:
 ---
 
 ```text
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.8.5...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/vureact-js/core/compare/v1.8.5...v1.9.0
 [1.8.5]: https://github.com/vureact-js/core/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4
 [1.8.3]: https://github.com/vureact-js/core/compare/v1.8.1...v1.8.3

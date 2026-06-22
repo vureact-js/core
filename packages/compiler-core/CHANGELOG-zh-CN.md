@@ -1,13 +1,22 @@
-# Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+本项目所有重要变更都将记录在此文件中。
+格式基于 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)，
+并且本项目遵循 [语义化版本](https://semver.org/spec/v2.0.0.html)。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [1.9.0] - 2026-06-23
+
+### 新增功能
+
+- 新增 `defineModel` 宏 API 转换支持：将 Vue 3 的 `defineModel()` 编译为 React 的 `props`、`useVRef()` 与 `useUpdated()` 组合，实现 `v-model` 双向绑定的自动同步。仅支持 `type`、`default`、`require` 选项及自定义 prop name [#56](https://github.com/vureact-js/core/issues/56)
+
+[1.9.0]: https://github.com/vureact-js/core/compare/v1.8.5...v1.9.0
+
+---
 
 ## [1.8.5] - 2026-05-27
 
-### Fixed
+### Bug 修复
 
 - 修复 `provide()` 内部使用如 `computed()` 等可映射的 API 时，会漏转为 React 产物 [#46](https://github.com/vureact-js/core/issues/46)
 - 修复无模板组件中使用 provide 后，生成的 React jsx 丢失 `<Provider>` 组件 [#51](https://github.com/vureact-js/core/issues/51)
@@ -20,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.4] - 2026-05-25
 
-### Fixed
+### Bug 修复
 
 - 修复模板修饰符事件没有表达式时，模板解析直接崩溃 [#43](https://github.com/vureact-js/core/issues/43)
 - 修复 `<slot>` 搭配 v-else 时，slot props 解析崩溃 [#44](https://github.com/vureact-js/core/issues/44)
@@ -37,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.3] - 2026-05-15
 
-### Fixed
+### Bug 修复
 
 - **修复 watch 模式改回初始内容后 React 端未触发热更新的问题**：优化缓存校验，文件恢复初始状态时能正确识别变化并同步产物
 - **移除组件名文件名回退的多余警告**：未显式声明名称时按文件名推导组件名属于正常兜底，不再输出 warning 日志
@@ -50,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.1] - 2026-05-14
 
-### Fixed
+### Bug 修复
 
 - **修复增量编译时部分缓存数据丢失的问题**：改进增量编译的缓存持久化逻辑，确保数据完整保存，避免增量编译功能失效
 
@@ -62,19 +71,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.0] - 2026-05-05
 
-### Changed
+### 重构与优化
 
 - **优化文件扫描效率**：编译期间只扫描一次源文件，各编译阶段共享扫描结果，避免重复遍历目录
 - **优化缓存读写性能**：重构缓存读写机制，编译期间只读写一次缓存文件，避免重复 I/O 操作，全量编译速度提升约 30-40%
 - **优化缓存清理逻辑**：不再每次清理时重复读写磁盘，改为内存操作，避免缓存数据不同步
 - **优化终端输出体验**：统一的步骤化进度提示，编译完成后显示后续操作指引及 GitHub star 请求
 
-### Fixed
+### Bug 修复
 
 - **修复关闭编译缓存后，全量编译会删除工作区目录，导致输出文件与 Vite 运行环境被清空的问题**：优化清理逻辑，只删除缓存文件本身
 - **修复 CLI 启动时的包版本更新检查功能不生效**：修正更新检查逻辑，确保启动时正确检测并提示新版本
 
-### Removed
+### 移除了
 
 - **移除每个单独编译过程中的重复文件扫描和缓存读写**：改为统一在编译开始时和开始后一次完成，各编译阶段共享结果
 
@@ -86,13 +95,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.7.0] - 2026-04-26
 
-### Added
+### 新增功能
 
 - **新增 `:deep()` 转换支持**：支持深度选择器的编译转换，覆盖多种复杂场景（多参数、嵌套等），确保样式穿透至子组件
 - **新增 `:slotted()` 转换支持**：支持插槽选择器的编译转换，允许样式作用域精确作用于插槽内容
 - **新增 `:global()` 转换支持**：支持全局选择器的编译转换，允许在 scoped 样式中声明全局样式规则
 
-### Fixed
+### Bug 修复
 
 - **修复 scoped 样式转换时 `data-css-*` 属性未全面覆盖到组件 DOM 元素的问题**：完善作用域属性注入逻辑，确保所有可样式化的 DOM 元素均正确标注作用域属性
 - **修复 scoped 样式转换时 hash 属性错误作用于伪类/伪元素/属性选择器，导致样式失效的问题**：优化选择器解析逻辑，避免将 `scopeId` 错误注入到 `:hover`、`::before`、`[attr]` 等非元素选择器上
@@ -101,7 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **修复对 `v-on` 需包裹函数的识别与处理有误的问题**：优化函数体表达式识别逻辑，确保生成正确的 JSX 语法
 - **修复组件 props 未被作为 Hook 依赖项收集的问题**：完善依赖分析逻辑，确保对 props 的所有访问都能被正确收集为依赖项
 
-### Changed
+### 重构与优化
 
 - **重构 scoped 样式处理逻辑为模块化架构**：将 `postcss.ts` 单文件拆分为 `postcss/` 目录下的多个模块（`index.ts`、`selector.ts`、`standard.ts`、`deep.ts`、`utils.ts`、`types.ts`），提升代码可维护性和可扩展性
 - **优化 scoped 样式选择器处理逻辑，提高转换容错率**：改进选择器解析算法，增强对复杂 CSS 选择器场景的兼容性
@@ -116,12 +125,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.2] - 2026-04-21
 
-### Fixed
+### Bug 修复
 
 - **修复 `<template>` 标签上的 `:key` 属性在多个子元素场景下无法正确处理的问题**：当 `<template>` 标签包含多个子元素时，编译器无法确定应该将 `:key` 属性转移到哪个子元素。现在会发出明确的警告信息，提示用户 `<template>` 应该只有一个子元素，否则无法正确转移 key 属性
 - **修复 `<template>` 标签上的 `:key` 属性被错误地转移到不支持 key 的节点类型的问题**：当 `<template>` 的第一个子元素是 `<template>` 或 `<slot>` 等不支持 key 属性的节点类型时，编译器会跳过 key 转移，甚至可能奔溃报错，避免将 key 属性错误地应用到这些特殊节点上
 
-### Changed
+### 重构与优化
 
 - **提升运行时适配包的版本号至当前最新**：同步更新运行时适配包版本，确保版本一致性
 
@@ -133,7 +142,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.1] - 2026-04-17
 
-### Changed
+### 重构与优化
 
 - **简化 defineAsyncComponent 预处理逻辑**：仅检查不支持的 hydrate 选项
 - **增加适配器映射**：添加 `defineAsyncComponent` 到适配器映射名单
@@ -146,17 +155,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.0] - 2026-04-13
 
-### Added
+### 新增功能
 
 - **新增 SFC 元数据收集功能**：在解析阶段收集组件定义的 props、emits 和 options 元数据
 - **新增 `useAttrs` 转换支持**：将 Vue 的 `useAttrs()` 调用转换为 React 的 props，并在 TypeScript 环境下自动断言为 `Record` 类型，以隔离原有 props 的类型提示
 - **新增 TypeScript 交叉类型支持**：当组件使用 `useAttrs` 时，自动为 props 类型增加 `Record` 交叉类型，确保类型完整性
 
-### Changed
+### 重构与优化
 
 - **重构脚本元数据收集逻辑**：将解析阶段的脚本元数据收集重构为模块化方案，提升代码可维护性和扩展性
 
-### Fixed
+### Bug 修复
 
 - **修复 import 注入与顶部注释位置冲突问题**：优化导入语句注入逻辑，确保与文件顶部的现有注释正确对齐
 - **修复特定指令的 `<template>` 节点错误迁移问题**：改进模板节点处理逻辑，避免将带有特定指令的 `<template>` 节点直接迁移到 React 产物中
@@ -171,11 +180,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.2] - 2026-04-08
 
-### Fixed
+### Bug 修复
 
 - **修复传统 `<script>` 语法支持问题**：传统语法转换不完整，产出不可运行的 React 代码，调整为在编译期直接抛出清晰错误
 
-### Changed
+### 重构与优化
 
 - **移除传统语法的残缺处理逻辑**：使用传统语法的项目将无法编译，但避免了运行时错误
 
@@ -187,14 +196,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.1] - 2026-04-04
 
-### Fixed
+### Bug 修复
 
 - **修复产物代码中的注释语句位置混乱问题**：改进代码生成逻辑，确保注释位置正确对齐
 - **修复当 Babel 的 minified 选项关闭后，产物组件的 import 模块名丢失字符串引号的问题**：优化 Babel 配置处理，确保模块导入语句格式正确
 - **修复值为简单字面量且非 const 声明也被静态提升的问题**：改进静态提升逻辑，避免对非 const 声明的字面量进行错误提升
 - **修复产物中部分注入到顶部的 import 与已存在的顶部注释位置冲突的问题**：优化导入注入逻辑，确保与现有注释位置兼容
 
-### Changed
+### 重构与优化
 
 - **移除组件产物中无用的 @vr 特殊注释**：清理编译产物，移除不再需要的特殊标记注释
 - **不再默认压缩脚本产物的内容**：调整默认编译行为，保留脚本产物的可读性以便于调试
@@ -207,11 +216,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2026-03-30
 
-### Added
+### 新增功能
 
 - **新增 `output.packageJson` 配置选项**：支持对产物 `package.json` 内容进行自定义配置，提供更灵活的产物管理
 
-### Fixed
+### Bug 修复
 
 - **修复部分事件名未规范化与事件处理函数包裹问题**：改进事件处理逻辑，确保事件名格式统一和函数正确包裹
 - **修复非 SFC 脚本文件未跳过 slot 顶层类型改写问题**：优化类型处理逻辑，避免对非 SFC 文件进行不必要的类型改写
@@ -223,7 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **修复 HTML 的 `data-*` 为动态属性时，未转换成小驼峰格式**：改进动态属性处理，确保 `data-*` 属性正确转换为小驼峰格式
 - **修复 HTML 属性值为模板字面量时，被编译为纯文本的问题**：改进属性值处理逻辑，确保模板字面量正确保留
 
-### Changed
+### 重构与优化
 
 - **不再对 SFC style 块的 `@import` 发出警告**：简化样式导入处理，减少不必要的警告信息
 - **优化需要运行时 import 注入的处理逻辑**：改进运行时导入注入机制，提升编译效率和代码质量
@@ -239,7 +248,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.4.0] - 2026-03-22
 
-### Added
+### 新增功能
 
 - **新增 React 产物入口文件注入路由提供器**：自动在编译后的 React 项目中注入路由提供器，简化路由配置
 - **新增文件锁读写机制**：基于 `proper-lockfile` 实现跨进程文件锁，解决并发编译场景下的数据混乱问题
@@ -250,7 +259,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **新增 SetupManager 架构**：重构编译器管理器依赖注入，提供更清晰的依赖管理
 - **新增配置加载器和合并器**：分离配置加载逻辑，支持更灵活的配置合并策略
 
-### Fixed
+### Bug 修复
 
 - **修复未初始化 Vite 时导致项目构建失败问题**：改进 Vite 初始化流程，提供更好的错误处理
 - **修复被优化为 `useMemo` 的顶层变量声明，其内部依赖收集不精确**：改进依赖分析器，只收集引用的根变量
@@ -266,7 +275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **修复静态资产无改动但重复构建仍出现已处理了多少文件，且无改动资产未计入缓存数**：优化资产处理统计
 - **修复删除样式文件后，没有同步删除对应产物文件和缓存记录**：完善样式文件清理流程
 
-### Changed
+### 重构与优化
 
 - **优化外部 import 不再作为依赖被收集**：减少不必要的依赖收集，提升编译性能
 - **优化函数内部的依赖收集不再把所有外部函数都无条件收集**：只收集已分析过的函数，减少误判
@@ -277,10 +286,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **优化依赖分析器**：重构路由配置，提升编译质量，减少不必要的 `useCallback` 包装
 - **优化编译器架构**：引入模块化类型和函数式配置，提升代码可维护性
 
-### Removed
+### 移除了
 
 - **移除在项目工程中自动输出路由适配指南的功能**：简化输出，路由配置现在通过注入提供器实现
-- **移除 CLI 所有与行为相关的配置选项**：简化 CLI 接口，只保留必要的路径配置
+- **移除了 CLI 所有与行为相关的配置选项**：简化 CLI 接口，只保留必要的路径配置
 - **移除编译器 templates 目录**：删除不再使用的路由配置模板文件
 - **移除大量冗长注释，简化类和方法文档**：保持代码简洁，提高可读性
 
@@ -292,13 +301,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2026-03-17
 
-### Added
+### 新增功能
 
 - 新增 CLI 更新检查功能，启动时自动检查新版本
 - 新增路由配置说明文档，使用路由时自动生成配置指南
 - 新增对 `update-notifier` 依赖的支持
 
-### Fixed
+### Bug 修复
 
 - 修复 `v-for` 循环中 ref 变量访问，自动添加 `.value` 后缀
 - 修复事件调用转换，统一改为可选调用（`onClick?.()`）
@@ -306,7 +315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 修复缓存管理，避免存储样式源码，减少缓存体积
 - 修复 CLI 构建配置，确保正确的 shebang 注入
 
-### Changed
+### 重构与优化
 
 - 优化示例项目结构，移除旧的示例项目
 - 更新 README 文档，改进项目描述和徽章布局
@@ -320,7 +329,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.1] - 2026-03-15
 
-### Fixed
+### Bug 修复
 
 - 修复 `provide` 转换逻辑，改进 Provider 组件的属性处理
 - 修复事件调用转换，统一将事件调用变为可选的（`onClick?.()`）
@@ -341,7 +350,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2026-03-06
 
-### Added
+### 新增功能
 
 - 新增对 `defineExpose` 宏 API 的转换处理
 - 新增使用 `defineExpose` 的场景下，通过 `React.forwardRef` 包装组件
@@ -368,7 +377,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2026-03-05
 
-### Added
+### 新增功能
 
 - 新增单独对 style 文件的编译处理，如 `.less` 和 `.sass` 等
 - 支持对文件内 import 的样式文件，如 `.scss` 等替换成 `.css`
@@ -407,7 +416,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.2] - 2026-03-04
 
-### Fixed
+### Bug 修复
 
 - 修复 VUE_PACKAGES 常量配置，添加 `@vureact/compiler-core` 到排除列表，避免将其带到 React 项目中
 
@@ -419,11 +428,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.1] - 2026-03-04
 
-### Added
+### 新增功能
 
 - chore: bump version to 1.0.1
 
-### Fixed
+### Bug 修复
 
 - 修复生产环境CLI入口文件引用错误
 
@@ -452,7 +461,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **零运行时样式系统**：编译时处理 scoped/module 样式，生成静态 CSS 文件
 - **响应式系统智能适配**：`ref`、`computed`、`watch`、`reactive` 等 Vue 3 API 的 React Hooks 适配
 
-### Added
+### 新增功能
 
 #### 编译器核心功能
 
@@ -506,7 +515,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **路径别名支持**：支持 Webpack/Vite 路径别名配置
 - **资源文件处理**：图片、字体等静态资源文件的复制和处理
 
-### Changed
+### 重构与优化
 
 #### 架构改进
 
@@ -528,7 +537,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **调试支持**：提供详细的调试日志选项
 - **文档完善**：提供完整的 API 文档和使用示例
 
-### Fixed
+### Bug 修复
 
 #### 模板转换修复
 
@@ -645,36 +654,37 @@ compiler-core/
 
 ---
 
-## How to Update This Changelog
+## 如何更新此更新日志
 
-### For Contributors
+### 对于贡献者
 
-When making changes, please add entries to the appropriate section under [Unreleased].
+进行更改时，请在 [未发布] 下的相应部分添加条目。
 
-### For Maintainers
+### 对于维护者
 
-When releasing a new version:
+在发布新版本时：
 
-1. Update the version number in `packages/compiler-core/package.json`
-2. Create a new heading for the version (e.g., `## [1.0.0] - 2024-01-01`)
-3. Move all entries from [Unreleased] to the new version section
-4. Update the links at the bottom of the file
-5. Commit with message: `chore(release): v1.0.0`
-6. Tag the release: `git tag -a v1.0.0 -m "Release v1.0.0"`
+1. 更新 `packages/compiler-core/package.json` 中的版本号
+2. 为该版本创建新标题（例如：`## [1.0.0] - 2024-01-01`）
+3. 将所有条目从 [未发布] 移动到新版本部分
+4. 更新文件底部的链接
+5. 提交并附带消息：`chore(release): v1.0.0`
+6. 标记该版本：`git tag -a v1.0.0 -m "Release v1.0.0"`
 
-## Release Checklist
+## 发布检查清单
 
-- [ ] Update version in package.json
-- [ ] Update CHANGELOG.md
-- [ ] Run full test suite
-- [ ] Build production artifacts
-- [ ] Create GitHub release
-- [ ] Publish to npm registry
+- [ ] 更新 package.json 中的版本号
+- [ ] 更新 CHANGELOG.md
+- [ ] 运行完整测试套件
+- [ ] 构建生产工件
+- [ ] 创建 GitHub 发布
+- [ ] 发布到 npm 注册表
 
 ---
 
 ```text
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.8.5...HEAD
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/vureact-js/core/compare/v1.8.5...v1.9.0
 [1.8.5]: https://github.com/vureact-js/core/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4
 [1.8.3]: https://github.com/vureact-js/core/compare/v1.8.1...v1.8.3
