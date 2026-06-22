@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { useVRef } from '@vureact/runtime-core';
-import { memo, useCallback, useEffect } from 'react';
+import { useCallback, memo } from 'react';
+import { useVRef, useUpdated } from '@vureact/runtime-core';
 export type IChildProps = {
   state?: string;
   modelValue?: string;
@@ -20,32 +20,29 @@ const Child = memo((props: IChildProps) => {
   // 声明带选项的 "count" prop，由父组件通过 v-model:count  使用
   const count = useVRef<number>(props.count ?? 0);
 
-  // 在被修改时，触发 "update:state" 事件
-  state.value = 'hello';
-  const inc = useCallback(() => {
+  // 不支持的变量数组解构
+  // const [arg1, arg2] = defineModel();
+
+  // 不支持的 get/set/validator 选项
+  // const modelValue = defineModel({ get() {}, set() {}, validator() {} });
+
+  const update = useCallback(() => {
+    // 在被修改时，触发 "update:state" 事件
+    state.value = 'hello';
     // 在被修改时，触发 "update:count" 事件
     count.value++;
-  }, [count.value]);
-  useEffect(() => {
+  }, [state.value, count.value]);
+  useUpdated(() => {
     props.onUpdateState?.(state.value);
   }, [state.value]);
-  useEffect(() => {
+  useUpdated(() => {
     props.onUpdateModelValue?.(modelValue.value);
   }, [modelValue.value]);
-  useEffect(() => {
+  useUpdated(() => {
     props.onUpdateCount?.(count.value);
   }, [count.value]);
-  return (
-    <>
-      <input
-        value={modelValue}
-        onChange={(e) => {
-          modelValue = e.target.value;
-        }}
-      />
-      <div>Parent bound v-model is:{count}</div>
-      <button onClick={inc}>Increment</button>
-    </>
-  );
+  return <><input value={modelValue} onChange={e => {
+      modelValue = e.target.value;
+    }} /><div>Parent bound v-model is:{count}</div><button onClick={update}>Increment</button></>;
 });
 export default Child;
