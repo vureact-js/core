@@ -3,8 +3,7 @@ import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ADAPTER_RULES } from '@consts/adapters-map';
-import { MACRO_API_NAMES, PACKAGE_NAME } from '@consts/other';
-import { REACT_API_MAP } from '@consts/react-api-map';
+import { MACRO_API_NAMES } from '@consts/other';
 import { recordImport } from '@core/transform/shared';
 import { logger } from '@shared/logger';
 import { camelCase } from '@utils/camelCase';
@@ -15,7 +14,7 @@ import {
   mapRuntimeTypeToTSType,
   replaceCallName,
 } from '../../shared/babel-utils';
-import { createUseEffect } from '../../shared/hook-creator';
+import { createUseUpdated } from '../../shared/hook-creator';
 
 export function resolveDefineModel(
   ctx: ICompilationContext,
@@ -42,7 +41,7 @@ export function resolveDefineModel(
       // 将 defineModel 替换为 useVRef
       replaceToUseVRef(node, propInfo, ctx);
 
-      // 引入 effect 自动更新
+      // 引入 useUpdated 自动更新
       resolveAutoUpdate(ast, path, propInfo, ctx);
 
       // 构造 TS 接口并加入上下文的 props 和 emits 中
@@ -76,7 +75,7 @@ function validateDefineModelUsage(
     }
 
     const result = arg.properties.some((prop) => {
-      if (t.isObjectProperty(prop) && t.isIdentifier(prop.key)) {
+      if ((t.isObjectProperty(prop) || t.isObjectMethod(prop)) && t.isIdentifier(prop.key)) {
         const keyName = prop.key.name;
 
         if (keyName === 'get' || keyName === 'set' || keyName === 'validator') {
@@ -309,9 +308,22 @@ function resolveAutoUpdate(
   // 构建调用表达式 props.onUpdateXxx?.(model.value)
   const updateCall = t.optionalCallExpression(memberAccess, [dep], true);
 
-  // 构建 useEffect 调用
-  const callExpr = createUseEffect(
-    // @ts-expect-error
+  // 构建 @runtime-core/useUpdated 调用
+
+  /**
+   * defineModel 在 Vue 3 中的行为说明：
+   *
+   * 1. 当子组件内部修改了 model 的值（如 count.value++），触发 update:count 事件通知父组件。
+   * 2. 首次挂载时不执行这个更新——因为是父组件传递下来的初始值，不需要也不应该通知父组件"更新"。
+   *
+   * 因此，useUpdated（首次挂载不执行）比 useEffect（首次挂载执行）更符合语义。
+   * 如果使用 useEffect，子组件首次渲染后会立即调用 props.onUpdateXxx?.(model.value)，
+   * 会导致父组件收到一次不必要的更新通知，可能引起：
+   * - 父组件状态被无意义地刷新。
+   * - 如果是 v-model 绑定的双向绑定，可能导致父组件重新渲染子组件，形成死循环。
+   */
+
+  const callExpr = createUseUpdated(
     t.blockStatement([t.expressionStatement(updateCall)]),
     t.arrayExpression([dep]),
   );
@@ -319,7 +331,8 @@ function resolveAutoUpdate(
   // 将 effect 插入到 ast 尾部
   ast.program.body.push(t.expressionStatement(callExpr));
 
-  recordImport(ctx, PACKAGE_NAME.react, REACT_API_MAP.useEffect);
+  const adapter = ADAPTER_RULES.runtime.onUpdated!;
+  recordImport(ctx, adapter.package, adapter.target);
 }
 
 function resolveInterface(propInfo: PropInfo, ctx: ICompilationContext) {
