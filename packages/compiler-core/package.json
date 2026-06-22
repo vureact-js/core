@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.8.5",
-  "description": "A compiler for migrating Vue to React and hybrid development.",
+  "version": "1.9.0",
+  "description": "For Vue-to-React migration and hybrid development.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
@@ -45,7 +45,8 @@
     "react-conversion",
     "single-file-components",
     "progressive-migration",
-    "automated-refactoring"
+    "automated-refactoring",
+    "cross-framework"
   ],
   "homepage": "https://github.com/vureact-js/core#readme",
   "repository": {
