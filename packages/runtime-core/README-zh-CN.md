@@ -7,9 +7,8 @@
 
 [![Npm](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/runtime-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/main/LICENSE)
+[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=runtime-core)](https://codecov.io/gh/vureact-js/core)
 [![React >=18](https://img.shields.io/badge/React->=18-61dafb)](https://reactjs.org/)
-
 简体中文 | [English](./README.en.md)
 
 ## 这个包适合谁
@@ -26,33 +25,6 @@
 - 它不是对所有 Vue 生态库的完整兼容层
 
 ## 安装
-
-```bash
-npm install @vureact/runtime-core
-```
-
-也可以使用：
-
-```bash
-pnpm add @vureact/runtime-core
-yarn add @vureact/runtime-core
-```
-
-`react` 和 `react-dom` 需要满足 `>=18.2.0`。
-
-## 这个包提供什么
-
-### 1. 响应式 Hooks
-
-常见 API 包括：
-
-- `useVRef`
-- `useReactive`
-- `useComputed`
-- `useWatch`
-- `useWatchEffect`
-
-示例：
 
 ```tsx
 import { useVRef, useWatch } from '@vureact/runtime-core';

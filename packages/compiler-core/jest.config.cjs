@@ -50,4 +50,12 @@ module.exports = {
     '!<rootDir>/src/**/__tests__/**', // 排除测试文件自身
     '!<rootDir>/src/**/types/**', // 排除类型目录
   ],
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
+    },
+  },
 };

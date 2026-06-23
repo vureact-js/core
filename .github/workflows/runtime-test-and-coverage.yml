@@ -1,0 +1,59 @@
+name: Runtime Test & Coverage
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/runtime-core/src/**'
+      - 'packages/runtime-core/jest.config.cjs'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'packages/runtime-core/src/**'
+      - 'packages/runtime-core/jest.config.cjs'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Restore pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Run tests with coverage
+        run: pnpm --filter @vureact/runtime-core test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: vureact-js/core
+          directory: packages/runtime-core/coverage
+          flags: runtime-core
+          name: runtime-core-coverage
+          fail_ci_if_error: false
