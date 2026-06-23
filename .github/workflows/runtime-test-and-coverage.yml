@@ -3,9 +3,15 @@ name: Runtime Test & Coverage
 on:
   push:
     branches: [master]
+    paths:
+      - 'packages/runtime-core/src/**'
+      - 'packages/runtime-core/jest.config.cjs'
   pull_request:
     branches: [master]
-  workflow_dispatch:
+    paths:
+      - 'packages/runtime-core/src/**'
+      - 'packages/runtime-core/jest.config.cjs'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
