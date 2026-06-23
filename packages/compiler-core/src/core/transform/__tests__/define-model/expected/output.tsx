@@ -41,8 +41,17 @@ const Child = memo((props: IChildProps) => {
   useUpdated(() => {
     props.onUpdateCount?.(count.value);
   }, [count.value]);
-  return <><input value={modelValue} onChange={e => {
-      modelValue = e.target.value;
-    }} /><div>Parent bound v-model is:{count}</div><button onClick={update}>Increment</button></>;
+  return (
+    <>
+      <input
+        value={modelValue.value}
+        onChange={(e) => {
+          modelValue.value = e.target.value;
+        }}
+      />
+      <div>Parent bound v-model is:{count.value}</div>
+      <button onClick={update}>Increment</button>
+    </>
+  );
 });
 export default Child;
