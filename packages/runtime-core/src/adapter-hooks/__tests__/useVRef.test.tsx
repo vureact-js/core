@@ -93,4 +93,15 @@ describe('useVRef / useShallowVRef Test Suites', () => {
 
     expect(result.current.value.get('a')).toBe(2);
   });
+
+  // 6. 验证 useVRef 的初始值不变性
+  it('useVRef: should not mutate initial value', () => {
+    const initial = { count: 0 };
+    const { result } = renderHook(() => useVRef(initial));
+
+    expect(result.current.value.count).toBe(0);
+    // 修改 ref 不应影响原始对象
+    result.current.value.count = 5;
+    expect(initial.count).toBe(0);
+  });
 });
