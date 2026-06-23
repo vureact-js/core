@@ -7,6 +7,7 @@
 
 [![Npm](https://img.shields.io/npm/v/@vureact/runtime-core.svg?style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/runtime-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/runtime-core)
+[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=runtime-core&token=CODECOV_TOKEN)](https://codecov.io/gh/vureact-js/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/main/LICENSE)
 [![React >=18](https://img.shields.io/badge/React->=18-61dafb)](https://reactjs.org/)
 
@@ -146,3 +147,4 @@ import { useVRef, useWatch, KeepAlive } from '@vureact/runtime-core';
 - 文档: <https://runtime.vureact.top>
 
 MIT License © 2025 Ruihong Zhong (Ryan John)
+
