@@ -6,7 +6,7 @@
 
 请先确认本地环境符合当前工作区要求：
 
-- Node.js `>= 19.0.0`
+- Node.js `>= 20.19.0`
 - 推荐使用 pnpm `10+`
 - Git
 
@@ -53,14 +53,23 @@
    pnpm install
    ```
 
-4. 构建你将要修改的包：
+4. 运行测试确保环境正常：
+
+   ```bash
+   pnpm test:compiler-core
+   pnpm test:adapter-hooks
+   pnpm test:adapter-utils
+   pnpm test:adapter-components
+   ```
+
+5. 构建你将要修改的包：
 
    ```bash
    pnpm build:compiler-core
    pnpm build:runtime-core
    ```
 
-5. 基于上游最新默认分支创建你的工作分支。
+6. 基于上游最新默认分支创建你的工作分支。
 
 ## 开始修改
 
@@ -92,6 +101,20 @@ pnpm format:check
 ```bash
 pnpm test:compiler-core
 ```
+
+运行单独模块测试：
+
+```bash
+cd packages/compiler-core
+
+pnpm test:fixture "<任意 __tests__ 目录下的测试文件夹名称>"
+# 例如：pnpm test:fixture "define-model"
+
+# 可强制更新预期输出文件
+pnpm test:fixture-update "<同上的占位文本>"
+```
+
+> 若出现 `[vureact]` 相关告警属于正常现象，因为这些告警是由有意引入的边界情况所触发，而非 Jest 测试错误。
 
 运行包构建：
 

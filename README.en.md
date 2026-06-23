@@ -11,12 +11,12 @@
 > It converts Vue 3 SFCs, scripts, and styles into pure React without a runtime bridge, with full
 > `<script setup>` support and progressive migration.
 
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&color=magenta)](https://github.com/vureact-js/core/stargazers)
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core&style=flat-square)](https://codecov.io/gh/vureact-js/core)
-[![Node](https://img.shields.io/badge/node-%3E%3D19.0.0-green?label=Node)](https://nodejs.org/)
+[![Node](https://img.shields.io/badge/node-%3E%3D20.19.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)

@@ -1,7 +1,7 @@
 {
   "name": "@vureact/compiler-core",
-  "version": "1.8.5",
-  "description": "Migrate Vue to React, or write React in Vue syntax.",
+  "version": "1.9.0",
+  "description": "For Vue-to-React migration and hybrid development.",
   "author": "Ruihong Zhong (Ryan John)",
   "license": "MIT",
   "type": "module",
@@ -30,13 +30,11 @@
     "vue3",
     "react18",
     "migration",
-    "svelte",
     "typescript",
     "jsx",
     "sfc",
     "veaury",
     "vuera",
-    "mitosis",
     "vue3-to-react",
     "vue-react",
     "react-vue",
@@ -47,7 +45,8 @@
     "react-conversion",
     "single-file-components",
     "progressive-migration",
-    "automated-refactoring"
+    "automated-refactoring",
+    "cross-framework"
   ],
   "homepage": "https://github.com/vureact-js/core#readme",
   "repository": {
@@ -66,6 +65,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:fixture": "jest --no-coverage compiler-fixtures -t",
+    "test:fixture-update": "node -e \"process.env.UPDATE_COMPILER_CORE_FIXTURES='1'; require('child_process').execSync('jest --no-coverage compiler-fixtures -t ' + (process.argv[1] || ''), { stdio: 'inherit', shell: true })\"",
     "prepublishOnly": "npm run build && npm run test:coverage"
   },
   "peerDependencies": {
@@ -99,6 +100,6 @@
     "xxhashjs": "^0.2.2"
   },
   "engines": {
-    "node": ">=19.0.0"
+    "node": ">=20.19.0"
   }
 }

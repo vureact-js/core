@@ -11,6 +11,7 @@ import {
   resolveCompIProps,
   resolveDefineAsyncComponent,
   resolveDefineExpose,
+  resolveDefineModel,
   resolveDefineOptions,
   resolveEmitCalls,
   resolveEmitsTopLevelTypes,
@@ -60,6 +61,8 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
         resolveEmitCalls,
         // feature: https://github.com/vureact-js/core/issues/6
         resolveUseAttrs,
+        // feature: https://github.com/vureact-js/core/issues/56
+        resolveDefineModel,
       ],
     },
 

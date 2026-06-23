@@ -25,6 +25,7 @@ export const MACRO_API_NAMES = {
   slots: 'defineSlots',
   options: 'defineOptions',
   expose: 'defineExpose',
+  model: 'defineModel',
 };
 
 /** Vue3 最常用、最核心的 $ 标识符 */

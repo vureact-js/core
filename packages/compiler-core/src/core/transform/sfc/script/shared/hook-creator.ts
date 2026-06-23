@@ -1,4 +1,5 @@
 import * as t from '@babel/types';
+import { ADAPTER_RULES } from '@consts/adapters-map';
 import { REACT_API_MAP } from '@consts/react-api-map';
 
 export function createUseCallback(body: t.Expression, deps?: t.ArrayExpression): t.CallExpression {
@@ -8,7 +9,10 @@ export function createUseCallback(body: t.Expression, deps?: t.ArrayExpression):
   ]);
 }
 
-export function createUseMemo(body: t.Expression, deps?: t.ArrayExpression): t.CallExpression {
+export function createUseMemo(
+  body: t.Expression | t.BlockStatement,
+  deps?: t.ArrayExpression,
+): t.CallExpression {
   return t.callExpression(t.identifier(REACT_API_MAP.useMemo), [
     t.arrowFunctionExpression([], body),
     deps ?? t.arrayExpression([]),
@@ -20,4 +24,15 @@ export function createUseImperativeHandle(
   init: t.FunctionExpression | t.ArrowFunctionExpression,
 ): t.CallExpression {
   return t.callExpression(t.identifier(REACT_API_MAP.useImperativeHandle), [refId, init]);
+}
+
+export function createUseUpdated(
+  body: t.Expression | t.BlockStatement,
+  deps?: t.ArrayExpression,
+): t.CallExpression {
+  const adapter = ADAPTER_RULES.runtime.onUpdated!;
+  return t.callExpression(t.identifier(adapter.target), [
+    t.arrowFunctionExpression([], body),
+    deps ?? t.identifier('undefined'),
+  ]);
 }

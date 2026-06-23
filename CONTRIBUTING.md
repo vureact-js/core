@@ -6,7 +6,7 @@ Thanks for helping improve VuReact Core. This guide focuses on the workflow cont
 
 Make sure your local environment matches the current workspace requirements:
 
-- Node.js `>= 19.0.0`
+- Node.js `>= 20.19.0`
 - pnpm `10+` recommended
 - Git
 
@@ -53,14 +53,23 @@ Small typo fixes and straightforward documentation corrections can go directly t
    pnpm install
    ```
 
-4. Build the packages you plan to touch:
+4. Run tests to ensure the environment is normal:
+
+   ```bash
+   pnpm test:compiler-core
+   pnpm test:adapter-hooks
+   pnpm test:adapter-utils
+   pnpm test:adapter-components
+   ```
+
+5. Build the packages you plan to touch:
 
    ```bash
    pnpm build:compiler-core
    pnpm build:runtime-core
    ```
 
-5. Create a branch from the latest upstream default branch.
+6. Create a branch from the latest upstream default branch.
 
 ## Make Changes
 
@@ -92,6 +101,20 @@ Run the test suite:
 ```bash
 pnpm test:compiler-core
 ```
+
+Run specific module tests:
+
+```bash
+cd packages/compiler-core
+
+pnpm test:fixture "<name of the test folder under any __tests__ directory>"
+# example: pnpm test:fixture "define-model"
+
+# Force update expected output files
+pnpm test:fixture-update "<same as above>"
+```
+
+> If you see `[vureact]` related warnings, it is normal. These warnings are triggered by intentionally introduced edge cases, not by Jest test errors.
 
 Run the relevant package build as well:
 
