@@ -4,6 +4,7 @@ export const REACTIVE_TYPE_MAP = {
   toRefs: 'ref',
   customRef: 'ref',
   shallowRef: 'ref',
+  defineModel: 'ref',
   reactive: 'reactive',
   shallowReactive: 'reactive',
   computed: 'ref',
