@@ -1,0 +1,26 @@
+section[data-css-21c4253e] {
+  margin: 16px 0;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+button[data-css-21c4253e],
+a[data-css-21c4253e] {
+  margin-left: 8px;
+  padding: 4px 12px;
+  background: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+a[data-css-21c4253e] {
+  display: inline-block;
+  text-decoration: none;
+}
+
+ul[data-css-21c4253e] {
+  padding-left: 20px;
+}
