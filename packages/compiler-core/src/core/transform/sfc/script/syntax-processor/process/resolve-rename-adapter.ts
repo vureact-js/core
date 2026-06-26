@@ -1,9 +1,8 @@
 import { Binding, NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
-import { ADAPTER_RULES } from '@consts/adapters-map';
+import { ADAPTER_RULES, AUTO_IMPORTED_APIS } from '@consts/adapters-map';
 import { PACKAGE_NAME, VUE_PACKAGES } from '@consts/other';
-import { VUE_API_MAP } from '@consts/vue-api-map';
 import { getReactiveType } from '@shared/reactive-utils';
 import { recordImport } from '@transform/shared';
 import {
@@ -15,8 +14,12 @@ import { setScriptNodeMeta } from '../../shared/metadata-utils';
 
 /**
  * 处理“重命名型”适配规则。
- * 仅当标识符来自 Vue 生态 import 时才执行替换，
- * 避免把业务代码中的同名局部变量误判为 Vue API。
+ *
+ * 判断逻辑：
+ * 1. 优先检查 binding，仅当标识符来自 Vue 生态 import 时执行替换
+ *    （避免将业务代码中的同名局部变量误判为 Vue API）。
+ * 2. 若 binding 不存在（免 import 场景，如 unplugin-auto-import），
+ *    fallback 到 AUTO_IMPORTED_APIS 白名单匹配。
  */
 export function resolveRenameAdapter(ctx: ICompilationContext): TraverseOptions {
   return {
@@ -73,17 +76,10 @@ export function resolveRenameAdapter(ctx: ICompilationContext): TraverseOptions 
   };
 }
 
-function isVueApiReference(
+export function isVueApiReference(
   path: NodePath<t.CallExpression | t.Identifier>,
   apiName: string,
 ): boolean {
-  // 白名单可直接放行
-  const whitelist: string[] = [VUE_API_MAP.defineAsyncComponent];
-
-  if (whitelist.includes(apiName)) {
-    return true;
-  }
-
   if (path.isIdentifier()) {
     // CallExpression 的 callee 由 CallExpression 分支统一处理，避免重复命中。
     if (path.parentPath.isCallExpression() && path.parentPath.node.callee === path.node) {
@@ -96,13 +92,18 @@ function isVueApiReference(
     }
   }
 
-  if (path.isCallExpression()) {
-    const callee = path.get('callee');
-    if (!callee.isIdentifier()) return false;
-    return isVueImportBinding(callee.scope.getBinding(apiName));
+  // 1. 优先检查 binding：有显式 import 且来自 Vue 生态，精确匹配
+  const binding = path.isCallExpression()
+    ? (path.get('callee') as NodePath).scope.getBinding(apiName)
+    : path.scope.getBinding(apiName);
+
+  if (binding) {
+    return isVueImportBinding(binding);
   }
 
-  return isVueImportBinding(path.scope.getBinding(apiName));
+  // fix: https://github.com/vureact-js/core/issues/62
+  // 2. 无 binding（可能免 import 场景），fallback 到 AUTO_IMPORTED_APIS 白名单
+  return AUTO_IMPORTED_APIS.has(apiName);
 }
 
 function isVueImportBinding(binding?: Binding): boolean {
