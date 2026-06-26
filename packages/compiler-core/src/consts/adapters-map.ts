@@ -340,3 +340,12 @@ export const ADAPTER_RULES: AdapterRulesMap = {
     },
   },
 } as const;
+
+// 用于编译器识别哪些 API 来源于免 import，避免转换失败。
+// 排除：dir.* 系
+// （API 名称集合来源于 ADAPTER_RULES）
+export const AUTO_IMPORTED_APIS = new Set<string>(
+  Object.entries(ADAPTER_RULES).flatMap(([_, rules]) =>
+    Object.keys(rules).filter((key) => !key.startsWith('dir')),
+  ),
+);
