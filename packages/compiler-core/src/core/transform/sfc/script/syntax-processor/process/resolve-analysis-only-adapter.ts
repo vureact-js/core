@@ -1,15 +1,20 @@
-import { Binding, NodePath, TraverseOptions } from '@babel/traverse';
+import { NodePath, TraverseOptions } from '@babel/traverse';
 import * as t from '@babel/types';
 import { ICompilationContext } from '@compiler/context/types';
 import { ADAPTER_RULES, AdapterRule } from '@consts/adapters-map';
-import { VUE_PACKAGES } from '@consts/other';
 import { recordImport } from '@transform/shared';
 import { replaceCallName, replaceIdName } from '../../shared/babel-utils';
 import { analyzeDeps } from '../../shared/dependency-analyzer';
+import { isVueApiReference } from './resolve-rename-adapter';
 
 /**
  * 处理“仅依赖分析”的适配规则。
- * 同样只在 Vue 生态 import 来源上生效，避免误命中局部变量。
+ *
+ * 判断逻辑：
+ * 1. 优先检查 binding，仅当标识符来自 Vue 生态 import 时执行替换
+ *    （避免将业务代码中的同名局部变量误判为 Vue API）。
+ * 2. 若 binding 不存在（免 import 场景，如 unplugin-auto-import），
+ *    fallback 到 AUTO_IMPORTED_APIS 白名单匹配。
  */
 export function resolveAnalysisOnlyAdapter(ctx: ICompilationContext): TraverseOptions {
   return {
@@ -77,54 +82,4 @@ function resolveCallNode(
 
   replaceCallName(node, adapter.target);
   recordImport(ctx, adapter.package, adapter.target);
-}
-
-function isVueApiReference(path: NodePath<t.CallExpression | t.Identifier>, apiName: string): boolean {
-  if (path.isIdentifier()) {
-    if (path.parentPath.isCallExpression() && path.parentPath.node.callee === path.node) {
-      return false;
-    }
-
-    if (!path.isReferencedIdentifier()) {
-      return false;
-    }
-  }
-
-  if (path.isCallExpression()) {
-    const callee = path.get('callee');
-    if (!callee.isIdentifier()) return false;
-    return isVueImportBinding(callee.scope.getBinding(apiName));
-  }
-
-  return isVueImportBinding(path.scope.getBinding(apiName));
-}
-
-function isVueImportBinding(binding?: Binding): boolean {
-  if (!binding) return false;
-
-  const bindingPath = binding.path;
-  if (
-    !bindingPath.isImportSpecifier() &&
-    !bindingPath.isImportDefaultSpecifier() &&
-    !bindingPath.isImportNamespaceSpecifier()
-  ) {
-    return false;
-  }
-
-  const parent = bindingPath.parentPath?.node;
-  if (!parent || !t.isImportDeclaration(parent)) {
-    return false;
-  }
-
-  const source = parent.source.value.toLowerCase();
-
-  if (source.startsWith('@vue/')) {
-    return true;
-  }
-
-  if (source === 'vue-router' || source.startsWith('vue-router/')) {
-    return true;
-  }
-
-  return VUE_PACKAGES.some((name) => source === name || source.startsWith(`${name}/`));
 }
