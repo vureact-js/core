@@ -1,18 +1,9 @@
 <script setup>
-import {
-  computed,
-  onBeforeMount,
-  onUpdated,
-  provide,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from 'vue';
+import { onBeforeMount, onUpdated, provide, watchEffect } from 'vue';
 
-const count = ref(1);
-const state = reactive({ count: 1 });
-const result = computed(() => count.value + state.count);
+const count = ref(2);
+const state = reactive({ count: 2 });
+const result = computed(() => (count.value + state.count) * 0.5);
 
 const r = ref;
 

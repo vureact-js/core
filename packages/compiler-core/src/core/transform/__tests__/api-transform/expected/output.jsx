@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { useVRef, useReactive, useComputed, useWatch, useBeforeMount, Provider, useUpdated, useWatchEffect } from '@vureact/runtime-core';
 const Input = memo(() => {
-  const count = useVRef(1);
+  const count = useVRef(2);
   const state = useReactive({
-    count: 1
+    count: 2
   });
-  const result = useComputed(() => count.value + state.count);
+  const result = useComputed(() => (count.value + state.count) * 0.5);
   const r = useVRef;
   useReactive;
   useReactive({
