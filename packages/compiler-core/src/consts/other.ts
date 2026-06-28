@@ -26,6 +26,7 @@ export const MACRO_API_NAMES = {
   options: 'defineOptions',
   expose: 'defineExpose',
   model: 'defineModel',
+  defaults: 'withDefaults',
 };
 
 /** Vue3 最常用、最核心的 $ 标识符 */
