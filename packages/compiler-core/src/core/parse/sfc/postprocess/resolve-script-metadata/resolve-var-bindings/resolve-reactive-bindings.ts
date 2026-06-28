@@ -30,8 +30,8 @@ export function resolveReactiveBindings(node: t.VariableDeclarator, ctx: ICompil
     reactiveType: getReactiveType(callName),
   };
 
-  // 收集 definProps 的变量名作为组件 props 名
-  if (callName === MACRO_API_NAMES.props) {
+  // 收集 definProps/withDefaults 的变量名作为组件 props 名
+  if (callName === MACRO_API_NAMES.props || callName === MACRO_API_NAMES.defaults) {
     ctx.propField = varName;
   }
 }
