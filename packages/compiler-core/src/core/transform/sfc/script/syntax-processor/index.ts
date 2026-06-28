@@ -6,6 +6,7 @@ import {
   resolveRuntimeImports,
   resolveSfcCssImport,
   resolveVueTypeAsAny,
+  resolveWithDefaults,
 } from './postprocess';
 import {
   resolveCompIProps,
@@ -18,6 +19,7 @@ import {
   resolvePropsIface,
   resolveTemplateSlotIface,
   resolveUseAttrs,
+  resolveWithDefaultsOptions,
 } from './preprocess';
 import {
   resolveAnalysisOnlyAdapter,
@@ -53,6 +55,8 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
   vueSyntaxProcessor(ast, ctx, {
     preprocess: {
       applyBabel: [
+        // feature: https://github.com/vureact-js/core/issues/63
+        resolveWithDefaultsOptions,
         resolvePropsIface,
         resolveEmitsTopLevelTypes,
         resolveDefineOptions,
@@ -83,6 +87,8 @@ export function processVueSyntax(ast: BabelParseResult, ctx: ICompilationContext
 
     postprocess: {
       applyBabel: [
+        // feature: https://github.com/vureact-js/core/issues/63
+        resolveWithDefaults,
         // 该 resolver 需确保放在所有类型处理之后，移除之前
         resolveVueTypeAsAny,
         resolveRuntimeImports,
