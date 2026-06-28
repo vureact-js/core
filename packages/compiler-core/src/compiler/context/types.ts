@@ -1,4 +1,5 @@
 import * as t from '@babel/types';
+import { SourceLocation } from '@babel/types';
 import { LangType } from '@shared/babel-utils';
 import { ReactiveTypes } from '@shared/reactive-utils';
 
@@ -82,6 +83,9 @@ export interface ICompilationContext {
       inheritAttrs?: boolean;
     };
 
+    /** withDefaults 中的默认值 */
+    propsWithDefaults?: PropsWithDefaults;
+
     /**
      * 使用时手动类型断言为 `ScriptBlockIR`
      */
@@ -152,4 +156,20 @@ export interface IPropsContext {
   propsTypes: t.TSType[];
   emitTypes: t.TSType[];
   slotTypes: t.TSType[];
+}
+
+export interface PropsWithDefaults {
+  varName: string;
+  values: t.Expression | undefined;
+
+  /** 收集 defineProps 的类型参数 */
+  typeParameters?: t.TSTypeParameterInstantiation | null;
+
+  /** 原 withDefaults 调用的 babel 位置信息，用于 postprocess 阶段定位替换 */
+  leadingComments?: t.Comment[] | null;
+  innerComments?: t.Comment[] | null;
+  trailingComments?: t.Comment[] | null;
+  start?: number | null;
+  end?: number | null;
+  loc?: SourceLocation | null;
 }
