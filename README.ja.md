@@ -11,14 +11,12 @@
 > Vue 3 SFC・Script・Style をランタイムブリッジなしで純粋な React に変換。
 > 段階的移行と Vue+React ハイブリッド開発に対応。
 
-[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?color=white&style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
-[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core&style=flat-square)](https://codecov.io/gh/vureact-js/core)
+[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm)](https://vureact.top/)
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?color=white&logo=github&style=flat-square)](https://github.com/vureact-js/core/stargazers)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core)](https://codecov.io/gh/vureact-js/core)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.19.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
-
 [オンラインで試す](#️-オンラインプレイグラウンドインストール不要) · [クイックスタート](#-クイックスタート) · [利用シーン](#-利用シーン) · [エコシステム](#️-エコシステム) · [コンパイル約定](https://vureact.top/en/guide/specification.html) · [比較（セマンティック）](https://vureact.top/en/guide/semantic-comparison/overview.html) · [更新履歴](https://vureact.top/en/guide/changelog.html)
 
 日本語 | [English](./README.en.md) | [简体中文](./README.md)

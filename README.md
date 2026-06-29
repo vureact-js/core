@@ -11,11 +11,10 @@
 > 将 Vue 3 组件・脚本・样式完整转为纯 React（非运行时桥接），
 > 支持渐进式迁移与 Vue+React 混合开发。
 
-[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?color=white&style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
-[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core&style=flat-square)](https://codecov.io/gh/vureact-js/core)
+[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm)](https://vureact.top/)
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?color=white&logo=github&style=flat-square)](https://github.com/vureact-js/core/stargazers)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core)](https://codecov.io/gh/vureact-js/core)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.19.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 
