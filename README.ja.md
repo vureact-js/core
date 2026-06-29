@@ -6,9 +6,10 @@
 
 **Vue 書いて、メンテナブルな React を生成。**
 
-> Vue→React 移行と混在開発のための完全なソリューション。
+> Vue→React 移行のためのスマートコンパイラ。
 >
-> Vue 3 SFC・Script・Style をランタイムなしで純粋な React へ変換。`<script setup>` ・段階的移行・混在開発に対応。
+> Vue 3 SFC・Script・Style をランタイムブリッジなしで純粋な React に変換。
+> 段階的移行と Vue+React ハイブリッド開発に対応。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/en/)
 [![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)

@@ -6,10 +6,10 @@
 
 **写 Vue，输出可维护的 React。**
 
-> 一套面向 Vue 迁移 React 与混合开发的完整解决方案。
+> 专为 Vue 迁移 React 设计的智能编译器。
 >
-> 将 Vue 3 SFCs・Scripts・Styles 完整转为纯 React（非运行时桥接），
-> 覆盖 `<script setup>` 核心全特性，支持渐进式迁移与混合开发。
+> 将 Vue 3 组件・脚本・样式完整转为纯 React（非运行时桥接），
+> 支持渐进式迁移与 Vue+React 混合开发。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
 [![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
