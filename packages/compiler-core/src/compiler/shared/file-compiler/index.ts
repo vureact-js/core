@@ -80,9 +80,13 @@ export class FileCompiler extends BaseCompiler {
       this.updateSpinner('Scanning files...');
       const scanFiles = fileProcessor.scanFiles();
 
-      this.updateSpinner('Compiling Vue to React...');
+      this.updateSpinner('Compiling components...');
       const sfcCount = await pipelineManager.runSFC(scanFiles.vue, cacheMap);
+
+      this.updateSpinner('Compiling scripts...');
       const scriptCount = await pipelineManager.runScript(scanFiles.script, cacheMap);
+
+      this.updateSpinner('Compiling styles...');
       const styleCount = await pipelineManager.runStyle(scanFiles.style, cacheMap);
 
       this.updateSpinner('Copying assets...');
@@ -179,7 +183,7 @@ export class FileCompiler extends BaseCompiler {
     styleCount: number,
     assetCount: number,
   ) {
-    this.spinner.succeed(`Build completed in ${endTime}`);
+    this.spinner.succeed(`Vue compiled to React in ${endTime}`);
 
     if (sfcCount || scriptCount || styleCount || assetCount) {
       const stats = [];
