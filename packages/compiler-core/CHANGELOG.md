@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2026-07-01
+
+### Added
+
+- Added `withDefaults` macro API transform support: compiles Vue 3's `withDefaults(defineProps<T>(), {...})` into React's `useMemo`, combining object spread and nullish coalescing operator to provide safe default value handling for component props [#63](https://github.com/vureact-js/core/issues/63)
+
+### Fixed
+
+- Fixed an issue where Vue APIs (e.g., `ref`, `computed`, `onMounted`, etc.) were not recognized by the internal adapter due to missing bindings when using import-free plugins such as `unplugin-auto-import`, causing the transformation to be skipped [#62](https://github.com/vureact-js/core/issues/62)
+
+### Changed
+
+- Added unit test coverage for `withDefaults` transform
+- Optimized compilation flow prompts, subdivided into 3 phases: changed `Compiling Vue to React...` to `Compiling components/scripts/styles...`
+
+[1.10.0]: https://github.com/vureact-js/core/compare/v1.9.0...v1.10.0
+
+---
+
 ## [1.9.0] - 2026-06-23
 
 ### Added
@@ -683,8 +702,9 @@ When releasing a new version:
 
 ---
 
-```text
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.9.0...HEAD
+```log
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/vureact-js/core/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/vureact-js/core/compare/v1.8.5...v1.9.0
 [1.8.5]: https://github.com/vureact-js/core/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4
