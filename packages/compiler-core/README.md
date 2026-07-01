@@ -1,11 +1,10 @@
 # @vureact/compiler-core
 
-`@vureact/compiler-core` is a complete solution for Vue-to-React migration and hybrid development. **CLI and core compiler package** of VuReact.  
-For Vue-to-React migration and hybrid development
-It is used to fully convert Vue 3 SFCs, Scripts, and Styles into pure React (non-runtime bridge) code and output engineered artifacts, covering all core features of `<script setup>`, and supporting progressive migration and hybrid development.
+`@vureact/compiler-core` is a smart compiler built for migrating Vue to React — the **CLI and core compiler package** of VuReact.
+It fully converts Vue 3 single-file components, scripts, and styles into pure React code (no runtime bridge), outputting production-ready artifacts.
+It covers all core features of `<script setup>`, supporting progressive migration and Vue+React hybrid development.
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core&style=flat-square)](https://codecov.io/gh/vureact-js/core)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.19.0-green?label=Node)](https://nodejs.org/)

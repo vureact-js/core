@@ -1,10 +1,9 @@
 # @vureact/compiler-core
 
-`@vureact/compiler-core` 是一套面向 Vue 迁移 React 和混合开发的完整解决方案。VuReact 的 **CLI 与核心编译包**。  
-它用于将 Vue 3 SFCs・Scripts・Styles 完整转为纯 React（非运行时桥接）代码并输出工程化产物，覆盖 `<script setup>` 核心全特性，支持渐进式迁移和混合开发。
+`@vureact/compiler-core` 是专为 Vue 迁移 React 设计的智能编译器，也是 VuReact 的 **CLI 与核心编译包**。
+它用于将 Vue 3 单文件组件・脚本・样式完整转为纯 React（非运行时桥接）代码并输出工程化产物，覆盖 `<script setup>` 核心全特性，支持渐进式迁移与 Vue+React 混合开发。
 
 [![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
 [![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
 [![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core&style=flat-square)](https://codecov.io/gh/vureact-js/core)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.19.0-green?label=Node)](https://nodejs.org/)

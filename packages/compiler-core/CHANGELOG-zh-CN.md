@@ -4,6 +4,25 @@
 格式基于 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)，
 并且本项目遵循 [语义化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [1.10.0] - 2026-07-01
+
+### 新增功能
+
+- 新增 `withDefaults` 宏 API 转换支持：将 Vue 3 的 `withDefaults(defineProps<T>(), {...})` 编译为 React 的 `useMemo`，结合对象展开与空值合并运算符，为组件 props 提供安全的默认值处理 [#63](https://github.com/vureact-js/core/issues/63)
+
+### Bug 修复
+
+- 修复使用 `unplugin-auto-import` 等免 import 插件时，Vue API（如 ref、computed、onMounted 等），内部 adapter 因缺少 binding 无法识别 Vue API，导致跳过转换的问题 [#62](https://github.com/vureact-js/core/issues/62)
+
+### 重构与优化
+
+- 新增 `withDefaults` 转换的单元测试覆盖
+- 优化编译流程提示，细分为 3 个阶段：将 `Compiling Vue to React...` 改为 `Compiling components/scripts/styles...`
+
+[1.10.0]: https://github.com/vureact-js/core/compare/v1.9.0...v1.10.0
+
+---
+
 ## [1.9.0] - 2026-06-23
 
 ### 新增功能
@@ -682,8 +701,9 @@ compiler-core/
 
 ---
 
-```text
-[Unreleased]: https://github.com/vureact-js/core/compare/v1.9.0...HEAD
+```log
+[Unreleased]: https://github.com/vureact-js/core/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/vureact-js/core/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/vureact-js/core/compare/v1.8.5...v1.9.0
 [1.8.5]: https://github.com/vureact-js/core/compare/v1.8.4...v1.8.5
 [1.8.4]: https://github.com/vureact-js/core/compare/v1.8.3...v1.8.4

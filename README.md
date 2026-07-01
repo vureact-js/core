@@ -6,20 +6,17 @@
 
 **写 Vue，输出可维护的 React。**
 
-> 一套面向 Vue 迁移 React 与混合开发的完整解决方案。
+> 专为 Vue 迁移 React 设计的智能编译器。
 >
-> 将 Vue 3 SFCs・Scripts・Styles 完整转为纯 React（非运行时桥接），
-> 覆盖 `<script setup>` 核心全特性，支持渐进式迁移与混合开发。
+> 将 Vue 3 组件・脚本・样式完整转为纯 React（非运行时桥接），
+> 支持渐进式迁移与 Vue+React 混合开发。
 
-[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm&style=flat-square)](https://vureact.top/)
-[![Stars](https://img.shields.io/github/stars/vureact-js/core?style=flat-square&logo=github)](https://github.com/vureact-js/core/stargazers)
-[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads&style=flat-square&color=red)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Monthly](https://img.shields.io/npm/dm/@vureact/compiler-core?label=Monthly&style=flat-square)](https://www.npmjs.com/package/@vureact/compiler-core)
-[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core&style=flat-square)](https://codecov.io/gh/vureact-js/core)
+[![Npm](https://img.shields.io/npm/v/@vureact/compiler-core.svg?label=Npm)](https://vureact.top/)
+[![Stars](https://img.shields.io/github/stars/vureact-js/core?color=white&logo=github&style=flat-square)](https://github.com/vureact-js/core/stargazers)
+[![Downloads](https://img.shields.io/npm/dt/@vureact/compiler-core?label=Downloads)](https://www.npmjs.com/package/@vureact/compiler-core)
+[![Coverage](https://codecov.io/gh/vureact-js/core/graph/badge.svg?flag=compiler-core)](https://codecov.io/gh/vureact-js/core)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.19.0-green?label=Node)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
-[![Vue 3](https://img.shields.io/badge/Vue-3.x-42b883)](https://vuejs.org/)
-[![React 18+](https://img.shields.io/badge/React-18%2B-61dafb)](https://reactjs.org/)
 
 [在线体验](#️-在线体验无需安装) · [快速开始](#-快速开始) · [适用场景](#-适用场景) · [生态集成](#️-生态集成) · [编译约定](https://vureact.top/guide/specification.html) · [转换对照](https://vureact.top/guide/semantic-comparison/overview.html) · [更新日志](https://vureact.top/guide/changelog.html)
 
