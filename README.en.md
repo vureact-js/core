@@ -68,8 +68,8 @@ Existing solutions either wrap a runtime (bad perf, harder debugging) or provide
 
 Try the full Vue → React compilation flow in 30 seconds:
 
-- [Customer Support Hub (mixed-example)](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
-- [CRM Admin Backend (standard example)](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+- [Customer Support Hub (mixed-example)](https://codesandbox.io/p/devbox/customer-support-hub-666fjs)
+- [CRM Admin Backend (standard example)](https://codesandbox.io/p/devbox/crm-ops-portal-fy7g7f)
 
 > Examples are hosted on CodeSandbox and start automatically — please allow a moment to load.
 
