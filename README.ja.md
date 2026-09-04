@@ -67,8 +67,8 @@
 
 30 秒で Vue → React のコンパイル体験ができます：
 
-- [Customer Support Hub（混在例）](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
-- [CRM 管理バックエンド（標準例）](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+- [Customer Support Hub（混在例）](https://codesandbox.io/p/devbox/customer-support-hub-666fjs)
+- [CRM 管理バックエンド（標準例）](https://codesandbox.io/p/devbox/crm-ops-portal-fy7g7f)
 
 > 例は CodeSandbox 上で自動的に起動します。読み込みに時間がかかる場合があります。
 

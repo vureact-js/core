@@ -68,8 +68,8 @@
 
 **30 秒体验 Vue → React 完整编译流程：**
 
-- [客户支持后台（混写示例）](https://codesandbox.io/p/github/vureact-js/example-customer-support-hub/master?import=true)
-- [CRM 管理后台（标准示例）](https://codesandbox.io/p/github/vureact-js/example-crm-admin-backend/master)
+- [客户支持后台（混写示例）](https://codesandbox.io/p/devbox/customer-support-hub-666fjs)
+- [CRM 管理后台（标准示例）](https://codesandbox.io/p/devbox/crm-ops-portal-fy7g7f)
 
 > 💡 示例均托管至 CodeSandbox，打开后自动运行，请耐心等待一会！
 
