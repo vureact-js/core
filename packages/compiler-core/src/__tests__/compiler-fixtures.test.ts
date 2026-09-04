@@ -30,7 +30,7 @@ const fixtureCases = fixtureSuites.flatMap((suite) =>
   findCompilerFixtureCases(suite.root, suite.name),
 );
 
-describe('compiler fixture output', () => {
+describe('@vureact/compiler-core fixture output', () => {
   // 对每个 fixture 用例执行参数化测试，检查输出是否与预期一致
   test.each(fixtureCases)('$name matches expected output', (testCase) => {
     runCompilerFixture(testCase);
