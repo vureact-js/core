@@ -1,3 +1,5 @@
+> **Archive Notice (2026-10-13)**: VuReact is no longer maintained. Please evaluate and maintain it yourself before using it in production. See the [archive notice](./ARCHIVED.md) for details.
+
 <div align="center"><a name="readme-top"></a>
 
  <img height="180" src="./assets/logo.png" />
@@ -19,7 +21,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/vureact-js/core/blob/master/LICENSE)
 [オンラインで試す](#️-オンラインプレイグラウンドインストール不要) · [クイックスタート](#-クイックスタート) · [利用シーン](#-利用シーン) · [エコシステム](#️-エコシステム) · [コンパイル約定](https://vureact.top/en/guide/specification.html) · [比較（セマンティック）](https://vureact.top/en/guide/semantic-comparison/overview.html) · [更新履歴](https://vureact.top/en/guide/changelog.html)
 
-日本語 | [English](./README.en.md) | [简体中文](./README.md)
+日本語 | [English](./README.md) | [简体中文](./README.zh.md)
 
   <a href="assets/vureact-showcase(3.7MB).mp4" title="展示ビデオを見る">
     <img src="assets/vureact-showcase(800x450).gif" alt="vureact ターミナル操作デモを見る" width="100%">
@@ -35,7 +37,7 @@
 既存の手法はランタイムを抱き合わせるもの（性能・デバッグの問題）か、複雑な構文で失敗する部分的な変換です。VuReact はコンパイル時のアプローチで、出力は純粋な React コードです。段階的な移行が可能です。
 
 | 他の手法 | VuReact |
-|---|---|
+| --- | --- |
 | ランタイムラッパー（デュアルフレームワーク、性能低下、バンドル増） | コンパイル時に純粋な React を出力、段階的な移行が可能 |
 | 部分的な変換（複雑構文で失敗） | テンプレート指令、Props、スロット、Composition API、scoped スタイル、TypeScript 型をサポート |
 | AI リライト（結果が不安定、手動レビュー必須） | AST に基づく決定論的変換で予測可能かつ追跡可能 |
